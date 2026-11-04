@@ -1,0 +1,77 @@
+<Project>
+  <!--
+    Codelab.Build.Sdk - props (imported BEFORE the project body, so the project can override anything here).
+
+    Consume as an additive SDK:
+      <Project Sdk="Microsoft.NET.Sdk">
+        <Sdk Name="Codelab.Build.Sdk" Version="0.1.0" />
+        <PropertyGroup><TargetFramework>$(CodelabTargetFramework)</TargetFramework></PropertyGroup>
+      </Project>
+    Inside the starter monorepo the root Directory.Build.props/.targets import these files from source instead
+    (ADR-002, UseCodelabPackageSource=true), so no project declares the Sdk element there.
+  -->
+
+  <PropertyGroup Label="Identity">
+    <CodelabBuildSdkImported>true</CodelabBuildSdkImported>
+    <CodelabBuildSdkDirectory>$(MSBuildThisFileDirectory)</CodelabBuildSdkDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Language and framework defaults">
+    <!-- Projects write <TargetFramework>$(CodelabTargetFramework)</TargetFramework>, so the platform moves in one place. -->
+    <CodelabTargetFramework Condition="'$(CodelabTargetFramework)' == ''">net10.0</CodelabTargetFramework>
+    <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Quality gates">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel Condition="'$(AnalysisLevel)' == ''">latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Needed so IDE0005 (unused usings) is reported at build time. Missing XML docs are not an error by default. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Analyzer switches (versions come from Directory.Packages.props under CPM)">
+    <CodelabEnableBannedApis Condition="'$(CodelabEnableBannedApis)' == ''">true</CodelabEnableBannedApis>
+    <!-- Used only when the consuming repo does NOT use Central Package Management. -->
+    <CodelabBannedApiAnalyzersVersion Condition="'$(CodelabBannedApiAnalyzersVersion)' == ''">5.6.0</CodelabBannedApiAnalyzersVersion>
+    <CodelabPublicApiAnalyzersVersion Condition="'$(CodelabPublicApiAnalyzersVersion)' == ''">5.6.0</CodelabPublicApiAnalyzersVersion>
+    <CodelabProjectBannedSymbolsFile Condition="'$(CodelabProjectBannedSymbolsFile)' == ''">BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
+    <!-- Per-project CA1502 thresholds emitted by tools/rules-engine (thresholds.cyclomaticComplexity). -->
+    <CodelabProjectCodeMetricsFile Condition="'$(CodelabProjectCodeMetricsFile)' == ''">CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+  </PropertyGroup>
+
+  <!--
+    Release stamping. Every assembly (the host included) carries the shipped release:
+      CODELAB_RELEASE (environment) or -p:CodelabRelease=    semver, e.g. 1.4.0 or 1.4.0-rc.2. Default 0.0.0-local,
+                                                            so a developer build is never mistaken for a release.
+      CODELAB_COMMIT  (environment) or -p:SourceRevisionId=  the commit; otherwise the SDK's source-control
+                                                            integration fills it from git. Shortened in Sdk.targets.
+    Result: InformationalVersion = <semver>+<short sha>; AssemblyVersion/FileVersion = the numeric core.
+  -->
+  <PropertyGroup Label="Release stamping">
+    <CodelabDefaultRelease>0.0.0-local</CodelabDefaultRelease>
+    <CodelabReleasePattern>^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$</CodelabReleasePattern>
+    <CodelabReleaseLabelSeparator>-</CodelabReleaseLabelSeparator>
+    <CodelabSourceRevisionLength Condition="'$(CodelabSourceRevisionLength)' == ''">7</CodelabSourceRevisionLength>
+    <CodelabRelease Condition="'$(CodelabRelease)' == ''">$(CODELAB_RELEASE)</CodelabRelease>
+    <CodelabRelease Condition="'$(CodelabRelease)' == ''">$(CodelabDefaultRelease)</CodelabRelease>
+    <CodelabReleaseSeparatorIndex>$(CodelabRelease.IndexOf('$(CodelabReleaseLabelSeparator)'))</CodelabReleaseSeparatorIndex>
+    <CodelabReleaseCore>$(CodelabRelease)</CodelabReleaseCore>
+    <CodelabReleaseLabel></CodelabReleaseLabel>
+    <CodelabReleaseCore Condition="$(CodelabReleaseSeparatorIndex) &gt;= 0">$(CodelabRelease.Substring(0, $(CodelabReleaseSeparatorIndex)))</CodelabReleaseCore>
+    <CodelabReleaseLabel Condition="$(CodelabReleaseSeparatorIndex) &gt;= 0">$(CodelabRelease.Substring($([MSBuild]::Add($(CodelabReleaseSeparatorIndex), 1))))</CodelabReleaseLabel>
+    <!-- An invalid release leaves the SDK version untouched so restore succeeds and CODELAB001 explains the failure. -->
+    <CodelabReleaseIsValid>$([System.Text.RegularExpressions.Regex]::IsMatch('$(CodelabRelease)', '$(CodelabReleasePattern)'))</CodelabReleaseIsValid>
+    <VersionPrefix Condition="'$(CodelabReleaseIsValid)' == 'true'">$(CodelabReleaseCore)</VersionPrefix>
+    <VersionSuffix Condition="'$(CodelabReleaseIsValid)' == 'true'">$(CodelabReleaseLabel)</VersionSuffix>
+    <SourceRevisionId Condition="'$(SourceRevisionId)' == ''">$(CODELAB_COMMIT)</SourceRevisionId>
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+</Project>

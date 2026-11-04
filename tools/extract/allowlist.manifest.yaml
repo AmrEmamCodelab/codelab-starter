@@ -1,0 +1,98 @@
+# Extraction allowlist: the ONLY way source-product files enter the starter (ADR-001).
+# Read by tools/extract/extract.ps1 (via extract-core.mjs), build-secret-digests.mjs and generate-source.mjs.
+# Changing this file needs platform-owner review.
+#
+# Paths are relative to source.harvestRoot, forward slashes. Globs: "**" any depth, "*" within a segment,
+# "{a,b}" alternation. hardDeny ALWAYS wins over an allowlisted entry; a pattern without "/" is tested against
+# every path segment (folder or file name), so "*Yakeen*" also denies everything inside a Yakeen/ folder.
+schemaVersion: 1
+
+source:
+  product: MODHS
+  # Read-only git commands only (rev-parse, ls-tree). Nothing ever writes to this repository.
+  repository: 'E:\MODHS'
+  branch: dev_merge_sso
+  commit: a6a4b1346c5f94cfc91c52749dfb5720a80e6c96
+  treeHash: 5f0ef9e7e76a7fdb5e828108f1c86ab67e2f65d4
+  # Durable read-only copy made with: git -C E:\MODHS -c core.autocrlf=false archive a6a4b134 (extracted, read-only).
+  harvestRoot: 'E:\codelab-harvest\modhs-a6a4b134'
+
+hardDeny:
+  caseInsensitive:
+    # Agent memory, session handoffs and deployment secrets of the source product.
+    - '**/memory/**'
+    - '.claude/handoffs/**'
+    - '**/prep-deploy/REFERENCE.md'
+    - 'deploy/config/*.json'
+    - 'check-env-*'
+    # National integrations are not harvested (later gateway profiles, written fresh).
+    - 'services/nafath-service/**'
+    - 'services/nic-simulator/**'
+    - '*nafath*'
+    - '*yakeen*'
+    - 'ExternalUserMocked.cs'
+    # The dropped external DGA npm package (D5).
+    - '*dev-dga*.tgz'
+    # Key material and dependencies never come across.
+    - '*.{pfx,p12,pem,key,snk}'
+    - 'node_modules'
+  caseSensitive:
+    # Case-sensitive so Clinic*, Technical*, Mechanic* are not denied.
+    - '*Nic*'
+    - '{nic,*-nic,*.nic,*_nic}{-,.,_}*'
+
+batches:
+  p0:
+    description: 'Phase 0: standards skills, the release-stamping reference, CLAUDE.md/CONTEXT.md structure.'
+    entries:
+      - id: skill-coding-standards
+        source: '.claude/skills/coding-standards/**'
+        target: '.claude/skills/coding-standards/'
+        mode: copy
+      - id: skill-do-work
+        source: '.claude/skills/do-work/**'
+        target: '.claude/skills/do-work/'
+        mode: copy
+      - id: skill-write-a-skill
+        source: '.claude/skills/write-a-skill/**'
+        target: '.claude/skills/write-a-skill/'
+        mode: copy
+      - id: release-stamping-reference
+        source: 'backend/Directory.Build.props'
+        target: 'reference/release-stamping/Directory.Build.props'
+        mode: copy
+      - id: claude-md-structure
+        source: 'CLAUDE.md'
+        target: 'reference/structure/CLAUDE.md'
+        mode: headings-only
+      - id: context-md-structure
+        source: 'CONTEXT.md'
+        target: 'reference/structure/CONTEXT.md'
+        mode: headings-only
+
+  pkg-spike:
+    description: 'Phase 1 input: the package spike (Codelab.Security, Codelab.Observability) and its sample API.'
+    # Not a git commit: a durable read-only copy of the planning spike (src/ and sample/ without bin/obj), pinned by
+    # contentDigest (lib/hashing.mjs contentDigest). extract-core refuses to copy when the folder no longer matches.
+    source:
+      description: 'Package spike from the planning session, copied read-only on 2026-11-04'
+      harvestRoot: 'E:\codelab-platform-private\harvest\pkg-spike-20261104'
+      contentDigest: '9ad1460eeb38aa045053223d1d08d356e152b1b80bb09f211f026c59cbb901fa'
+    entries:
+      - id: pkg-spike-src
+        source: 'src/**'
+        target: 'reference/pkg-spike/src/'
+        mode: copy
+      - id: pkg-spike-sample
+        source: 'sample/**'
+        target: 'reference/pkg-spike/sample/'
+        mode: copy
+
+secretDigests:
+  # Values found here are hashed (SHA-256) into tools/extract/secret-digests.json; the values are never stored.
+  output: 'tools/extract/secret-digests.json'
+  configFiles: ['**/appsettings*.json']
+  vectorFiles: ['docs/security/*.vectors.json', '**/testing/security/*.vectors.json']
+  fixtureFiles: ['**/*Tests/**/*.cs', '**/*.spec.ts', '**/testing/security/*.ts']
+  # Secret-shaped values (quoted or unquoted) in compose files, CI workflows, scripts, SQL and dev settings.
+  scriptFiles: ['**/docker-compose*.yml', '**/docker-compose*.yaml', '.github/workflows/*.yml', '.github/workflows/*.yaml', '**/*.ps1', '**/*.psm1', '**/*.sql', '**/launchSettings.json', '**/environment*.ts', '**/.env', '**/.env.*']

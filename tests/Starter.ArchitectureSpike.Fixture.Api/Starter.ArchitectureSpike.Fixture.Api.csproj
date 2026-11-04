@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ADR-011 spike fixture: the outer layer. It depends on the Domain fixture (allowed direction). -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starter.ArchitectureSpike.Fixture.Domain\Starter.ArchitectureSpike.Fixture.Domain.csproj" />
+  </ItemGroup>
+</Project>

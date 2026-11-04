@@ -1,0 +1,12 @@
+{
+  "session_id": "fixture-edit-whole-file",
+  "cwd": "__PROJECT__",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "__PROJECT__/backend/src/Modules/ServiceRequests/Api/ServiceRequestsEndpoint.cs",
+    "old_string": "    // dependencies\n",
+    "new_string": "    private readonly StarterDbContext db;\n",
+    "replace_all": false
+  }
+}

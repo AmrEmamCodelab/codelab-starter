@@ -1,0 +1,117 @@
+{
+  "batch": "p0",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p0 (staging outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Each staged file was rewritten with starter names and structure; \"target\" is the repo file it became, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256.",
+  "origins": [
+    {
+      "batch": "p0",
+      "entryId": "skill-coding-standards",
+      "source": ".claude/skills/coding-standards/ERROR-HANDLING.md",
+      "target": "docs/standards/ERROR-HANDLING.md",
+      "mode": "copy",
+      "sourceGitBlob": "133ed08eda8fe901d6c29d3b8626827aec1536ce",
+      "sourceSha256": "9be377d0255114fdc3b2e2d862a81d1241f16155fe14567250aada678c74f1fa",
+      "stagedSha256": "9be377d0255114fdc3b2e2d862a81d1241f16155fe14567250aada678c74f1fa",
+      "stagedTarget": ".claude/skills/coding-standards/ERROR-HANDLING.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "skill-coding-standards",
+      "source": ".claude/skills/coding-standards/EXAMPLES.md",
+      "target": "docs/standards/EXAMPLES.md",
+      "mode": "copy",
+      "sourceGitBlob": "dd70fb3a67dba24e8a4375be3afcbe34da5c8336",
+      "sourceSha256": "7b8581d393d8d9188bfa1f60c2fff6cef4391fb5438137802a426a2dc254d789",
+      "stagedSha256": "7b8581d393d8d9188bfa1f60c2fff6cef4391fb5438137802a426a2dc254d789",
+      "stagedTarget": ".claude/skills/coding-standards/EXAMPLES.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "skill-coding-standards",
+      "source": ".claude/skills/coding-standards/SKILL.md",
+      "target": "docs/standards/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "95e4f42f86b1b4656d0c54ce7c0cafa56dc85059",
+      "sourceSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "stagedSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "stagedTarget": ".claude/skills/coding-standards/SKILL.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "skill-coding-standards",
+      "source": ".claude/skills/coding-standards/SKILL.md",
+      "target": ".claude/skills/coding-standards/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "95e4f42f86b1b4656d0c54ce7c0cafa56dc85059",
+      "sourceSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "stagedSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "stagedTarget": ".claude/skills/coding-standards/SKILL.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "skill-do-work",
+      "source": ".claude/skills/do-work/SKILL.md",
+      "target": ".claude/skills/do-work/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "e70f9a11310f9652a14e50948a0fa13b8c69830a",
+      "sourceSha256": "df33460282792c804b0a9c2dc2ef2f6af2d63a14fe3d114ab2b22c0069ac0fbb",
+      "stagedSha256": "df33460282792c804b0a9c2dc2ef2f6af2d63a14fe3d114ab2b22c0069ac0fbb",
+      "stagedTarget": ".claude/skills/do-work/SKILL.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "skill-write-a-skill",
+      "source": ".claude/skills/write-a-skill/SKILL.md",
+      "target": ".claude/skills/write-a-skill/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "7339c8a38d6c2e1ee5fd721327bca3441a9408be",
+      "sourceSha256": "be8f20e66309258034b82a7db5040b03798aa40546f9d387662c2bd86be23123",
+      "stagedSha256": "be8f20e66309258034b82a7db5040b03798aa40546f9d387662c2bd86be23123",
+      "stagedTarget": ".claude/skills/write-a-skill/SKILL.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "release-stamping-reference",
+      "source": "backend/Directory.Build.props",
+      "target": "packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.props",
+      "mode": "copy",
+      "sourceGitBlob": "fbb2c4429504fcd0e5c175414c118fe5f5c1be81",
+      "sourceSha256": "3e27e398e5b865ef83809b78ea83ab1ec11d7115b5985cbee0236a4227bd7e9d",
+      "stagedSha256": "3e27e398e5b865ef83809b78ea83ab1ec11d7115b5985cbee0236a4227bd7e9d",
+      "stagedTarget": "reference/release-stamping/Directory.Build.props",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "claude-md-structure",
+      "source": "CLAUDE.md",
+      "target": "CLAUDE.md",
+      "mode": "headings-only",
+      "sourceGitBlob": "025ad3e65e49617a28346421a0bb3be7fdb2cf55",
+      "sourceSha256": "15ee75babe07c15ef9ca21c884d0c1dc0a13e5bbf5415c7c83cc4f81ff409104",
+      "stagedSha256": "3348d3981869276f7b10c942bba9b1d1898dd63527239cf2af4c6aa7485f26a5",
+      "stagedTarget": "reference/structure/CLAUDE.md",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p0",
+      "entryId": "context-md-structure",
+      "source": "CONTEXT.md",
+      "target": "CONTEXT.md",
+      "mode": "headings-only",
+      "sourceGitBlob": "35c66db4b277d46442f8bf26bffed29fcf33ec9b",
+      "sourceSha256": "fafb54a17fdec1d5d919a7a41a7a09e66710b42d0c9877252e6388feef8d33a1",
+      "stagedSha256": "6669938b2cde52c2a1a853e66e36f07ccd6b33c0418a0c1b3c682de4f44f6a70",
+      "stagedTarget": "reference/structure/CONTEXT.md",
+      "promotion": "rewritten"
+    }
+  ],
+  "denied": []
+}

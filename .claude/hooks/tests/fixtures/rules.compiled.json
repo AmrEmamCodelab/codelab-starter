@@ -1,0 +1,129 @@
+{
+  "$comment": "Hook test fixture in the shape tools/rules-engine emits (see .claude/hooks/README.md). Not the real compiled rules.",
+  "generatedBy": "hooks-test-fixture",
+  "schemaVersion": 1,
+  "base": {
+    "owners": [
+      "@platform-owner"
+    ],
+    "required": [
+      {
+        "id": "base.thin-controllers",
+        "source": "base",
+        "statement": "Controllers only bind, call one use case and map.",
+        "enforcedBy": [
+          "architecture-test"
+        ]
+      }
+    ],
+    "forbidden": [
+      {
+        "id": "base.time-provider",
+        "source": "base",
+        "description": "Do not read the system clock directly.",
+        "pattern": "\\bDateTime(Offset)?\\.(Now|UtcNow|Today)\\b",
+        "flags": "",
+        "appliesTo": [
+          "**/*.cs"
+        ],
+        "excludes": [
+          "**/*.Tests/**"
+        ],
+        "fix": "Inject TimeProvider and call GetUtcNow().",
+        "severity": "error"
+      },
+      {
+        "id": "base.no-analyzer-opt-out",
+        "source": "base",
+        "description": "Turning off the banned-API or complexity analyzers removes a build gate for everyone after you.",
+        "pattern": "CodelabEnableBannedApis>\\s*false|<NoWarn>[^<]*\\b(?:RS0030|CA1502)\\b|#pragma\\s+warning\\s+disable\\b[^\\r\\n]*\\b(?:RS0030|CA1502)\\b|dotnet_diagnostic\\.(?:RS0030|CA1502)\\.severity\\s*=\\s*(?:none|silent|suggestion)|SuppressMessage\\([^)]*\\b(?:RS0030|CA1502)\\b",
+        "flags": "",
+        "appliesTo": [
+          "**/*.cs",
+          "**/*.csproj",
+          "**/*.props",
+          "**/*.targets",
+          "**/.editorconfig",
+          "**/*.globalconfig"
+        ],
+        "excludes": [],
+        "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+        "severity": "error"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "module": "ServiceRequests",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/ServiceRequests",
+      "rulesFile": "backend/src/Modules/ServiceRequests/module.rules.yaml",
+      "description": "ServiceRequests: the sample request module (Draft, Submitted, Under Review, Approved/Rejected).",
+      "required": [
+        {
+          "id": "base.thin-controllers",
+          "source": "base",
+          "statement": "Controllers only bind, call one use case and map.",
+          "enforcedBy": [
+            "architecture-test"
+          ]
+        },
+        {
+          "id": "servicerequests.controller-permission",
+          "source": "module",
+          "statement": "Every controller needs a permission attribute.",
+          "pattern": "\\[HasPermission\\(",
+          "appliesTo": [
+            "backend/src/Modules/ServiceRequests/**/*Controller.cs"
+          ],
+          "fix": "Add [HasPermission(Permissions.ServiceRequests.View)] using a permission constant."
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "base.time-provider",
+          "source": "base",
+          "description": "Do not read the system clock directly.",
+          "pattern": "\\bDateTime(Offset)?\\.(Now|UtcNow|Today)\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [
+            "**/*.Tests/**"
+          ],
+          "fix": "Inject TimeProvider and call GetUtcNow().",
+          "severity": "error"
+        },
+        {
+          "id": "servicerequests.api-no-dbcontext",
+          "source": "module",
+          "description": "The Api layer must not use a DbContext.",
+          "pattern": "namespace\\s+[\\w.]+\\.Api\\b[\\s\\S]*DbContext\\b",
+          "flags": "",
+          "appliesTo": [
+            "backend/src/Modules/ServiceRequests/**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Call an Application use case; data access lives in the module's .Infrastructure namespace.",
+          "severity": "error"
+        }
+      ]
+    },
+    {
+      "module": "Clocks",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Clocks",
+      "rulesFile": "backend/src/Modules/Clocks/module.rules.yaml",
+      "description": "Clocks: owns the time source and is exempt from base.time-provider.",
+      "required": [],
+      "forbidden": [],
+      "exemptions": [
+        {
+          "rule": "base.time-provider",
+          "reason": "This module wraps the system clock."
+        }
+      ]
+    }
+  ]
+}

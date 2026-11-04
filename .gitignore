@@ -1,0 +1,50 @@
+# NOTE: plans/ is deliberately NOT ignored. Plans are tracked (Phase 0 fix for gitignored plans).
+
+# Local package feed: the folders are tracked (restore needs them to exist), their contents are not.
+/feed/nuget/*
+/feed/npm/*
+!/feed/nuget/.gitkeep
+!/feed/npm/.gitkeep
+
+# Build output
+bin/
+obj/
+/artifacts/
+TestResults/
+*.binlog
+coverage/
+*.coverage
+*.coveragexml
+
+# .NET user and IDE state
+*.user
+*.suo
+.vs/
+.idea/
+*.DotSettings.user
+launchSettings.local.json
+
+# Node
+node_modules/
+.angular/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# Secrets and key material never enter the repo (the secret scan also enforces this).
+*.pfx
+*.p12
+*.key
+*.pem
+appsettings.*.local.json
+.env
+.env.*
+
+# OS noise
+Thumbs.db
+.DS_Store
+~$*
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/handoffs/

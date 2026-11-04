@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Test fixture for tools/rules-engine (copied into a temp workspace by the tests; never compiled in place,
+# because the engine skips folders named "fixtures").
+schemaVersion: 1
+module: Sample
+kind: dotnet
+description: Fixture module that advances sample records through the workflow port.
+owners:
+  - "@platform-owner"
+mayDependOn: [Records, Workflow]
+mustNotDependOn: [Notifications]
+required:
+  - id: sample.workflow-port
+    statement: Advance sample records only through IWorkflowEngine; never call a workflow runner directly.
+    enforcedBy: [analyzer, review]
+forbidden:
+  - id: sample.no-direct-runner
+    description: Constructing the legacy runner bypasses the transition catalog.
+    pattern: '\bnew\s+LegacyWorkflowRunner\s*\('
+    appliesTo: ["**/*.cs"]
+    fix: Inject IWorkflowEngine and call AdvanceAsync.
+bannedSymbols:
+  - id: sample.no-legacy-runner
+    symbol: M:Starter.Modules.Sample.Workflow.LegacyWorkflowRunner.#ctor
+    fix: Inject IWorkflowEngine instead of constructing LegacyWorkflowRunner.
+thresholds:
+  methodLines: 30
+analyzers:
+  CA1062: warning
+recipes:
+  - docs/recipes/add-workflow-type.md
+exemptions:
+  - rule: base.fe-raw-text-in-template
+    reason: Backend-only module; it has no HTML templates.

@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/packages/">
+    <Project Path="packages/dotnet/Codelab.Build.Sdk/Codelab.Build.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Starter.ArchitectureSpike.Fixture.Api/Starter.ArchitectureSpike.Fixture.Api.csproj" />
+    <Project Path="tests/Starter.ArchitectureSpike.Fixture.Domain/Starter.ArchitectureSpike.Fixture.Domain.csproj" />
+    <Project Path="tests/Starter.ArchitectureSpike.Tests/Starter.ArchitectureSpike.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/docs-gate/Starter.Tools.DocsGate.csproj" />
+    <Project Path="tools/docs-gate/tests/Starter.Tools.DocsGate.Tests/Starter.Tools.DocsGate.Tests.csproj" />
+  </Folder>
+</Solution>

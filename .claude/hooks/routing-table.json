@@ -1,0 +1,14 @@
+{
+  "$comment": "Intent -> skill routing table added to every prompt by user-prompt-submit.mjs. Keep it in sync with the routing table in the root CLAUDE.md. A skill without .claude/skills/<skill>/SKILL.md is shown as not built yet.",
+  "routes": [
+    { "intent": "a new business area, record type or module", "skill": "new-module", "keywords": ["module", "business area", "record type", "new area"] },
+    { "intent": "a new API action or endpoint", "skill": "new-endpoint", "keywords": ["endpoint", "api", "action", "route"] },
+    { "intent": "a new page or screen", "skill": "new-screen", "keywords": ["page", "screen", "form", "ui", "view"], "also": "docs/design/page-patterns.md (the 8 page patterns)" },
+    { "intent": "a new permission or access rule", "skill": "new-permission", "keywords": ["permission", "access", "role", "grant"] },
+    { "intent": "a new status, transition or approval step", "skill": "new-transition", "keywords": ["status", "transition", "workflow", "approve", "reject"] },
+    { "intent": "a new lookup or reference list", "skill": "new-lookup", "keywords": ["lookup", "reference data", "dropdown", "list of values"] },
+    { "intent": "a time limit, deadline or SLA", "recipe": "docs/recipes (deadline recipe)", "keywords": ["deadline", "sla", "time limit", "timer", "overdue"] },
+    { "intent": "a whole feature from a BRD, use case or design", "skill": "build-feature", "keywords": ["feature", "brd", "use case", "figma", "design"] },
+    { "intent": "any implementation or review", "skill": "coding-standards", "keywords": [] }
+  ]
+}

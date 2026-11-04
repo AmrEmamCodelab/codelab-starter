@@ -1,0 +1,17 @@
+{
+  "name": "@codelab/ng-tools",
+  "version": "0.0.1",
+  "description": "Codelab Angular tooling (placeholder in Phase 0): ESLint boundary config, RTL lint, wire-id lint, permission-gate lint, icon subsetting, vector sync, i18n check.",
+  "license": "UNLICENSED",
+  "author": "Codelab",
+  "type": "module",
+  "files": [
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

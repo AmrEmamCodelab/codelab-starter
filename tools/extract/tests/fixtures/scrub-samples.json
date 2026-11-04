@@ -1,0 +1,359 @@
+{
+  "description": "Scanner test inputs. This folder is excepted in scrub-exceptions.txt; tests copy samples into temp folders.",
+  "flagged": [
+    {
+      "rule": "term-brand-product",
+      "line": "using MODHS.Domain.Constants;"
+    },
+    {
+      "rule": "term-brand-product",
+      "line": "\"name\": \"modhs-web\""
+    },
+    {
+      "rule": "term-brand-legacy-name",
+      "line": "The MEDEVAC portal"
+    },
+    {
+      "rule": "term-header-legacy-api-key",
+      "line": "request.Headers[\"X-Api-Key\"]"
+    },
+    {
+      "rule": "term-header-signature-scheme",
+      "line": "scheme MODHS-SIG-v1"
+    },
+    {
+      "rule": "term-header-product-prefix",
+      "line": "X-MODHS-Signature: abc"
+    },
+    {
+      "rule": "term-type-legacy-clock",
+      "line": "private readonly IClock _clock;"
+    },
+    {
+      "rule": "term-type-legacy-workflow",
+      "line": "IRequestWorkflow workflow"
+    },
+    {
+      "rule": "term-type-legacy-history",
+      "line": "db.RequestHistory.Add(row);"
+    },
+    {
+      "rule": "term-area-legacy-queue",
+      "line": "features/coordination/list"
+    },
+    {
+      "rule": "term-area-legacy-crew-role",
+      "line": "class FlightDoctorService"
+    },
+    {
+      "rule": "term-role-literal",
+      "line": "const role = \"EVALUATOR_DOCTOR\";"
+    },
+    {
+      "rule": "term-role-constant",
+      "line": "RoleIds.MedicalCoordinator"
+    },
+    {
+      "rule": "term-domain-aviation",
+      "line": "Book the flight"
+    },
+    {
+      "rule": "term-domain-transport",
+      "line": "ambulance permit"
+    },
+    {
+      "rule": "term-domain-care-subject",
+      "line": "the patient record"
+    },
+    {
+      "rule": "term-domain-transfer",
+      "line": "Evacuation request"
+    },
+    {
+      "rule": "term-integration-national-sso",
+      "line": "NafathAuthController"
+    },
+    {
+      "rule": "term-integration-identity-lookup",
+      "line": "yakeen lookup"
+    },
+    {
+      "rule": "term-integration-national-center",
+      "line": "call NIC for the person"
+    },
+    {
+      "rule": "ipv4",
+      "line": "Server=10.11.12.13;"
+    },
+    {
+      "rule": "ipv4",
+      "line": "proxy 172.31.0.1."
+    },
+    {
+      "rule": "national-id",
+      "line": "nationalId: 1012345678"
+    },
+    {
+      "rule": "national-id",
+      "line": "iqama 2123456789,"
+    },
+    {
+      "rule": "internal-host",
+      "line": "https://idp.example-ministry.med.sa/nidp"
+    },
+    {
+      "rule": "internal-host",
+      "line": "http://seq.ops.internal:5341"
+    },
+    {
+      "rule": "internal-host",
+      "line": "attachments.staging.local"
+    },
+    {
+      "rule": "ldap-domain",
+      "line": "DC=CORPNET,DC=LOCAL"
+    },
+    {
+      "rule": "ipv4",
+      "line": "Version 2 of the API server is at 10.20.30.40"
+    },
+    {
+      "rule": "ipv4",
+      "line": "{\"version\":2,\"servers\":[\"10.20.30.40\",\"172.16.5.9\"]}"
+    },
+    {
+      "rule": "ipv4",
+      "line": "App server 10.20.30.40 (see version table)"
+    },
+    {
+      "rule": "ipv6",
+      "line": "listen on fd12:3456:789a::10"
+    },
+    {
+      "rule": "ipv6",
+      "line": "gateway fe80::1ff:fe23:4567:890a"
+    },
+    {
+      "rule": "internal-host",
+      "line": "https://portal.agency-health.com.sa/api"
+    },
+    {
+      "rule": "internal-host",
+      "line": "see intranet.hospital.sa"
+    },
+    {
+      "rule": "unc-path",
+      "line": "copy to \\\\APPSRV01\\deploy$"
+    },
+    {
+      "rule": "unc-path",
+      "line": "\"Share\": \"\\\\\\\\FILESRV02\\\\uploads\""
+    },
+    {
+      "rule": "sql-instance",
+      "line": "Server=SQLPROD01\\MSSQL;Database=app"
+    },
+    {
+      "rule": "sql-instance",
+      "line": "\"Data Source=db01\\\\INST;\""
+    },
+    {
+      "rule": "email",
+      "line": "contact j.doe@contoso-health.com for access"
+    },
+    {
+      "rule": "saudi-mobile",
+      "line": "mobile +966501234567"
+    },
+    {
+      "rule": "saudi-mobile",
+      "line": "call 0501234567 after hours"
+    },
+    {
+      "rule": "term-domain-care-subject",
+      "line": "public int PatientId { get; set; }"
+    },
+    {
+      "rule": "term-domain-aviation",
+      "line": "var FlightNumber = 1;"
+    },
+    {
+      "rule": "term-domain-transfer",
+      "line": "class EvacuationRequest"
+    },
+    {
+      "rule": "term-integration-national-center",
+      "line": "interface INicClient"
+    },
+    {
+      "rule": "term-domain-care",
+      "line": "ClinicalNotes notes"
+    },
+    {
+      "rule": "term-area-legacy-queue",
+      "line": "CoordinationQueue queue"
+    },
+    {
+      "rule": "term-role-word",
+      "line": "Guid DoctorId"
+    },
+    {
+      "rule": "term-role-word",
+      "line": "let nurseCount = 0;"
+    },
+    {
+      "rule": "term-domain-aerodrome",
+      "line": "string AirportCode"
+    },
+    {
+      "rule": "term-domain-transfer",
+      "line": "bool isEvacuated"
+    },
+    {
+      "rule": "term-domain-aviation",
+      "line": "const FLIGHT_STATUS = 1;"
+    },
+    {
+      "rule": "term-integration-ar-national-sso",
+      "line": "الدخول عبر نفاذ"
+    },
+    {
+      "rule": "term-integration-ar-identity-lookup",
+      "line": "خدمة يقين"
+    },
+    {
+      "rule": "term-domain-ar-care-subject",
+      "line": "بيانات المريض"
+    },
+    {
+      "rule": "term-domain-ar-care-subject",
+      "line": "قائمة المرضى"
+    },
+    {
+      "rule": "term-domain-ar-transfer",
+      "line": "طلب الإخلاء الطبي"
+    },
+    {
+      "rule": "term-domain-ar-transfer",
+      "line": "طلب الإِخْلاء"
+    },
+    {
+      "rule": "term-domain-ar-aviation",
+      "line": "تفاصيل الرحلة"
+    },
+    {
+      "rule": "term-domain-ar-transport",
+      "line": "سيارة إسعاف"
+    },
+    {
+      "rule": "term-domain-ar-crew",
+      "line": "الطبيب المرافق"
+    },
+    {
+      "rule": "term-org-ar-ministry",
+      "line": "وزارة الدفاع"
+    },
+    {
+      "rule": "term-org-ar-forces",
+      "line": "القوات المسلحة"
+    },
+    {
+      "rule": "term-org-ar-medical-services",
+      "line": "الخدمات الطبية للقوات المسلحة"
+    },
+    {
+      "rule": "term-org-ministry",
+      "line": "Ministry of Defense - Armed Forces Medical Services"
+    },
+    {
+      "rule": "term-org-ministry",
+      "line": "ministry of defence"
+    },
+    {
+      "rule": "term-org-forces",
+      "line": "Armed Forces Medical Services"
+    },
+    {
+      "rule": "term-brand-legacy-name",
+      "line": "MedEva_Infrastructure Details"
+    }
+  ],
+  "allowed": [
+    "listen on 127.0.0.1 and 0.0.0.0",
+    "documentation address 203.0.113.9 and 192.0.2.10",
+    "<AssemblyVersion>1.0.0.0</AssemblyVersion>",
+    "cancel in-flight requests on navigation",
+    "launchSettings.local.json and appsettings.local.json",
+    "DC=example,DC=com",
+    "see https://dga.gov.sa for the design system",
+    "timestamp 17000000001 is 11 digits",
+    "integrity sha512-abc1012345678def",
+    "decimal 1012345678.5",
+    "Clinic hours and technical notes",
+    "rules live in tools/extract/modhs-terms.txt",
+    "\"version\": \"1.2.3.4\"",
+    "Version=4.0.0.0, Culture=neutral",
+    "FileVersion(\"1.2.3.4\")",
+    "started at 12:30:45",
+    "mail dev@example.test or ops@example.com",
+    "Server=localhost\\SQLEXPRESS;Database=starter",
+    "Data Source=.\\SQLEXPRESS",
+    "documentation address 2001:db8::1",
+    "\\\\fileserver.example.test\\share",
+    "const PRIVATE_DOTNET = 'E:\\codelab-tools\\dotnet10\\dotnet.exe';",
+    "pattern: \"\\bconfiguration\\s*\\[\\s*\"",
+    "build 20261104 of order 12345",
+    "scan https://dga.gov.sa and https://example.sa"
+  ],
+  "dga": {
+    "packageJsonDependency": "\"@dga/ui\": \"1.0.0\"",
+    "devPackage": "\"@dev-dga/angular\": \"0.0.1\"",
+    "tarballPath": "vendor/dev-dga-angular-0.0.1.tgz"
+  },
+  "exceptions": {
+    "brandPath": "backend/MODHS.Api/Program.cs",
+    "provenancePath": "provenance/SOURCE.md",
+    "adrPath": "docs/adr/ADR-001-fresh-history-extraction.md",
+    "gatewayDocPath": "docs/integrations/gateway-extension-points.md",
+    "brandLine": "harvested from MODHS",
+    "integrationLine": "a future nafath profile"
+  },
+  "hardDeny": {
+    "denied": [
+      "services/nafath-service/src/Program.cs",
+      "backend/Api/Controllers/NafathAuthController.cs",
+      "frontend/web/src/app/core/auth/nafath.service.ts",
+      "backend/Infrastructure/Yakeen/YakeenServiceOptions.cs",
+      "backend/Infrastructure/Yakeen/Classifier.cs",
+      "backend/Infrastructure/NicIdentityVerifier.cs",
+      "services/nic-simulator/README.md",
+      "frontend/web/src/app/core/nic-client.ts",
+      "backend/Api/Auth/ExternalUserMocked.cs",
+      ".claude/handoffs/2026-11-01.md",
+      "C/memory/notes.md",
+      ".claude/skills/prep-deploy/REFERENCE.md",
+      "deploy/config/production.json",
+      "deploy/check-env-production.ps1",
+      "frontend/web/dev-dga-angular-0.0.1-ng20.1.tgz",
+      "services/gateway/dev-keys/gw-local.key.pem",
+      "frontend/web/node_modules/x/index.js"
+    ],
+    "allowed": [
+      "backend/Domain/Constants/ClinicalRanges.cs",
+      "docs/Technical.md",
+      "backend/Domain/Security/CanonicalString.cs",
+      "deploy/config/README.md",
+      ".claude/skills/prep-deploy/SKILL.md"
+    ]
+  },
+  "pathFlagged": [
+    {
+      "rule": "term-domain-aviation",
+      "path": "backend/src/Services/FlightService.cs"
+    },
+    {
+      "rule": "term-domain-care-subject",
+      "path": "frontend/app/PatientCard.component.ts"
+    }
+  ]
+}

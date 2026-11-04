@@ -1,0 +1,12 @@
+{
+  "session_id": "fixture-clean-edit",
+  "cwd": "__PROJECT__",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "__PROJECT__/backend/src/Modules/ServiceRequests/Application/SubmitRequest.cs",
+    "old_string": "public sealed class SubmitRequest\n{\n}",
+    "new_string": "public sealed class SubmitRequest(TimeProvider timeProvider)\n{\n    public DateTimeOffset SubmittedAt() => timeProvider.GetUtcNow();\n}",
+    "replace_all": false
+  }
+}

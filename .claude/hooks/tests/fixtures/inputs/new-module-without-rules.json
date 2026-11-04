@@ -1,0 +1,10 @@
+{
+  "session_id": "fixture-new-module",
+  "cwd": "__PROJECT__",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "__PROJECT__/backend/src/Modules/Invoices/Domain/Invoice.cs",
+    "content": "namespace Starter.Modules.Invoices.Domain;\n\npublic sealed class Invoice\n{\n}\n"
+  }
+}

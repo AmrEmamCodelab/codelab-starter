@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.test/codelab/rules.schema.json",
+  "title": "Codelab rules file",
+  "description": "Schema for rules/base.rules.yaml (ruleSet: base) and every **/module.rules.yaml (module: <Name>). Compiled by tools/rules-engine/compile.mjs into rules/rules.compiled.json.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/baseRules"
+    },
+    {
+      "$ref": "#/$defs/moduleRules"
+    }
+  ],
+  "$defs": {
+    "baseRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "ruleSet",
+        "owners",
+        "required",
+        "forbidden",
+        "bannedSymbols",
+        "thresholds",
+        "analyzers"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "$ref": "#/$defs/schemaVersion"
+        },
+        "ruleSet": {
+          "const": "base"
+        },
+        "description": {
+          "type": "string"
+        },
+        "owners": {
+          "$ref": "#/$defs/owners"
+        },
+        "required": {
+          "$ref": "#/$defs/requiredRules"
+        },
+        "forbidden": {
+          "$ref": "#/$defs/forbiddenRules"
+        },
+        "bannedSymbols": {
+          "$ref": "#/$defs/bannedSymbols"
+        },
+        "thresholds": {
+          "$ref": "#/$defs/baseThresholds"
+        },
+        "analyzers": {
+          "$ref": "#/$defs/analyzers"
+        },
+        "recipes": {
+          "$ref": "#/$defs/recipes"
+        }
+      }
+    },
+    "moduleRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "module"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "$ref": "#/$defs/schemaVersion"
+        },
+        "module": {
+          "description": "Module name, PascalCase. Rule ids declared here start with the lower-case module name and a dot.",
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "kind": {
+          "description": "dotnet modules get BannedSymbols/.editorconfig/CodeMetricsConfig emitted; angular modules feed ESLint data. Inferred from a *.csproj in the folder when omitted.",
+          "enum": [
+            "dotnet",
+            "angular"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "owners": {
+          "$ref": "#/$defs/owners"
+        },
+        "mayDependOn": {
+          "$ref": "#/$defs/moduleNames"
+        },
+        "mustNotDependOn": {
+          "$ref": "#/$defs/moduleNames"
+        },
+        "required": {
+          "$ref": "#/$defs/requiredRules"
+        },
+        "forbidden": {
+          "$ref": "#/$defs/forbiddenRules"
+        },
+        "bannedSymbols": {
+          "$ref": "#/$defs/bannedSymbols"
+        },
+        "thresholds": {
+          "$ref": "#/$defs/thresholds"
+        },
+        "analyzers": {
+          "$ref": "#/$defs/analyzers"
+        },
+        "recipes": {
+          "$ref": "#/$defs/recipes"
+        },
+        "exemptions": {
+          "description": "Base rules that do not apply to this module. Every exemption needs a reason; CODEOWNERS makes it a platform-owner decision.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule",
+              "reason"
+            ],
+            "properties": {
+              "rule": {
+                "$ref": "#/$defs/ruleId"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 10
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "ruleId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$"
+    },
+    "owners": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^@[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)?$"
+      }
+    },
+    "moduleNames": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Za-z0-9.]*$"
+      }
+    },
+    "globs": {
+      "description": "Globs (forward slashes; *, **, ?, {a,b}). Base globs are relative to the repo root; module globs to the module folder.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\\\]+$"
+      }
+    },
+    "requiredRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "statement",
+          "enforcedBy"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/ruleId"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 10
+          },
+          "enforcedBy": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "hook",
+                "analyzer",
+                "architecture-test",
+                "contract-test",
+                "eslint",
+                "stylelint",
+                "i18n-check",
+                "coverage-gate",
+                "docs-gate",
+                "codeowners",
+                "review",
+                "scaffold",
+                "commit-gate"
+              ]
+            }
+          },
+          "availableFrom": {
+            "description": "Phase in which the automated enforcement lands (until then the rule is review-enforced).",
+            "type": "string",
+            "pattern": "^P[0-9]+$"
+          },
+          "appliesTo": {
+            "$ref": "#/$defs/globs"
+          },
+          "settings": {
+            "description": "Free-form data for the enforcing tool (e.g. allowed magic numbers).",
+            "type": "object"
+          }
+        }
+      }
+    },
+    "forbiddenRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description",
+          "pattern",
+          "appliesTo",
+          "fix"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/ruleId"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10
+          },
+          "pattern": {
+            "description": "JavaScript regular expression, evaluated against the whole file content.",
+            "type": "string",
+            "minLength": 1
+          },
+          "flags": {
+            "description": "JavaScript regex flags; g and y are added/forbidden by the engine.",
+            "type": "string",
+            "pattern": "^[imsu]*$"
+          },
+          "appliesTo": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/globs"
+              },
+              {
+                "type": "array",
+                "minItems": 1
+              }
+            ]
+          },
+          "excludes": {
+            "$ref": "#/$defs/globs"
+          },
+          "fix": {
+            "type": "string",
+            "minLength": 10
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "default": "error"
+          }
+        }
+      }
+    },
+    "bannedSymbols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "symbol",
+          "fix"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/ruleId"
+          },
+          "symbol": {
+            "description": "Roslyn documentation comment id, e.g. M:System.Threading.Thread.Sleep(System.Int32) or T:Starter.X.Y.",
+            "type": "string",
+            "pattern": "^[TMPFEN]:[^\\s;]+$"
+          },
+          "fix": {
+            "type": "string",
+            "minLength": 10,
+            "pattern": "^[^\\r\\n]+$"
+          }
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "methodLines": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 200
+        },
+        "fileLines": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 2000
+        },
+        "cyclomaticComplexity": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 50
+        },
+        "parameters": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15
+        },
+        "backendLineCoverage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "frontendLineCoverage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "baseThresholds": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/thresholds"
+        },
+        {
+          "type": "object",
+          "required": [
+            "methodLines",
+            "fileLines",
+            "cyclomaticComplexity",
+            "parameters",
+            "backendLineCoverage",
+            "frontendLineCoverage"
+          ]
+        }
+      ]
+    },
+    "analyzers": {
+      "description": "Roslyn diagnostic id -> severity, emitted into the module's .editorconfig.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Z]+[0-9]+$"
+      },
+      "additionalProperties": {
+        "enum": [
+          "none",
+          "silent",
+          "suggestion",
+          "warning",
+          "error"
+        ]
+      }
+    },
+    "recipes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[^\\\\]+\\.md$"
+      }
+    }
+  }
+}

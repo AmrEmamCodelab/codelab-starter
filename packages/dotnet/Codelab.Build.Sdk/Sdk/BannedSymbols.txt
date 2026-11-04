@@ -1,0 +1,7 @@
+// Global banned APIs for every Codelab project (RS0030 = error). Format: <documentation id>;<fix message>
+// Per-module additions are emitted by tools/rules-engine into BannedSymbols.generated.txt next to each project.
+P:System.DateTime.Now;Inject TimeProvider and use GetLocalNow() so time is testable (rule base.time-provider)
+P:System.DateTime.UtcNow;Inject TimeProvider and use GetUtcNow() so time is testable (rule base.time-provider)
+P:System.DateTime.Today;Inject TimeProvider and use GetLocalNow().Date so time is testable (rule base.time-provider)
+P:System.DateTimeOffset.Now;Inject TimeProvider and use GetLocalNow() so time is testable (rule base.time-provider)
+P:System.DateTimeOffset.UtcNow;Inject TimeProvider and use GetUtcNow() so time is testable (rule base.time-provider)

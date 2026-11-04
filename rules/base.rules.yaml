@@ -1,0 +1,228 @@
+# yaml-language-server: $schema=./rules.schema.json
+#
+# Base rules: inherited by EVERY module (backend and frontend). A module adds to these in its own
+# module.rules.yaml; it can drop a base rule only through an `exemptions` entry with a reason.
+# After editing, run `node tools/rules-engine/compile.mjs` and commit the regenerated files.
+# CI (build.ps1 step 3) fails when the compiled output drifts from these sources.
+#
+# Rule kinds:
+#   required       a statement the code must satisfy, with the tools that enforce it (and from which phase)
+#   forbidden      a JavaScript regex evaluated against whole files matching `appliesTo`; hooks refuse on error
+#   bannedSymbols  Roslyn doc ids written to each .NET module's BannedSymbols.generated.txt (RS0030 = build error)
+#   thresholds     size / complexity / coverage limits; modules may override per key
+#   analyzers      Roslyn diagnostic severities written to each .NET module's .editorconfig
+schemaVersion: 1
+ruleSet: base
+description: Default rules for every Codelab starter module (architecture, security, clean code, tests, UI).
+owners:
+  - "@platform-owner"
+
+required:
+  # --- Architecture -------------------------------------------------------------------------------
+  - id: base.thin-controllers
+    statement: Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access.
+    enforcedBy: [architecture-test, review]
+    availableFrom: P1
+  - id: base.application-ports-only
+    statement: Application code depends only on Domain types and ports (interfaces); it never references EF Core, DbContext or infrastructure types.
+    enforcedBy: [architecture-test, hook]
+    availableFrom: P1
+  - id: base.module-boundaries
+    statement: A module references another module only when listed in its mayDependOn, and never one listed in mustNotDependOn.
+    enforcedBy: [architecture-test, eslint]
+    availableFrom: P1
+  - id: base.endpoint-contract
+    statement: Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.
+    enforcedBy: [contract-test, review]
+    availableFrom: P1
+  - id: base.lookups-via-migrations
+    statement: Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.
+    enforcedBy: [review]
+  - id: base.platform-owner-review
+    statement: Changes to rules/, packages/, .claude/, the exemptions of any module.rules.yaml, deploy/, .github/, docs/adr/, provenance/, tools/extract/, tools/build.ps1 and the repo-wide build settings need platform-owner review.
+    enforcedBy: [codeowners, hook]
+
+  # --- Clean code (user requirement 2026-11-04) ----------------------------------------------------
+  - id: base.enums-as-int
+    statement: Enums are stored and sent as integers and every enum member has an explicit numeric value (Approved = 3), so reordering never changes stored data; labels come from i18n, never from enum names.
+    enforcedBy: [hook, contract-test]
+    availableFrom: P1
+  - id: base.no-magic-values
+    statement: Status ids, role keys, permission keys, error codes, config keys, claim types, route names, cache keys, job ids and limits live in typed constants or options classes; numeric literals other than the allowed ones need a named constant.
+    enforcedBy: [hook, analyzer, eslint]
+    availableFrom: P1
+    settings:
+      allowedNumbers: [-1, 0, 1]
+      excludeTests: true
+  - id: base.clean-code
+    statement: Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.
+    enforcedBy: [analyzer, review]
+  - id: base.unit-tests-mandatory
+    statement: Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.
+    enforcedBy: [contract-test, coverage-gate, scaffold, commit-gate]
+    availableFrom: P1
+
+  # --- Frontend ------------------------------------------------------------------------------------
+  - id: base.fe-ui-library
+    statement: Screens are built only from @codelab/ng-dga components and the 8 page patterns.
+    enforcedBy: [eslint, hook, review]
+    availableFrom: P2
+  - id: base.fe-no-raw-text
+    statement: No user-visible raw text in templates or components; every string is an i18n key present in both ar and en.
+    enforcedBy: [i18n-check, hook]
+    availableFrom: P2
+  - id: base.fe-tokens-logical-css
+    statement: Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.
+    enforcedBy: [stylelint, hook]
+    availableFrom: P2
+  - id: base.fe-permission-gated
+    statement: Every route and every action button is gated by a typed permission key.
+    enforcedBy: [eslint, review]
+    availableFrom: P2
+
+forbidden:
+  # --- Time ----------------------------------------------------------------------------------------
+  - id: base.time-provider
+    description: Reading the system clock directly makes time untestable.
+    pattern: '\bDateTime(?:Offset)?\.(?:Now|UtcNow|Today)\b'
+    appliesTo: ["**/*.cs"]
+    fix: Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.
+
+  # --- Analyzer opt-outs ---------------------------------------------------------------------------
+  - id: base.no-analyzer-opt-out
+    description: Turning off the banned-API or complexity analyzers removes a build gate for everyone after you.
+    pattern: 'CodelabEnableBannedApis>\s*false|<NoWarn>[^<]*\b(?:RS0030|CA1502)\b|#pragma\s+warning\s+disable\b[^\r\n]*\b(?:RS0030|CA1502)\b|dotnet_diagnostic\.(?:RS0030|CA1502)\.severity\s*=\s*(?:none|silent|suggestion)|SuppressMessage\([^)]*\b(?:RS0030|CA1502)\b'
+    appliesTo: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets", "**/.editorconfig", "**/*.globalconfig"]
+    fix: Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.
+
+  # --- Magic strings used as keys ------------------------------------------------------------------
+  - id: base.no-string-permission-key
+    description: Permission keys passed as string literals drift from the permission catalog.
+    pattern: '\b(?:HasPermission|RequirePermission|hasPermission)\(\s*[''"`]'
+    appliesTo: ["**/*.cs", "**/*.ts"]
+    excludes: ["**/*.spec.ts", "**/*.Tests/**"]
+    fix: Use the typed permission constant (Permissions.<Area>.<Action> in C#, PermissionKeys.<KEY> in TypeScript).
+  - id: base.no-string-role-check
+    description: Role checks with string literals bypass the permission model.
+    pattern: '\bIsInRole\(\s*"'
+    appliesTo: ["**/*.cs"]
+    fix: Check a permission with [HasPermission(Permissions.<Area>.<Action>)] instead of a role name.
+  - id: base.no-string-config-key
+    description: Configuration read by string key is untyped and unvalidated.
+    pattern: '\bconfiguration\s*\[\s*"|\.GetSection\(\s*"|\.GetValue<[^>]+>\(\s*"'
+    flags: i
+    appliesTo: ["**/*.cs"]
+    fix: Bind a typed options class with a SectionName constant and ValidateOnStart, then inject IOptions<T>.
+
+  # --- Enums ---------------------------------------------------------------------------------------
+  - id: base.enum-stored-as-int
+    description: Enums stored or serialized as strings break when a member is renamed.
+    pattern: 'HasConversion<string>\s*\(|\bEnumToStringConverter\b|\bJsonStringEnumConverter\b'
+    appliesTo: ["**/*.cs"]
+    fix: Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.
+  - id: base.enum-explicit-values
+    description: An enum member without an explicit value changes meaning when members are reordered.
+    pattern: '\benum\s+\w+(?:\s*:\s*\w+)?\s*\{(?:[^{}]*?[{,])?\s*[A-Za-z_]\w*\s*(?:,|\})'
+    appliesTo: ["**/*.cs"]
+    fix: Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.
+
+  # --- Architecture --------------------------------------------------------------------------------
+  - id: base.no-dbcontext-in-api
+    description: The Api layer must not touch the database directly.
+    pattern: '\b\w*DbContext\b|\bSaveChanges(?:Async)?\b'
+    appliesTo: ["**/Api/**/*.cs", "**/*.Api/**/*.cs", "**/*Controller.cs"]
+    excludes: ["**/Composition/**", "**/Program.cs", "**/*.Tests/**"]
+    fix: Call an Application use case; only the composition root registers the DbContext.
+  - id: base.no-ef-in-application
+    description: Application code must depend on ports, not on EF Core.
+    pattern: '\busing\s+Microsoft\.EntityFrameworkCore\b|\b\w*DbContext\b'
+    appliesTo: ["**/Application/**/*.cs", "**/*.Application/**/*.cs"]
+    excludes: ["**/*.Tests/**"]
+    fix: Declare a port (repository or IUnitOfWork interface) in Application and implement it in Infrastructure.
+  - id: base.public-id-routes
+    description: Raw numeric or Guid database ids in routes leak internal keys.
+    pattern: '\{\w*[Ii]d:(?:int|long|guid)\}'
+    appliesTo: ["**/*.cs"]
+    fix: Take a PublicId route value ({id}) and resolve it in the Application layer.
+
+  # --- Error handling and dead code ----------------------------------------------------------------
+  - id: base.no-empty-catch
+    description: An empty catch block hides failures.
+    pattern: '\bcatch\s*(?:\([^)]*\))?\s*\{\s*\}'
+    appliesTo: ["**/*.cs", "**/*.ts"]
+    fix: Handle the error, or let it reach the global exception handler; log with the reference code when you rethrow.
+  - id: base.no-commented-out-code
+    description: Commented-out code is dead code; git keeps the history.
+    pattern: '^\s*//\s*(?:var|let|const|if|for|foreach|while|return|await|public|private|using|import|throw)\b.*[;{]\s*$'
+    flags: m
+    appliesTo: ["**/*.cs", "**/*.ts"]
+    fix: Delete the commented-out code.
+    severity: warning
+
+  # --- Frontend ------------------------------------------------------------------------------------
+  - id: base.fe-http-via-api-service
+    description: Feature code must not call HTTP directly.
+    pattern: '\bHttpClient\b|\bfetch\s*\('
+    appliesTo: ["**/*.ts"]
+    excludes: ["**/core/http/**", "**/core/api/**", "**/*.spec.ts"]
+    fix: Inject ApiService (or the generated API client) from core/api; it owns the base URL, auth and signing headers.
+  - id: base.fe-no-hardcoded-paths
+    description: Route and API paths typed as literals drift from the route and API catalogs.
+    pattern: 'navigate(?:ByUrl)?\(\s*\[?\s*[''"`]/|[''"`]/api/'
+    appliesTo: ["**/*.ts"]
+    excludes: ["**/core/api/generated/**", "**/*.spec.ts"]
+    fix: Use the typed route constants (AppRoutes) and the generated API client instead of path literals.
+  - id: base.fe-ui-library-only
+    description: Third-party UI kits and external DGA packages are not allowed (D5).
+    pattern: 'from\s+[''"](?:@angular/material|primeng|ngx-bootstrap|@ng-bootstrap|@(?:dev-)?dga[/@])'
+    appliesTo: ["**/*.ts"]
+    fix: Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.
+  - id: base.fe-raw-text-in-template
+    description: Raw text in a template is not translated.
+    pattern: '>[^<>{}]*\p{L}[^<>{}]*<'
+    flags: u
+    appliesTo: ["**/*.html"]
+    excludes: ["**/showcase/**"]
+    fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.
+    severity: warning
+  - id: base.fe-logical-css
+    description: Physical left/right properties break RTL.
+    pattern: '\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:|\btext-align\s*:\s*(?:left|right)\b|\bfloat\s*:\s*(?:left|right)\b'
+    flags: m
+    appliesTo: ["**/*.scss", "**/*.css"]
+    fix: Use logical properties (margin-inline-start, inset-inline-end, text-align start/end).
+  - id: base.fe-design-tokens
+    description: Raw colours bypass the design tokens.
+    pattern: '#[0-9a-fA-F]{3,8}\b|\brgba?\s*\('
+    appliesTo: ["**/*.scss", "**/*.css"]
+    excludes: ["**/tokens/**", "**/_tokens*.scss"]
+    fix: Use a design token, e.g. var(--codelab-color-primary).
+
+bannedSymbols:
+  # DateTime.Now / UtcNow / Today and DateTimeOffset.Now / UtcNow are banned globally by Codelab.Build.Sdk's
+  # BannedSymbols.txt; the compiler refuses duplicates of that list.
+  - id: base.no-thread-sleep
+    symbol: M:System.Threading.Thread.Sleep(System.Int32)
+    fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
+  - id: base.no-thread-sleep-timespan
+    symbol: M:System.Threading.Thread.Sleep(System.TimeSpan)
+    fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
+
+thresholds:
+  # Declared, not yet enforced (ADR-012): methodLines, fileLines and parameters get a Codelab analyzer in P1 and
+  # ESLint rules in P2. cyclomaticComplexity is enforced now (CA1502 via CodeMetricsConfig.txt).
+  methodLines: 40
+  fileLines: 400
+  cyclomaticComplexity: 10
+  parameters: 5
+  backendLineCoverage: 80
+  frontendLineCoverage: 70
+
+analyzers:
+  # Banned APIs are always build errors.
+  RS0030: error
+  # Cyclomatic complexity (threshold from thresholds.cyclomaticComplexity via CodeMetricsConfig.txt).
+  CA1502: warning
+
+recipes:
+  - docs/standards/SKILL.md

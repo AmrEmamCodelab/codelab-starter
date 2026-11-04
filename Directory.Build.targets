@@ -1,0 +1,5 @@
+<Project>
+  <!-- Pairs with Directory.Build.props: imports Codelab.Build.Sdk's targets from source or from the feed (ADR-002). -->
+  <Import Project="$(CodelabBuildSdkSourceDirectory)Sdk.targets" Condition="'$(UseCodelabPackageSource)' == 'true'" />
+  <Import Project="Sdk.targets" Sdk="Codelab.Build.Sdk" Version="$(CodelabBuildSdkVersion)" Condition="'$(UseCodelabPackageSource)' != 'true'" />
+</Project>

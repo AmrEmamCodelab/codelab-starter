@@ -1,0 +1,26 @@
+# Platform-owner review is required for the guardrails and the shared packages.
+# Platform owner: Amr Emam (replace @platform-owner with the real GitHub handle when the repo moves to GitHub).
+# No backup reviewer: the owner merges protected changes as admin once CI is green.
+# Until a host exists, tools/build.ps1 -Target CI is the authoritative gate and this file documents the policy.
+
+/rules/                   @platform-owner
+/packages/                @platform-owner
+/.claude/                 @platform-owner
+**/module.rules.yaml      @platform-owner
+/deploy/                  @platform-owner
+/.github/                 @platform-owner
+# The only folders allowed to name the harvest source (scrub-sweep exceptions): owner review keeps them minimal.
+/docs/adr/                @platform-owner
+/provenance/              @platform-owner
+# Repo-wide build settings and the build script can switch analyzers and gates off.
+/tools/build.ps1          @platform-owner
+/Directory.Build.props    @platform-owner
+/Directory.Build.targets  @platform-owner
+/Directory.Packages.props @platform-owner
+/global.json              @platform-owner
+/nuget.config             @platform-owner
+
+# The scrub-sweep term list, its exceptions and the extract allowlist decide what may enter the repo.
+/tools/extract/           @platform-owner
+# The standards every review enforces.
+/docs/standards/          @platform-owner

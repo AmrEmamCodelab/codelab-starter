@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Docs gate v0: MODULE.md sections, dead links, merge markers, module-changed-without-docs.
+    Run: see README.md (dotnet run with the project folder, then: check, root, optional base ref).
+    Sources live in src/; the tests project lives in tests/ and is excluded from this project's compile items.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Tools.DocsGate</RootNamespace>
+    <AssemblyName>Starter.Tools.DocsGate</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>codelab-docs-gate</ToolCommandName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src/**/*.cs" />
+    <None Remove="tests/**" />
+    <Content Remove="tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.Tools.DocsGate.Tests" />
+  </ItemGroup>
+</Project>

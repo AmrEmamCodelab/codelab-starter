@@ -1,0 +1,10 @@
+{
+  "session_id": "fixture-bash-heredoc",
+  "cwd": "__PROJECT__",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "cat > backend/src/Modules/ServiceRequests/Application/Clock.cs <<'EOF'\nnamespace Starter.Modules.ServiceRequests.Application;\npublic sealed class Clock { public DateTime Now() => DateTime.Now; }\nEOF",
+    "description": "Write the clock class"
+  }
+}

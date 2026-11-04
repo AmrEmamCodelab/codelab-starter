@@ -1,0 +1,76 @@
+# tools/docs-gate
+
+## Purpose
+
+Docs gate v0, CI step 7. It is a .NET 10 console tool (`Starter.Tools.DocsGate`) that keeps the docs honest:
+
+| Rule | Fails when |
+|------|------------|
+| `DOCS001` | a module folder (a folder containing `module.rules.yaml`) has no `MODULE.md`. The name is case-sensitive. |
+| `DOCS002` | a `MODULE.md` lacks one of the section headings **Purpose, Use, Extend, Rules, Gotchas** (any heading level, case-insensitive). |
+| `DOCS003` | a Markdown file has a dead local link or file reference. |
+| `DOCS004` | a Markdown file or a `module.rules.yaml` contains a merge-conflict marker. |
+| `DOCS005` | a module changed without a `MODULE.md` change, and no `Docs-Not-Needed: <reason>` override is present. |
+
+## Use
+
+```powershell
+# What CI runs (tools/build.ps1 step 7), from the repo root:
+E:\codelab-tools\dotnet10\dotnet.exe run --project tools/docs-gate -- check --root .
+
+# Against a PR base: module changes are counted from the merge base of the ref and HEAD.
+E:\codelab-tools\dotnet10\dotnet.exe run --project tools/docs-gate -- check --root . --base origin/main
+
+# Unit tests
+E:\codelab-tools\dotnet10\dotnet.exe test tools/docs-gate/tests/Starter.Tools.DocsGate.Tests
+```
+
+Exit codes: `0` passed, `1` findings, `2` usage or git error (bad arguments, missing root, unknown `--base`).
+Each finding prints as `<rule> <path>[:<line>]: <message>`. Notices print as `note: ...`.
+
+**Which files are checked.** In a git work tree the gate checks tracked files and untracked files that are not
+ignored, so `.gitignore` applies. Outside git it checks every file. It always skips `.git`, `node_modules`, `bin`,
+`obj`, `.vs`, `.angular` and `TestResults`.
+
+**How `DOCS005` finds changes.**
+- Without `--base`: the diff from HEAD to the working tree (staged and unstaged), plus untracked files. On a branch
+  with no commits, every file counts as changed.
+- With `--base <ref>`: the diff from the merge base of `<ref>` and HEAD to the working tree, plus untracked files.
+- Renames count as a delete plus an add. Each changed file belongs to its deepest module folder.
+
+**Override.** The first non-empty source wins:
+1. `CODELAB_DOCS_NOT_NEEDED`: the reason itself. `tools/build.ps1` exports it from the trailer.
+2. A `Docs-Not-Needed: <reason>` line in `CODELAB_PR_DESCRIPTION`.
+3. A `Docs-Not-Needed: <reason>` line in the latest commit message.
+
+A trailer with no reason is ignored. An override turns each `DOCS005` into a `note:` that quotes the reason, so the
+CI log shows why docs were skipped. It does not affect the other rules.
+
+## Extend
+
+- **New rule:** add an id to `src/Checks/RuleIds.cs` and a static `XxxCheck.Check(...)` that returns `Finding`s. Call
+  it from `DocsGateRunner.Run`, add tests that use `TempRepository` and `GateHarness`, and add a row to the table above.
+- **Required sections and skipped folders:** change `RequiredModuleDocSections` and `ExcludedDirectoryNames` in
+  `src/Repository/RepositoryLayout.cs`. They are the only place these conventions are defined.
+- **New link syntax:** add a regex to `MarkdownLinkExtractor` with a `target` group, plus a test case in
+  `DeadLinkCheckTests`.
+
+## Rules
+
+- CI is the authority. The Claude Stop hook may run this gate early, but a green hook never replaces CI.
+- Tests build fixtures in `%TEMP%` at runtime. Never commit fixture Markdown with dead links or markers, because the
+  repo's own gate and `tools/ci/conflict-markers.mjs` would fail on them. Build markers in code, for example
+  `new string('<', 7)`.
+- Git runs through the `IGitClient` port. The checks themselves are pure functions of files, paths and strings.
+
+## Gotchas
+
+- Link checks are case-sensitive on every OS. A link that works on Windows can 404 on Linux CI and in browsers.
+- Anchors (`#section`) are not checked in v0. Same-page anchors are skipped, and `file.md#x` only checks `file.md`.
+- Inline code and fenced code are ignored, so example links in code are never checked.
+- Links with a scheme (`https:`, `mailto:`), protocol-relative links (`//host`) and Windows drive paths (`C:`) are not
+  treated as local paths.
+- The `=======` separator counts only between a start and an end marker. On its own it is a Markdown heading underline.
+- `dotnet run` builds the tool first, so the first CI run after a change takes longer.
+- `--base` needs a git work tree and a ref that shares history with HEAD. In a shallow CI clone, fetch the base branch
+  first.

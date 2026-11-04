@@ -1,0 +1,24 @@
+# Where scrub-sweep rules may match. Read by tools/extract/scrub-sweep.mjs.
+#
+# Format: one entry per line:   <glob>   <rule ids, comma-separated>
+#   glob:     repo-relative, forward slashes ("**" any depth, "*" within a segment). A glob without "/" matches a
+#             file name at any depth.
+#   rule ids: exact ids ("term-brand-product"), a prefix ending in "*" ("term-*"), or "*" for every rule.
+# Changing this file needs platform-owner review (CODEOWNERS covers it through tools/extract once added there).
+# Keep it SHORT: an exception is a decision, not a convenience.
+
+# Provenance and ADRs may name the source product: they record where the starter came from and why.
+provenance/**                                    term-*
+docs/adr/**                                      term-*
+
+# The gateway extension-point doc describes the future national-integration profiles by name.
+docs/integrations/gateway-extension-points.md    term-integration-*
+
+# The sweep's own configuration has to spell out what it denies.
+tools/extract/modhs-terms.txt                    term-*
+tools/extract/scrub-exceptions.txt               term-*
+tools/extract/allowlist.manifest.yaml            term-*
+tools/extract/lib/scrub-rules.mjs                dga-package
+
+# Scanner test inputs (sample terms, addresses, IDs). Tests copy them into temp folders at run time.
+tools/extract/tests/fixtures/**                  *

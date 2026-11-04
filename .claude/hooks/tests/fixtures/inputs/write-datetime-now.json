@@ -1,0 +1,10 @@
+{
+  "session_id": "fixture-write-datetime-now",
+  "cwd": "__PROJECT__",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "__PROJECT__/backend/src/Modules/ServiceRequests/Application/Clock.cs",
+    "content": "namespace Starter.Modules.ServiceRequests.Application;\n\npublic sealed class Clock\n{\n    public DateTime Today() => DateTime.Now.Date;\n}\n"
+  }
+}

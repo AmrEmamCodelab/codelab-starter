@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git push --force-with-lease *)",
+      "Bash(git push -f *)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * +*)",
+      "PowerShell(git push --force *)",
+      "PowerShell(git push --force-with-lease *)",
+      "PowerShell(git push -f *)",
+      "PowerShell(git push * --force*)",
+      "PowerShell(git push * -f)",
+      "PowerShell(git push * -f *)",
+      "PowerShell(git push * +*)",
+      "Read(**/*.pfx)",
+      "Read(**/*.p12)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)",
+      "Edit(/feed/**)",
+      "Edit(/rules/rules.compiled.json)",
+      "Edit(**/BannedSymbols.generated.txt)",
+      "Edit(/docs/generated/**)"
+    ],
+    "ask": [
+      "Bash(git apply *)",
+      "Bash(patch *)",
+      "PowerShell(git apply *)",
+      "PowerShell(Invoke-Expression *)",
+      "PowerShell(iex *)",
+      "Bash(rm * rules/*)",
+      "Bash(cp * rules/*)",
+      "Bash(mv * rules/*)",
+      "PowerShell(Copy-Item * rules*)",
+      "PowerShell(Move-Item * rules*)",
+      "PowerShell(Remove-Item * rules*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/user-prompt-submit.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/pre-tool-use.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/on-stop-gate.mjs\"",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

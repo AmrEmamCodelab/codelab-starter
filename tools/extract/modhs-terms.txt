@@ -1,0 +1,64 @@
+# Source-product term denylist (the harvest source is MODHS; nothing from it may leak into the starter by name).
+# Read by tools/extract/scrub-sweep.mjs. Every rule id below becomes "term-<id>" in findings and in
+# tools/extract/scrub-exceptions.txt.
+#
+# Format: one rule per line:   <id>[/<flags>]: <JavaScript regex>
+#   flags: "i" = case-insensitive (default is case-sensitive). Blank lines and lines starting with "#" are ignored.
+# These terms are allowed ONLY under provenance/ and docs/adr/ (and the integration-* terms also in
+# docs/integrations/gateway-extension-points.md); see scrub-exceptions.txt.
+# Every term is matched twice: on the line as written, and on a normalized copy where identifiers are split on case,
+# digit and '_' boundaries (PascalCase and camelCase names, file names) and Arabic is normalized (lib/term-text.mjs).
+
+# Brands and product names: MODHS, Modhs, modhs-web, MODHS-SIG, X-MODHS-*, the solution name, MEDEVAC, the DB name.
+brand-product/i: modhs
+brand-solution/i: medhs
+brand-legacy-name/i: med-?eva
+brand-database/i: mod-?evac
+
+# Header and scheme names (MODHS-SIG and X-MODHS-* are also caught by brand-product).
+header-signature-scheme/i: modhs-sig
+header-product-prefix/i: x-modhs-
+header-legacy-api-key/i: x-api-key
+
+# Old type and area names. The starter uses TimeProvider, the generic workflow engine and record history.
+type-legacy-clock: \bIClock\b
+type-legacy-workflow: \bIRequestWorkflow\b
+type-legacy-history: \bRequestHistory\b
+area-legacy-queue/i: \bcoordination\b
+area-legacy-crew-role/i: flight-?doctor
+
+# Medevac role literals (SCREAMING_CASE keys and their PascalCase constants).
+role-literal: \b(?:EVALUATOR_DOCTOR|MEDICAL_COORDINATOR|AIR_DEPORTATION|OPERATIONS_APPROVER|CO_PILOT|PILOT|FLIGHT_ENGINEER|EQUIPMENT_TECHNICIAN|HEAD_OF_DOCTOR|HEAD_OF_NURSE|DOCTOR|NURSE)\b
+role-constant: \b(?:EvaluatorDoctor|MedicalCoordinator|AirDeportation|OperationsApprover|FlightEngineer|EquipmentTechnician|HeadOfDoctor|HeadOfNurse|CoPilot)\b
+role-word/i: \b(?:doctors?|nurses?|deportation|co-?pilots?)\b
+
+# Flight, ambulance, patient and evacuation domain terms.
+# "in-flight" (requests in progress) is ordinary engineering vocabulary and is not flagged.
+domain-aviation/i: (?<!in-)\bflights?\b|flight[-_]?(?:crew|plan|request|engineer)
+domain-transport/i: ambulance
+domain-care-subject/i: \bpatients?\b
+domain-transfer/i: \bevacuat(?:e|ed|es|ing|ion|ions)\b
+domain-aerodrome/i: \bairports?\b
+domain-care/i: \bclinical\b
+
+# Organisation names of the source product's owner.
+org-ministry/i: ministry\s+of\s+defen[cs]e
+org-forces/i: armed\s+forces
+
+# National integrations: excluded from v1, later gateway profiles.
+integration-national-sso/i: nafath
+integration-identity-lookup/i: yakeen
+integration-national-center/i: \bnic\b
+
+# Arabic terms. Lines are matched after normalization (tashkeel and tatweel removed, alef forms unified to ا,
+# alef maqsura to ي; see lib/term-text.mjs), so write the patterns in that normalized form.
+integration-ar-national-sso: نفاذ
+integration-ar-identity-lookup: يقين
+domain-ar-care-subject: مريض|مرضي
+domain-ar-transfer: اخلاء
+domain-ar-aviation: رحل[ةه]|رحلات|طيران
+domain-ar-transport: اسعاف
+domain-ar-crew: طبيب|اطباء|ممرض|تمريض
+org-ar-ministry: وزار[ةه] الدفاع
+org-ar-forces: القوات المسلح
+org-ar-medical-services: الخدمات الطبي

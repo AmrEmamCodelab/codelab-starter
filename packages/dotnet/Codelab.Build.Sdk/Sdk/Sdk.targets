@@ -1,0 +1,68 @@
+<Project>
+  <!--
+    Codelab.Build.Sdk - targets (imported AFTER the project body, so project settings are visible here).
+  -->
+
+  <!-- Banned APIs: one global list shipped in this package + an optional per-project list emitted by tools/rules-engine. -->
+  <ItemGroup Condition="'$(CodelabEnableBannedApis)' == 'true'">
+    <AdditionalFiles Include="$(CodelabBuildSdkDirectory)BannedSymbols.txt" />
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\$(CodelabProjectBannedSymbolsFile)"
+                     Condition="Exists('$(MSBuildProjectDirectory)\$(CodelabProjectBannedSymbolsFile)')" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all"
+                      IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!-- Code-metrics thresholds (CA1502) emitted per module by tools/rules-engine. -->
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\$(CodelabProjectCodeMetricsFile)"
+                     Condition="Exists('$(MSBuildProjectDirectory)\$(CodelabProjectCodeMetricsFile)')" />
+  </ItemGroup>
+
+  <!--
+    Public packages (set <CodelabPackage>true</CodelabPackage> in the project): the public surface is tracked in
+    PublicAPI.Shipped.txt / PublicAPI.Unshipped.txt, and NuGet package validation compares against the last
+    released version (<CodelabPackageBaselineVersion>), so a breaking change fails the pack.
+  -->
+  <ItemGroup Condition="'$(CodelabPackage)' == 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all"
+                      IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\PublicAPI.Shipped.txt"
+                     Condition="Exists('$(MSBuildProjectDirectory)\PublicAPI.Shipped.txt')" />
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\PublicAPI.Unshipped.txt"
+                     Condition="Exists('$(MSBuildProjectDirectory)\PublicAPI.Unshipped.txt')" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(CodelabPackage)' == 'true'">
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion Condition="'$(PackageValidationBaselineVersion)' == ''">$(CodelabPackageBaselineVersion)</PackageValidationBaselineVersion>
+  </PropertyGroup>
+
+  <!-- Without CPM the analyzer versions come from this SDK; with CPM, Directory.Packages.props owns them (NU1008 otherwise). -->
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(CodelabBannedApiAnalyzersVersion)" />
+    <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="$(CodelabPublicApiAnalyzersVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="CodelabRelease" Value="$(CodelabRelease)" />
+  </ItemGroup>
+
+  <Target Name="CodelabValidateRelease" BeforeTargets="BeforeBuild;GenerateNuspec">
+    <Error Code="CODELAB001"
+           Condition="'$(CodelabReleaseIsValid)' != 'true'"
+           Text="CODELAB_RELEASE / CodelabRelease '$(CodelabRelease)' is not a semantic version (expected e.g. 1.4.0 or 1.4.0-rc.2)." />
+  </Target>
+
+  <!--
+    The SDK's source-control integration sets the full 40-character sha; the release is <semver>+<short sha>.
+    Runs after that integration and before the informational version is composed.
+  -->
+  <Target Name="CodelabShortenSourceRevisionId"
+          AfterTargets="InitializeSourceControlInformation"
+          BeforeTargets="AddSourceRevisionToInformationalVersion"
+          Condition="'$(SourceRevisionId)' != '' and $(SourceRevisionId.Length) &gt; $(CodelabSourceRevisionLength)">
+    <PropertyGroup>
+      <SourceRevisionId>$(SourceRevisionId.Substring(0, $(CodelabSourceRevisionLength)))</SourceRevisionId>
+    </PropertyGroup>
+  </Target>
+</Project>

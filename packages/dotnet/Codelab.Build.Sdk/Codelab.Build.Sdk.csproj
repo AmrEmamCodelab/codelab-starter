@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Packaging project for the Codelab.Build.Sdk MSBuild SDK. It compiles nothing: it ships Sdk/Sdk.props,
+    Sdk/Sdk.targets and Sdk/BannedSymbols.txt under the package's Sdk/ folder (PackageType MSBuildSdk).
+    Pack with tools/build.ps1 -Pack, which sets PackageVersion to 0.1.0-ci.<n>.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Codelab.Build.Sdk</PackageId>
+    <CodelabBuildSdkBaseVersion>0.1.0</CodelabBuildSdkBaseVersion>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$(CodelabBuildSdkBaseVersion)</PackageVersion>
+    <PackageType>MSBuildSdk</PackageType>
+    <Authors>Codelab</Authors>
+    <Company>Codelab</Company>
+    <Description>Codelab MSBuild SDK: net10 defaults, nullable, warnings as errors, .NET analyzers, banned APIs (global + per-project generated list), public API tracking and package validation for Codelab packages, and release stamping (CODELAB_RELEASE + short sha).</Description>
+    <PackageTags>msbuild;sdk;codelab</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <!-- NU5128: an MSBuild SDK package has no lib/ folder by design. -->
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Sdk\**\*" Pack="true" PackagePath="Sdk\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

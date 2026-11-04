@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Repo-wide build settings. All real defaults live in Codelab.Build.Sdk (packages/dotnet/Codelab.Build.Sdk/Sdk).
+
+    ADR-002 package consumption switch:
+      UseCodelabPackageSource=true  (default in the starter monorepo) - import the SDK straight from source, so a
+                                    change to the SDK needs no publish while developing.
+      UseCodelabPackageSource=false - resolve the SDK from the Codelab feed at CodelabBuildSdkVersion
+                                    (this is how a fork consumes it once init.ps1 has removed packages/).
+  -->
+  <PropertyGroup>
+    <CodelabRepoRoot>$(MSBuildThisFileDirectory)</CodelabRepoRoot>
+    <CodelabBuildSdkSourceDirectory>$(CodelabRepoRoot)packages\dotnet\Codelab.Build.Sdk\Sdk\</CodelabBuildSdkSourceDirectory>
+    <UseCodelabPackageSource Condition="'$(UseCodelabPackageSource)' == ''">true</UseCodelabPackageSource>
+    <!-- The pinned feed version for UseCodelabPackageSource=false. tools/build.ps1 -Pack rewrites this line. -->
+    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">0.1.0-ci.6</CodelabBuildSdkVersion>
+  </PropertyGroup>
+
+  <Import Project="$(CodelabBuildSdkSourceDirectory)Sdk.props" Condition="'$(UseCodelabPackageSource)' == 'true'" />
+  <Import Project="Sdk.props" Sdk="Codelab.Build.Sdk" Version="$(CodelabBuildSdkVersion)" Condition="'$(UseCodelabPackageSource)' != 'true'" />
+</Project>

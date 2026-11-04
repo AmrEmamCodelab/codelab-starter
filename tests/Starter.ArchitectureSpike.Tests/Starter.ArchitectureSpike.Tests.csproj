@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    ADR-011 input: proves NetArchTest.Rules loads and evaluates net10.0 assemblies. Delete this spike once
+    Starter.Architecture.Tests (P1, rules from rules.compiled.json via Codelab.Testing) exists.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starter.ArchitectureSpike.Fixture.Domain\Starter.ArchitectureSpike.Fixture.Domain.csproj" />
+    <ProjectReference Include="..\Starter.ArchitectureSpike.Fixture.Api\Starter.ArchitectureSpike.Fixture.Api.csproj" />
+  </ItemGroup>
+</Project>
