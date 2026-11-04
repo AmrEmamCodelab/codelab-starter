@@ -31,6 +31,37 @@ describe('globToRegExp', () => {
   });
 });
 
+describe('generated-code and test-project opt-outs decided by the path', () => {
+  let root;
+  let compiled;
+  before(() => {
+    root = createWorkspace();
+    compiled = compileRepository(root).compiled;
+  });
+  after(() => removeWorkspace(root));
+
+  const hits = (relativePath, content) => evaluateFile(compiled, relativePath, content).map((result) => result.rule.id);
+
+  for (const name of ['Sample.g.cs', 'Sample.g.i.cs', 'Sample.generated.cs', 'Sample.designer.cs', 'Sample.Designer.cs']) {
+    test(`a hand-written ${name} is refused`, () => {
+      assert.ok(hits(`src/${name}`, 'public class Sample {}').includes('base.no-generated-file-name'));
+    });
+  }
+
+  test('a plain *.cs name is accepted', () => {
+    assert.ok(!hits('src/Sample.cs', 'public class Sample {}').includes('base.no-generated-file-name'));
+  });
+
+  test('a *.Tests project may declare IsTestProject', () => {
+    assert.ok(!hits('packages/dotnet/Codelab.Security.Tests/Codelab.Security.Tests.csproj', '<IsTestProject>true</IsTestProject>').includes('base.no-test-project-opt-in'));
+    assert.ok(!hits('tests/Starter.Records.Tests/Starter.Records.Tests.csproj', '<IsTestProject>true</IsTestProject>').includes('base.no-test-project-opt-in'));
+  });
+
+  test('a Directory.Build.props outside a *.Tests folder may not declare it for everything below', () => {
+    assert.ok(hits('src/Directory.Build.props', '<PropertyGroup><IsTestProject>true</IsTestProject></PropertyGroup>').includes('base.no-test-project-opt-in'));
+  });
+});
+
 describe('findViolations', () => {
   test('reports 1-based line and column and the matched text', () => {
     const rule = { pattern: 'DateTime\\.Now', flags: '' };
@@ -58,6 +89,46 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
   const cases = [
     ['base.time-provider', 'src/A.cs', 'var now = DateTime.UtcNow;', 'var now = timeProvider.GetUtcNow();'],
     ['base.time-provider', 'src/A.cs', 'var now = DateTimeOffset.Now;', 'var later = DateTimeOffset.MaxValue;'],
+    ['base.no-thread-sleep', 'src/A.cs', 'Thread.Sleep(500);', 'await Task.Delay(delay, timeProvider, cancellationToken);'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<NoWarn>$(NoWarn);CLB1004</NoWarn>', '<NoWarn>$(NoWarn);CS1591</NoWarn>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<CodelabEnableBuildAnalyzers>false</CodelabEnableBuildAnalyzers>', '<CodelabEnableBuildAnalyzers>true</CodelabEnableBuildAnalyzers>'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', '#pragma warning disable CLB1001', '#pragma warning disable CA1822'],
+    ['base.no-analyzer-opt-out', 'src/.editorconfig', 'dotnet_diagnostic.CLB1002.severity = none', 'dotnet_diagnostic.CLB1002.severity = error'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', '#pragma warning disable\nclass A {}', '#pragma warning restore CA1822\nclass A {}'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', 'class A {}\n#pragma warning disable // legacy', '#pragma warning disable CA1822 // reason'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', 'class A {}\n#pragma warning disable', 'class A {}\n#pragma warning restore'],
+    ['base.no-analyzer-opt-out', 'src/.editorconfig', 'dotnet_analyzer_diagnostic.category-Maintainability.severity = none', 'dotnet_analyzer_diagnostic.category-Maintainability.severity = error'],
+    ['base.no-analyzer-opt-out', 'src/.editorconfig', 'dotnet_analyzer_diagnostic.severity = silent', 'dotnet_analyzer_diagnostic.severity = warning'],
+    ['base.no-analyzer-opt-out', 'src/.editorconfig', '[*.cs]\ngenerated_code = true', '[*.cs]\ngenerated_code = false'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<TreatWarningsAsErrors>false</TreatWarningsAsErrors>', '<TreatWarningsAsErrors>true</TreatWarningsAsErrors>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<WarningsNotAsErrors>$(WarningsNotAsErrors);CLB1001</WarningsNotAsErrors>', '<WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901</WarningsNotAsErrors>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>', '<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>'],
+    // Regression: the SDK enables a gate only for exactly 'true', so every other value and spelling turns it off.
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<CodelabEnableBuildAnalyzers>False</CodelabEnableBuildAnalyzers>', '<CodelabEnableBuildAnalyzers>True</CodelabEnableBuildAnalyzers>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<CodelabEnableBannedApis>off</CodelabEnableBannedApis>', '<CodelabEnableBannedApis Condition="\'$(CodelabEnableBannedApis)\' == \'\'">true</CodelabEnableBannedApis>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<CodelabEnableBuildAnalyzers></CodelabEnableBuildAnalyzers>', '<Analyzer Condition="\'$(CodelabEnableBuildAnalyzers)\' == \'true\'" />'],
+    ['base.no-analyzer-opt-out', 'src/A.props', '<codelabenablebannedapis>0</codelabenablebannedapis>', '<PropertyGroup />'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<EnableNETAnalyzers>false</EnableNETAnalyzers>', '<EnableNETAnalyzers>true</EnableNETAnalyzers>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<AnalysisLevel>none</AnalysisLevel>', '<AnalysisLevel>latest-recommended</AnalysisLevel>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<AnalysisLevel>latest-None</AnalysisLevel>', '<AnalysisLevel>latest-all</AnalysisLevel>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<AnalysisMode>None</AnalysisMode>', '<AnalysisMode>Recommended</AnalysisMode>'],
+    ['base.no-analyzer-opt-out', 'src/A.csproj', '<AnalysisModeMaintainability>none</AnalysisModeMaintainability>', '<AnalysisModeMaintainability>all</AnalysisModeMaintainability>'],
+    ['base.no-fixture-gate-opt-out', 'src/A.csproj', '<CodelabFixtureGateOptOut>true</CodelabFixtureGateOptOut>', '<IsPackable>false</IsPackable>'],
+    ['base.no-fixture-gate-opt-out', 'Directory.Build.rsp', '-p:CodelabFixtureGateOptOut=true', '-m'],
+    ['base.no-auto-generated-marker', 'src/A.cs', '// <auto-generated/>\nclass A {}', '// Generated keys are read from configuration.\nclass A {}'],
+    ['base.no-auto-generated-marker', 'src/A.cs', 'using X;\n/* <auto-generated> */\nclass A {}', 'var source = "// <auto-generated/>";'],
+    ['base.no-test-project-opt-in', 'src/Starter.Records/Starter.Records.csproj', '<IsTestProject>true</IsTestProject>', '<IsPackable>false</IsPackable>'],
+    // Regression: Microsoft.NET.Test.Sdk sets IsTestProject through its own props; an AssemblyName can end in .Tests.
+    ['base.no-test-project-opt-in', 'src/Starter.Records/Starter.Records.csproj', '<PackageReference Include="Microsoft.NET.Test.Sdk" />', '<PackageReference Include="Microsoft.Extensions.Http" />'],
+    ['base.no-test-project-opt-in', 'src/Starter.Records/Starter.Records.csproj', '<PackageReference Include="xunit.v3" />', '<PackageReference Include="Serilog" />'],
+    ['base.no-test-project-opt-in', 'src/Starter.Records/Starter.Records.csproj', '<AssemblyName>Starter.Records.Tests</AssemblyName>', '<AssemblyName>Starter.Records</AssemblyName>'],
+    ['base.no-test-project-opt-in', 'src/Starter.Records/Starter.Records.csproj', '<AssemblyName>Starter.Records.Test</AssemblyName>', '<AssemblyName>Starter.Testing</AssemblyName>'],
+    ['base.no-accept-any-certificate', 'src/A.cs', 'h.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;', 'h.ServerCertificateCustomValidationCallback = policy.Validate;'],
+    ['base.no-accept-any-certificate', 'src/A.cs', 'ssl.RemoteCertificateValidationCallback = (_, _, _, _) => true;', 'ssl.RemoteCertificateValidationCallback = ServerCertificatePolicy.CreateCallback(options, timeProvider);'],
+    ['base.no-accept-any-certificate', 'src/A.cs', 'ssl.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => true;', 'ssl.RemoteCertificateValidationCallback = (sender, cert, chain, errors) => validator.Validate(cert, chain, errors);'],
+    ['base.no-accept-any-certificate', 'src/A.cs', 'h.ServerCertificateCustomValidationCallback = delegate (HttpRequestMessage m, X509Certificate2? c, X509Chain? ch, SslPolicyErrors e) { return true; };', 'h.ServerCertificateCustomValidationCallback = null;'],
+    ['base.no-threshold-override', '.editorconfig', '[*.cs]\ncodelab_method_lines = 400', '[*.cs]\nindent_size = 4'],
+    ['base.no-threshold-override', 'tools/x.globalconfig', 'is_global = true\ncodelab_parameters = 12', 'is_global = true'],
     ['base.no-string-permission-key', 'src/A.cs', '[HasPermission("records.read")]', '[HasPermission(Permissions.Records.Read)]'],
     ['base.no-string-permission-key', 'web/a.ts', "if (this.perm.hasPermission('x')) {}", 'if (this.perm.hasPermission(PermissionKeys.X)) {}'],
     ['base.no-string-role-check', 'src/A.cs', 'if (User.IsInRole("ADMIN")) {}', 'if (allowed) {}'],
@@ -95,6 +166,19 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
   test('rules for one language do not fire on another', () => {
     assert.deepEqual(hits('docs/a.md', 'DateTime.Now and margin-left: 1px'), []);
   });
+
+  test('only the engine outputs, by path, may carry codelab_* keys; a forged GENERATED marker proves nothing', () => {
+    const generated = '# GENERATED by tools/rules-engine from rules/base.rules.yaml. Do not edit.\n';
+    assert.deepEqual(hits('rules/codelab.globalconfig', `${generated}is_global = true\ncodelab_method_lines = 40`), []);
+    assert.deepEqual(hits('src/Modules/X/.editorconfig', '[*.cs]\ncodelab_method_lines = 300'), ['base.no-threshold-override']);
+    // Regression: a hand-written .globalconfig with the marker raised the thresholds of a test project unnoticed.
+    const forged = `# GENERATED by tools/rules-engine (forged)\nis_global = true\nglobal_level = 100\ncodelab_method_lines = 400`;
+    assert.deepEqual(
+      hits('packages/dotnet/Codelab.Errors.Tests/.globalconfig', forged).sort(),
+      ['base.no-hand-written-globalconfig', 'base.no-threshold-override'],
+    );
+    assert.deepEqual(hits('src/Modules/X/.editorconfig', `${generated}[*.cs]\ncodelab_magic_numbers_enforced = false`), ['base.no-threshold-override']);
+  });
 });
 
 describe('moduleForPath', () => {
@@ -110,5 +194,22 @@ describe('moduleForPath', () => {
     assert.equal(moduleForPath(compiled, 'src/Modules/Records/Child/B.cs').module, 'Child');
     assert.equal(moduleForPath(compiled, 'src/Modules/RecordsX/C.cs'), undefined);
     assert.equal(moduleForPath(compiled, 'src/Kernel/D.cs'), undefined);
+  });
+});
+
+describe('engine outputs are exempt by path, never by content', () => {
+  let root;
+  after(() => removeWorkspace(root));
+
+  test("a module's own .editorconfig may set codelab_* keys; any other .editorconfig inside it may not", () => {
+    root = createWorkspace();
+    writeWorkspaceFile(root, 'src/Modules/Records/module.rules.yaml', moduleYaml('Records'));
+    const { compiled } = compileRepository(root);
+    const hits = (relativePath, content) => evaluateFile(compiled, relativePath, content).map((result) => result.rule.id);
+    const keys = '[*.cs]\ncodelab_method_lines = 30';
+
+    assert.deepEqual(hits('src/Modules/Records/.editorconfig', keys), []);
+    assert.deepEqual(hits('src/Modules/Records/Sub/.editorconfig', keys), ['base.no-threshold-override']);
+    assert.deepEqual(hits('src/Modules/Records.Tests/.editorconfig', keys), ['base.no-threshold-override']);
   });
 });

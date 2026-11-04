@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Observability: one Serilog + OpenTelemetry + Seq bootstrap for every Codelab host, correlation ids and
+    reference codes, PII masking, the keyed user hash, the job failure log filter and the health endpoints.
+    See MODULE.md. Rewritten from the packaging spike and the harvested observability library (provenance/origins).
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <PackageId>Codelab.Observability</PackageId>
+    <RootNamespace>Codelab.Observability</RootNamespace>
+    <AssemblyName>Codelab.Observability</AssemblyName>
+    <CodelabPackage>true</CodelabPackage>
+    <IsPackable>true</IsPackable>
+    <Authors>Codelab</Authors>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+    <Description>Serilog + OpenTelemetry + Seq host bootstrap, correlation ids, reference codes, PII masking, keyed user hash, job failure log filter and health endpoints for Codelab hosts.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="Serilog.Formatting.Compact" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="Hangfire.Core" />
+    <!-- Hangfire.Core's transitive Newtonsoft.Json 11.0.1 has a high-severity advisory (NU1903); pinned directly. -->
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The published-material denylist data is owned by Codelab.Security (generated from tools/extract/secret-digests.json
+      and tools/vectors). It is linked, not copied, so the user-hash key guard refuses the same keys without a package
+      dependency on Codelab.Security (module boundary: Observability must not depend on Security).
+    -->
+    <EmbeddedResource Include="..\Codelab.Security\PublishedMaterial\*.json" Link="PublishedMaterial\%(Filename)%(Extension)" LogicalName="Codelab.Observability.PublishedMaterial.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Observability.Tests" />
+  </ItemGroup>
+</Project>

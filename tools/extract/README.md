@@ -12,6 +12,8 @@ Keeps the starter free of source-product code, names and secrets (ADR-001). It h
   national-ID-like numbers, LDAP domains and the DGA package check. It is CI step 1.
 - **The secret scan.** `secret-scan.mjs` runs regex rules plus `secret-digests.json`, a SHA-256 denylist of known
   source-product key material. It is CI step 2, and `build.ps1` adds gitleaks when it is installed.
+  `secret-exceptions.txt` lets named regex rules match only where the TEST-ONLY fixture keys and golden vectors live
+  (`packages/vectors`); the digest denylist is never excepted.
 - **What is scanned.** Both scanners read UTF-8 and UTF-16 (with or without a BOM) text and open zip containers
   (docx, xlsx, pptx, nupkg, zip): each entry is scanned as `file.docx!word/document.xml`, with OOXML runs joined.
   Any other binary is a finding (`unscannable-binary`) unless it is an image or font (`lib/files.mjs`).
@@ -49,7 +51,9 @@ node tools/extract/build-secret-digests.mjs
 `origins.json` holds one entry per file: batch, entry id, source and target paths, mode, the source git blob, and
 the source and staged SHA-256. When you promote, set `target` to the repo file the rewrite produced, keep the staging
 path as `stagedTarget`, and set `promotion: rewritten`. A batch that is extracted and scanned but not promoted yet is
-recorded with `promotion: staged` (the package spike, promoted in phase 1).
+recorded with `promotion: staged`. An entry deliberately not carried (left for a later phase, or not a package
+primitive) also stays `staged` and must carry a `note` or `deferred` field giving the reason. The package spike is
+recorded as three batches (`pkg-spike-security`, `pkg-spike-observability`, `pkg-spike-sample`) sharing one source.
 
 ## Extend
 
@@ -69,6 +73,9 @@ recorded with `promotion: staged` (the package spike, promoted in phase 1).
   `joined(...)` so the repo itself stays clean.
 - **New exception.** Add a line to `scrub-exceptions.txt` (`<glob> <rule ids>`). Every exception is a reviewed
   decision.
+- **New secret exception.** Add a line to `secret-exceptions.txt` (same format, stricter: exact rule ids only, a glob
+  anchored to a folder, never `known-secret-digest` or `unscannable-binary`; see `lib/secret-exceptions.mjs`), and
+  add a test to `tests/secret-exceptions.test.mjs` proving the same content elsewhere is still a finding.
 
 ## Rules
 
@@ -108,5 +115,6 @@ recorded with `promotion: staged` (the package spike, promoted in phase 1).
   - `"//Name"` documentation keys are skipped.
 - **Digest denylist.** Each value is hashed as text and as the key bytes it decodes to (hex in any case, base64,
   base64url; `lib/key-material.mjs`), and the scanner also tries adjacent string literals joined, so a re-encoded or
-  split key still matches. Sources include compose files, CI workflows, scripts, SQL, launchSettings and environment
+  split key still matches. The SHA-256 of a public input (the empty body, `{}`) is never reported, although the
+  harvest listed it as a fixture: `lib/public-digests.mjs` holds those preimages, never values. Sources include compose files, CI workflows, scripts, SQL, launchSettings and environment
   files (`secretDigests.scriptFiles`). The denylist file is not matched against itself.

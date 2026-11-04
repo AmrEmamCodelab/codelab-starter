@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests for Codelab.Build.Analyzers (a hand-rolled CSharpCompilation harness, no network-bound reference
+    assemblies) plus SdkFixture tests that build Fixtures/SdkConsumer with the real Codelab.Build.Sdk in a temp
+    workspace: each CLB violation fails the build, Thread.Sleep is banned, and release stamping reaches the assembly.
+    Fixtures/ is not compiled here; the tests copy it.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Build.Analyzers\Codelab.Build.Analyzers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Fixtures/**" />
+    <None Remove="Fixtures/**" />
+  </ItemGroup>
+</Project>

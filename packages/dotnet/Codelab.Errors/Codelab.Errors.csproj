@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Errors: the one problem+json error contract for every Codelab host. GlobalExceptionHandler with an ordered
+    IFailureClassifier table, one envelope (code, correlationId, referenceCode), framework status-code and
+    model-binding mapping, the client error scrubber and CodedRefusal. May depend on Codelab.Observability only.
+    See MODULE.md. Rewritten from the harvested diagnostics code (provenance/origins/p1-observability-errors.json).
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <PackageId>Codelab.Errors</PackageId>
+    <RootNamespace>Codelab.Errors</RootNamespace>
+    <AssemblyName>Codelab.Errors</AssemblyName>
+    <CodelabPackage>true</CodelabPackage>
+    <IsPackable>true</IsPackable>
+    <Authors>Codelab</Authors>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+    <Description>One problem+json error envelope (code, correlationId, referenceCode), GlobalExceptionHandler with an ordered failure classifier table, framework status-code and model-binding mapping, client error scrubbing and CodedRefusal for Codelab hosts.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ConcurrencyClassifier (DbUpdateConcurrencyException) and TransientFaultClassifier (SqlException numbers). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Observability\Codelab.Observability.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Errors.Tests" />
+  </ItemGroup>
+</Project>

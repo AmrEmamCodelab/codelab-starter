@@ -1,0 +1,116 @@
+{
+  "batch": "pkg-spike-sample",
+  "sourceCommit": null,
+  "sourceRoot": "E:\\codelab-platform-private\\harvest\\pkg-spike-20261104",
+  "sourceContentDigest": "9ad1460eeb38aa045053223d1d08d356e152b1b80bb09f211f026c59cbb901fa",
+  "extractedWith": "tools/extract/extract.ps1 -Batch pkg-spike-sample -Clean (staging outside the repo). Promoted in phase 1 wave 4: rewritten to starter names (records and widgets instead of the spike's domain), regenerated keys at test run time (no key material copied), net10 and the Codelab packages from the feed only; target is the rewritten repo file, stagedTarget the staging path, additionalTargets the files the rewrite split out.",
+  "origins": [
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Api/Controllers/PatientsController.cs",
+      "target": "packages/samples/Package.Sample.Api/Records/RecordEndpoints.cs",
+      "mode": "copy",
+      "sourceGitBlob": "9a49f41446dad5308ba35eed18a9f4fe98d28896",
+      "sourceSha256": "75f16b8e430c5550b51b881b24ef9f3f96c0333d8ce972164c17d64f57d2c562",
+      "stagedSha256": "75f16b8e430c5550b51b881b24ef9f3f96c0333d8ce972164c17d64f57d2c562",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Api/Controllers/PatientsController.cs",
+      "additionalTargets": [
+        "packages/samples/Package.Sample.Api/Records/RecordContracts.cs",
+        "packages/samples/Package.Sample.Api/Records/RecordDomains.cs",
+        "packages/samples/Package.Sample.Api/Records/RecordStore.cs",
+        "packages/samples/Package.Sample.Api/Records/RecordRules.cs"
+      ]
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Api/Program.cs",
+      "target": "packages/samples/Package.Sample.Api/Program.cs",
+      "mode": "copy",
+      "sourceGitBlob": "40cc24579075dabbce00c137ea7e93691534033f",
+      "sourceSha256": "cb8af8afd58171fa2e1e0ebe19422981b75d13f4b4e9c90826a75ab4206ddad9",
+      "stagedSha256": "cb8af8afd58171fa2e1e0ebe19422981b75d13f4b4e9c90826a75ab4206ddad9",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Api/Program.cs",
+      "additionalTargets": [
+        "packages/samples/Package.Sample.Api/Authentication/SampleAuthentication.cs",
+        "packages/samples/Package.Sample.Api/Authentication/SampleAuthenticationOptions.cs",
+        "packages/samples/Package.Sample.Api/Archive/ArchiveClient.cs",
+        "packages/samples/Package.Sample.Api/Hosting/SampleNames.cs"
+      ]
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Api/Sample.Api.csproj",
+      "target": "packages/samples/Package.Sample.Api/Package.Sample.Api.csproj",
+      "mode": "copy",
+      "sourceGitBlob": "6880b5950768ba923e518b5d7b061692e14f77c1",
+      "sourceSha256": "4aaa2fb09da950d204915543c444b368cf0ff115d7b65050b94f030ff5702424",
+      "stagedSha256": "4aaa2fb09da950d204915543c444b368cf0ff115d7b65050b94f030ff5702424",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Api/Sample.Api.csproj"
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Api/appsettings.json",
+      "target": "packages/samples/Package.Sample.Api/appsettings.json",
+      "mode": "copy",
+      "sourceGitBlob": "1cb379849b1e2e7536f7dee04de4687d0c19fb65",
+      "sourceSha256": "4709ab5905e0a907ef0bd95bc9c7dfea7daced1f8957c0c450ad2b45381a65a6",
+      "stagedSha256": "4709ab5905e0a907ef0bd95bc9c7dfea7daced1f8957c0c450ad2b45381a65a6",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Api/appsettings.json"
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Tests/PackageTests.cs",
+      "target": "packages/samples/Package.Sample.Tests/RequestSigningTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "855ebd3875c1dcce0a7b6d473f6f2ffc535ed559",
+      "sourceSha256": "59e07d74cbeb405234b0eb372bec3717a62f01fcde70b070781c212c89eb48dd",
+      "stagedSha256": "59e07d74cbeb405234b0eb372bec3717a62f01fcde70b070781c212c89eb48dd",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Tests/PackageTests.cs",
+      "additionalTargets": [
+        "packages/samples/Package.Sample.Tests/SecurityHeadersTests.cs",
+        "packages/samples/Package.Sample.Tests/PublicIdTests.cs",
+        "packages/samples/Package.Sample.Tests/PublishedKeyBootTests.cs",
+        "packages/samples/Package.Sample.Tests/PiiSafeLoggingTests.cs",
+        "packages/samples/Package.Sample.Tests/Support/SampleHost.cs",
+        "packages/samples/Package.Sample.Tests/Support/SessionClient.cs",
+        "packages/samples/Package.Sample.Tests/Support/SampleKeys.cs",
+        "packages/samples/Package.Sample.Tests/Support/SampleSettings.cs"
+      ]
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/Sample.Tests/Sample.Tests.csproj",
+      "target": "packages/samples/Package.Sample.Tests/Package.Sample.Tests.csproj",
+      "mode": "copy",
+      "sourceGitBlob": "fc76b68383c1338a2cf5ed3ee152dccb2babd527",
+      "sourceSha256": "ce1a24f6c685e88729929fbacbd34027cfa72eaba56767e9653a0ca51e8e7464",
+      "stagedSha256": "ce1a24f6c685e88729929fbacbd34027cfa72eaba56767e9653a0ca51e8e7464",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/Sample.Tests/Sample.Tests.csproj"
+    },
+    {
+      "batch": "pkg-spike-sample",
+      "entryId": "pkg-spike-sample",
+      "source": "sample/nuget.config",
+      "target": "packages/samples/nuget.config",
+      "mode": "copy",
+      "sourceGitBlob": "d1db941e088d000080549ac1a72816f85b181bf2",
+      "sourceSha256": "603530455a30a28fb5a3839975e8009517bdda108c7aeceb94582d25edd8e11c",
+      "stagedSha256": "603530455a30a28fb5a3839975e8009517bdda108c7aeceb94582d25edd8e11c",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/pkg-spike/sample/nuget.config"
+    }
+  ],
+  "denied": []
+}

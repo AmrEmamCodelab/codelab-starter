@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit and in-process host tests for Codelab.Errors (TestServer, no network): classifiers, the envelope, the scrubber,
+    refusals, model binding, and every error path end to end with Codelab.Observability (PII-free logs carrying the
+    correlation id and reference code). Ports the test logic of the harvested diagnostics tests; no fixture values.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Errors\Codelab.Errors.csproj" />
+  </ItemGroup>
+</Project>

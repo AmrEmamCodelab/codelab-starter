@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { compileRepository } from '../lib/engine.mjs';
 import { RulesError } from '../lib/errors.mjs';
 import { PATHS } from '../lib/constants.mjs';
-import { createWorkspace, removeWorkspace, writeWorkspaceFile, moduleYaml, readWorkspaceFile } from './helpers/workspace.mjs';
+import { createWorkspace, removeWorkspace, writeWorkspaceFile, moduleYaml, readWorkspaceFile, copyFromRepo } from './helpers/workspace.mjs';
 
 const MODULE_FILE = 'src/Modules/Records/module.rules.yaml';
 
@@ -118,9 +118,10 @@ describe('rules validation errors', () => {
     assertProblem(problemsOf(root), 'src/Other/module.rules.yaml', "module name 'Records' is already used");
   });
 
-  test('kind dotnet without a .csproj is rejected', () => {
-    writeWorkspaceFile(root, MODULE_FILE, moduleYaml('Records', 'kind: dotnet\n'));
-    assertProblem(problemsOf(root), MODULE_FILE, 'has no .csproj');
+  test('kind angular next to a .csproj is rejected', () => {
+    writeWorkspaceFile(root, MODULE_FILE, moduleYaml('Records', 'kind: angular\n'));
+    writeWorkspaceFile(root, 'src/Modules/Records/Starter.Modules.Records.csproj', '<Project Sdk="Microsoft.NET.Sdk" />\n');
+    assertProblem(problemsOf(root), MODULE_FILE, 'has a .csproj');
   });
 
   test('a banned symbol that is not a documentation id is a schema error', () => {
@@ -134,9 +135,16 @@ describe('rules validation errors', () => {
     assertProblem(problemsOf(root), MODULE_FILE, 'already banned globally by Codelab.Build.Sdk');
   });
 
-  test('a module repeating a base banned symbol is rejected', () => {
-    writeWorkspaceFile(root, MODULE_FILE, moduleYaml('Records', 'bannedSymbols:\n  - id: records.sleep\n    symbol: M:System.Threading.Thread.Sleep(System.Int32)\n    fix: Use Task.Delay with TimeProvider.\n'));
+  test('a module listing the same banned symbol twice is rejected', () => {
+    const entry = (id) => `  - id: ${id}\n    symbol: T:System.Console\n    fix: Log through ILogger instead.\n`;
+    writeWorkspaceFile(root, MODULE_FILE, moduleYaml('Records', `bannedSymbols:\n${entry('records.console')}${entry('records.console-again')}`));
     assertProblem(problemsOf(root), MODULE_FILE, 'is listed more than once');
+  });
+
+  test('Thread.Sleep is banned globally by the real SDK list, so a module repeating it is rejected', () => {
+    copyFromRepo(root, PATHS.sdkGlobalBannedSymbols);
+    writeWorkspaceFile(root, MODULE_FILE, moduleYaml('Records', 'bannedSymbols:\n  - id: records.sleep\n    symbol: M:System.Threading.Thread.Sleep(System.TimeSpan)\n    fix: Use Task.Delay with TimeProvider.\n'));
+    assertProblem(problemsOf(root), MODULE_FILE, 'already banned globally by Codelab.Build.Sdk');
   });
 
   test('threshold out of range is a schema error', () => {

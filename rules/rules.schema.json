@@ -267,6 +267,10 @@
           "excludes": {
             "$ref": "#/$defs/globs"
           },
+          "exemptEmittedFiles": {
+            "description": "Exempt the files the rules engine emits at their own paths (rules/codelab.globalconfig, each module's .editorconfig). Decided by path, never by content: compile.mjs --check proves those files equal the generator output.",
+            "type": "boolean"
+          },
           "fix": {
             "type": "string",
             "minLength": 10

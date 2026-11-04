@@ -45,6 +45,14 @@
     <CodelabProjectBannedSymbolsFile Condition="'$(CodelabProjectBannedSymbolsFile)' == ''">BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
     <!-- Per-project CA1502 thresholds emitted by tools/rules-engine (thresholds.cyclomaticComplexity). -->
     <CodelabProjectCodeMetricsFile Condition="'$(CodelabProjectCodeMetricsFile)' == ''">CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+    <!--
+      Codelab clean-code analyzers (ADR-012): CLB1001 method lines, CLB1002 file lines, CLB1003 parameters,
+      CLB1004 magic numbers. Thresholds: a module's generated .editorconfig wins, then the repo-wide base values in
+      the generated rules/codelab.globalconfig (found through CodelabRepoRoot, set by the repo's
+      Directory.Build.props), then the analyzer's built-in defaults (the base rules' values).
+    -->
+    <CodelabEnableBuildAnalyzers Condition="'$(CodelabEnableBuildAnalyzers)' == ''">true</CodelabEnableBuildAnalyzers>
+    <CodelabRulesGlobalConfig Condition="'$(CodelabRulesGlobalConfig)' == '' and '$(CodelabRepoRoot)' != ''">$(CodelabRepoRoot)rules\codelab.globalconfig</CodelabRulesGlobalConfig>
   </PropertyGroup>
 
   <!--

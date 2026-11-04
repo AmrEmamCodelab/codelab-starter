@@ -1,0 +1,35 @@
+{
+  "$comment": "Test fixture shaped like the rules-engine output (rules/eslint-boundaries.compiled.json): two frontend feature modules and one backend module.",
+  "schemaVersion": 1,
+  "noMagicNumbers": { "ignore": [-1, 0, 1] },
+  "modules": [
+    {
+      "module": "Records",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/records",
+      "mayDependOn": ["Orders"],
+      "mustNotDependOn": ["Reports"]
+    },
+    {
+      "module": "Orders",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/orders",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "Reports",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/reports",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "StarterRecords",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Records",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    }
+  ]
+}

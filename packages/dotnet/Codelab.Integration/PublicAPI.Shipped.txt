@@ -1,0 +1,91 @@
+#nullable enable
+Codelab.Integration.Certificates.CertificateTrustMode
+Codelab.Integration.Certificates.CertificateTrustMode.PinnedAuthority = 2 -> Codelab.Integration.Certificates.CertificateTrustMode
+Codelab.Integration.Certificates.CertificateTrustMode.PinnedLeaf = 3 -> Codelab.Integration.Certificates.CertificateTrustMode
+Codelab.Integration.Certificates.CertificateTrustMode.SystemTrust = 1 -> Codelab.Integration.Certificates.CertificateTrustMode
+Codelab.Integration.Certificates.OutboundCertificateOptions
+Codelab.Integration.Certificates.OutboundCertificateOptions.AuthorityBundlePath.get -> string?
+Codelab.Integration.Certificates.OutboundCertificateOptions.AuthorityBundlePath.set -> void
+Codelab.Integration.Certificates.OutboundCertificateOptions.AuthorityCertificates.get -> System.Security.Cryptography.X509Certificates.X509Certificate2Collection!
+Codelab.Integration.Certificates.OutboundCertificateOptions.CheckRevocation.get -> bool
+Codelab.Integration.Certificates.OutboundCertificateOptions.CheckRevocation.set -> void
+Codelab.Integration.Certificates.OutboundCertificateOptions.Mode.get -> Codelab.Integration.Certificates.CertificateTrustMode
+Codelab.Integration.Certificates.OutboundCertificateOptions.Mode.set -> void
+Codelab.Integration.Certificates.OutboundCertificateOptions.OutboundCertificateOptions() -> void
+Codelab.Integration.Certificates.OutboundCertificateOptions.PinnedThumbprints.get -> System.Collections.Generic.IList<string!>!
+Codelab.Integration.Classification.OutboundFailure
+Codelab.Integration.Classification.OutboundFailure.<Clone>$() -> Codelab.Integration.Classification.OutboundFailure!
+Codelab.Integration.Classification.OutboundFailure.Deconstruct(out Codelab.Integration.Classification.OutboundFailureKind Kind, out System.Net.HttpStatusCode? StatusCode, out bool IsTransient) -> void
+Codelab.Integration.Classification.OutboundFailure.Equals(Codelab.Integration.Classification.OutboundFailure? other) -> bool
+Codelab.Integration.Classification.OutboundFailure.IsTransient.get -> bool
+Codelab.Integration.Classification.OutboundFailure.IsTransient.init -> void
+Codelab.Integration.Classification.OutboundFailure.Kind.get -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailure.Kind.init -> void
+Codelab.Integration.Classification.OutboundFailure.OutboundFailure(Codelab.Integration.Classification.OutboundFailureKind Kind, System.Net.HttpStatusCode? StatusCode, bool IsTransient) -> void
+Codelab.Integration.Classification.OutboundFailure.StatusCode.get -> System.Net.HttpStatusCode?
+Codelab.Integration.Classification.OutboundFailure.StatusCode.init -> void
+Codelab.Integration.Classification.OutboundFailureClassifier
+Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.Cancelled = 8 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.CertificateRejected = 3 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.ClientError = 6 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.ConnectionFailed = 2 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.ServerError = 7 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.Throttled = 4 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.Timeout = 1 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.Unauthorized = 5 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Classification.OutboundFailureKind.Unknown = 0 -> Codelab.Integration.Classification.OutboundFailureKind
+Codelab.Integration.Outbound.OutboundClientOptions
+Codelab.Integration.Outbound.OutboundClientOptions.AllowPlainHttp.get -> bool
+Codelab.Integration.Outbound.OutboundClientOptions.AllowPlainHttp.set -> void
+Codelab.Integration.Outbound.OutboundClientOptions.BaseAddress.get -> System.Uri?
+Codelab.Integration.Outbound.OutboundClientOptions.BaseAddress.set -> void
+Codelab.Integration.Outbound.OutboundClientOptions.Certificate.get -> Codelab.Integration.Certificates.OutboundCertificateOptions!
+Codelab.Integration.Outbound.OutboundClientOptions.Certificate.set -> void
+Codelab.Integration.Outbound.OutboundClientOptions.OutboundClientOptions() -> void
+Codelab.Integration.Outbound.OutboundClientOptions.Retry.get -> Codelab.Integration.Outbound.OutboundRetryOptions!
+Codelab.Integration.Outbound.OutboundClientOptions.Retry.set -> void
+Codelab.Integration.Outbound.OutboundClientOptions.Timeout.get -> Codelab.Integration.Outbound.OutboundTimeoutOptions!
+Codelab.Integration.Outbound.OutboundClientOptions.Timeout.set -> void
+Codelab.Integration.Outbound.OutboundClientOptionsValidator
+Codelab.Integration.Outbound.OutboundClientOptionsValidator.OutboundClientOptionsValidator() -> void
+Codelab.Integration.Outbound.OutboundClientOptionsValidator.Validate(string? name, Codelab.Integration.Outbound.OutboundClientOptions! options) -> Microsoft.Extensions.Options.ValidateOptionsResult!
+Codelab.Integration.Outbound.OutboundClientServiceCollectionExtensions
+Codelab.Integration.Outbound.OutboundDefaults
+Codelab.Integration.Outbound.OutboundRequestExtensions
+Codelab.Integration.Outbound.OutboundRetryOptions
+Codelab.Integration.Outbound.OutboundRetryOptions.BaseDelay.get -> System.TimeSpan
+Codelab.Integration.Outbound.OutboundRetryOptions.BaseDelay.set -> void
+Codelab.Integration.Outbound.OutboundRetryOptions.MaxDelay.get -> System.TimeSpan
+Codelab.Integration.Outbound.OutboundRetryOptions.MaxDelay.set -> void
+Codelab.Integration.Outbound.OutboundRetryOptions.MaxRetries.get -> int
+Codelab.Integration.Outbound.OutboundRetryOptions.MaxRetries.set -> void
+Codelab.Integration.Outbound.OutboundRetryOptions.OutboundRetryOptions() -> void
+Codelab.Integration.Outbound.OutboundRetryOptions.UseJitter.get -> bool
+Codelab.Integration.Outbound.OutboundRetryOptions.UseJitter.set -> void
+Codelab.Integration.Outbound.OutboundTimeoutOptions
+Codelab.Integration.Outbound.OutboundTimeoutOptions.AttemptTimeout.get -> System.TimeSpan
+Codelab.Integration.Outbound.OutboundTimeoutOptions.AttemptTimeout.set -> void
+Codelab.Integration.Outbound.OutboundTimeoutOptions.OutboundTimeoutOptions() -> void
+Codelab.Integration.Outbound.OutboundTimeoutOptions.TotalTimeout.get -> System.TimeSpan
+Codelab.Integration.Outbound.OutboundTimeoutOptions.TotalTimeout.set -> void
+const Codelab.Integration.Outbound.OutboundDefaults.MaxRetries = 2 -> int
+const Codelab.Integration.Outbound.OutboundDefaults.MaxRetriesCeiling = 10 -> int
+override Codelab.Integration.Classification.OutboundFailure.Equals(object? obj) -> bool
+override Codelab.Integration.Classification.OutboundFailure.GetHashCode() -> int
+override Codelab.Integration.Classification.OutboundFailure.ToString() -> string!
+static Codelab.Integration.Classification.OutboundFailure.operator !=(Codelab.Integration.Classification.OutboundFailure? left, Codelab.Integration.Classification.OutboundFailure? right) -> bool
+static Codelab.Integration.Classification.OutboundFailure.operator ==(Codelab.Integration.Classification.OutboundFailure? left, Codelab.Integration.Classification.OutboundFailure? right) -> bool
+static Codelab.Integration.Classification.OutboundFailureClassifier.Classify(System.Exception! exception) -> Codelab.Integration.Classification.OutboundFailure!
+static Codelab.Integration.Classification.OutboundFailureClassifier.Classify(System.Net.Http.HttpResponseMessage! response) -> Codelab.Integration.Classification.OutboundFailure?
+static Codelab.Integration.Classification.OutboundFailureClassifier.Classify(System.Net.HttpStatusCode statusCode) -> Codelab.Integration.Classification.OutboundFailure?
+static Codelab.Integration.Outbound.OutboundClientServiceCollectionExtensions.AddCodelabOutboundClient<TClient>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, string! name, Microsoft.Extensions.Configuration.IConfiguration! section) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
+static Codelab.Integration.Outbound.OutboundClientServiceCollectionExtensions.AddCodelabOutboundClient<TClient>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, string! name, System.Action<Codelab.Integration.Outbound.OutboundClientOptions!>! configure) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
+static Codelab.Integration.Outbound.OutboundClientServiceCollectionExtensions.AddCodelabOutboundHandler<THandler>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Codelab.Integration.Outbound.OutboundRequestExtensions.IsMarkedIdempotent(this System.Net.Http.HttpRequestMessage! request) -> bool
+static Codelab.Integration.Outbound.OutboundRequestExtensions.MarkIdempotent(this System.Net.Http.HttpRequestMessage! request) -> System.Net.Http.HttpRequestMessage!
+static readonly Codelab.Integration.Outbound.OutboundDefaults.AttemptTimeout -> System.TimeSpan
+static readonly Codelab.Integration.Outbound.OutboundDefaults.MinimumTimeout -> System.TimeSpan
+static readonly Codelab.Integration.Outbound.OutboundDefaults.RetryBaseDelay -> System.TimeSpan
+static readonly Codelab.Integration.Outbound.OutboundDefaults.RetryMaxDelay -> System.TimeSpan
+static readonly Codelab.Integration.Outbound.OutboundDefaults.TotalTimeout -> System.TimeSpan

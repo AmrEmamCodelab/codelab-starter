@@ -1,0 +1,67 @@
+{
+  "description": "Files a harvest-commit batch (phase 1 onwards) must never stage: vector values, key fixtures, key files, settings with keys, national-integration code and identity code outside the security core. Tested against provenance/origins (what was really staged). This folder is excepted in scrub-exceptions.txt.",
+  "forbiddenSourcePatterns": [
+    {
+      "reason": "vector JSON (vectors are regenerated from starter-only fixture keys)",
+      "pattern": "\\.vectors\\.json$"
+    },
+    {
+      "reason": "C# vector/key fixture values",
+      "pattern": "(^|/)SecurityVectorFixtures\\.cs$"
+    },
+    {
+      "reason": "C# vector tests consume source-product vector files",
+      "pattern": "VectorTests\\.cs$"
+    },
+    {
+      "reason": "C# vector coverage list",
+      "pattern": "(^|/)VectorCoverage\\.cs$"
+    },
+    {
+      "reason": "TS vector drivers and coverage carry fixture values",
+      "pattern": "(^|/)testing/security/"
+    },
+    {
+      "reason": "vector generator scripts",
+      "pattern": "(^|/)gen-[^/]*-vectors\\.mjs$"
+    },
+    {
+      "reason": "key files",
+      "pattern": "\\.(pfx|p12|pem|key|snk)$"
+    },
+    {
+      "reason": "settings files carry keys",
+      "pattern": "(^|/)appsettings[^/]*\\.json$"
+    },
+    {
+      "reason": "national identity-lookup throttle",
+      "pattern": "IdentityVerifyThrottle"
+    },
+    {
+      "reason": "national-integration code",
+      "pattern": "nafath|yakeen|nic-simulator",
+      "flags": "i"
+    },
+    {
+      "reason": "SSO logout hints are identity (phase 3), not the security core",
+      "pattern": "SsoLogoutHint"
+    }
+  ],
+  "flaggedSamples": [
+    "docs/security/a.vectors.json",
+    "x/SecurityVectorFixtures.cs",
+    "x/PublicIdCodecVectorTests.cs",
+    "src/testing/security/drivers.ts",
+    "app/appsettings.Development.json",
+    "certs/signing.pfx",
+    "svc/YakeenClient.cs",
+    "services/nafath-service/a.cs",
+    "x/Security/IdentityVerifyThrottle.cs"
+  ],
+  "allowedSamples": [
+    "src/app/core/security/canonical.ts",
+    "x/Security/SigningKeyring.cs",
+    "x/Tests/SecurityKeyringValidatorTests.cs",
+    "x/Middleware/SecurityHeadersMiddleware.cs"
+  ]
+}

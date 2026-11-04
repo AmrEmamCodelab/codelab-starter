@@ -1,0 +1,295 @@
+#nullable enable
+Codelab.Testing.Architecture.AssemblyPurityRules
+Codelab.Testing.Architecture.CompiledModule
+Codelab.Testing.Architecture.CompiledModule.<Clone>$() -> Codelab.Testing.Architecture.CompiledModule!
+Codelab.Testing.Architecture.CompiledModule.CompiledModule(string! Module, string! Kind, string! Path, System.Collections.Generic.IReadOnlyList<string!>! MayDependOn, System.Collections.Generic.IReadOnlyList<string!>! MustNotDependOn) -> void
+Codelab.Testing.Architecture.CompiledModule.Deconstruct(out string! Module, out string! Kind, out string! Path, out System.Collections.Generic.IReadOnlyList<string!>! MayDependOn, out System.Collections.Generic.IReadOnlyList<string!>! MustNotDependOn) -> void
+Codelab.Testing.Architecture.CompiledModule.Equals(Codelab.Testing.Architecture.CompiledModule? other) -> bool
+Codelab.Testing.Architecture.CompiledModule.IsDotnet.get -> bool
+Codelab.Testing.Architecture.CompiledModule.Kind.get -> string!
+Codelab.Testing.Architecture.CompiledModule.Kind.init -> void
+Codelab.Testing.Architecture.CompiledModule.MayDependOn.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Testing.Architecture.CompiledModule.MayDependOn.init -> void
+Codelab.Testing.Architecture.CompiledModule.Module.get -> string!
+Codelab.Testing.Architecture.CompiledModule.Module.init -> void
+Codelab.Testing.Architecture.CompiledModule.MustNotDependOn.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Testing.Architecture.CompiledModule.MustNotDependOn.init -> void
+Codelab.Testing.Architecture.CompiledModule.Path.get -> string!
+Codelab.Testing.Architecture.CompiledModule.Path.init -> void
+Codelab.Testing.Architecture.CompiledRules
+Codelab.Testing.Architecture.CompiledRules.DotnetModules.get -> System.Collections.Generic.IEnumerable<Codelab.Testing.Architecture.CompiledModule!>!
+Codelab.Testing.Architecture.CompiledRules.Get(string! module) -> Codelab.Testing.Architecture.CompiledModule!
+Codelab.Testing.Architecture.CompiledRules.Modules.get -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Architecture.CompiledModule!>!
+Codelab.Testing.Architecture.CompiledRules.SchemaVersion.get -> int
+Codelab.Testing.Architecture.LayerNames
+Codelab.Testing.Architecture.LayerRules
+Codelab.Testing.Architecture.ModuleBoundaryRules
+Codelab.Testing.Architecture.ModuleNamespaceMap
+Codelab.Testing.Architecture.ModuleNamespaceMap.NamespaceOf(string! module) -> string?
+Codelab.Testing.Architecture.ModuleNamespaceMap.Namespaces.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Codelab.Testing.Architecture.RepositoryRoot
+Codelab.Testing.Checks.CheckResult
+Codelab.Testing.Checks.CheckResult.CheckResult(string! title, System.Collections.Generic.IEnumerable<string!>! violations, int examined) -> void
+Codelab.Testing.Checks.CheckResult.Describe() -> string!
+Codelab.Testing.Checks.CheckResult.Examined.get -> int
+Codelab.Testing.Checks.CheckResult.IsSuccessful.get -> bool
+Codelab.Testing.Checks.CheckResult.IsVacuous.get -> bool
+Codelab.Testing.Checks.CheckResult.ThrowIfFailed() -> void
+Codelab.Testing.Checks.CheckResult.Title.get -> string!
+Codelab.Testing.Checks.CheckResult.Violations.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Testing.Checks.ContractViolationException
+Codelab.Testing.Checks.ContractViolationException.ContractViolationException(Codelab.Testing.Checks.CheckResult! result) -> void
+Codelab.Testing.Checks.ContractViolationException.Result.get -> Codelab.Testing.Checks.CheckResult!
+Codelab.Testing.Contracts.EndpointContracts
+Codelab.Testing.Contracts.EndpointDescriptions
+Codelab.Testing.Contracts.ProblemJsonContract
+Codelab.Testing.Contracts.ProblemJsonOptions
+Codelab.Testing.Contracts.ProblemJsonOptions.EmptyJsonBody.get -> string!
+Codelab.Testing.Contracts.ProblemJsonOptions.EmptyJsonBody.init -> void
+Codelab.Testing.Contracts.ProblemJsonOptions.ExcludedEndpoints.get -> System.Collections.Generic.ISet<string!>!
+Codelab.Testing.Contracts.ProblemJsonOptions.ExcludedEndpoints.init -> void
+Codelab.Testing.Contracts.ProblemJsonOptions.ProblemJsonOptions() -> void
+Codelab.Testing.Contracts.ProblemJsonOptions.RequiredMembers.get -> System.Collections.Generic.IList<string!>!
+Codelab.Testing.Contracts.ProblemJsonOptions.RequiredMembers.init -> void
+Codelab.Testing.Contracts.ProblemJsonOptions.RouteValuePlaceholder.get -> string!
+Codelab.Testing.Contracts.ProblemJsonOptions.RouteValuePlaceholder.init -> void
+Codelab.Testing.Contracts.ProblemJsonProbe
+Codelab.Testing.Contracts.ProblemJsonProbe.<Clone>$() -> Codelab.Testing.Contracts.ProblemJsonProbe!
+Codelab.Testing.Contracts.ProblemJsonProbe.Deconstruct(out System.Net.Http.HttpMethod! Method, out string! Path, out string? JsonBody) -> void
+Codelab.Testing.Contracts.ProblemJsonProbe.Equals(Codelab.Testing.Contracts.ProblemJsonProbe? other) -> bool
+Codelab.Testing.Contracts.ProblemJsonProbe.JsonBody.get -> string?
+Codelab.Testing.Contracts.ProblemJsonProbe.JsonBody.init -> void
+Codelab.Testing.Contracts.ProblemJsonProbe.Method.get -> System.Net.Http.HttpMethod!
+Codelab.Testing.Contracts.ProblemJsonProbe.Method.init -> void
+Codelab.Testing.Contracts.ProblemJsonProbe.Path.get -> string!
+Codelab.Testing.Contracts.ProblemJsonProbe.Path.init -> void
+Codelab.Testing.Contracts.ProblemJsonProbe.ProblemJsonProbe(System.Net.Http.HttpMethod! Method, string! Path, string? JsonBody = null) -> void
+Codelab.Testing.Contracts.PublicIdContract
+Codelab.Testing.Contracts.WireJsonSweep
+Codelab.Testing.Contracts.WireTypes
+Codelab.Testing.Logging.CanaryLeak
+Codelab.Testing.Logging.CanaryLeak.<Clone>$() -> Codelab.Testing.Logging.CanaryLeak!
+Codelab.Testing.Logging.CanaryLeak.CanaryIndex.get -> int
+Codelab.Testing.Logging.CanaryLeak.CanaryIndex.init -> void
+Codelab.Testing.Logging.CanaryLeak.CanaryLeak(int EventIndex, string! MessageTemplate, string! Location, int CanaryIndex) -> void
+Codelab.Testing.Logging.CanaryLeak.Deconstruct(out int EventIndex, out string! MessageTemplate, out string! Location, out int CanaryIndex) -> void
+Codelab.Testing.Logging.CanaryLeak.Equals(Codelab.Testing.Logging.CanaryLeak? other) -> bool
+Codelab.Testing.Logging.CanaryLeak.EventIndex.get -> int
+Codelab.Testing.Logging.CanaryLeak.EventIndex.init -> void
+Codelab.Testing.Logging.CanaryLeak.Location.get -> string!
+Codelab.Testing.Logging.CanaryLeak.Location.init -> void
+Codelab.Testing.Logging.CanaryLeak.MessageTemplate.get -> string!
+Codelab.Testing.Logging.CanaryLeak.MessageTemplate.init -> void
+Codelab.Testing.Logging.CanaryLogSink
+Codelab.Testing.Logging.CanaryLogSink.CanaryLogSink(System.Collections.Generic.IEnumerable<string!>! canaries) -> void
+Codelab.Testing.Logging.CanaryLogSink.Check() -> Codelab.Testing.Checks.CheckResult!
+Codelab.Testing.Logging.CanaryLogSink.Emit(Serilog.Events.LogEvent! logEvent) -> void
+Codelab.Testing.Logging.CanaryLogSink.Events.get -> System.Collections.Generic.IReadOnlyList<Serilog.Events.LogEvent!>!
+Codelab.Testing.Logging.CanaryLogSink.FindLeaks() -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Logging.CanaryLeak!>!
+Codelab.Testing.Sweeps.GlobPattern
+Codelab.Testing.Sweeps.IdentifierNormalizer
+Codelab.Testing.Sweeps.SourceSweep
+Codelab.Testing.Sweeps.SourceSweepDefaults
+Codelab.Testing.Sweeps.SourceSweepOptions
+Codelab.Testing.Sweeps.SourceSweepOptions.Allowances.get -> System.Collections.Generic.IList<Codelab.Testing.Sweeps.SweepAllowance!>!
+Codelab.Testing.Sweeps.SourceSweepOptions.Allowances.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedDirectoryNames.get -> System.Collections.Generic.IList<string!>!
+Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedDirectoryNames.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedPaths.get -> System.Collections.Generic.IList<string!>!
+Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedPaths.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.IncludeExtensions.get -> System.Collections.Generic.IList<string!>!
+Codelab.Testing.Sweeps.SourceSweepOptions.IncludeExtensions.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.MaxFileBytes.get -> long
+Codelab.Testing.Sweeps.SourceSweepOptions.MaxFileBytes.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.Root.get -> string!
+Codelab.Testing.Sweeps.SourceSweepOptions.Root.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.SourceSweepOptions() -> void
+Codelab.Testing.Sweeps.SweepAllowance
+Codelab.Testing.Sweeps.SweepAllowance.<Clone>$() -> Codelab.Testing.Sweeps.SweepAllowance!
+Codelab.Testing.Sweeps.SweepAllowance.Allows(string! relativePath, string! ruleId) -> bool
+Codelab.Testing.Sweeps.SweepAllowance.Deconstruct(out string! Glob, out System.Collections.Generic.IReadOnlyList<string!>! RuleIds) -> void
+Codelab.Testing.Sweeps.SweepAllowance.Equals(Codelab.Testing.Sweeps.SweepAllowance? other) -> bool
+Codelab.Testing.Sweeps.SweepAllowance.Glob.get -> string!
+Codelab.Testing.Sweeps.SweepAllowance.Glob.init -> void
+Codelab.Testing.Sweeps.SweepAllowance.RuleIds.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Testing.Sweeps.SweepAllowance.RuleIds.init -> void
+Codelab.Testing.Sweeps.SweepAllowance.SweepAllowance(string! Glob, System.Collections.Generic.IReadOnlyList<string!>! RuleIds) -> void
+Codelab.Testing.Sweeps.SweepConfigurationFiles
+Codelab.Testing.Sweeps.SweepFinding
+Codelab.Testing.Sweeps.SweepFinding.<Clone>$() -> Codelab.Testing.Sweeps.SweepFinding!
+Codelab.Testing.Sweeps.SweepFinding.Deconstruct(out string! RuleId, out string! RelativePath, out int Line, out string! Excerpt) -> void
+Codelab.Testing.Sweeps.SweepFinding.Equals(Codelab.Testing.Sweeps.SweepFinding? other) -> bool
+Codelab.Testing.Sweeps.SweepFinding.Excerpt.get -> string!
+Codelab.Testing.Sweeps.SweepFinding.Excerpt.init -> void
+Codelab.Testing.Sweeps.SweepFinding.Line.get -> int
+Codelab.Testing.Sweeps.SweepFinding.Line.init -> void
+Codelab.Testing.Sweeps.SweepFinding.RelativePath.get -> string!
+Codelab.Testing.Sweeps.SweepFinding.RelativePath.init -> void
+Codelab.Testing.Sweeps.SweepFinding.RuleId.get -> string!
+Codelab.Testing.Sweeps.SweepFinding.RuleId.init -> void
+Codelab.Testing.Sweeps.SweepFinding.SweepFinding(string! RuleId, string! RelativePath, int Line, string! Excerpt) -> void
+Codelab.Testing.Sweeps.SweepRule
+Codelab.Testing.Sweeps.SweepRule.<Clone>$() -> Codelab.Testing.Sweeps.SweepRule!
+Codelab.Testing.Sweeps.SweepRule.Deconstruct(out string! Id, out System.Text.RegularExpressions.Regex! Pattern, out string! Message, out bool MatchNormalized, out bool RedactExcerpt) -> void
+Codelab.Testing.Sweeps.SweepRule.Equals(Codelab.Testing.Sweeps.SweepRule? other) -> bool
+Codelab.Testing.Sweeps.SweepRule.Id.get -> string!
+Codelab.Testing.Sweeps.SweepRule.Id.init -> void
+Codelab.Testing.Sweeps.SweepRule.MatchNormalized.get -> bool
+Codelab.Testing.Sweeps.SweepRule.MatchNormalized.init -> void
+Codelab.Testing.Sweeps.SweepRule.Message.get -> string!
+Codelab.Testing.Sweeps.SweepRule.Message.init -> void
+Codelab.Testing.Sweeps.SweepRule.Pattern.get -> System.Text.RegularExpressions.Regex!
+Codelab.Testing.Sweeps.SweepRule.Pattern.init -> void
+Codelab.Testing.Sweeps.SweepRule.RedactExcerpt.get -> bool
+Codelab.Testing.Sweeps.SweepRule.RedactExcerpt.init -> void
+Codelab.Testing.Sweeps.SweepRule.SweepRule(string! Id, System.Text.RegularExpressions.Regex! Pattern, string! Message, bool MatchNormalized = false, bool RedactExcerpt = false) -> void
+Codelab.Testing.Sweeps.SweepRules
+Codelab.Testing.Vectors.GoldenVectorCase
+Codelab.Testing.Vectors.GoldenVectorCase.Expected.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Codelab.Testing.Vectors.GoldenVectorCase.Input(string! field) -> System.Text.Json.JsonElement
+Codelab.Testing.Vectors.GoldenVectorCase.InputString(string! field) -> string!
+Codelab.Testing.Vectors.GoldenVectorCase.Name.get -> string!
+Codelab.Testing.Vectors.GoldenVectorFile
+Codelab.Testing.Vectors.GoldenVectorFile.Cases.get -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Vectors.GoldenVectorCase!>!
+Codelab.Testing.Vectors.GoldenVectorFile.FixtureKeyId.get -> string!
+Codelab.Testing.Vectors.GoldenVectorFile.Prefix.get -> string!
+Codelab.Testing.Vectors.GoldenVectorFile.SchemaVersion.get -> int
+Codelab.Testing.Vectors.GoldenVectorReport
+Codelab.Testing.Vectors.GoldenVectorReport.Compared.get -> int
+Codelab.Testing.Vectors.GoldenVectorReport.Context.get -> Codelab.Testing.Vectors.VectorRunContext!
+Codelab.Testing.Vectors.GoldenVectorReport.Mismatches.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Testing.Vectors.GoldenVectorReport.Skipped.get -> int
+Codelab.Testing.Vectors.GoldenVectorReport.ThrowIfFailed() -> void
+Codelab.Testing.Vectors.GoldenVectorReport.ToCheckResult() -> Codelab.Testing.Checks.CheckResult!
+Codelab.Testing.Vectors.GoldenVectorRunner
+Codelab.Testing.Vectors.GoldenVectorRunner.GoldenVectorRunner(string! prefix, Codelab.Testing.Vectors.VectorExpectationRebaser? rebaser = null) -> void
+Codelab.Testing.Vectors.GoldenVectorRunner.Run(Codelab.Testing.Vectors.GoldenVectorFile! file, System.Func<Codelab.Testing.Vectors.GoldenVectorCase!, Codelab.Testing.Vectors.VectorRunContext!, System.Collections.Generic.IReadOnlyDictionary<string!, string!>!>! compute) -> Codelab.Testing.Vectors.GoldenVectorReport!
+Codelab.Testing.Vectors.VectorExpectationRebaser
+Codelab.Testing.Vectors.VectorExpectationRebaser.VectorExpectationRebaser() -> void
+Codelab.Testing.Vectors.VectorRunContext
+Codelab.Testing.Vectors.VectorRunContext.<Clone>$() -> Codelab.Testing.Vectors.VectorRunContext!
+Codelab.Testing.Vectors.VectorRunContext.Deconstruct(out string! Prefix, out string! PinnedPrefix, out string! FixtureKeyId) -> void
+Codelab.Testing.Vectors.VectorRunContext.Equals(Codelab.Testing.Vectors.VectorRunContext? other) -> bool
+Codelab.Testing.Vectors.VectorRunContext.FixtureKeyId.get -> string!
+Codelab.Testing.Vectors.VectorRunContext.FixtureKeyId.init -> void
+Codelab.Testing.Vectors.VectorRunContext.IsPinnedPrefix.get -> bool
+Codelab.Testing.Vectors.VectorRunContext.PinnedPrefix.get -> string!
+Codelab.Testing.Vectors.VectorRunContext.PinnedPrefix.init -> void
+Codelab.Testing.Vectors.VectorRunContext.Prefix.get -> string!
+Codelab.Testing.Vectors.VectorRunContext.Prefix.init -> void
+Codelab.Testing.Vectors.VectorRunContext.VectorRunContext(string! Prefix, string! PinnedPrefix, string! FixtureKeyId) -> void
+const Codelab.Testing.Architecture.CompiledRules.DotnetKind = "dotnet" -> string!
+const Codelab.Testing.Architecture.CompiledRules.RelativePath = "rules/rules.compiled.json" -> string!
+const Codelab.Testing.Architecture.LayerNames.Api = "Api" -> string!
+const Codelab.Testing.Architecture.LayerNames.Application = "Application" -> string!
+const Codelab.Testing.Architecture.LayerNames.Composition = "Composition" -> string!
+const Codelab.Testing.Architecture.LayerNames.Domain = "Domain" -> string!
+const Codelab.Testing.Architecture.LayerNames.Infrastructure = "Infrastructure" -> string!
+const Codelab.Testing.Architecture.LayerRules.AspNetCoreNamespace = "Microsoft.AspNetCore" -> string!
+const Codelab.Testing.Architecture.LayerRules.DbContextTypeName = "Microsoft.EntityFrameworkCore.DbContext" -> string!
+const Codelab.Testing.Architecture.LayerRules.EntityFrameworkNamespace = "Microsoft.EntityFrameworkCore" -> string!
+const Codelab.Testing.Contracts.ProblemJsonContract.ProblemJsonMediaType = "application/problem+json" -> string!
+const Codelab.Testing.Logging.CanaryLeak.ExceptionLocation = "exception" -> string!
+const Codelab.Testing.Logging.CanaryLeak.MessageLocation = "message" -> string!
+const Codelab.Testing.Logging.CanaryLeak.PropertyLocation = "property:" -> string!
+const Codelab.Testing.Logging.CanaryLeak.TemplateLocation = "template" -> string!
+const Codelab.Testing.Sweeps.SourceSweepDefaults.MaxFileBytes = 2097152 -> long
+const Codelab.Testing.Sweeps.SweepConfigurationFiles.TermRulePrefix = "term-" -> string!
+const Codelab.Testing.Sweeps.SweepRules.BrandRuleId = "brand-id" -> string!
+const Codelab.Testing.Sweeps.SweepRules.SecretRulePrefix = "secret-" -> string!
+const Codelab.Testing.Vectors.GoldenVectorFile.ExpectedPrefix = "expected" -> string!
+const Codelab.Testing.Vectors.VectorExpectationRebaser.Base64Suffix = "Base64" -> string!
+const Codelab.Testing.Vectors.VectorExpectationRebaser.CanonicalMarker = "Canonical" -> string!
+override Codelab.Testing.Architecture.CompiledModule.Equals(object? obj) -> bool
+override Codelab.Testing.Architecture.CompiledModule.GetHashCode() -> int
+override Codelab.Testing.Architecture.CompiledModule.ToString() -> string!
+override Codelab.Testing.Contracts.ProblemJsonProbe.Equals(object? obj) -> bool
+override Codelab.Testing.Contracts.ProblemJsonProbe.GetHashCode() -> int
+override Codelab.Testing.Contracts.ProblemJsonProbe.ToString() -> string!
+override Codelab.Testing.Logging.CanaryLeak.Equals(object? obj) -> bool
+override Codelab.Testing.Logging.CanaryLeak.GetHashCode() -> int
+override Codelab.Testing.Logging.CanaryLeak.ToString() -> string!
+override Codelab.Testing.Sweeps.SweepAllowance.Equals(object? obj) -> bool
+override Codelab.Testing.Sweeps.SweepAllowance.GetHashCode() -> int
+override Codelab.Testing.Sweeps.SweepAllowance.ToString() -> string!
+override Codelab.Testing.Sweeps.SweepFinding.Equals(object? obj) -> bool
+override Codelab.Testing.Sweeps.SweepFinding.GetHashCode() -> int
+override Codelab.Testing.Sweeps.SweepFinding.ToString() -> string!
+override Codelab.Testing.Sweeps.SweepRule.Equals(object? obj) -> bool
+override Codelab.Testing.Sweeps.SweepRule.GetHashCode() -> int
+override Codelab.Testing.Sweeps.SweepRule.ToString() -> string!
+override Codelab.Testing.Vectors.VectorRunContext.Equals(object? obj) -> bool
+override Codelab.Testing.Vectors.VectorRunContext.GetHashCode() -> int
+override Codelab.Testing.Vectors.VectorRunContext.ToString() -> string!
+static Codelab.Testing.Architecture.AssemblyPurityRules.HostingAndPersistencePrefixes.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Architecture.AssemblyPurityRules.ReferencesNone(System.Reflection.Assembly! assembly, System.Collections.Generic.IEnumerable<string!>! forbiddenPrefixes) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.AssemblyPurityRules.SignaturesMentionNone(System.Reflection.Assembly! assembly, string! namespaceName, System.Collections.Generic.IEnumerable<string!>! forbiddenPrefixes) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.CompiledModule.operator !=(Codelab.Testing.Architecture.CompiledModule? left, Codelab.Testing.Architecture.CompiledModule? right) -> bool
+static Codelab.Testing.Architecture.CompiledModule.operator ==(Codelab.Testing.Architecture.CompiledModule? left, Codelab.Testing.Architecture.CompiledModule? right) -> bool
+static Codelab.Testing.Architecture.CompiledRules.Load(string! path) -> Codelab.Testing.Architecture.CompiledRules!
+static Codelab.Testing.Architecture.CompiledRules.LoadFromRepository(string? startDirectory = null) -> Codelab.Testing.Architecture.CompiledRules!
+static Codelab.Testing.Architecture.CompiledRules.Parse(string! json, string! sourceName) -> Codelab.Testing.Architecture.CompiledRules!
+static Codelab.Testing.Architecture.LayerRules.ApiHasNoDbContext(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies, string! moduleNamespace) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.LayerRules.ApplicationUsesPortsOnly(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies, string! moduleNamespace) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.LayerRules.Check(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies, string! moduleNamespace) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.LayerRules.DbContextTypes(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Architecture.LayerRules.DomainIsInnermost(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies, string! moduleNamespace) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.ModuleBoundaryRules.Check(Codelab.Testing.Architecture.CompiledRules! rules, Codelab.Testing.Architecture.ModuleNamespaceMap! namespaces, System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.ModuleBoundaryRules.CheckRepository(System.Collections.Generic.IEnumerable<System.Reflection.Assembly!>! assemblies, string? startDirectory = null) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Architecture.ModuleNamespaceMap.FromPairs(System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string!, string!>>! pairs) -> Codelab.Testing.Architecture.ModuleNamespaceMap!
+static Codelab.Testing.Architecture.ModuleNamespaceMap.FromProjects(Codelab.Testing.Architecture.CompiledRules! rules, string! repositoryRoot) -> Codelab.Testing.Architecture.ModuleNamespaceMap!
+static Codelab.Testing.Architecture.RepositoryRoot.Find(string! markerRelativePath, string? startDirectory = null) -> string!
+static Codelab.Testing.Checks.CheckResult.Combine(string! title, System.Collections.Generic.IEnumerable<Codelab.Testing.Checks.CheckResult!>! results) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.EndpointContracts.AllEndpointsHavePermission(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints, System.Type! permissionAttributeType, System.Collections.Generic.IReadOnlyCollection<string!>! anonymousAllowlist) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.EndpointContracts.AllEndpointsHaveValidator(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints, System.Func<System.Type!, bool>! hasValidator, System.Collections.Generic.IReadOnlyCollection<string!>? exemptEndpoints = null) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.EndpointContracts.ValidatorsIn(System.Type! openValidatorInterface, params System.Reflection.Assembly![]! assemblies) -> System.Func<System.Type!, bool>!
+static Codelab.Testing.Contracts.EndpointDescriptions.HandlerParameters(Microsoft.AspNetCore.Http.Endpoint! endpoint) -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Type!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.KeyOf(Microsoft.AspNetCore.Routing.RouteEndpoint! endpoint) -> string!
+static Codelab.Testing.Contracts.EndpointDescriptions.MethodsOf(Microsoft.AspNetCore.Http.Endpoint! endpoint) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.RequestBodyTypes(Microsoft.AspNetCore.Http.Endpoint! endpoint) -> System.Collections.Generic.IReadOnlyList<System.Type!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.ResponseTypes(Microsoft.AspNetCore.Http.Endpoint! endpoint) -> System.Collections.Generic.IReadOnlyList<System.Type!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.Routable(Microsoft.AspNetCore.Routing.EndpointDataSource! dataSource) -> System.Collections.Generic.IReadOnlyList<Microsoft.AspNetCore.Routing.RouteEndpoint!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.Routable(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints) -> System.Collections.Generic.IReadOnlyList<Microsoft.AspNetCore.Routing.RouteEndpoint!>!
+static Codelab.Testing.Contracts.EndpointDescriptions.RouteOf(Microsoft.AspNetCore.Routing.RouteEndpoint! endpoint) -> string!
+static Codelab.Testing.Contracts.ProblemJsonContract.AllErrorsAreProblemJsonAsync(System.Net.Http.HttpClient! client, System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints, Codelab.Testing.Contracts.ProblemJsonOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Codelab.Testing.Checks.CheckResult!>!
+static Codelab.Testing.Contracts.ProblemJsonContract.CheckProbesAsync(System.Net.Http.HttpClient! client, System.Collections.Generic.IEnumerable<Codelab.Testing.Contracts.ProblemJsonProbe!>! probes, Codelab.Testing.Contracts.ProblemJsonOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Codelab.Testing.Checks.CheckResult!>!
+static Codelab.Testing.Contracts.ProblemJsonContract.ProbesFor(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints, Codelab.Testing.Contracts.ProblemJsonOptions? options = null) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Contracts.ProblemJsonProbe!>!
+static Codelab.Testing.Contracts.ProblemJsonContract.ProblemViolations(int status, System.Net.Http.Headers.MediaTypeHeaderValue? contentType, string! body, Codelab.Testing.Contracts.ProblemJsonOptions! options) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Contracts.ProblemJsonProbe.operator !=(Codelab.Testing.Contracts.ProblemJsonProbe? left, Codelab.Testing.Contracts.ProblemJsonProbe? right) -> bool
+static Codelab.Testing.Contracts.ProblemJsonProbe.operator ==(Codelab.Testing.Contracts.ProblemJsonProbe? left, Codelab.Testing.Contracts.ProblemJsonProbe? right) -> bool
+static Codelab.Testing.Contracts.PublicIdContract.AllIdsArePublicId(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Http.Endpoint!>! endpoints, System.Func<System.Type!, bool>! isWireIdType, System.Collections.Generic.IReadOnlyCollection<string!>? allowlistedMembers = null) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.PublicIdContract.AllWireTypeIdsArePublicId(System.Collections.Generic.IEnumerable<System.Type!>! wireTypes, System.Func<System.Type!, bool>! isWireIdType, System.Collections.Generic.IReadOnlyCollection<string!>? allowlistedMembers = null) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.WireJsonSweep.Check(string! json, string! source, System.Collections.Generic.IReadOnlyCollection<string!>! allowedKeys) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Contracts.WireJsonSweep.FindNumericIds(string! json, System.Collections.Generic.IReadOnlyCollection<string!>! allowedKeys) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Contracts.WireJsonSweep.IsIdKey(string! key) -> bool
+static Codelab.Testing.Contracts.WireTypes.ElementOf(System.Type! type) -> System.Type!
+static Codelab.Testing.Contracts.WireTypes.IsIdName(string! memberName) -> bool
+static Codelab.Testing.Contracts.WireTypes.UnwrapResult(System.Type! returnType) -> System.Type?
+static Codelab.Testing.Logging.CanaryLeak.operator !=(Codelab.Testing.Logging.CanaryLeak? left, Codelab.Testing.Logging.CanaryLeak? right) -> bool
+static Codelab.Testing.Logging.CanaryLeak.operator ==(Codelab.Testing.Logging.CanaryLeak? left, Codelab.Testing.Logging.CanaryLeak? right) -> bool
+static Codelab.Testing.Logging.CanaryLogSink.NewCanary(string! label) -> string!
+static Codelab.Testing.Sweeps.GlobPattern.IsMatch(string! path, string! pattern) -> bool
+static Codelab.Testing.Sweeps.GlobPattern.ToPosix(string! path) -> string!
+static Codelab.Testing.Sweeps.IdentifierNormalizer.Normalize(string! line) -> string!
+static Codelab.Testing.Sweeps.SourceSweep.Check(Codelab.Testing.Sweeps.SourceSweepOptions! options, System.Collections.Generic.IEnumerable<Codelab.Testing.Sweeps.SweepRule!>! rules) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Sweeps.SourceSweep.Run(Codelab.Testing.Sweeps.SourceSweepOptions! options, System.Collections.Generic.IEnumerable<Codelab.Testing.Sweeps.SweepRule!>! rules) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepFinding!>!
+static Codelab.Testing.Sweeps.SourceSweep.SweepText(string! text, string! relativePath, System.Collections.Generic.IEnumerable<Codelab.Testing.Sweeps.SweepRule!>! rules, System.Collections.Generic.IEnumerable<Codelab.Testing.Sweeps.SweepAllowance!>? allowances = null) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepFinding!>!
+static Codelab.Testing.Sweeps.SweepAllowance.operator !=(Codelab.Testing.Sweeps.SweepAllowance? left, Codelab.Testing.Sweeps.SweepAllowance? right) -> bool
+static Codelab.Testing.Sweeps.SweepAllowance.operator ==(Codelab.Testing.Sweeps.SweepAllowance? left, Codelab.Testing.Sweeps.SweepAllowance? right) -> bool
+static Codelab.Testing.Sweeps.SweepConfigurationFiles.ParseExceptions(string! text, string! sourceName) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepAllowance!>!
+static Codelab.Testing.Sweeps.SweepConfigurationFiles.ParseTermRules(string! text, string! sourceName) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepRule!>!
+static Codelab.Testing.Sweeps.SweepConfigurationFiles.ReadExceptions(string! path) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepAllowance!>!
+static Codelab.Testing.Sweeps.SweepConfigurationFiles.ReadTermRules(string! path) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepRule!>!
+static Codelab.Testing.Sweeps.SweepFinding.operator !=(Codelab.Testing.Sweeps.SweepFinding? left, Codelab.Testing.Sweeps.SweepFinding? right) -> bool
+static Codelab.Testing.Sweeps.SweepFinding.operator ==(Codelab.Testing.Sweeps.SweepFinding? left, Codelab.Testing.Sweeps.SweepFinding? right) -> bool
+static Codelab.Testing.Sweeps.SweepRule.operator !=(Codelab.Testing.Sweeps.SweepRule? left, Codelab.Testing.Sweeps.SweepRule? right) -> bool
+static Codelab.Testing.Sweeps.SweepRule.operator ==(Codelab.Testing.Sweeps.SweepRule? left, Codelab.Testing.Sweeps.SweepRule? right) -> bool
+static Codelab.Testing.Sweeps.SweepRules.BannedLiterals(string! ruleId, System.Collections.Generic.IEnumerable<string!>! literals, string! message, bool ignoreCase = false) -> Codelab.Testing.Sweeps.SweepRule!
+static Codelab.Testing.Sweeps.SweepRules.BrandIdentifiers(System.Collections.Generic.IEnumerable<string!>! brands) -> Codelab.Testing.Sweeps.SweepRule!
+static Codelab.Testing.Sweeps.SweepRules.Secrets() -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepRule!>!
+static Codelab.Testing.Vectors.GoldenVectorFile.Load(string! path) -> Codelab.Testing.Vectors.GoldenVectorFile!
+static Codelab.Testing.Vectors.GoldenVectorFile.Parse(string! json, string! sourceName) -> Codelab.Testing.Vectors.GoldenVectorFile!
+static Codelab.Testing.Vectors.VectorExpectationRebaser.Default.get -> Codelab.Testing.Vectors.VectorExpectationRebaser!
+static Codelab.Testing.Vectors.VectorRunContext.operator !=(Codelab.Testing.Vectors.VectorRunContext? left, Codelab.Testing.Vectors.VectorRunContext? right) -> bool
+static Codelab.Testing.Vectors.VectorRunContext.operator ==(Codelab.Testing.Vectors.VectorRunContext? left, Codelab.Testing.Vectors.VectorRunContext? right) -> bool
+virtual Codelab.Testing.Vectors.VectorExpectationRebaser.Rebase(string! field, string! pinnedValue, Codelab.Testing.Vectors.VectorRunContext! context) -> string?

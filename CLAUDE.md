@@ -43,10 +43,12 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 ## Build
 
 ```powershell
-# Full CI contract (10 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
+# Full CI contract (14 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI
-# Pack Codelab.Build.Sdk and @codelab/ng-tools prereleases into feed\nuget and feed\npm
+# Pack every package in packages/versions.json as <version>-ci.<n> prereleases into feed\nuget and feed\npm
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack
+# Release the exact versions (platform owner only; packs after a green CI, refused when a version is in the feed)
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release
 ```
 
 **dotnet is private on this machine.** The .NET 10 SDK (10.0.403, pinned in `global.json`) is at `E:\codelab-tools\dotnet10\dotnet.exe` and is **not on PATH**; the `dotnet` on PATH is .NET 9 and cannot build this repo. Invoke that exe directly, or set `$env:CODELAB_DOTNET`. `build.ps1` resolves `CODELAB_DOTNET`, then that path, then `dotnet` on PATH. Details: [tools/README.md](tools/README.md).

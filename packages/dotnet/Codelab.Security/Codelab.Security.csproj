@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Security: the versioned security core (signing, PublicId, canonical framing, replay guards, headers, CORS
+    validation, body ceiling, trusted-proxy rate limiting, key-ring guards, sealed tickets, service-to-service ES256,
+    upload safety and session revocation). Read MODULE.md first. Public surface is tracked in PublicAPI.*.txt.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.Security</RootNamespace>
+    <PackageId>Codelab.Security</PackageId>
+    <CodelabPackage>true</CodelabPackage>
+    <IsPackable>true</IsPackable>
+    <Authors>Codelab</Authors>
+    <Company>Codelab</Company>
+    <Description>Codelab security core for ASP.NET Core: configurable-prefix request and response signing, opaque PublicId identifiers, canonical framing, memory and SQL Server replay guards, security headers, CORS validation, request body ceiling, trusted-proxy rate limiting, key-ring fail-fast guards with a published-material denylist, sealed one-time tickets, one ES256 service-to-service scheme, upload safety primitives and session revocation.</Description>
+    <PackageTags>codelab;security;signing;publicid;aspnetcore</PackageTags>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The OpenAPI XML-comment generator is the host's choice: it does not flow to consumers (it needs the host's interceptor setting). -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" PrivateAssets="analyzers" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Every PublishedMaterial/*.json is loaded into the published-material denylist (source digests + fixture keys). -->
+    <EmbeddedResource Include="PublishedMaterial\*.json" LogicalName="Codelab.Security.PublishedMaterial.%(Filename)%(Extension)" />
+    <!-- The EF-less, idempotent SQL Server script for the replay and session stores; also shipped under sql/. -->
+    <EmbeddedResource Include="Storage\Sql\*.sql" LogicalName="Codelab.Security.Sql.%(Filename)%(Extension)" />
+    <None Include="Storage\Sql\*.sql" Pack="true" PackagePath="sql\" />
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Security.Tests" />
+  </ItemGroup>
+</Project>

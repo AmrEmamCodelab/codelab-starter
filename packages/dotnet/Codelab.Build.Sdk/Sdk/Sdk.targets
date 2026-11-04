@@ -12,6 +12,32 @@
                       IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
   </ItemGroup>
 
+  <!--
+    Codelab clean-code analyzers (CLB1001-CLB1004). Feed mode: the dll ships inside this package at
+    analyzers/dotnet/cs, next to the Sdk folder. Source mode (the starter monorepo, no packaged dll beside Sdk/): the
+    analyzer project is referenced as an Analyzer, so a change to it needs no publish. The analyzer project never
+    references itself.
+  -->
+  <PropertyGroup>
+    <CodelabBuildAnalyzersAssembly>$([MSBuild]::NormalizePath('$(CodelabBuildSdkDirectory)', '..', 'analyzers', 'dotnet', 'cs', 'Codelab.Build.Analyzers.dll'))</CodelabBuildAnalyzersAssembly>
+    <CodelabBuildAnalyzersProject Condition="'$(CodelabBuildAnalyzersProject)' == ''">$([MSBuild]::NormalizePath('$(CodelabBuildSdkDirectory)', '..', '..', 'Codelab.Build.Analyzers', 'Codelab.Build.Analyzers.csproj'))</CodelabBuildAnalyzersProject>
+    <CodelabBuildAnalyzersFromPackage>false</CodelabBuildAnalyzersFromPackage>
+    <CodelabBuildAnalyzersFromPackage Condition="Exists('$(CodelabBuildAnalyzersAssembly)')">true</CodelabBuildAnalyzersFromPackage>
+    <CodelabBuildAnalyzersFromSource>false</CodelabBuildAnalyzersFromSource>
+    <CodelabBuildAnalyzersFromSource Condition="'$(CodelabBuildAnalyzersFromPackage)' != 'true' and Exists('$(CodelabBuildAnalyzersProject)') and '$(MSBuildProjectFullPath)' != '$(CodelabBuildAnalyzersProject)'">true</CodelabBuildAnalyzersFromSource>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CodelabEnableBuildAnalyzers)' == 'true'">
+    <Analyzer Include="$(CodelabBuildAnalyzersAssembly)" Condition="'$(CodelabBuildAnalyzersFromPackage)' == 'true'" />
+    <ProjectReference Include="$(CodelabBuildAnalyzersProject)" Condition="'$(CodelabBuildAnalyzersFromSource)' == 'true'"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"
+                      SetTargetFramework="TargetFramework=netstandard2.0" SkipGetTargetFrameworkProperties="true" />
+    <GlobalAnalyzerConfigFiles Include="$(CodelabRulesGlobalConfig)"
+                               Condition="'$(CodelabRulesGlobalConfig)' != '' and Exists('$(CodelabRulesGlobalConfig)')" />
+    <!-- Lets CLB1004 skip test projects (codelab_exclude_tests): a project NAMED *.Tests, never IsTestProject alone. -->
+    <CompilerVisibleProperty Include="MSBuildProjectName" />
+  </ItemGroup>
+
   <!-- Code-metrics thresholds (CA1502) emitted per module by tools/rules-engine. -->
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\$(CodelabProjectCodeMetricsFile)"
@@ -46,6 +72,21 @@
   <ItemGroup>
     <AssemblyMetadata Include="CodelabRelease" Value="$(CodelabRelease)" />
   </ItemGroup>
+
+  <!--
+    The quality gates cannot be switched off from a project: every value other than 'true' (False, off, 0, ...) would
+    otherwise remove the banned-API or CLB analyzers, and EnableNETAnalyzers=false or an AnalysisLevel/AnalysisMode of
+    none would remove CA1502. Only the SDK's own fixture builds (Codelab.Build.Analyzers.Tests) pass
+    CodelabFixtureGateOptOut=true on the command line; base.no-analyzer-opt-out refuses that name anywhere else.
+  -->
+  <Target Name="CodelabValidateQualityGates" BeforeTargets="BeforeBuild;CoreCompile">
+    <Error Code="CODELAB002"
+           Condition="'$(CodelabFixtureGateOptOut)' != 'true' and ('$(CodelabEnableBannedApis)' != 'true' or '$(CodelabEnableBuildAnalyzers)' != 'true')"
+           Text="CodelabEnableBannedApis and CodelabEnableBuildAnalyzers must be 'true' (got '$(CodelabEnableBannedApis)' and '$(CodelabEnableBuildAnalyzers)'). Fix the code instead; a justified exception is a module.rules.yaml exemption." />
+    <Error Code="CODELAB003"
+           Condition="'$(EnableNETAnalyzers)' != 'true' or $(AnalysisLevel.ToLowerInvariant().Contains('none')) or $(AnalysisMode.ToLowerInvariant().Contains('none'))"
+           Text="The .NET analyzers (CA1502 complexity and the CA rules) must stay on: EnableNETAnalyzers='$(EnableNETAnalyzers)', AnalysisLevel='$(AnalysisLevel)', AnalysisMode='$(AnalysisMode)'." />
+  </Target>
 
   <Target Name="CodelabValidateRelease" BeforeTargets="BeforeBuild;GenerateNuspec">
     <Error Code="CODELAB001"

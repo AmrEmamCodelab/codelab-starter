@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests for every Codelab.Testing helper. Fixtures/ holds small namespaces (modules, layers, pure and impure
+    signatures, endpoints) that the architecture and contract checks run against, so each check is proven to pass on
+    clean code and to fail, with a precise message, on the violation it exists for.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Testing\Codelab.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package assemblies whose module boundaries PackageBoundaryTests checks (rules.compiled.json)">
+    <ProjectReference Include="..\Codelab.Security\Codelab.Security.csproj" />
+    <ProjectReference Include="..\Codelab.Errors\Codelab.Errors.csproj" />
+    <ProjectReference Include="..\Codelab.Observability\Codelab.Observability.csproj" />
+    <ProjectReference Include="..\Codelab.Integration\Codelab.Integration.csproj" />
+  </ItemGroup>
+</Project>

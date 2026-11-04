@@ -70,22 +70,188 @@ batches:
         target: 'reference/structure/CONTEXT.md'
         mode: headings-only
 
-  pkg-spike:
-    description: 'Phase 1 input: the package spike (Codelab.Security, Codelab.Observability) and its sample API.'
-    # Not a git commit: a durable read-only copy of the planning spike (src/ and sample/ without bin/obj), pinned by
-    # contentDigest (lib/hashing.mjs contentDigest). extract-core refuses to copy when the folder no longer matches.
-    source:
+  # ---------------------------------------------------------------------------------------------------------------
+  # Phase 1 inputs. One batch per wave-2 owner, so each owner promotes (rewrites) exactly one batch.
+  # Staging targets live under reference/: they only lay out the staging folder. On promotion each origin entry's
+  # target becomes the rewritten repo file and the staging path moves to stagedTarget (README "Promote a batch").
+  # ---------------------------------------------------------------------------------------------------------------
+
+  # The package spike (not a git commit): a durable read-only copy of the planning spike (src/ and sample/ without
+  # bin/obj), pinned by contentDigest (lib/hashing.mjs contentDigest). extract-core refuses to copy when the folder
+  # no longer matches. The three spike batches share this one source block (YAML anchor).
+  pkg-spike-security:
+    description: 'Phase 1 input (owner: security): the spike Codelab.Security package.'
+    source: &pkgSpikeSource
       description: 'Package spike from the planning session, copied read-only on 2026-11-04'
       harvestRoot: 'E:\codelab-platform-private\harvest\pkg-spike-20261104'
       contentDigest: '9ad1460eeb38aa045053223d1d08d356e152b1b80bb09f211f026c59cbb901fa'
     entries:
-      - id: pkg-spike-src
-        source: 'src/**'
-        target: 'reference/pkg-spike/src/'
+      - id: pkg-spike-security-src
+        source: 'src/Codelab.Security/**'
+        target: 'reference/pkg-spike/src/Codelab.Security/'
         mode: copy
+
+  pkg-spike-observability:
+    description: 'Phase 1 input (owner: observability-errors): the spike Codelab.Observability package.'
+    source: *pkgSpikeSource
+    entries:
+      - id: pkg-spike-observability-src
+        source: 'src/Codelab.Observability/**'
+        target: 'reference/pkg-spike/src/Codelab.Observability/'
+        mode: copy
+
+  pkg-spike-sample:
+    description: 'Phase 1 input (owner: sample-and-release): the spike sample API and its package tests.'
+    source: *pkgSpikeSource
+    entries:
       - id: pkg-spike-sample
         source: 'sample/**'
         target: 'reference/pkg-spike/sample/'
+        mode: copy
+
+  # Harvest-commit batches. Test LOGIC only: no vector JSON, no vector/key fixture classes (the security vector
+  # fixtures, the TS signature vector drivers), no key files, no appsettings. National-integration code (identity
+  # verification throttle, gateway national profiles) is left out even where hard-deny would not catch the path.
+  p1-security:
+    description: 'Phase 1 input (owner: security): signing, PublicId, replay, headers, body ceiling, upload safety.'
+    entries:
+      # The SSO logout-hint store in the same folder is identity (phase 3), not the security core.
+      - id: infrastructure-security
+        source: 'backend/MODHS.Infrastructure/Security/{HmacProofVerifier,MemoryReplayGuard,PublicIdCodec,PublicIdKeyring,PublicIdKeyringOptions,ReplayProtectionOptions,RequestSigningOptions,SigningKeyring,SqlReplayGuard}.cs'
+        target: 'reference/p1/Codelab.Security/infrastructure-security/'
+        mode: copy
+      # IdentityVerifyThrottle is the national identity-lookup throttle: not harvested.
+      - id: api-security
+        source: 'backend/MODHS.Api/Security/{ClientErrorRateLimits,ClientErrorUserThrottle,PublicIdBindingExtensions,PublicIdModelBinder,PublicIdModelBinderProvider,PublicIdRouteConstraint,PublicIdSchemaFilter,ResponseSigningOptions,SignatureExemptAttribute,SignedRequestBinding,ThrottleRefusal,UnsignedResponseAttribute,WireIdAllowlist}.cs'
+        target: 'reference/p1/Codelab.Security/api-security/'
+        mode: copy
+      - id: api-middleware
+        source: 'backend/MODHS.Api/Middleware/*.cs'
+        target: 'reference/p1/Codelab.Security/api-middleware/'
+        mode: copy
+      - id: api-security-header-options
+        source: 'backend/MODHS.Api/Services/SecurityHeaderOptions.cs'
+        target: 'reference/p1/Codelab.Security/api-middleware/SecurityHeaderOptions.cs'
+        mode: copy
+      - id: api-body-ceiling
+        source: 'backend/MODHS.Api/Filters/RefuseOversizedBodyAttribute.cs'
+        target: 'reference/p1/Codelab.Security/api-filters/RefuseOversizedBodyAttribute.cs'
+        mode: copy
+      - id: upload-receipts
+        source: 'services/attachment-service/MODHS.Attachments.API/Services/{IReceiptSigner,ReceiptSigner}.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/receipts/'
+        mode: copy
+      - id: upload-magic-bytes
+        source: 'services/attachment-service/MODHS.Attachments.Infrastructure/{Implementations/FileExtensionValidatorService,Interfaces/IFileExtensionValidatorService}.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/magic-bytes/'
+        mode: copy
+      - id: upload-caps-options
+        source: 'services/attachment-service/MODHS.Attachments.DTOs/ApplicationSettings/FileStorage.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/caps/FileStorage.cs'
+        mode: copy
+      - id: upload-caps-refusals
+        source: 'services/attachment-service/MODHS.Attachments.DTOs/Exceptions/UploadValidationException.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/caps/UploadValidationException.cs'
+        mode: copy
+      - id: upload-caps-enforcement
+        source: 'services/attachment-service/MODHS.Attachments.API/Services/MultiFileUploadService.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/caps/MultiFileUploadService.cs'
+        mode: copy
+      - id: upload-path-containment
+        source: 'services/attachment-service/MODHS.Attachments.Utilities/Helpers/UploadHelper.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/path-containment/UploadHelper.cs'
+        mode: copy
+      - id: upload-safety-tests
+        source: 'services/attachment-service/tests/MODHS.Attachments.Tests/{ReceiptSignerTests,FileExtensionValidatorServiceTests,UploadHelperTests,UploadValidationExceptionTests,MultiFileUploadServiceTests,Testing/TestReceipts,Testing/TestFiles}.cs'
+        target: 'reference/p1/Codelab.Security/upload-safety/tests/'
+        mode: copy
+      - id: security-tests-application
+        source: 'backend/MODHS.Application.Tests/SecurityKeyringValidatorTests.cs'
+        target: 'reference/p1/Codelab.Security/tests/SecurityKeyringValidatorTests.cs'
+        mode: copy
+      - id: security-tests-api
+        source: 'backend/MODHS.Api.Tests/{SecurityHeadersMiddlewareTests,HmacProofVerifierTests,PublicIdModelBindingTests,PublicIdRouteConstraintTests,PublicIdJsonContractTests,PublicIdCodecContractTests,RequestSignatureContractTests,SignatureLayerIntegrationTests,SignatureExemptionContractTests,SessionSigningKeyContractTests,WireIdKeyringGuardTests,WireIdAllowlistContractTests,ClientErrorUserThrottleTests,WireCryptoSurface,RecordingResponseFeature}.cs'
+        target: 'reference/p1/Codelab.Security/tests/'
+        mode: copy
+      - id: security-tests-integration
+        source: 'backend/MODHS.IntegrationTests/{SecurityHeaderTests,SignedRequestEnforcementTests,CorsPreflightTests,RequestBodyLimitPipelineTests}.cs'
+        target: 'reference/p1/Codelab.Security/tests/integration/'
+        mode: copy
+
+  p1-observability-errors:
+    description: 'Phase 1 input (owner: observability-errors): shared observability library, API diagnostics and classifiers.'
+    entries:
+      - id: observability-library
+        source: 'shared/Modhs.Observability/**'
+        target: 'reference/p1/Codelab.Observability/library/'
+        mode: copy
+      - id: observability-tests
+        source: 'shared/Modhs.Observability.Tests/**'
+        target: 'reference/p1/Codelab.Observability/tests/'
+        mode: copy
+      - id: api-diagnostics
+        source: 'backend/MODHS.Api/Diagnostics/**'
+        target: 'reference/p1/Codelab.Errors/api-diagnostics/'
+        mode: copy
+      # The client-error message-shape VECTOR test is left out (vectors are regenerated in wave 3).
+      - id: diagnostics-tests-api
+        source: 'backend/MODHS.Api.Tests/{FailureClassifierTests,JobFailureLogFilterTests,ErrorEnvelopeLeakTests,RequestBodyLimitClassifierTests,DuplicateFailureEventFilterTests,ExceptionHandledEnricherTests,CustomizeProblemDetailsCollisionTests,PropagationScopeContractTests,PiiSafeSpanProcessorTests,StepSpanCatalogueTests,ClientErrorsControllerTests}.cs'
+        target: 'reference/p1/Codelab.Errors/tests/'
+        mode: copy
+      - id: diagnostics-tests-integration
+        source: 'backend/MODHS.IntegrationTests/{ErrorEnvelopeConsistencyTests,CorrelationIdLoggingTests,FailureLoggingTests}.cs'
+        target: 'reference/p1/Codelab.Errors/tests/integration/'
+        mode: copy
+
+  p1-integration:
+    description: 'Phase 1 input (owner: integration-testing): the outbound engine for Codelab.Integration 0.1.'
+    entries:
+      - id: integration-abstractions
+        source: 'services/integration-gateway/src/Integration.Abstractions/**'
+        target: 'reference/p1/Codelab.Integration/abstractions/'
+        mode: copy
+      - id: integration-core
+        source: 'services/integration-gateway/src/Integration.Core/**'
+        target: 'reference/p1/Codelab.Integration/core/'
+        mode: copy
+      # Engine tests: dispatch, configuration/wiring, interpretation (failure classification), observability
+      # redaction, pipeline, resilience (retry/timeout) and the pinned engine edits.
+      - id: engine-tests
+        source: 'services/integration-gateway/tests/IntegrationGateway.Tests/{Vendored,VendoredEdits}/**'
+        target: 'reference/p1/Codelab.Integration/tests/'
+        mode: copy
+      # Certificate validation: the outbound handler must keep the platform's validation (no custom callback).
+      - id: cert-validation-tests
+        source: 'services/integration-gateway/tests/IntegrationGateway.Tests/Gateway/GatewayAssertionTests.cs'
+        target: 'reference/p1/Codelab.Integration/tests/cert-validation/GatewayAssertionTests.cs'
+        mode: copy
+
+  p1-testing:
+    description: 'Phase 1 input (owner: integration-testing): architecture, layering, source-sweep and contract test logic.'
+    entries:
+      - id: layering-and-sweep-tests
+        source: 'backend/MODHS.Application.Tests/{SecurityLayeringTests,SeraDefectSourceSweepTests}.cs'
+        target: 'reference/p1/Codelab.Testing/application-tests/'
+        mode: copy
+      - id: contract-tests-api
+        source: 'backend/MODHS.Api.Tests/{AccountSecurityContractTests,ControllerAuthorizationCoverageTests,ControllerActionModelTests,NumericIdBurndownTests,AppsettingsSecretHygieneContractTests,LogTemplatePiiContractTests}.cs'
+        target: 'reference/p1/Codelab.Testing/api-tests/'
+        mode: copy
+      - id: contract-tests-integration
+        source: 'backend/MODHS.IntegrationTests/NumericIdWireSweepTests.cs'
+        target: 'reference/p1/Codelab.Testing/integration-tests/NumericIdWireSweepTests.cs'
+        mode: copy
+
+  p1-ng-security:
+    description: 'Phase 1 input (owner: npm-packages): the SPA signing, canonical framing, wire ids and API error parser.'
+    entries:
+      - id: ng-core-security
+        source: 'frontend/modhs-web/src/app/core/security/**'
+        target: 'reference/p1/ng-security/security/'
+        mode: copy
+      - id: ng-api-error
+        source: 'frontend/modhs-web/src/app/core/http/{api-error,api-error.spec}.ts'
+        target: 'reference/p1/ng-security/http/'
         mode: copy
 
 secretDigests:

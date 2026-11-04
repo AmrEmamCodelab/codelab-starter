@@ -13,12 +13,21 @@ describe('compileRepository', () => {
   });
   afterEach(() => removeWorkspace(root));
 
-  test('base only: compiled base, no modules, compiled JSON + ESLint data emitted', () => {
+  test('base only: compiled base, no modules, compiled JSON + ESLint data + base globalconfig emitted', () => {
     const { compiled, outputs } = compileRepository(root);
     assert.equal(compiled.modules.length, 0);
     assert.ok(compiled.base.forbidden.some((rule) => rule.id === 'base.time-provider'));
-    assert.deepEqual(outputs.map((output) => output.path), [PATHS.compiled, PATHS.eslintBoundaries]);
+    assert.deepEqual(outputs.map((output) => output.path), [PATHS.compiled, PATHS.eslintBoundaries, PATHS.globalconfig]);
     assert.deepEqual(JSON.parse(outputs[0].content), compiled);
+  });
+
+  test('kind dotnet without a .csproj is accepted (scaffolded ahead of its project) and gets the .NET emitters', () => {
+    writeWorkspaceFile(root, RECORDS_RULES, moduleYaml('Records', 'kind: dotnet\n'));
+    const { compiled, outputs } = compileRepository(root);
+    assert.equal(compiled.modules[0].kind, 'dotnet');
+    const paths = outputs.map((output) => output.path);
+    assert.ok(paths.includes('src/Modules/Records/BannedSymbols.generated.txt'));
+    assert.ok(paths.includes('src/Modules/Records/.editorconfig'));
   });
 
   test('a module inherits every base rule and adds its own after them', () => {
@@ -101,7 +110,7 @@ describe('compileRepository', () => {
     assert.equal(module.kind, 'dotnet');
     assert.deepEqual(module.mayDependOn, ['Records', 'Workflow']);
     assert.ok(module.bannedSymbols.some((entry) => entry.id === 'sample.no-legacy-runner'));
-    assert.ok(module.bannedSymbols.some((entry) => entry.id === 'base.no-thread-sleep'));
+    assert.ok(!module.bannedSymbols.some((entry) => entry.id.startsWith('base.')), 'base-wide bans live in the SDK list');
     assert.ok(!module.forbidden.some((rule) => rule.id === 'base.fe-raw-text-in-template'));
     assert.equal(module.thresholds.methodLines, 30);
   });

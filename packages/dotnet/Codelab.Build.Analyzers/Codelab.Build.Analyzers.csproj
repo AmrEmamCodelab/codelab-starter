@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab clean-code analyzers (ADR-012): CLB1001 method length, CLB1002 file length, CLB1003 parameter count,
+    CLB1004 magic numbers. Thresholds come from the codelab_* keys the rules engine emits (module .editorconfig and
+    rules/codelab.globalconfig). Not packed on its own: tools/build.ps1 -Pack ships the dll inside the
+    Codelab.Build.Sdk package (analyzers/dotnet/cs); in source mode Sdk.targets references this project directly.
+    netstandard2.0 is required for a Roslyn component, so this project does not use $(CodelabTargetFramework).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Codelab.Build.Analyzers</RootNamespace>
+    <AssemblyName>Codelab.Build.Analyzers</AssemblyName>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"
+                      IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+    <InternalsVisibleTo Include="Codelab.Build.Analyzers.Tests" />
+  </ItemGroup>
+</Project>

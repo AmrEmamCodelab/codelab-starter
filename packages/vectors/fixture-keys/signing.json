@@ -1,0 +1,18 @@
+{
+  "testOnly": true,
+  "notice": "TEST-ONLY starter fixture key. Generated fresh for the golden vectors (tools/vectors/fixture-keys.mjs) and listed on the Codelab.Security published-material denylist: any boot configured with it fails. Never configure it, never copy it into another repository.",
+  "kind": "signing-master",
+  "ring": {
+    "activeKeyId": "fxsig1",
+    "keys": [
+      {
+        "keyId": "fxsig1",
+        "materialBase64": "ZXqbiy6wk15KM6EzW3aLsUG039wF6YBUFdvlpXbi36M="
+      },
+      {
+        "keyId": "fxsig2",
+        "materialBase64": "BAsUCVCziFiTxczV//kxJfROC0OfmFJiYB5BcNj45Q0="
+      }
+    ]
+  }
+}

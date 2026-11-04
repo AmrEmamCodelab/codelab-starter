@@ -18,6 +18,9 @@ internal static partial class MarkdownLinkExtractor
     private const char AngleOpen = '<';
     private const char AngleClose = '>';
 
+    /// <summary>The shortest wrapped target: just the two angle brackets.</summary>
+    private const int MinimumWrappedLength = 2;
+
     public static IEnumerable<MarkdownLink> Extract(string text)
     {
         foreach (var (line, lineText) in MarkdownProse.Lines(text))
@@ -39,7 +42,7 @@ internal static partial class MarkdownLinkExtractor
     private static string Unwrap(string target)
     {
         var trimmed = target.Trim();
-        return trimmed.Length >= 2 && trimmed[0] == AngleOpen && trimmed[^1] == AngleClose
+        return trimmed.Length >= MinimumWrappedLength && trimmed[0] == AngleOpen && trimmed[^1] == AngleClose
             ? trimmed[1..^1].Trim()
             : trimmed;
     }

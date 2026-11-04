@@ -1,18 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     Packaging project for the Codelab.Build.Sdk MSBuild SDK. It compiles nothing: it ships Sdk/Sdk.props,
-    Sdk/Sdk.targets and Sdk/BannedSymbols.txt under the package's Sdk/ folder (PackageType MSBuildSdk).
-    Pack with tools/build.ps1 -Pack, which sets PackageVersion to 0.1.0-ci.<n>.
+    Sdk/Sdk.targets and Sdk/BannedSymbols.txt under the package's Sdk/ folder (PackageType MSBuildSdk), and the
+    Codelab.Build.Analyzers dll (CLB1001-CLB1004) under analyzers/dotnet/cs, where Sdk.targets finds it in feed mode.
+    Pack with tools/build.ps1 -Pack, which sets PackageVersion to <CodelabBuildSdkBaseVersion>-ci.<n>.
   -->
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Codelab.Build.Sdk</PackageId>
-    <CodelabBuildSdkBaseVersion>0.1.0</CodelabBuildSdkBaseVersion>
+    <CodelabBuildSdkBaseVersion>0.2.1</CodelabBuildSdkBaseVersion>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(CodelabBuildSdkBaseVersion)</PackageVersion>
     <PackageType>MSBuildSdk</PackageType>
     <Authors>Codelab</Authors>
     <Company>Codelab</Company>
-    <Description>Codelab MSBuild SDK: net10 defaults, nullable, warnings as errors, .NET analyzers, banned APIs (global + per-project generated list), public API tracking and package validation for Codelab packages, and release stamping (CODELAB_RELEASE + short sha).</Description>
+    <Description>Codelab MSBuild SDK: net10 defaults, nullable, warnings as errors, .NET analyzers, banned APIs (global + per-project generated list), public API tracking and package validation for Codelab packages, and release stamping (CODELAB_RELEASE + short sha), and the Codelab clean-code analyzers (method/file length, parameter count, magic numbers).</Description>
     <PackageTags>msbuild;sdk;codelab</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -28,4 +29,21 @@
     <None Include="Sdk\**\*" Pack="true" PackagePath="Sdk\" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <!-- The analyzer ships inside this package (no separate analyzer package to version and pin). -->
+  <PropertyGroup>
+    <CodelabAnalyzerProjectToPack>$(MSBuildThisFileDirectory)..\Codelab.Build.Analyzers\Codelab.Build.Analyzers.csproj</CodelabAnalyzerProjectToPack>
+    <CodelabAnalyzerPackagePath>analyzers/dotnet/cs</CodelabAnalyzerPackagePath>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);CodelabPackBuildAnalyzers</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <Target Name="CodelabPackBuildAnalyzers">
+    <MSBuild Projects="$(CodelabAnalyzerProjectToPack)" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0">
+      <Output TaskParameter="TargetOutputs" ItemName="CodelabBuiltAnalyzer" />
+    </MSBuild>
+    <Error Code="CODELAB002" Condition="'@(CodelabBuiltAnalyzer)' == ''" Text="Codelab.Build.Analyzers did not produce an assembly to pack." />
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(CodelabBuiltAnalyzer)" PackagePath="$(CodelabAnalyzerPackagePath)" />
+    </ItemGroup>
+  </Target>
 </Project>

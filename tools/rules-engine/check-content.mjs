@@ -24,13 +24,14 @@ const ROOT_OPTION = '--root';
 const DEFAULT_ROOT = '.';
 const STATUS_OK = 'ok';
 /**
- * Test inputs that break rules on purpose (hook and rules-engine fixtures). Nothing else is excluded: a real
+ * Test inputs that break rules on purpose (hook, rules-engine and Codelab.Build.Analyzers fixtures). Nothing else is excluded: a real
  * exception belongs in a module.rules.yaml `exemptions` entry, which needs platform-owner review.
  */
 export const FIXTURE_GLOBS = Object.freeze([
   '.claude/hooks/tests/fixtures/**',
   'tools/rules-engine/fixtures/**',
   'tools/rules-engine/tests/**',
+  'packages/dotnet/Codelab.Build.Analyzers.Tests/Fixtures/**',
 ]);
 
 /**

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Integration 0.1: the outbound call engine. Typed outbound clients (AddCodelabOutboundClient<TClient>),
+    an options-driven retry and timeout policy on Microsoft.Extensions.Http.Resilience / Polly.Core, failure
+    classification of outbound errors, and server-certificate validation that is always on (system trust, a pinned
+    internal CA bundle or pinned leaf thumbprints). Gateway contracts arrive in 0.5 (phase 8). See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <PackageId>Codelab.Integration</PackageId>
+    <RootNamespace>Codelab.Integration</RootNamespace>
+    <CodelabPackage>true</CodelabPackage>
+    <Authors>Codelab</Authors>
+    <Company>Codelab</Company>
+    <Description>Codelab outbound integration engine: typed outbound HTTP clients with options-driven retry and timeout, outbound failure classification, a correlation handler slot, and server-certificate validation that is always on (system trust, pinned internal CA bundle or pinned leaf thumbprints).</Description>
+    <PackageTags>codelab;http;resilience;integration</PackageTags>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Polly.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Integration.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the @codelab/ng-security package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: NgSecurity
+kind: angular
+description: "Angular security client: canonical framing, request signing and response verification interceptors, session signing keys, WireId branded types, the problem+json parser; ./core has no Angular import."
+mayDependOn: []
+mustNotDependOn: [NgTools]

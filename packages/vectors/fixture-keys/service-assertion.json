@@ -1,0 +1,8 @@
+{
+  "testOnly": true,
+  "notice": "TEST-ONLY starter fixture key. Generated fresh for the golden vectors (tools/vectors/fixture-keys.mjs) and listed on the Codelab.Security published-material denylist: any boot configured with it fails. Never configure it, never copy it into another repository.",
+  "kind": "service-assertion-es256",
+  "keyId": "fxs2s1",
+  "privateKeyPem": "-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg7g7ZtH24bPLTR8M6\nyXNbkTTtNLuDMnzSKosO+s2ZMEuhRANCAAQFa1kfwtICbqEWu5nmd5iFYiqEo0Tj\naS+3NuFdNJiVP8IPFelPiCYWyPzWPpRk3QckW0VFMty4b7BY7zSYCkkJ\n-----END PRIVATE KEY-----\n",
+  "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBWtZH8LSAm6hFruZ5neYhWIqhKNE\n42kvtzbhXTSYlT/CDxXpT4gmFsj81j6UZN0HJFtFRTLcuG+wWO80mApJCQ==\n-----END PUBLIC KEY-----\n"
+}

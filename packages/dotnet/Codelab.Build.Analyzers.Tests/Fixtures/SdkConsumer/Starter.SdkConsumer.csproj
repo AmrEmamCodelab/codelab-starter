@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Fixture for SdkFixture tests: copied to a temp workspace whose Directory.Build.props/.targets import the repo
+    ones, so it builds with the real Codelab.Build.Sdk (source mode). Not in the solution; never built in place.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.SdkConsumer</RootNamespace>
+    <AssemblyName>Starter.SdkConsumer</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

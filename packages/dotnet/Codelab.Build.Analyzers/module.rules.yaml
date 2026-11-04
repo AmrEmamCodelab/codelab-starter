@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Build.Analyzers package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabBuildAnalyzers
+kind: dotnet
+description: "Clean-code Roslyn analyzers CLB1001-CLB1005 shipped inside Codelab.Build.Sdk; thresholds from the generated module .editorconfig, then rules/codelab.globalconfig."
+mayDependOn: []
+mustNotDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIntegration, CodelabTesting]

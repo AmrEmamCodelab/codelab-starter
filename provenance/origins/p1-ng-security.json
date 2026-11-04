@@ -1,0 +1,263 @@
+{
+  "batch": "p1-ng-security",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "sourceRoot": "E:\\codelab-harvest\\modhs-a6a4b134",
+  "sourceContentDigest": null,
+  "extractedWith": "tools/extract/extract.ps1 -Batch p1-ng-security -Clean (staging outside the repo). Promoted in phase 1 wave 2 by rewriting: starter names, protocol names derived from a configurable prefix, framework-agnostic ports for storage, clock and URL classification, one problem+json envelope, and spec LOGIC re-written for Vitest without any source vector values or key fixtures. target is the primary rewritten repo file, additionalTargets the files the rewrite split out of it, stagedTarget the staging path.",
+  "origins": [
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/canonical.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "e0d2adb573d2bcfea6e84ad78137323b1840d3a6",
+      "sourceSha256": "fbb7f6918bcab5cc2023c06f9fa2508270c5d8e76637c7cfd587aaad3498bb4c",
+      "stagedSha256": "fbb7f6918bcab5cc2023c06f9fa2508270c5d8e76637c7cfd587aaad3498bb4c",
+      "target": "packages/npm/ng-security/src/canonical/canonical.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/canonical.spec.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/canonical.ts",
+      "mode": "copy",
+      "sourceGitBlob": "aaccdf717766f9e0b1623fb9c810da2468572adc",
+      "sourceSha256": "9ed2b106b28866f154c73b3e0af6455b6f4ffd04bd9e6680608c2456ae3fd94a",
+      "stagedSha256": "9ed2b106b28866f154c73b3e0af6455b6f4ffd04bd9e6680608c2456ae3fd94a",
+      "target": "packages/npm/ng-security/src/canonical/canonical.ts",
+      "stagedTarget": "reference/p1/ng-security/security/canonical.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/request-signature.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "fe2f108df44861438d5492c227d1f91964756ff6",
+      "sourceSha256": "773a39dd0e74a27006a06417b1c1fa7615e907104446f447e3f3e12284434d5e",
+      "stagedSha256": "773a39dd0e74a27006a06417b1c1fa7615e907104446f447e3f3e12284434d5e",
+      "target": "packages/npm/ng-security/src/signing/request-signature.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/request-signature.spec.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/request-signature.ts",
+      "mode": "copy",
+      "sourceGitBlob": "5e8fb00510f6de79e12b27452c04cbb84116ffb3",
+      "sourceSha256": "67486e1207eb39e2c923179848e4398bc2fc17e48b3efa719d996e5f93bcbcc8",
+      "stagedSha256": "67486e1207eb39e2c923179848e4398bc2fc17e48b3efa719d996e5f93bcbcc8",
+      "target": "packages/npm/ng-security/src/signing/request-signature.ts",
+      "stagedTarget": "reference/p1/ng-security/security/request-signature.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/response-signature.interceptor.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "33df690d3066d62392043f2431c66fa9f53da975",
+      "sourceSha256": "9230cba790f86f1cba1266244250e0e52ad64c6f0c1c06fe834a41fa79a4062e",
+      "stagedSha256": "9230cba790f86f1cba1266244250e0e52ad64c6f0c1c06fe834a41fa79a4062e",
+      "target": "packages/npm/ng-security/src/angular/response-signature.interceptor.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/response-signature.interceptor.spec.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/verification/response-body.spec.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/response-signature.interceptor.ts",
+      "mode": "copy",
+      "sourceGitBlob": "263a62fc9fa4b459521b1a96e56eaa56b237a47f",
+      "sourceSha256": "62b47207bd9ec6a807074433719c02d6c8a22e703bef893c908363d45604e9f2",
+      "stagedSha256": "62b47207bd9ec6a807074433719c02d6c8a22e703bef893c908363d45604e9f2",
+      "target": "packages/npm/ng-security/src/angular/response-signature.interceptor.ts",
+      "stagedTarget": "reference/p1/ng-security/security/response-signature.interceptor.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/verification/response-body.ts",
+        "packages/npm/ng-security/src/angular/tokens.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/response-signature.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "1dc050702f06f0a012f0e9e34dbc443c13aac6dd",
+      "sourceSha256": "d2b6003b554e4a2c797c3170aa356f9cffc5f41b6876fe3c7a16d48bdd9623f1",
+      "stagedSha256": "d2b6003b554e4a2c797c3170aa356f9cffc5f41b6876fe3c7a16d48bdd9623f1",
+      "target": "packages/npm/ng-security/src/verification/response-signature.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/response-signature.spec.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/response-signature.ts",
+      "mode": "copy",
+      "sourceGitBlob": "472836214568f129658fed70b00f50839bdf95b5",
+      "sourceSha256": "4d6d490633a2dc05086af3c7628cec03e0cd93e4c814ae1964945ec54d765c86",
+      "stagedSha256": "4d6d490633a2dc05086af3c7628cec03e0cd93e4c814ae1964945ec54d765c86",
+      "target": "packages/npm/ng-security/src/verification/response-signature.ts",
+      "stagedTarget": "reference/p1/ng-security/security/response-signature.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/session-keys.store.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "58cb481c387d8ec9ff924e138493325ca010b0f1",
+      "sourceSha256": "8ba0f7d478da6f9378f459abb1b31767508f60ec11ff04d9c2c5da4b69fb8166",
+      "stagedSha256": "8ba0f7d478da6f9378f459abb1b31767508f60ec11ff04d9c2c5da4b69fb8166",
+      "target": "packages/npm/ng-security/src/session/session-keys.store.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/session-keys.store.spec.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/session/signing-material.spec.ts",
+        "packages/npm/ng-security/src/session/session-persistence.spec.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/session-keys.store.ts",
+      "mode": "copy",
+      "sourceGitBlob": "0a7e53a755661ac59777755be9dc43245f5fcfc7",
+      "sourceSha256": "65ed9907c96c7be803b1bb851ebc2ec9b19890b9637447c325a2eb1956a80c34",
+      "stagedSha256": "65ed9907c96c7be803b1bb851ebc2ec9b19890b9637447c325a2eb1956a80c34",
+      "target": "packages/npm/ng-security/src/session/session-keys.store.ts",
+      "stagedTarget": "reference/p1/ng-security/security/session-keys.store.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/session/signing-material.ts",
+        "packages/npm/ng-security/src/session/session-persistence.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/signature-canonical.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "deee09ab0d12fc4bdbb7583e37420943aa23ac9a",
+      "sourceSha256": "3caaab76d0d6f66abe0d5ef72acba24900dbfb561717ae910656ca40f610f62f",
+      "stagedSha256": "3caaab76d0d6f66abe0d5ef72acba24900dbfb561717ae910656ca40f610f62f",
+      "target": "packages/npm/ng-security/src/signing/signature-canonical.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/signature-canonical.spec.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/signing/signature-header.spec.ts",
+        "packages/npm/ng-security/src/signing/base64url.spec.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/signature-canonical.ts",
+      "mode": "copy",
+      "sourceGitBlob": "fee901774aafe310d3f377255be7e78e6c6eff5c",
+      "sourceSha256": "8246d12a5598ab2d9e977bcea6716516f20e7945cefdf3ad8eb638657465d464",
+      "stagedSha256": "8246d12a5598ab2d9e977bcea6716516f20e7945cefdf3ad8eb638657465d464",
+      "target": "packages/npm/ng-security/src/signing/signature-canonical.ts",
+      "stagedTarget": "reference/p1/ng-security/security/signature-canonical.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/signing/signature-header.ts",
+        "packages/npm/ng-security/src/signing/base64url.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/signature.interceptor.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "319843403dbc1f38118ada1b422b4f2398fdb8d5",
+      "sourceSha256": "d5f150c4a11305e3e0864b919dc3b373b32c60932783f14bd9d109b082fee56a",
+      "stagedSha256": "d5f150c4a11305e3e0864b919dc3b373b32c60932783f14bd9d109b082fee56a",
+      "target": "packages/npm/ng-security/src/angular/signature.interceptor.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/signature.interceptor.spec.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/signing/signature-problem-codes.spec.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/signature.interceptor.ts",
+      "mode": "copy",
+      "sourceGitBlob": "abf02c74a3de40efbd29a41999e99a88f8812a10",
+      "sourceSha256": "fff04099260501533bcb684ca560423cdc30ca181a0206eec72aa461122b3a1c",
+      "stagedSha256": "fff04099260501533bcb684ca560423cdc30ca181a0206eec72aa461122b3a1c",
+      "target": "packages/npm/ng-security/src/angular/signature.interceptor.ts",
+      "stagedTarget": "reference/p1/ng-security/security/signature.interceptor.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/signing/signature-problem-codes.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/wire-id.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "2f286ff25f4a2bcb757e97faadbf577aafe180c1",
+      "sourceSha256": "ace87066721fc98d60cc3d004fb0b2c3fa72d094edcd7aad412051dd536e5c96",
+      "stagedSha256": "ace87066721fc98d60cc3d004fb0b2c3fa72d094edcd7aad412051dd536e5c96",
+      "target": "packages/npm/ng-security/src/wire-id/wire-id.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/security/wire-id.spec.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-core-security",
+      "source": "frontend/modhs-web/src/app/core/security/wire-id.ts",
+      "mode": "copy",
+      "sourceGitBlob": "dc55cf10b917c6ea756653373489cf134dbb12a6",
+      "sourceSha256": "2ee0bb63f5e2342c6de81695d04748a6d7dedab604bc9c7ed08fee62ab7ec2b5",
+      "stagedSha256": "2ee0bb63f5e2342c6de81695d04748a6d7dedab604bc9c7ed08fee62ab7ec2b5",
+      "target": "packages/npm/ng-security/src/wire-id/wire-id.ts",
+      "stagedTarget": "reference/p1/ng-security/security/wire-id.ts",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-api-error",
+      "source": "frontend/modhs-web/src/app/core/http/api-error.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "76abe80f191ef0c628a85d5e20d52dd2d7998cf7",
+      "sourceSha256": "64f014c60c326e6bd605abe07858a0dccf4ff64e96f55ae4b45b25df1ea800c0",
+      "stagedSha256": "64f014c60c326e6bd605abe07858a0dccf4ff64e96f55ae4b45b25df1ea800c0",
+      "target": "packages/npm/ng-security/src/errors/api-error.spec.ts",
+      "stagedTarget": "reference/p1/ng-security/http/api-error.spec.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/errors/api-error-codes.spec.ts",
+        "packages/npm/ng-security/src/errors/reference-code.spec.ts"
+      ]
+    },
+    {
+      "batch": "p1-ng-security",
+      "entryId": "ng-api-error",
+      "source": "frontend/modhs-web/src/app/core/http/api-error.ts",
+      "mode": "copy",
+      "sourceGitBlob": "dee5699b2163ab28c6a7821a1ca1a4f174853d18",
+      "sourceSha256": "b6db457b38956da11f77f412c47694f80aa484174a5e641d18423d75111f8106",
+      "stagedSha256": "b6db457b38956da11f77f412c47694f80aa484174a5e641d18423d75111f8106",
+      "target": "packages/npm/ng-security/src/errors/api-error.ts",
+      "stagedTarget": "reference/p1/ng-security/http/api-error.ts",
+      "promotion": "rewritten",
+      "additionalTargets": [
+        "packages/npm/ng-security/src/errors/api-error-codes.ts",
+        "packages/npm/ng-security/src/errors/reference-code.ts"
+      ]
+    }
+  ],
+  "denied": []
+}

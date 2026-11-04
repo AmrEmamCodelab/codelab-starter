@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Testing: the single owner of architecture-test logic (rules/rules.compiled.json via NetArchTest.Rules,
+    ADR-011), the source-sweep runner, the PII-leak canary log sink, the golden-vector runner (protocol prefix as a
+    parameter) and the endpoint contract helpers. Test-framework neutral: every check returns a CheckResult and
+    ThrowIfFailed() throws ContractViolationException. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <PackageId>Codelab.Testing</PackageId>
+    <RootNamespace>Codelab.Testing</RootNamespace>
+    <CodelabPackage>true</CodelabPackage>
+    <Authors>Codelab</Authors>
+    <Company>Codelab</Company>
+    <Description>Codelab test helpers: architecture tests driven by rules.compiled.json (module boundaries, Application ports only, no DbContext in Api), a source-sweep runner, a PII-leak canary Serilog sink, a golden-vector runner taking the protocol prefix as a parameter, and endpoint contract checks (permission, PublicId, validator, problem+json).</Description>
+    <PackageTags>codelab;testing;architecture;contracts</PackageTags>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Testing.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

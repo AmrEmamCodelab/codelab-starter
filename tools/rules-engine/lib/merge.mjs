@@ -1,5 +1,5 @@
 // Inheritance: every module gets the base rules (minus its exemptions) plus its own rules.
-import { RULE_SOURCE, SEVERITY } from './constants.mjs';
+import { MODULE_FILES, PATHS, RULE_SOURCE, SEVERITY } from './constants.mjs';
 import { joinPosix } from './files.mjs';
 
 /** Forbidden rule with defaults filled in, globs made repo-relative and its origin recorded. */
@@ -13,9 +13,18 @@ function normalizeForbidden(rule, source, modulePath) {
     flags: rule.flags ?? '',
     appliesTo: rule.appliesTo.map(prefix),
     excludes: (rule.excludes ?? []).map(prefix),
+    ...(rule.exemptEmittedFiles ? { exemptEmittedFiles: true } : {}),
     fix: rule.fix,
     severity: rule.severity ?? SEVERITY.error,
   };
+}
+
+/**
+ * A rule with exemptEmittedFiles skips the engine's own outputs, chosen by PATH: the repo-wide globalconfig (base) and
+ * the module's generated .editorconfig (module). A marker in the content would let any hand-written file opt out.
+ */
+function withEmittedExcludes(rule, emittedPaths) {
+  return rule.exemptEmittedFiles ? { ...rule, excludes: [...rule.excludes, ...emittedPaths] } : rule;
 }
 
 function normalizeRequired(rule, source, modulePath) {
@@ -41,7 +50,7 @@ export function compileBase(base) {
   return {
     owners: [...base.owners],
     required: base.required.map((rule) => normalizeRequired(rule, RULE_SOURCE.base, '')),
-    forbidden: base.forbidden.map((rule) => normalizeForbidden(rule, RULE_SOURCE.base, '')),
+    forbidden: base.forbidden.map((rule) => withEmittedExcludes(normalizeForbidden(rule, RULE_SOURCE.base, ''), [PATHS.globalconfig])),
     bannedSymbols: base.bannedSymbols.map((entry) => normalizeBanned(entry, RULE_SOURCE.base)),
     thresholds: { ...base.thresholds },
     analyzers: { ...base.analyzers },
@@ -70,7 +79,8 @@ export function compileModule(compiledBase, moduleRules, location) {
     mayDependOn: [...(moduleRules.mayDependOn ?? [])],
     mustNotDependOn: [...(moduleRules.mustNotDependOn ?? [])],
     required: [...inherited(compiledBase.required), ...own('required', normalizeRequired)],
-    forbidden: [...inherited(compiledBase.forbidden), ...own('forbidden', normalizeForbidden)],
+    forbidden: [...inherited(compiledBase.forbidden), ...own('forbidden', normalizeForbidden)]
+      .map((rule) => withEmittedExcludes(rule, [joinPosix(location.path, MODULE_FILES.editorconfig)])),
     bannedSymbols: [...inherited(compiledBase.bannedSymbols), ...own('bannedSymbols', normalizeBanned)],
     thresholds: { ...compiledBase.thresholds, ...(moduleRules.thresholds ?? {}) },
     analyzers: { ...compiledBase.analyzers, ...(moduleRules.analyzers ?? {}) },

@@ -1,8 +1,6 @@
 // ESLint boundary data (rules/eslint-boundaries.compiled.json): read by @codelab/ng-tools' ESLint config.
 // Data only; the lint logic lives in ng-tools.
-import { GENERATED_MARKER, JSON_INDENT, NEWLINE, SCHEMA_VERSION } from '../constants.mjs';
-
-const MAGIC_NUMBERS_RULE = 'base.no-magic-values';
+import { GENERATED_MARKER, JSON_INDENT, MAGIC_NUMBERS_RULE, NEWLINE, SCHEMA_VERSION } from '../constants.mjs';
 
 function magicNumberSettings(compiledBase) {
   const rule = compiledBase.required.find((candidate) => candidate.id === MAGIC_NUMBERS_RULE);

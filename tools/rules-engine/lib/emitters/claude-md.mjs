@@ -50,7 +50,7 @@ function forbidden(module) {
 
 function bannedApis(module) {
   const lines = module.bannedSymbols.map((entry) => `${codeSpan(entry.symbol)}: ${entry.fix} (${codeSpan(entry.id)}, build error RS0030)`);
-  return ['## Banned APIs', 'Plus the global list in Codelab.Build.Sdk (DateTime.Now and friends).', ...list(lines)];
+  return ['## Banned APIs', 'Plus the global list in Codelab.Build.Sdk (DateTime.Now and friends, Thread.Sleep).', ...list(lines)];
 }
 
 function thresholds(module) {

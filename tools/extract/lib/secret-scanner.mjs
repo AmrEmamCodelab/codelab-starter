@@ -4,6 +4,8 @@ import { listFiles, readScannable } from './files.mjs';
 import { createFinding, splitLines, unscannableFinding } from './findings.mjs';
 import { sha256Hex } from './hashing.mjs';
 import { digestsOf } from './key-material.mjs';
+import { publicDigestSpellings } from './public-digests.mjs';
+import { withoutExcepted } from './secret-exceptions.mjs';
 import { redact, secretRules } from './secret-rules.mjs';
 
 export const DIGEST_RULE_ID = 'known-secret-digest';
@@ -93,9 +95,13 @@ function regexFindings(path, line, rules) {
   return findings;
 }
 
+// The SHA-256 of a public input (the empty body) is never a secret, whatever fixture it once appeared in.
+const PUBLIC_DIGESTS = publicDigestSpellings();
+
 function digestFindings(path, line, digests) {
   const findings = [];
   for (const candidate of candidateValues(line.text)) {
+    if (PUBLIC_DIGESTS.has(candidate)) continue;
     const kind = digestsOf(candidate).map((digest) => digests.get(digest)).find(Boolean);
     if (!kind) continue;
     findings.push(createFinding({
@@ -145,13 +151,14 @@ export function scanTextForSecrets(path, text, digests) {
 /**
  * Scans every file under root (git-aware, see files.mjs): UTF-8 and UTF-16 text and the entries of zip containers.
  * A binary that cannot be scanned (not an allowlisted image or font) is a finding: a key must not hide in one.
+ * @param {{ glob: string, ruleIds: string[] }[]} [exceptions] from loadSecretExceptions (never the digest rule)
  */
-export function scanTreeForSecrets(root, digests) {
+export function scanTreeForSecrets(root, digests, exceptions = []) {
   const paths = listFiles(root);
   const findings = [];
   for (const item of paths.flatMap((path) => readScannable(root, path))) {
     if (item.text !== null) findings.push(...scanTextForSecrets(item.path, item.text, digests));
     else if (item.unscannable) findings.push(unscannableFinding({ path: item.path, reason: item.unscannable }));
   }
-  return { findings, fileCount: paths.length };
+  return { findings: withoutExcepted(findings, exceptions), fileCount: paths.length };
 }

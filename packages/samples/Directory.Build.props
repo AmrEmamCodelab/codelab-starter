@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    Build boundary of the package integration test. This file deliberately does NOT import the repo-root
+    Directory.Build.props: the sample builds the way a fork does, with Codelab.Build.Sdk resolved from the feed
+    (UseCodelabPackageSource=false) and every Codelab.* package restored from feed\nuget (nuget.config next to this
+    file). No CodelabRepoRoot is set, so the analyzers use their built-in thresholds (the base rules' values).
+  -->
+  <PropertyGroup>
+    <UseCodelabPackageSource>false</UseCodelabPackageSource>
+  </PropertyGroup>
+
+  <Import Project="Codelab.Versions.props" />
+  <Import Project="Sdk.props" Sdk="Codelab.Build.Sdk" Version="$(CodelabBuildSdkVersion)" />
+</Project>

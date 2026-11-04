@@ -22,6 +22,7 @@ import { emitClaudeMd } from './emitters/claude-md.mjs';
 import { emitCodeMetrics } from './emitters/code-metrics.mjs';
 import { emitEditorconfig } from './emitters/editorconfig.mjs';
 import { emitEslintBoundaries } from './emitters/eslint-boundaries.mjs';
+import { emitGlobalconfig } from './emitters/globalconfig.mjs';
 
 const DRIFT = Object.freeze({ missing: 'missing', changed: 'out of date', orphan: 'orphaned (no module.rules.yaml any more)' });
 
@@ -108,6 +109,7 @@ export function compileRepository(root) {
   const outputs = [
     { path: PATHS.compiled, content: JSON.stringify(compiled, null, JSON_INDENT) + NEWLINE },
     { path: PATHS.eslintBoundaries, content: emitEslintBoundaries(compiled) },
+    { path: PATHS.globalconfig, content: emitGlobalconfig(compiledBase) },
     ...modules.flatMap(moduleOutputs),
   ];
   return { compiled, outputs };

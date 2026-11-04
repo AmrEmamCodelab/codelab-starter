@@ -12,11 +12,28 @@
   ],
   "scripts": {
     "ci": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -Target CI",
-    "pack:feed": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -Pack"
+    "pack:feed": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -Pack",
+    "build": "npm run build --workspaces",
+    "test": "npm test --workspaces"
   },
   "devDependencies": {
+    "@angular/common": "22.2.4",
+    "@angular/compiler": "22.2.4",
+    "@angular/core": "22.2.4",
+    "@types/node": "24.19.2",
+    "@typescript-eslint/parser": "8.72.1",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
+    "eslint": "10.14.0",
+    "eslint-plugin-boundaries": "7.4.1",
+    "fake-indexeddb": "6.2.7",
+    "rxjs": "7.8.2",
+    "stylelint": "17.16.0",
+    "stylelint-use-logical": "2.1.3",
+    "tslib": "2.9.1",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.1.0",
     "yaml": "2.9.1"
   }
 }

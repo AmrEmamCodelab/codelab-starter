@@ -115,10 +115,14 @@ export function checkDependencies(moduleRules, file, problems) {
   }
 }
 
-/** Resolves the module kind: explicit, else dotnet when the folder holds a .csproj, else angular. */
+/**
+ * Resolves the module kind: explicit, else dotnet when the folder holds a .csproj, else angular.
+ * An explicit `kind: dotnet` is trusted without a .csproj, so a module folder can be scaffolded (rules, MODULE.md and
+ * the generated files) before its project lands. `kind: angular` next to a .csproj is a contradiction.
+ */
 export function resolveModuleKind(moduleRules, hasCsproj, file, problems) {
-  if (moduleRules.kind === MODULE_KINDS.dotnet && !hasCsproj) {
-    problems.add(file, 'kind is dotnet but the module folder has no .csproj');
+  if (moduleRules.kind === MODULE_KINDS.angular && hasCsproj) {
+    problems.add(file, 'kind is angular but the module folder has a .csproj');
   }
   return moduleRules.kind ?? (hasCsproj ? MODULE_KINDS.dotnet : MODULE_KINDS.angular);
 }

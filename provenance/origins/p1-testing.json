@@ -1,0 +1,118 @@
+{
+  "batch": "p1-testing",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "sourceRoot": "E:\\codelab-harvest\\modhs-a6a4b134",
+  "sourceContentDigest": null,
+  "extractedWith": "tools/extract/extract.ps1 -Batch p1-testing -Clean (staging outside the repo). Not promoted: the scrub sweep and secret scan report source-product names and key material that the phase 1 wave-2 owner rewrites before promotion (target becomes the rewritten repo file, the staging path moves to stagedTarget, promotion: rewritten).",
+  "origins": [
+    {
+      "batch": "p1-testing",
+      "entryId": "layering-and-sweep-tests",
+      "source": "backend/MODHS.Application.Tests/SecurityLayeringTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Architecture/AssemblyPurityRules.cs",
+      "mode": "copy",
+      "sourceGitBlob": "20213786539d05bff6c7bac0c1019664a1f29541",
+      "sourceSha256": "a0cd8e313e260d5396b43105bdb181a91d4bfa5865068e98b84a9fb31ad76ce3",
+      "stagedSha256": "a0cd8e313e260d5396b43105bdb181a91d4bfa5865068e98b84a9fb31ad76ce3",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/application-tests/SecurityLayeringTests.cs"
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "layering-and-sweep-tests",
+      "source": "backend/MODHS.Application.Tests/SeraDefectSourceSweepTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Sweeps/SourceSweep.cs",
+      "mode": "copy",
+      "sourceGitBlob": "94a5158be2346b8be89adf76bc6715d97350783c",
+      "sourceSha256": "6c26afbf7bd3a4799e429467f7daa977125aa698aaf9098e9796b12f06da2afb",
+      "stagedSha256": "6c26afbf7bd3a4799e429467f7daa977125aa698aaf9098e9796b12f06da2afb",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/application-tests/SeraDefectSourceSweepTests.cs"
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/AccountSecurityContractTests.cs",
+      "target": "reference/p1/Codelab.Testing/api-tests/AccountSecurityContractTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "369d210a047ff01a04949911a318fbcd428bca79",
+      "sourceSha256": "82c05ca2185bf125bfd79575e18ad4b491a99215daa4eb055290f02b57e7dfdb",
+      "stagedSha256": "82c05ca2185bf125bfd79575e18ad4b491a99215daa4eb055290f02b57e7dfdb",
+      "promotion": "staged",
+      "deferred": "Not in Codelab.Testing 0.5: host-specific contract (account security, verb-less controller actions, log-template PII gate) lands with the starter host tests (phases 2 and 3)."
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/AppsettingsSecretHygieneContractTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Sweeps/SweepRules.cs",
+      "mode": "copy",
+      "sourceGitBlob": "9e39b0e40163bcab1a93b08a568081339e490394",
+      "sourceSha256": "12df0eea309d58252d929a86bc08d8505b3953365a29e96ea971c08bb907bf60",
+      "stagedSha256": "12df0eea309d58252d929a86bc08d8505b3953365a29e96ea971c08bb907bf60",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/api-tests/AppsettingsSecretHygieneContractTests.cs"
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/ControllerActionModelTests.cs",
+      "target": "reference/p1/Codelab.Testing/api-tests/ControllerActionModelTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ab795bfa4ac48e1f1177f9d179c4f52389dbaec7",
+      "sourceSha256": "eabe7e4813f82df86b2603189ed665de87083fe44123b202bcdf5dc967349e32",
+      "stagedSha256": "eabe7e4813f82df86b2603189ed665de87083fe44123b202bcdf5dc967349e32",
+      "promotion": "staged",
+      "deferred": "Not in Codelab.Testing 0.5: host-specific contract (account security, verb-less controller actions, log-template PII gate) lands with the starter host tests (phases 2 and 3)."
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/ControllerAuthorizationCoverageTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Contracts/EndpointContracts.cs",
+      "mode": "copy",
+      "sourceGitBlob": "4f50097cf73bb033066a67539580ddb0e45d9c9d",
+      "sourceSha256": "409fb928fcf52aae3f0c99ca09f71516dff4a4f6bdbb16d2a201b10adac44ecc",
+      "stagedSha256": "409fb928fcf52aae3f0c99ca09f71516dff4a4f6bdbb16d2a201b10adac44ecc",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/api-tests/ControllerAuthorizationCoverageTests.cs"
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/LogTemplatePiiContractTests.cs",
+      "target": "reference/p1/Codelab.Testing/api-tests/LogTemplatePiiContractTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "7a7b7259eaba47595a8821b74a8bbf8308ce824d",
+      "sourceSha256": "44f31a291ea9d0178217b7239ab71379ce447145d3c36046c85c368c1703762a",
+      "stagedSha256": "44f31a291ea9d0178217b7239ab71379ce447145d3c36046c85c368c1703762a",
+      "promotion": "staged",
+      "deferred": "Not in Codelab.Testing 0.5: host-specific contract (account security, verb-less controller actions, log-template PII gate) lands with the starter host tests (phases 2 and 3)."
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-api",
+      "source": "backend/MODHS.Api.Tests/NumericIdBurndownTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Contracts/PublicIdContract.cs",
+      "mode": "copy",
+      "sourceGitBlob": "c31ae7b078c7600afea6c321298cd5439c4dce3d",
+      "sourceSha256": "ace2896370dcd17a65d1b2ee27cfec7aa9bff3df723d27da47f83facf663774b",
+      "stagedSha256": "ace2896370dcd17a65d1b2ee27cfec7aa9bff3df723d27da47f83facf663774b",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/api-tests/NumericIdBurndownTests.cs"
+    },
+    {
+      "batch": "p1-testing",
+      "entryId": "contract-tests-integration",
+      "source": "backend/MODHS.IntegrationTests/NumericIdWireSweepTests.cs",
+      "target": "packages/dotnet/Codelab.Testing/Contracts/WireJsonSweep.cs",
+      "mode": "copy",
+      "sourceGitBlob": "fd6e8f55530427f672547bcd243f26540efe667b",
+      "sourceSha256": "41cb0d6d52dc96e13a7c9d94d3b589944736e20f00fcfdc63af10977d0b34919",
+      "stagedSha256": "41cb0d6d52dc96e13a7c9d94d3b589944736e20f00fcfdc63af10977d0b34919",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p1/Codelab.Testing/integration-tests/NumericIdWireSweepTests.cs"
+    }
+  ],
+  "denied": []
+}

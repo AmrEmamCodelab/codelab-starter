@@ -5,3 +5,6 @@ P:System.DateTime.UtcNow;Inject TimeProvider and use GetUtcNow() so time is test
 P:System.DateTime.Today;Inject TimeProvider and use GetLocalNow().Date so time is testable (rule base.time-provider)
 P:System.DateTimeOffset.Now;Inject TimeProvider and use GetLocalNow() so time is testable (rule base.time-provider)
 P:System.DateTimeOffset.UtcNow;Inject TimeProvider and use GetUtcNow() so time is testable (rule base.time-provider)
+M:System.Threading.Thread.Sleep(System.Int32);Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable (rule base.no-thread-sleep)
+M:System.Threading.Thread.Sleep(System.TimeSpan);Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable (rule base.no-thread-sleep)
+P:System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;Keep certificate validation on; trust an internal CA through Codelab.Integration ServerCertificatePolicy (rule base.no-accept-any-certificate)

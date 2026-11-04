@@ -45,7 +45,7 @@ required:
   # --- Clean code (user requirement 2026-11-04) ----------------------------------------------------
   - id: base.enums-as-int
     statement: Enums are stored and sent as integers and every enum member has an explicit numeric value (Approved = 3), so reordering never changes stored data; labels come from i18n, never from enum names.
-    enforcedBy: [hook, contract-test]
+    enforcedBy: [hook, analyzer]
     availableFrom: P1
   - id: base.no-magic-values
     statement: Status ids, role keys, permission keys, error codes, config keys, claim types, route names, cache keys, job ids and limits live in typed constants or options classes; numeric literals other than the allowed ones need a named constant.
@@ -57,10 +57,13 @@ required:
   - id: base.clean-code
     statement: Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.
     enforcedBy: [analyzer, review]
+    availableFrom: P1
+  # Declared, not yet enforced (ADR-012): no CI step measures coverage yet. The coverage gate and the use-case
+  # contract test arrive with the first Domain/Application and frontend core layers (P2); until then review enforces it.
   - id: base.unit-tests-mandatory
     statement: Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.
     enforcedBy: [contract-test, coverage-gate, scaffold, commit-gate]
-    availableFrom: P1
+    availableFrom: P2
 
   # --- Frontend ------------------------------------------------------------------------------------
   - id: base.fe-ui-library
@@ -87,13 +90,61 @@ forbidden:
     pattern: '\bDateTime(?:Offset)?\.(?:Now|UtcNow|Today)\b'
     appliesTo: ["**/*.cs"]
     fix: Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.
+  - id: base.no-thread-sleep
+    description: Thread.Sleep blocks a thread and makes waits untestable; it is also a global banned API (RS0030) in Codelab.Build.Sdk.
+    pattern: '\bThread[.]Sleep\s*\('
+    appliesTo: ["**/*.cs"]
+    fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
 
   # --- Analyzer opt-outs ---------------------------------------------------------------------------
   - id: base.no-analyzer-opt-out
-    description: Turning off the banned-API or complexity analyzers removes a build gate for everyone after you.
-    pattern: 'CodelabEnableBannedApis>\s*false|<NoWarn>[^<]*\b(?:RS0030|CA1502)\b|#pragma\s+warning\s+disable\b[^\r\n]*\b(?:RS0030|CA1502)\b|dotnet_diagnostic\.(?:RS0030|CA1502)\.severity\s*=\s*(?:none|silent|suggestion)|SuppressMessage\([^)]*\b(?:RS0030|CA1502)\b'
+    description: Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).
+    pattern: '<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\b[^>]*>\s*(?!true\s*<)|<EnableNETAnalyzers\b[^>]*>\s*(?!true\s*<)|<AnalysisLevel\w*\b[^>]*>[^<]*\bnone\b|<AnalysisMode\w*\b[^>]*>\s*none\b|<NoWarn>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|#pragma\s+warning\s+disable\b[^\r\n]*\b(?:RS0030|CA1502|CLB\d{4})\b|dotnet_diagnostic\.(?:RS0030|CA1502|CLB\d{4})\.severity\s*=\s*(?:none|silent|suggestion)|SuppressMessage\([^)]*\b(?:RS0030|CA1502|CLB\d{4})\b|#pragma\s+warning\s+disable[ \t]*(?://[^\r\n]*)?(?:\r?\n|$)|dotnet_analyzer_diagnostic\.(?:category-[\w.-]+\.)?severity\s*=\s*(?:none|silent|suggestion)|\bgenerated_code\s*=\s*true|<TreatWarningsAsErrors>\s*false|<WarningsNotAsErrors>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|<RunAnalyzers(?:DuringBuild)?>\s*false'
+    flags: i
     appliesTo: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets", "**/.editorconfig", "**/*.globalconfig"]
     fix: Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.
+  - id: base.no-fixture-gate-opt-out
+    description: CodelabFixtureGateOptOut lets a build switch the quality gates off without CODELAB002; only the SDK's own fixture builds may pass it.
+    pattern: '\bCodelabFixtureGateOptOut\b'
+    flags: i
+    appliesTo: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets", "**/*.rsp", "**/*.ps1", "**/*.mjs", "**/*.json"]
+    excludes: ["packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.targets", "packages/dotnet/Codelab.Build.Analyzers.Tests/SdkFixture/**", "rules/**", "tools/rules-engine/tests/**"]
+    fix: Remove it. The quality gates stay on for every project; fix the code instead.
+  - id: base.no-hand-written-globalconfig
+    description: Roslyn loads any .globalconfig it is given, at any global_level, so a hand-written one can raise the clean-code thresholds or switch rules off for a whole project; the only one is the generated rules/codelab.globalconfig.
+    pattern: '^[\s\S]'
+    appliesTo: ["**/*.globalconfig"]
+    excludes: ["rules/codelab.globalconfig"]
+    fix: Delete the file. Change thresholds in rules/base.rules.yaml or a module.rules.yaml, then run node tools/rules-engine/compile.mjs.
+  - id: base.no-auto-generated-marker
+    description: An auto-generated header makes every analyzer skip the file (CLB1001-CLB1005 ignore generated code), so hand-written code must not carry one.
+    pattern: '^[ \t]*(?://|/\*)[^\r\n]*<auto-generated'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Remove the header. Real generator output is written under obj/ by the build and is never committed.
+  - id: base.no-generated-file-name
+    description: A *.g.cs, *.generated.cs or *.designer.cs name makes the analyzers treat a hand-written file as generated and skip it.
+    pattern: '^[\s\S]'
+    appliesTo: ["**/*.g.cs", "**/*.g.i.cs", "**/*.generated.cs", "**/*.designer.cs", "**/*.Designer.cs"]
+    fix: Rename the file to a plain *.cs name. Generator output lives under obj/ and is never committed.
+  - id: base.no-test-project-opt-in
+    description: Only a *.Tests project is a test project (CLB1004 magic numbers skips test projects). Production code may not declare IsTestProject, reference a test framework (Microsoft.NET.Test.Sdk sets IsTestProject) or rename its assembly to *.Tests.
+    pattern: '<IsTestProject>\s*true|<PackageReference\b[^>]*\bInclude\s*=\s*"(?:Microsoft\.NET\.Test\.Sdk|xunit|NUnit|MSTest)|<AssemblyName>[^<]*\.Tests?\s*<'
+    flags: i
+    appliesTo: ["**/*.csproj", "**/*.props", "**/*.targets"]
+    excludes: ["**/*.Tests/**", "**/*.Tests.csproj"]
+    fix: Put tests in a project named <Module>.Tests; production code never declares IsTestProject.
+  - id: base.no-accept-any-certificate
+    description: A certificate validator that accepts everything turns TLS into plain text for an attacker in the path (the harvest source's internal calls did this).
+    pattern: '\bDangerousAcceptAnyServerCertificateValidator\b|(?:ServerCertificateCustomValidationCallback|RemoteCertificateValidationCallback|ServerCertificateValidationCallback)\s*[+]?=\s*(?:delegate\s*\([^)]*\)\s*\{\s*return\s+true\s*;\s*\}|(?:static\s+)?(?:\([^)]*\)|\w+)\s*=>\s*true\b)'
+    appliesTo: ["**/*.cs"]
+    fix: Keep certificate validation on. Trust an internal CA through Codelab.Integration's ServerCertificatePolicy (pinned or chain-validated), never by returning true.
+  - id: base.no-threshold-override
+    description: Clean-code thresholds (codelab_* keys) written by hand bypass the rules files and their review; only the files the rules engine emits, at their own paths (rules/codelab.globalconfig and each module's .editorconfig), may set them. A GENERATED marker in the content proves nothing.
+    pattern: '(?:^|\n)[ \t]*codelab_\w+[ \t]*='
+    appliesTo: ["**/.editorconfig", "**/*.globalconfig"]
+    exemptEmittedFiles: true
+    fix: Change the thresholds or settings in rules/base.rules.yaml or the module.rules.yaml, then run node tools/rules-engine/compile.mjs.
 
   # --- Magic strings used as keys ------------------------------------------------------------------
   - id: base.no-string-permission-key
@@ -120,8 +171,10 @@ forbidden:
     pattern: 'HasConversion<string>\s*\(|\bEnumToStringConverter\b|\bJsonStringEnumConverter\b'
     appliesTo: ["**/*.cs"]
     fix: Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.
+  # An early hook warning only: a text pattern cannot see past doc comments and attributes on a member. The build gate
+  # is the CLB1005 analyzer (Codelab.Build.Analyzers), which matches the syntax.
   - id: base.enum-explicit-values
-    description: An enum member without an explicit value changes meaning when members are reordered.
+    description: An enum member without an explicit value changes meaning when members are reordered (CLB1005 is the build gate).
     pattern: '\benum\s+\w+(?:\s*:\s*\w+)?\s*\{(?:[^{}]*?[{,])?\s*[A-Za-z_]\w*\s*(?:,|\})'
     appliesTo: ["**/*.cs"]
     fix: Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.
@@ -198,29 +251,33 @@ forbidden:
     excludes: ["**/tokens/**", "**/_tokens*.scss"]
     fix: Use a design token, e.g. var(--codelab-color-primary).
 
-bannedSymbols:
-  # DateTime.Now / UtcNow / Today and DateTimeOffset.Now / UtcNow are banned globally by Codelab.Build.Sdk's
-  # BannedSymbols.txt; the compiler refuses duplicates of that list.
-  - id: base.no-thread-sleep
-    symbol: M:System.Threading.Thread.Sleep(System.Int32)
-    fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
-  - id: base.no-thread-sleep-timespan
-    symbol: M:System.Threading.Thread.Sleep(System.TimeSpan)
-    fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
+# DateTime.Now / UtcNow / Today, DateTimeOffset.Now / UtcNow and Thread.Sleep (both overloads, rule
+# base.no-thread-sleep) are banned globally by Codelab.Build.Sdk's Sdk/BannedSymbols.txt, so every project gets them
+# with or without a module.rules.yaml. The compiler refuses duplicates of that list; base-wide bans go there.
+bannedSymbols: []
 
 thresholds:
-  # Declared, not yet enforced (ADR-012): methodLines, fileLines and parameters get a Codelab analyzer in P1 and
-  # ESLint rules in P2. cyclomaticComplexity is enforced now (CA1502 via CodeMetricsConfig.txt).
+  # Enforced for C# since P1 (ADR-012) by Codelab.Build.Analyzers, shipped in Codelab.Build.Sdk: methodLines
+  # (CLB1001), fileLines (CLB1002) and parameters (CLB1003), read from the codelab_* keys of the generated module
+  # .editorconfig, or of rules/codelab.globalconfig for projects without a module.rules.yaml. cyclomaticComplexity is
+  # CA1502 via CodeMetricsConfig.txt. ESLint rules from the same values arrive in P2.
   methodLines: 40
   fileLines: 400
   cyclomaticComplexity: 10
   parameters: 5
+  # Declared, not yet enforced (ADR-012): no emitter or CI step reads the coverage thresholds before P2.
   backendLineCoverage: 80
   frontendLineCoverage: 70
 
 analyzers:
   # Banned APIs are always build errors.
   RS0030: error
+  # Codelab clean-code analyzers (ADR-012): method lines, file lines, parameters, magic numbers, enum member values.
+  CLB1001: error
+  CLB1002: error
+  CLB1003: error
+  CLB1004: error
+  CLB1005: error
   # Cyclomatic complexity (threshold from thresholds.cyclomaticComplexity via CodeMetricsConfig.txt).
   CA1502: warning
 

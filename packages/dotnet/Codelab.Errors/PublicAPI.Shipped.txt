@@ -1,0 +1,168 @@
+#nullable enable
+Codelab.Errors.Classification
+Codelab.Errors.Classification.Classification() -> void
+Codelab.Errors.Classification.Classification(Codelab.Errors.Failure Failure, string! Classifier) -> void
+Codelab.Errors.Classification.Classifier.get -> string!
+Codelab.Errors.Classification.Classifier.init -> void
+Codelab.Errors.Classification.Deconstruct(out Codelab.Errors.Failure Failure, out string! Classifier) -> void
+Codelab.Errors.Classification.Equals(Codelab.Errors.Classification other) -> bool
+Codelab.Errors.Classification.Failure.get -> Codelab.Errors.Failure
+Codelab.Errors.Classification.Failure.init -> void
+Codelab.Errors.Classifiers.ConcurrencyClassifier
+Codelab.Errors.Classifiers.ConcurrencyClassifier.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.Classifiers.ConcurrencyClassifier.ConcurrencyClassifier() -> void
+Codelab.Errors.Classifiers.ExceptionTypeClassifier<TException>
+Codelab.Errors.Classifiers.ExceptionTypeClassifier<TException>.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.Classifiers.ExceptionTypeClassifier<TException>.ExceptionTypeClassifier(System.Func<TException!, Codelab.Errors.Failure>! describe) -> void
+Codelab.Errors.Classifiers.RequestBodyClassifier
+Codelab.Errors.Classifiers.RequestBodyClassifier.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.Classifiers.RequestBodyClassifier.RequestBodyClassifier() -> void
+Codelab.Errors.Classifiers.TransientFaultClassifier
+Codelab.Errors.Classifiers.TransientFaultClassifier.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.Classifiers.TransientFaultClassifier.TransientFaultClassifier() -> void
+Codelab.Errors.Classifiers.UpstreamUnavailableClassifier
+Codelab.Errors.Classifiers.UpstreamUnavailableClassifier.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.Classifiers.UpstreamUnavailableClassifier.UpstreamUnavailableClassifier() -> void
+Codelab.Errors.ClientErrorScrubber
+Codelab.Errors.CodedRefusal
+Codelab.Errors.CodedRefusal.<Clone>$() -> Codelab.Errors.CodedRefusal!
+Codelab.Errors.CodedRefusal.Code.get -> string!
+Codelab.Errors.CodedRefusal.Equals(Codelab.Errors.CodedRefusal? other) -> bool
+Codelab.Errors.CodedRefusal.Errors.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string![]!>!
+Codelab.Errors.CodedRefusal.Kind.get -> Codelab.Errors.RefusalKind
+Codelab.Errors.CodedRefusal.Status.get -> int
+Codelab.Errors.CodedRefusal.ToActionResult() -> Microsoft.AspNetCore.Mvc.IActionResult!
+Codelab.Errors.CodedRefusal.ToProblemDetails() -> Microsoft.AspNetCore.Mvc.ProblemDetails!
+Codelab.Errors.CodedRefusal.ToResult() -> Microsoft.AspNetCore.Http.IResult!
+Codelab.Errors.CodelabErrorsExtensions
+Codelab.Errors.CodelabErrorsOptions
+Codelab.Errors.CodelabErrorsOptions.AllowedExtensionMembers.get -> System.Collections.Generic.ISet<string!>!
+Codelab.Errors.CodelabErrorsOptions.Classifiers.get -> System.Collections.Generic.IList<Codelab.Errors.IFailureClassifier!>!
+Codelab.Errors.CodelabErrorsOptions.CodelabErrorsOptions() -> void
+Codelab.Errors.CodelabErrorsOptions.Map<TException>(System.Func<TException!, Codelab.Errors.Failure>! describe) -> Codelab.Errors.CodelabErrorsOptions!
+Codelab.Errors.CodelabErrorsOptions.Map<TException>(int status, string! code, Microsoft.Extensions.Logging.LogLevel level) -> Codelab.Errors.CodelabErrorsOptions!
+Codelab.Errors.ErrorCodes
+Codelab.Errors.ErrorEnvelope
+Codelab.Errors.Failure
+Codelab.Errors.Failure.Code.get -> string!
+Codelab.Errors.Failure.Code.init -> void
+Codelab.Errors.Failure.Deconstruct(out int Status, out string! Code, out string! Detail, out Microsoft.Extensions.Logging.LogLevel Level, out int? RetryAfterSeconds) -> void
+Codelab.Errors.Failure.Detail.get -> string!
+Codelab.Errors.Failure.Detail.init -> void
+Codelab.Errors.Failure.Equals(Codelab.Errors.Failure other) -> bool
+Codelab.Errors.Failure.Failure() -> void
+Codelab.Errors.Failure.Failure(int Status, string! Code, string! Detail, Microsoft.Extensions.Logging.LogLevel Level, int? RetryAfterSeconds = null) -> void
+Codelab.Errors.Failure.IsServerFault.get -> bool
+Codelab.Errors.Failure.Level.get -> Microsoft.Extensions.Logging.LogLevel
+Codelab.Errors.Failure.Level.init -> void
+Codelab.Errors.Failure.RetryAfterSeconds.get -> int?
+Codelab.Errors.Failure.RetryAfterSeconds.init -> void
+Codelab.Errors.Failure.Status.get -> int
+Codelab.Errors.Failure.Status.init -> void
+Codelab.Errors.FailureClassifierTable
+Codelab.Errors.FailureClassifierTable.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Classification
+Codelab.Errors.FailureClassifierTable.FailureClassifierTable(Microsoft.Extensions.Options.IOptions<Codelab.Errors.CodelabErrorsOptions!>! options) -> void
+Codelab.Errors.FailureClassifierTable.Resolve(System.Exception? exception) -> Codelab.Observability.FailureCode
+Codelab.Errors.FrameworkStatusCodes
+Codelab.Errors.GlobalExceptionHandler
+Codelab.Errors.GlobalExceptionHandler.GlobalExceptionHandler(Codelab.Errors.FailureClassifierTable! classifiers, Codelab.Observability.UserIdHash! userIdHash, Microsoft.Extensions.Logging.ILogger<Codelab.Errors.GlobalExceptionHandler!>! logger) -> void
+Codelab.Errors.GlobalExceptionHandler.TryHandleAsync(Microsoft.AspNetCore.Http.HttpContext! httpContext, System.Exception! exception, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<bool>
+Codelab.Errors.IFailureClassifier
+Codelab.Errors.IFailureClassifier.Classify(System.Exception! exception, Microsoft.AspNetCore.Http.HttpContext? context) -> Codelab.Errors.Failure?
+Codelab.Errors.ModelBindingErrors
+Codelab.Errors.ProblemDetailsNormalizer
+Codelab.Errors.ProblemEnvelopeResult
+Codelab.Errors.ProblemEnvelopeResult.ContentType.get -> string!
+Codelab.Errors.ProblemEnvelopeResult.ExecuteAsync(Microsoft.AspNetCore.Http.HttpContext! httpContext) -> System.Threading.Tasks.Task!
+Codelab.Errors.ProblemEnvelopeResult.ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext! context) -> System.Threading.Tasks.Task!
+Codelab.Errors.ProblemEnvelopeResult.ProblemEnvelopeResult(Microsoft.AspNetCore.Mvc.ProblemDetails! problem) -> void
+Codelab.Errors.ProblemEnvelopeResult.StatusCode.get -> int?
+Codelab.Errors.ProblemEnvelopeResult.Value.get -> Microsoft.AspNetCore.Mvc.ProblemDetails!
+Codelab.Errors.RefusalKind
+Codelab.Errors.RefusalKind.Conflict = 4 -> Codelab.Errors.RefusalKind
+Codelab.Errors.RefusalKind.Forbidden = 2 -> Codelab.Errors.RefusalKind
+Codelab.Errors.RefusalKind.Invalid = 1 -> Codelab.Errors.RefusalKind
+Codelab.Errors.RefusalKind.NotFound = 3 -> Codelab.Errors.RefusalKind
+Codelab.Errors.RefusalKind.Unprocessable = 5 -> Codelab.Errors.RefusalKind
+Codelab.Errors.StatusCodePagesWriter
+Codelab.Errors.StatusDescription
+Codelab.Errors.StatusDescription.Code.get -> string!
+Codelab.Errors.StatusDescription.Code.init -> void
+Codelab.Errors.StatusDescription.Deconstruct(out string! Code, out string! Detail) -> void
+Codelab.Errors.StatusDescription.Detail.get -> string!
+Codelab.Errors.StatusDescription.Detail.init -> void
+Codelab.Errors.StatusDescription.Equals(Codelab.Errors.StatusDescription other) -> bool
+Codelab.Errors.StatusDescription.StatusDescription() -> void
+Codelab.Errors.StatusDescription.StatusDescription(string! Code, string! Detail) -> void
+Codelab.Errors.UpstreamUnavailableException
+Codelab.Errors.UpstreamUnavailableException.Upstream.get -> string!
+Codelab.Errors.UpstreamUnavailableException.UpstreamUnavailableException(string! upstream) -> void
+Codelab.Errors.UpstreamUnavailableException.UpstreamUnavailableException(string! upstream, System.Exception? innerException) -> void
+const Codelab.Errors.Classifiers.RequestBodyClassifier.BufferLimitMessage = "Buffer limit exceeded." -> string!
+const Codelab.Errors.Classifiers.TransientFaultClassifier.MaxChainDepth = 8 -> int
+const Codelab.Errors.Classifiers.TransientFaultClassifier.RetryAfterSeconds = 5 -> int
+const Codelab.Errors.ErrorCodes.BusinessRule = "BUSINESS_RULE_VIOLATED" -> string!
+const Codelab.Errors.ErrorCodes.Concurrency = "CONCURRENCY" -> string!
+const Codelab.Errors.ErrorCodes.Conflict = "CONFLICT" -> string!
+const Codelab.Errors.ErrorCodes.Forbidden = "FORBIDDEN" -> string!
+const Codelab.Errors.ErrorCodes.InternalError = "INTERNAL_ERROR" -> string!
+const Codelab.Errors.ErrorCodes.Malformed = "MALFORMED_REQUEST" -> string!
+const Codelab.Errors.ErrorCodes.NotFound = "NOT_FOUND" -> string!
+const Codelab.Errors.ErrorCodes.PayloadTooLarge = "PAYLOAD_TOO_LARGE" -> string!
+const Codelab.Errors.ErrorCodes.Retryable = "RETRYABLE" -> string!
+const Codelab.Errors.ErrorCodes.Unauthenticated = "UNAUTHENTICATED" -> string!
+const Codelab.Errors.ErrorCodes.Upstream = "UPSTREAM_UNAVAILABLE" -> string!
+const Codelab.Errors.ErrorCodes.Validation = "VALIDATION_FAILED" -> string!
+const Codelab.Errors.ErrorEnvelope.CodeMember = "code" -> string!
+const Codelab.Errors.ErrorEnvelope.CorrelationIdMember = "correlationId" -> string!
+const Codelab.Errors.ErrorEnvelope.ErrorsMember = "errors" -> string!
+const Codelab.Errors.ErrorEnvelope.FrameworkTraceIdMember = "traceId" -> string!
+const Codelab.Errors.ErrorEnvelope.ProblemJsonMediaType = "application/problem+json" -> string!
+const Codelab.Errors.ErrorEnvelope.ReferenceCodeMember = "referenceCode" -> string!
+const Codelab.Errors.ErrorEnvelope.Title = "Request failed" -> string!
+const Codelab.Errors.FailureClassifierTable.UnclassifiedName = "Unclassified" -> string!
+const Codelab.Errors.FrameworkStatusCodes.FirstServerErrorStatus = 500 -> int
+const Codelab.Errors.GlobalExceptionHandler.ErrorCodeSpanTag = "codelab.error_code" -> string!
+const Codelab.Errors.ModelBindingErrors.BodyKey = "body" -> string!
+const Codelab.Errors.ModelBindingErrors.MissingBody = "The request body is missing or could not be read." -> string!
+const Codelab.Errors.ModelBindingErrors.MissingValue = "A value is required." -> string!
+const Codelab.Errors.ModelBindingErrors.MustBeANumber = "A number is required." -> string!
+const Codelab.Errors.ModelBindingErrors.UnparseableField = "The value provided is not valid for this field." -> string!
+override Codelab.Errors.Classification.GetHashCode() -> int
+override Codelab.Errors.CodedRefusal.Equals(object? obj) -> bool
+override Codelab.Errors.CodedRefusal.GetHashCode() -> int
+override Codelab.Errors.CodedRefusal.ToString() -> string!
+override Codelab.Errors.Failure.GetHashCode() -> int
+override Codelab.Errors.StatusDescription.GetHashCode() -> int
+static Codelab.Errors.Classification.operator !=(Codelab.Errors.Classification left, Codelab.Errors.Classification right) -> bool
+static Codelab.Errors.Classification.operator ==(Codelab.Errors.Classification left, Codelab.Errors.Classification right) -> bool
+static Codelab.Errors.ClientErrorScrubber.EnvelopeMembers.get -> System.Collections.Generic.IReadOnlySet<string!>!
+static Codelab.Errors.ClientErrorScrubber.MarkVetted(Microsoft.AspNetCore.Http.HttpContext! httpContext, string! detail) -> void
+static Codelab.Errors.ClientErrorScrubber.Scrub(Microsoft.AspNetCore.Mvc.ProblemDetails! problem, Microsoft.AspNetCore.Http.HttpContext! httpContext, System.Collections.Generic.IReadOnlySet<string!>! allowedExtensionMembers) -> void
+static Codelab.Errors.CodedRefusal.Conflict(string! code = "CONFLICT") -> Codelab.Errors.CodedRefusal!
+static Codelab.Errors.CodedRefusal.Forbidden(string! code = "FORBIDDEN") -> Codelab.Errors.CodedRefusal!
+static Codelab.Errors.CodedRefusal.Invalid(System.Collections.Generic.IReadOnlyDictionary<string!, string![]!>! errors, string! code = "VALIDATION_FAILED") -> Codelab.Errors.CodedRefusal!
+static Codelab.Errors.CodedRefusal.NotFound(string! code = "NOT_FOUND") -> Codelab.Errors.CodedRefusal!
+static Codelab.Errors.CodedRefusal.Unprocessable(string! code = "BUSINESS_RULE_VIOLATED") -> Codelab.Errors.CodedRefusal!
+static Codelab.Errors.CodedRefusal.operator !=(Codelab.Errors.CodedRefusal? left, Codelab.Errors.CodedRefusal? right) -> bool
+static Codelab.Errors.CodedRefusal.operator ==(Codelab.Errors.CodedRefusal? left, Codelab.Errors.CodedRefusal? right) -> bool
+static Codelab.Errors.CodelabErrorsExtensions.AddCodelabErrors(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Codelab.Errors.CodelabErrorsOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Codelab.Errors.CodelabErrorsExtensions.UseCodelabErrors(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Codelab.Errors.ErrorEnvelope.StampIdentity(System.Collections.Generic.IDictionary<string!, object?>! extensions, Microsoft.AspNetCore.Http.HttpContext! httpContext) -> void
+static Codelab.Errors.Failure.operator !=(Codelab.Errors.Failure left, Codelab.Errors.Failure right) -> bool
+static Codelab.Errors.Failure.operator ==(Codelab.Errors.Failure left, Codelab.Errors.Failure right) -> bool
+static Codelab.Errors.FrameworkStatusCodes.Describe(int status) -> Codelab.Errors.StatusDescription
+static Codelab.Errors.ModelBindingErrors.Configure(Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.DefaultModelBindingMessageProvider! messages) -> void
+static Codelab.Errors.ModelBindingErrors.Handle(Microsoft.AspNetCore.Mvc.ActionContext! context) -> Microsoft.AspNetCore.Mvc.IActionResult!
+static Codelab.Errors.ProblemDetailsNormalizer.Normalize(Microsoft.AspNetCore.Http.ProblemDetailsContext! context) -> void
+static Codelab.Errors.StatusCodePagesWriter.WriteAsync(Microsoft.AspNetCore.Diagnostics.StatusCodeContext! context) -> System.Threading.Tasks.Task!
+static Codelab.Errors.StatusDescription.operator !=(Codelab.Errors.StatusDescription left, Codelab.Errors.StatusDescription right) -> bool
+static Codelab.Errors.StatusDescription.operator ==(Codelab.Errors.StatusDescription left, Codelab.Errors.StatusDescription right) -> bool
+static readonly Codelab.Errors.Classifiers.TransientFaultClassifier.TransientSqlErrorNumbers -> System.Collections.Generic.IReadOnlySet<int>!
+static readonly Codelab.Errors.FailureClassifierTable.Unclassified -> Codelab.Errors.Failure
+~override Codelab.Errors.Classification.Equals(object obj) -> bool
+~override Codelab.Errors.Classification.ToString() -> string
+~override Codelab.Errors.Failure.Equals(object obj) -> bool
+~override Codelab.Errors.Failure.ToString() -> string
+~override Codelab.Errors.StatusDescription.Equals(object obj) -> bool
+~override Codelab.Errors.StatusDescription.ToString() -> string

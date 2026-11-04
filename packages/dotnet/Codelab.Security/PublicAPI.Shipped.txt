@@ -1,0 +1,1028 @@
+#nullable enable
+Codelab.Security.Canonical.Base64UrlText
+Codelab.Security.Canonical.CanonicalFraming
+Codelab.Security.Canonical.CanonicalFraming.Build(string! profile, params string![]! fields) -> string!
+Codelab.Security.Canonical.CanonicalFraming.BuildUtf8(string! profile, params string![]! fields) -> byte[]!
+Codelab.Security.Canonical.CanonicalFraming.CanonicalFraming(Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.Canonical.CanonicalText
+Codelab.Security.CodelabSecurityExtensions
+Codelab.Security.Cors.CodelabCorsOptions
+Codelab.Security.Cors.CodelabCorsOptions.AllowCredentials.get -> bool
+Codelab.Security.Cors.CodelabCorsOptions.AllowCredentials.set -> void
+Codelab.Security.Cors.CodelabCorsOptions.AllowedHeaders.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Cors.CodelabCorsOptions.AllowedHeaders.init -> void
+Codelab.Security.Cors.CodelabCorsOptions.AllowedOrigins.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Cors.CodelabCorsOptions.AllowedOrigins.init -> void
+Codelab.Security.Cors.CodelabCorsOptions.CodelabCorsOptions() -> void
+Codelab.Security.Cors.CodelabCorsOptions.ExposedHeaders.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Cors.CodelabCorsOptions.ExposedHeaders.init -> void
+Codelab.Security.Cors.CodelabCorsOptions.PreflightMaxAgeSeconds.get -> int
+Codelab.Security.Cors.CodelabCorsOptions.PreflightMaxAgeSeconds.set -> void
+Codelab.Security.Cors.CorsOriginValidator
+Codelab.Security.Headers.HstsOptions
+Codelab.Security.Headers.HstsOptions.Enabled.get -> bool
+Codelab.Security.Headers.HstsOptions.Enabled.set -> void
+Codelab.Security.Headers.HstsOptions.ExcludedHosts.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Headers.HstsOptions.ExcludedHosts.init -> void
+Codelab.Security.Headers.HstsOptions.HstsOptions() -> void
+Codelab.Security.Headers.HstsOptions.IncludeSubDomains.get -> bool
+Codelab.Security.Headers.HstsOptions.IncludeSubDomains.set -> void
+Codelab.Security.Headers.HstsOptions.Incoherence() -> string?
+Codelab.Security.Headers.HstsOptions.MaxAgeDays.get -> int
+Codelab.Security.Headers.HstsOptions.MaxAgeDays.set -> void
+Codelab.Security.Headers.HstsOptions.Preload.get -> bool
+Codelab.Security.Headers.HstsOptions.Preload.set -> void
+Codelab.Security.Headers.HstsOptions.ToHeaderValue() -> string!
+Codelab.Security.Headers.SecurityHeaderOptions
+Codelab.Security.Headers.SecurityHeaderOptions.Enabled.get -> bool
+Codelab.Security.Headers.SecurityHeaderOptions.Enabled.set -> void
+Codelab.Security.Headers.SecurityHeaderOptions.Hsts.get -> Codelab.Security.Headers.HstsOptions!
+Codelab.Security.Headers.SecurityHeaderOptions.Hsts.set -> void
+Codelab.Security.Headers.SecurityHeaderOptions.RelaxedPathPrefixes.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Headers.SecurityHeaderOptions.RelaxedPathPrefixes.init -> void
+Codelab.Security.Headers.SecurityHeaderOptions.SecurityHeaderOptions() -> void
+Codelab.Security.Headers.SecurityHeadersMiddleware
+Codelab.Security.Headers.SecurityHeadersMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Security.Headers.SecurityHeadersMiddleware.SecurityHeadersMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Headers.SecurityHeaderOptions!>! options) -> void
+Codelab.Security.Keys.KeyEntryOptions
+Codelab.Security.Keys.KeyEntryOptions.KeyEntryOptions() -> void
+Codelab.Security.Keys.KeyEntryOptions.KeyId.get -> string?
+Codelab.Security.Keys.KeyEntryOptions.KeyId.set -> void
+Codelab.Security.Keys.KeyEntryOptions.MaterialBase64.get -> string?
+Codelab.Security.Keys.KeyEntryOptions.MaterialBase64.set -> void
+Codelab.Security.Keys.KeyGuardOptions
+Codelab.Security.Keys.KeyGuardOptions.KeyGuardOptions() -> void
+Codelab.Security.Keys.KeyGuardOptions.ValidateNotPublishedMaterial.get -> bool
+Codelab.Security.Keys.KeyGuardOptions.ValidateNotPublishedMaterial.set -> void
+Codelab.Security.Keys.KeyMaterialDigests
+Codelab.Security.Keys.KeyMaterialResult
+Codelab.Security.Keys.KeyMaterialResult.Deconstruct(out bool IsValid, out string? Error) -> void
+Codelab.Security.Keys.KeyMaterialResult.Equals(Codelab.Security.Keys.KeyMaterialResult other) -> bool
+Codelab.Security.Keys.KeyMaterialResult.Error.get -> string?
+Codelab.Security.Keys.KeyMaterialResult.Error.init -> void
+Codelab.Security.Keys.KeyMaterialResult.IsValid.get -> bool
+Codelab.Security.Keys.KeyMaterialResult.IsValid.init -> void
+Codelab.Security.Keys.KeyMaterialResult.KeyMaterialResult() -> void
+Codelab.Security.Keys.KeyMaterialResult.KeyMaterialResult(bool IsValid, string? Error) -> void
+Codelab.Security.Keys.KeyMaterialValidator
+Codelab.Security.Keys.KeyRingGuard
+Codelab.Security.Keys.KeyRingGuard.Check(Codelab.Security.Keys.KeyRingOptions! ring, string! sectionPath) -> Codelab.Security.Keys.KeyMaterialResult
+Codelab.Security.Keys.KeyRingGuard.CheckNotPublished(System.Collections.Generic.IEnumerable<Codelab.Security.Keys.KeyEntryOptions!>! keys, string! sectionPath) -> Codelab.Security.Keys.KeyMaterialResult
+Codelab.Security.Keys.KeyRingGuard.KeyRingGuard(Codelab.Security.Keys.PublishedMaterialDenylist! denylist, bool checkPublished) -> void
+Codelab.Security.Keys.KeyRingOptions
+Codelab.Security.Keys.KeyRingOptions.ActiveKeyId.get -> string?
+Codelab.Security.Keys.KeyRingOptions.ActiveKeyId.set -> void
+Codelab.Security.Keys.KeyRingOptions.KeyRingOptions() -> void
+Codelab.Security.Keys.KeyRingOptions.Keys.get -> System.Collections.Generic.IList<Codelab.Security.Keys.KeyEntryOptions!>!
+Codelab.Security.Keys.KeyRingOptions.Keys.init -> void
+Codelab.Security.Keys.PublishedMaterialDenylist
+Codelab.Security.Keys.PublishedMaterialDenylist.ContainsDigest(string! keyDigestHex) -> bool
+Codelab.Security.Keys.PublishedMaterialDenylist.Count.get -> int
+Codelab.Security.Keys.PublishedMaterialDenylist.IsPublished(string! material) -> bool
+Codelab.Security.Keys.PublishedMaterialDenylist.Sources.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Security.Keys.PublishedMaterialDenylist.Union(Codelab.Security.Keys.PublishedMaterialDenylist! other) -> Codelab.Security.Keys.PublishedMaterialDenylist!
+Codelab.Security.Problems.SecurityProblem
+Codelab.Security.Problems.SecurityProblem.<Clone>$() -> Codelab.Security.Problems.SecurityProblem!
+Codelab.Security.Problems.SecurityProblem.Code.get -> string?
+Codelab.Security.Problems.SecurityProblem.Code.init -> void
+Codelab.Security.Problems.SecurityProblem.Deconstruct(out int Status, out string! Title, out string? Code) -> void
+Codelab.Security.Problems.SecurityProblem.Equals(Codelab.Security.Problems.SecurityProblem? other) -> bool
+Codelab.Security.Problems.SecurityProblem.RetryAfterSeconds.get -> int?
+Codelab.Security.Problems.SecurityProblem.RetryAfterSeconds.init -> void
+Codelab.Security.Problems.SecurityProblem.SecurityProblem(int Status, string! Title, string? Code) -> void
+Codelab.Security.Problems.SecurityProblem.Status.get -> int
+Codelab.Security.Problems.SecurityProblem.Status.init -> void
+Codelab.Security.Problems.SecurityProblem.Title.get -> string!
+Codelab.Security.Problems.SecurityProblem.Title.init -> void
+Codelab.Security.Problems.SecurityProblemCodes
+Codelab.Security.Problems.SecurityProblemResult
+Codelab.Security.Problems.SecurityProblemResult.ExecuteAsync(Microsoft.AspNetCore.Http.HttpContext! httpContext) -> System.Threading.Tasks.Task!
+Codelab.Security.Problems.SecurityProblemResult.ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext! context) -> System.Threading.Tasks.Task!
+Codelab.Security.Problems.SecurityProblemResult.Problem.get -> Codelab.Security.Problems.SecurityProblem!
+Codelab.Security.Problems.SecurityProblemResult.SecurityProblemResult(Codelab.Security.Problems.SecurityProblem! problem) -> void
+Codelab.Security.Problems.SecurityProblemWriter
+Codelab.Security.PublicIds.IIdDomain
+Codelab.Security.PublicIds.IIdDomain.Domain.get -> string!
+Codelab.Security.PublicIds.IPublicIdCodec
+Codelab.Security.PublicIds.IPublicIdCodec.Protect(string! domain, long id) -> string!
+Codelab.Security.PublicIds.IPublicIdCodec.TryUnprotect(string! domain, string? token, out long id) -> bool
+Codelab.Security.PublicIds.NullablePublicIdJsonConverter<TDomain>
+Codelab.Security.PublicIds.NullablePublicIdJsonConverter<TDomain>.NullablePublicIdJsonConverter() -> void
+Codelab.Security.PublicIds.PublicId<TDomain>
+Codelab.Security.PublicIds.PublicId<TDomain>.Equals(Codelab.Security.PublicIds.PublicId<TDomain> other) -> bool
+Codelab.Security.PublicIds.PublicId<TDomain>.HasValue.get -> bool
+Codelab.Security.PublicIds.PublicId<TDomain>.PublicId() -> void
+Codelab.Security.PublicIds.PublicId<TDomain>.ToToken() -> string!
+Codelab.Security.PublicIds.PublicId<TDomain>.Value.get -> long
+Codelab.Security.PublicIds.PublicIdBindingExtensions
+Codelab.Security.PublicIds.PublicIdCodec
+Codelab.Security.PublicIds.PublicIdCodec.Protect(string! domain, long id) -> string!
+Codelab.Security.PublicIds.PublicIdCodec.PublicIdCodec(Codelab.Security.PublicIds.PublicIdKeyring! keyring, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.PublicIds.PublicIdCodec.TryUnprotect(string! domain, string? token, out long id) -> bool
+Codelab.Security.PublicIds.PublicIdCodecAccessor
+Codelab.Security.PublicIds.PublicIdFormat
+Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>
+Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.PublicIdJsonConverter() -> void
+Codelab.Security.PublicIds.PublicIdJsonConverterFactory
+Codelab.Security.PublicIds.PublicIdJsonConverterFactory.PublicIdJsonConverterFactory() -> void
+Codelab.Security.PublicIds.PublicIdKeyring
+Codelab.Security.PublicIds.PublicIdKeyring.ActiveKeyId.get -> string!
+Codelab.Security.PublicIds.PublicIdKeyring.KeyIds.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
+Codelab.Security.PublicIds.PublicIdKeyringOptions
+Codelab.Security.PublicIds.PublicIdKeyringOptions.PublicIdKeyringOptions() -> void
+Codelab.Security.PublicIds.PublicIdModelBinder<TDomain>
+Codelab.Security.PublicIds.PublicIdModelBinder<TDomain>.BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext! bindingContext) -> System.Threading.Tasks.Task!
+Codelab.Security.PublicIds.PublicIdModelBinder<TDomain>.PublicIdModelBinder(bool nullable) -> void
+Codelab.Security.PublicIds.PublicIdModelBinderProvider
+Codelab.Security.PublicIds.PublicIdModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext! context) -> Microsoft.AspNetCore.Mvc.ModelBinding.IModelBinder?
+Codelab.Security.PublicIds.PublicIdModelBinderProvider.PublicIdModelBinderProvider() -> void
+Codelab.Security.PublicIds.PublicIdRouteConstraint
+Codelab.Security.PublicIds.PublicIdRouteConstraint.Match(Microsoft.AspNetCore.Http.HttpContext? httpContext, Microsoft.AspNetCore.Routing.IRouter? route, string! routeKey, Microsoft.AspNetCore.Routing.RouteValueDictionary! values, Microsoft.AspNetCore.Routing.RouteDirection routeDirection) -> bool
+Codelab.Security.PublicIds.PublicIdRouteConstraint.PublicIdRouteConstraint() -> void
+Codelab.Security.PublicIds.PublicIdSchemaTransformer
+Codelab.Security.PublicIds.PublicIdSchemaTransformer.PublicIdSchemaTransformer() -> void
+Codelab.Security.PublicIds.PublicIdSchemaTransformer.TransformAsync(Microsoft.OpenApi.OpenApiSchema! schema, Microsoft.AspNetCore.OpenApi.OpenApiSchemaTransformerContext! context, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Codelab.Security.PublicIds.PublicIdTypes
+Codelab.Security.PublicIds.WireIdAttribute
+Codelab.Security.PublicIds.WireIdAttribute.WireIdAttribute() -> void
+Codelab.Security.RateLimiting.ClientAddressResolver
+Codelab.Security.RateLimiting.ClientAddressResolver.ClientAddressResolver(Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.RateLimiting.ClientRateLimitOptions!>! options) -> void
+Codelab.Security.RateLimiting.ClientAddressResolver.PartitionFor(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.RateLimiting.RateLimitPartition<string!>
+Codelab.Security.RateLimiting.ClientAddressResolver.Resolve(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Net.IPAddress?
+Codelab.Security.RateLimiting.ClientRateLimitOptions
+Codelab.Security.RateLimiting.ClientRateLimitOptions.ApplyGlobally.get -> bool
+Codelab.Security.RateLimiting.ClientRateLimitOptions.ApplyGlobally.set -> void
+Codelab.Security.RateLimiting.ClientRateLimitOptions.ClientRateLimitOptions() -> void
+Codelab.Security.RateLimiting.ClientRateLimitOptions.ParseTrustedProxies() -> System.Collections.Generic.IReadOnlyList<System.Net.IPNetwork>!
+Codelab.Security.RateLimiting.ClientRateLimitOptions.PermitLimit.get -> int
+Codelab.Security.RateLimiting.ClientRateLimitOptions.PermitLimit.set -> void
+Codelab.Security.RateLimiting.ClientRateLimitOptions.TrustedProxies.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.RateLimiting.ClientRateLimitOptions.TrustedProxies.init -> void
+Codelab.Security.RateLimiting.ClientRateLimitOptions.WindowSeconds.get -> int
+Codelab.Security.RateLimiting.ClientRateLimitOptions.WindowSeconds.set -> void
+Codelab.Security.RateLimiting.ClientRateLimiting
+Codelab.Security.Replay.IReplayGuard
+Codelab.Security.Replay.IReplayGuard.TryConsumeAsync(Codelab.Security.Replay.ReplayNonce! nonce, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.Replay.NonceConsumeOutcome>!
+Codelab.Security.Replay.MemoryReplayGuard
+Codelab.Security.Replay.MemoryReplayGuard.Count.get -> int
+Codelab.Security.Replay.MemoryReplayGuard.MemoryReplayGuard(System.TimeProvider! clock, int entryLimit) -> void
+Codelab.Security.Replay.MemoryReplayGuard.PurgeExpiredAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Codelab.Security.Replay.MemoryReplayGuard.StoreName.get -> string!
+Codelab.Security.Replay.MemoryReplayGuard.TryConsumeAsync(Codelab.Security.Replay.ReplayNonce! nonce, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.Replay.NonceConsumeOutcome>!
+Codelab.Security.Replay.NonceConsumeOutcome
+Codelab.Security.Replay.NonceConsumeOutcome.Fresh = 1 -> Codelab.Security.Replay.NonceConsumeOutcome
+Codelab.Security.Replay.NonceConsumeOutcome.Replayed = 0 -> Codelab.Security.Replay.NonceConsumeOutcome
+Codelab.Security.Replay.NonceConsumeOutcome.StoreUnavailable = 2 -> Codelab.Security.Replay.NonceConsumeOutcome
+Codelab.Security.Replay.ReplayNonce
+Codelab.Security.Replay.ReplayNonce.<Clone>$() -> Codelab.Security.Replay.ReplayNonce!
+Codelab.Security.Replay.ReplayNonce.Deconstruct(out string! Scope, out string! Nonce, out System.DateTimeOffset ExpiresAt) -> void
+Codelab.Security.Replay.ReplayNonce.Equals(Codelab.Security.Replay.ReplayNonce? other) -> bool
+Codelab.Security.Replay.ReplayNonce.ExpiresAt.get -> System.DateTimeOffset
+Codelab.Security.Replay.ReplayNonce.ExpiresAt.init -> void
+Codelab.Security.Replay.ReplayNonce.Nonce.get -> string!
+Codelab.Security.Replay.ReplayNonce.Nonce.init -> void
+Codelab.Security.Replay.ReplayNonce.ReplayNonce(string! Scope, string! Nonce, System.DateTimeOffset ExpiresAt) -> void
+Codelab.Security.Replay.ReplayNonce.Scope.get -> string!
+Codelab.Security.Replay.ReplayNonce.Scope.init -> void
+Codelab.Security.Replay.ReplayProtectionOptions
+Codelab.Security.Replay.ReplayProtectionOptions.AcknowledgeSingleInstance.get -> bool
+Codelab.Security.Replay.ReplayProtectionOptions.AcknowledgeSingleInstance.set -> void
+Codelab.Security.Replay.ReplayProtectionOptions.MemoryEntryLimit.get -> int
+Codelab.Security.Replay.ReplayProtectionOptions.MemoryEntryLimit.set -> void
+Codelab.Security.Replay.ReplayProtectionOptions.ReplayProtectionOptions() -> void
+Codelab.Security.Replay.ReplayProtectionOptions.RetentionMarginSeconds.get -> int
+Codelab.Security.Replay.ReplayProtectionOptions.RetentionMarginSeconds.set -> void
+Codelab.Security.Replay.ReplayProtectionOptions.Store.get -> Codelab.Security.Storage.SecurityStoreKind
+Codelab.Security.Replay.ReplayProtectionOptions.Store.set -> void
+Codelab.Security.Replay.SqlReplayGuard
+Codelab.Security.Replay.SqlReplayGuard.PurgeExpiredAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Codelab.Security.Replay.SqlReplayGuard.SqlReplayGuard(Codelab.Security.Storage.SqlStoreOptions! options, System.TimeProvider! clock, Microsoft.Extensions.Logging.ILogger<Codelab.Security.Replay.SqlReplayGuard!>! logger) -> void
+Codelab.Security.Replay.SqlReplayGuard.StoreName.get -> string!
+Codelab.Security.Replay.SqlReplayGuard.TryConsumeAsync(Codelab.Security.Replay.ReplayNonce! nonce, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.Replay.NonceConsumeOutcome>!
+Codelab.Security.Requests.RefuseOversizedBodyAttribute
+Codelab.Security.Requests.RefuseOversizedBodyAttribute.OnResourceExecuted(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutedContext! context) -> void
+Codelab.Security.Requests.RefuseOversizedBodyAttribute.OnResourceExecuting(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutingContext! context) -> void
+Codelab.Security.Requests.RefuseOversizedBodyAttribute.RefuseOversizedBodyAttribute() -> void
+Codelab.Security.Requests.RequestBodyCeiling
+Codelab.Security.SecurityProtocol
+Codelab.Security.SecurityProtocol.CanonicalVersion.get -> string!
+Codelab.Security.SecurityProtocol.Prefix.get -> string!
+Codelab.Security.SecurityProtocol.PublicIdSpec.get -> string!
+Codelab.Security.SecurityProtocol.ReceiptSpec.get -> string!
+Codelab.Security.SecurityProtocol.RequestProfile.get -> string!
+Codelab.Security.SecurityProtocol.ResponseProfile.get -> string!
+Codelab.Security.SecurityProtocol.ResponseSignatureHeaderName.get -> string!
+Codelab.Security.SecurityProtocol.ServiceAssertionHeaderName.get -> string!
+Codelab.Security.SecurityProtocol.ServiceAssertionType.get -> string!
+Codelab.Security.SecurityProtocol.SessionKeyProfile.get -> string!
+Codelab.Security.SecurityProtocol.SignatureHeaderName.get -> string!
+Codelab.Security.SecurityProtocol.SignatureVersion.get -> string!
+Codelab.Security.SecurityProtocol.TicketSpec.get -> string!
+Codelab.Security.SecurityProtocolOptions
+Codelab.Security.SecurityProtocolOptions.Prefix.get -> string?
+Codelab.Security.SecurityProtocolOptions.Prefix.set -> void
+Codelab.Security.SecurityProtocolOptions.SecurityProtocolOptions() -> void
+Codelab.Security.SecurityProtocolOptions.ToProtocol() -> Codelab.Security.SecurityProtocol!
+Codelab.Security.SecuritySections
+Codelab.Security.ServiceAuth.ParsedServiceAssertion
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.<Clone>$() -> Codelab.Security.ServiceAuth.ParsedServiceAssertion!
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Claims.get -> Codelab.Security.ServiceAuth.ServiceAssertionClaims!
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Claims.init -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Deconstruct(out Codelab.Security.ServiceAuth.ServiceAssertionHeader! Header, out Codelab.Security.ServiceAuth.ServiceAssertionClaims! Claims, out byte[]! SigningInput, out byte[]! Signature) -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Equals(Codelab.Security.ServiceAuth.ParsedServiceAssertion? other) -> bool
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Header.get -> Codelab.Security.ServiceAuth.ServiceAssertionHeader!
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Header.init -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.ParsedServiceAssertion(Codelab.Security.ServiceAuth.ServiceAssertionHeader! Header, Codelab.Security.ServiceAuth.ServiceAssertionClaims! Claims, byte[]! SigningInput, byte[]! Signature) -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Signature.get -> byte[]!
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.Signature.init -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.SigningInput.get -> byte[]!
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.SigningInput.init -> void
+Codelab.Security.ServiceAuth.ParsedServiceAssertion.VerifySignature(System.Security.Cryptography.ECDsa! key) -> bool
+Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationHandler
+Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationHandler.ServiceAssertionAuthenticationHandler(Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationOptions!>! options, Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, System.Text.Encodings.Web.UrlEncoder! encoder, Codelab.Security.ServiceAuth.ServiceAssertionValidator! validator, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.ServiceAuth.ServiceAssertionServerOptions!>! serverOptions) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationOptions
+Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationOptions.ServiceAssertionAuthenticationOptions() -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.<Clone>$() -> Codelab.Security.ServiceAuth.ServiceAssertionClaims!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Audience.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Audience.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.BodyHash.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.BodyHash.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Deconstruct(out string! Issuer, out string! Audience, out long IssuedAtUnix, out long ExpiresAtUnix, out string! Id, out string! Method, out string! Target, out string! BodyHash) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Equals(Codelab.Security.ServiceAuth.ServiceAssertionClaims? other) -> bool
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.ExpiresAtUnix.get -> long
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.ExpiresAtUnix.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Id.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Id.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.IssuedAtUnix.get -> long
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.IssuedAtUnix.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Issuer.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Issuer.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Method.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Method.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.ServiceAssertionClaims(string! Issuer, string! Audience, long IssuedAtUnix, long ExpiresAtUnix, string! Id, string! Method, string! Target, string! BodyHash) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Target.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionClaims.Target.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.Audience.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.Audience.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.KeyId.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.KeyId.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.LifetimeSeconds.get -> int
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.LifetimeSeconds.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.PrivateKeyPem.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.PrivateKeyPem.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.ServiceAssertionClientOptions() -> void
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.ServiceName.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.ServiceName.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionExtensions
+Codelab.Security.ServiceAuth.ServiceAssertionHandler
+Codelab.Security.ServiceAuth.ServiceAssertionHandler.ServiceAssertionHandler(Codelab.Security.ServiceAuth.ServiceAssertionIssuer! issuer, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionHeader
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.<Clone>$() -> Codelab.Security.ServiceAuth.ServiceAssertionHeader!
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Algorithm.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Algorithm.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Deconstruct(out string! Algorithm, out string! Type, out string! KeyId) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Equals(Codelab.Security.ServiceAuth.ServiceAssertionHeader? other) -> bool
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.KeyId.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.KeyId.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.ServiceAssertionHeader(string! Algorithm, string! Type, string! KeyId) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Type.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionHeader.Type.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionIssuer
+Codelab.Security.ServiceAuth.ServiceAssertionIssuer.Dispose() -> void
+Codelab.Security.ServiceAuth.ServiceAssertionIssuer.Issue(System.Net.Http.HttpMethod! method, System.Uri! requestUri, System.ReadOnlySpan<byte> body) -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionIssuer.ServiceAssertionIssuer(Codelab.Security.ServiceAuth.ServiceAssertionClientOptions! options, System.TimeProvider! clock, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.BadSignature = 4 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.BindingMismatch = 7 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.Expired = 6 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.Malformed = 2 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.Missing = 1 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.Replayed = 8 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.StoreUnavailable = 9 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.UnknownKey = 3 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.Valid = 0 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionOutcome.WrongAudience = 5 -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionRequest
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.<Clone>$() -> Codelab.Security.ServiceAuth.ServiceAssertionRequest!
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.BodyHash.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.BodyHash.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Deconstruct(out string? Token, out string! Method, out string! Target, out string! BodyHash) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Equals(Codelab.Security.ServiceAuth.ServiceAssertionRequest? other) -> bool
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Method.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Method.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.ServiceAssertionRequest(string? Token, string! Method, string! Target, string! BodyHash) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Target.get -> string!
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Target.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Token.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionRequest.Token.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionResult
+Codelab.Security.ServiceAuth.ServiceAssertionResult.<Clone>$() -> Codelab.Security.ServiceAuth.ServiceAssertionResult!
+Codelab.Security.ServiceAuth.ServiceAssertionResult.Deconstruct(out Codelab.Security.ServiceAuth.ServiceAssertionOutcome Outcome, out string? ServiceName) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionResult.Equals(Codelab.Security.ServiceAuth.ServiceAssertionResult? other) -> bool
+Codelab.Security.ServiceAuth.ServiceAssertionResult.Outcome.get -> Codelab.Security.ServiceAuth.ServiceAssertionOutcome
+Codelab.Security.ServiceAuth.ServiceAssertionResult.Outcome.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionResult.ServiceAssertionResult(Codelab.Security.ServiceAuth.ServiceAssertionOutcome Outcome, string? ServiceName) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionResult.ServiceName.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionResult.ServiceName.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.Audience.get -> string?
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.Audience.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.ClockSkewSeconds.get -> int
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.ClockSkewSeconds.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.MaxBodyBytes.get -> int
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.MaxBodyBytes.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.MaxLifetimeSeconds.get -> int
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.MaxLifetimeSeconds.set -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.ServiceAssertionServerOptions() -> void
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.TrustedServices.get -> System.Collections.Generic.IList<Codelab.Security.ServiceAuth.TrustedServiceOptions!>!
+Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.TrustedServices.init -> void
+Codelab.Security.ServiceAuth.ServiceAssertionToken
+Codelab.Security.ServiceAuth.ServiceAssertionValidator
+Codelab.Security.ServiceAuth.ServiceAssertionValidator.Dispose() -> void
+Codelab.Security.ServiceAuth.ServiceAssertionValidator.ServiceAssertionValidator(Codelab.Security.ServiceAuth.ServiceAssertionServerOptions! options, Codelab.Security.Replay.IReplayGuard! replayGuard, System.TimeProvider! clock, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.ServiceAuth.ServiceAssertionValidator.ValidateAsync(Codelab.Security.ServiceAuth.ServiceAssertionRequest! request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.ServiceAuth.ServiceAssertionResult!>!
+Codelab.Security.ServiceAuth.TrustedServiceOptions
+Codelab.Security.ServiceAuth.TrustedServiceOptions.KeyId.get -> string?
+Codelab.Security.ServiceAuth.TrustedServiceOptions.KeyId.set -> void
+Codelab.Security.ServiceAuth.TrustedServiceOptions.PublicKeyPem.get -> string?
+Codelab.Security.ServiceAuth.TrustedServiceOptions.PublicKeyPem.set -> void
+Codelab.Security.ServiceAuth.TrustedServiceOptions.ServiceName.get -> string?
+Codelab.Security.ServiceAuth.TrustedServiceOptions.ServiceName.set -> void
+Codelab.Security.ServiceAuth.TrustedServiceOptions.TrustedServiceOptions() -> void
+Codelab.Security.Sessions.ISessionRevocationStore
+Codelab.Security.Sessions.ISessionRevocationStore.IsRevokedAsync(string! sessionId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+Codelab.Security.Sessions.ISessionRevocationStore.RevokeAsync(Codelab.Security.Sessions.SessionRevocation! revocation, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Codelab.Security.Sessions.ISessionVersionStore
+Codelab.Security.Sessions.ISessionVersionStore.BumpAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.ISessionVersionStore.GetVersionAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.MemorySessionRevocationStore
+Codelab.Security.Sessions.MemorySessionRevocationStore.IsRevokedAsync(string! sessionId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+Codelab.Security.Sessions.MemorySessionRevocationStore.MemorySessionRevocationStore(System.TimeProvider! clock) -> void
+Codelab.Security.Sessions.MemorySessionRevocationStore.PurgeExpiredAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Codelab.Security.Sessions.MemorySessionRevocationStore.RevokeAsync(Codelab.Security.Sessions.SessionRevocation! revocation, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Codelab.Security.Sessions.MemorySessionRevocationStore.StoreName.get -> string!
+Codelab.Security.Sessions.MemorySessionVersionStore
+Codelab.Security.Sessions.MemorySessionVersionStore.BumpAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.MemorySessionVersionStore.GetVersionAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.MemorySessionVersionStore.MemorySessionVersionStore() -> void
+Codelab.Security.Sessions.SecurityClaimTypes
+Codelab.Security.Sessions.SecuritySessionOptions
+Codelab.Security.Sessions.SecuritySessionOptions.RequireSessionId.get -> bool
+Codelab.Security.Sessions.SecuritySessionOptions.RequireSessionId.set -> void
+Codelab.Security.Sessions.SecuritySessionOptions.SecuritySessionOptions() -> void
+Codelab.Security.Sessions.SecuritySessionOptions.SessionIdClaimType.get -> string!
+Codelab.Security.Sessions.SecuritySessionOptions.SessionIdClaimType.set -> void
+Codelab.Security.Sessions.SecuritySessionOptions.SessionKeyIdClaimType.get -> string!
+Codelab.Security.Sessions.SecuritySessionOptions.SessionKeyIdClaimType.set -> void
+Codelab.Security.Sessions.SecuritySessionOptions.SessionVersionClaimType.get -> string!
+Codelab.Security.Sessions.SecuritySessionOptions.SessionVersionClaimType.set -> void
+Codelab.Security.Sessions.SecuritySessionOptions.Store.get -> Codelab.Security.Storage.SecurityStoreKind
+Codelab.Security.Sessions.SecuritySessionOptions.Store.set -> void
+Codelab.Security.Sessions.SecuritySessionOptions.UserIdClaimTypes.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Sessions.SecuritySessionOptions.UserIdClaimTypes.init -> void
+Codelab.Security.Sessions.SecuritySessionOptions.ValidateOnEveryRequest.get -> bool
+Codelab.Security.Sessions.SecuritySessionOptions.ValidateOnEveryRequest.set -> void
+Codelab.Security.Sessions.SessionClaims
+Codelab.Security.Sessions.SessionRevocation
+Codelab.Security.Sessions.SessionRevocation.<Clone>$() -> Codelab.Security.Sessions.SessionRevocation!
+Codelab.Security.Sessions.SessionRevocation.Deconstruct(out string! SessionId, out System.DateTimeOffset ExpiresAt) -> void
+Codelab.Security.Sessions.SessionRevocation.Equals(Codelab.Security.Sessions.SessionRevocation? other) -> bool
+Codelab.Security.Sessions.SessionRevocation.ExpiresAt.get -> System.DateTimeOffset
+Codelab.Security.Sessions.SessionRevocation.ExpiresAt.init -> void
+Codelab.Security.Sessions.SessionRevocation.SessionId.get -> string!
+Codelab.Security.Sessions.SessionRevocation.SessionId.init -> void
+Codelab.Security.Sessions.SessionRevocation.SessionRevocation(string! SessionId, System.DateTimeOffset ExpiresAt) -> void
+Codelab.Security.Sessions.SessionValidationMiddleware
+Codelab.Security.Sessions.SessionValidationMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Security.Sessions.SessionValidationMiddleware.SessionValidationMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Sessions.SecuritySessionOptions!>! options, Microsoft.Extensions.Logging.ILogger<Codelab.Security.Sessions.SessionValidationMiddleware!>! logger) -> void
+Codelab.Security.Sessions.SqlSecurityStore
+Codelab.Security.Sessions.SqlSecurityStore.Clock.get -> System.TimeProvider!
+Codelab.Security.Sessions.SqlSecurityStore.ScalarAsync(string! sql, System.Action<Microsoft.Data.SqlClient.SqlParameterCollection!>! bind, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<object?>!
+Codelab.Security.Sessions.SqlSecurityStore.SqlSecurityStore(Codelab.Security.Storage.SqlStoreOptions! options, System.TimeProvider! clock) -> void
+Codelab.Security.Sessions.SqlSessionRevocationStore
+Codelab.Security.Sessions.SqlSessionRevocationStore.IsRevokedAsync(string! sessionId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+Codelab.Security.Sessions.SqlSessionRevocationStore.PurgeExpiredAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Codelab.Security.Sessions.SqlSessionRevocationStore.RevokeAsync(Codelab.Security.Sessions.SessionRevocation! revocation, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Codelab.Security.Sessions.SqlSessionRevocationStore.SqlSessionRevocationStore(Codelab.Security.Storage.SqlStoreOptions! options, System.TimeProvider! clock) -> void
+Codelab.Security.Sessions.SqlSessionRevocationStore.StoreName.get -> string!
+Codelab.Security.Sessions.SqlSessionVersionStore
+Codelab.Security.Sessions.SqlSessionVersionStore.BumpAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.SqlSessionVersionStore.GetVersionAsync(string! userId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<long>!
+Codelab.Security.Sessions.SqlSessionVersionStore.SqlSessionVersionStore(Codelab.Security.Storage.SqlStoreOptions! options, System.TimeProvider! clock) -> void
+Codelab.Security.Signing.HmacProofVerifier
+Codelab.Security.Signing.HmacProofVerifier.HmacProofVerifier(Codelab.Security.Signing.ISigningKeyring! keyring, System.TimeProvider! clock, Codelab.Security.SecurityProtocol! protocol, Codelab.Security.Signing.RequestSigningOptions! options) -> void
+Codelab.Security.Signing.HmacProofVerifier.Verify(Codelab.Security.Signing.ProofVerificationInput! input) -> Codelab.Security.Signing.ProofVerificationResult!
+Codelab.Security.Signing.HmacSignature
+Codelab.Security.Signing.IProofVerifier
+Codelab.Security.Signing.IProofVerifier.Verify(Codelab.Security.Signing.ProofVerificationInput! input) -> Codelab.Security.Signing.ProofVerificationResult!
+Codelab.Security.Signing.ISigningKeyring
+Codelab.Security.Signing.ISigningKeyring.ActiveKeyId.get -> string!
+Codelab.Security.Signing.ISigningKeyring.TryGet(string? keyId, out byte[]? masterKey) -> bool
+Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofRejectionReason.Invalid = 0 -> Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofRejectionReason.KeyUnbound = 3 -> Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofRejectionReason.Missing = 1 -> Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofRejectionReason.Replayed = 4 -> Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofRejectionReason.Stale = 2 -> Codelab.Security.Signing.ProofRejectionReason
+Codelab.Security.Signing.ProofVerificationInput
+Codelab.Security.Signing.ProofVerificationInput.<Clone>$() -> Codelab.Security.Signing.ProofVerificationInput!
+Codelab.Security.Signing.ProofVerificationInput.BodyHash.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.BodyHash.init -> void
+Codelab.Security.Signing.ProofVerificationInput.Deconstruct(out string! Method, out string! Path, out string! Query, out string! BodyHash, out string! Proof, out string! SessionKeyId, out Codelab.Security.Signing.SessionIdentity? Session) -> void
+Codelab.Security.Signing.ProofVerificationInput.Equals(Codelab.Security.Signing.ProofVerificationInput? other) -> bool
+Codelab.Security.Signing.ProofVerificationInput.Method.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.Method.init -> void
+Codelab.Security.Signing.ProofVerificationInput.Path.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.Path.init -> void
+Codelab.Security.Signing.ProofVerificationInput.Proof.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.Proof.init -> void
+Codelab.Security.Signing.ProofVerificationInput.ProofVerificationInput(string! Method, string! Path, string! Query, string! BodyHash, string! Proof, string! SessionKeyId, Codelab.Security.Signing.SessionIdentity? Session) -> void
+Codelab.Security.Signing.ProofVerificationInput.Query.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.Query.init -> void
+Codelab.Security.Signing.ProofVerificationInput.Session.get -> Codelab.Security.Signing.SessionIdentity?
+Codelab.Security.Signing.ProofVerificationInput.Session.init -> void
+Codelab.Security.Signing.ProofVerificationInput.SessionKeyId.get -> string!
+Codelab.Security.Signing.ProofVerificationInput.SessionKeyId.init -> void
+Codelab.Security.Signing.ProofVerificationResult
+Codelab.Security.Signing.ProofVerificationResult.IsValid.get -> bool
+Codelab.Security.Signing.ProofVerificationResult.Reason.get -> Codelab.Security.Signing.ProofRejectionReason?
+Codelab.Security.Signing.ProofVerificationResult.Verified.get -> Codelab.Security.Signing.VerifiedProof?
+Codelab.Security.Signing.RequestSignatureMiddleware
+Codelab.Security.Signing.RequestSignatureMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Security.Signing.RequestSignatureMiddleware.RequestSignatureMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Signing.RequestSigningOptions!>! signingOptions, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Replay.ReplayProtectionOptions!>! replayOptions, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Sessions.SecuritySessionOptions!>! sessionOptions, Microsoft.Extensions.Logging.ILogger<Codelab.Security.Signing.RequestSignatureMiddleware!>! logger) -> void
+Codelab.Security.Signing.RequestSigningOptions
+Codelab.Security.Signing.RequestSigningOptions.Audience.get -> string?
+Codelab.Security.Signing.RequestSigningOptions.Audience.set -> void
+Codelab.Security.Signing.RequestSigningOptions.MaxAgeSeconds.get -> int
+Codelab.Security.Signing.RequestSigningOptions.MaxAgeSeconds.set -> void
+Codelab.Security.Signing.RequestSigningOptions.MaxSignedBodyBytes.get -> int
+Codelab.Security.Signing.RequestSigningOptions.MaxSignedBodyBytes.set -> void
+Codelab.Security.Signing.RequestSigningOptions.Mode.get -> Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.RequestSigningOptions.Mode.set -> void
+Codelab.Security.Signing.RequestSigningOptions.RequestSigningOptions() -> void
+Codelab.Security.Signing.RequestSigningOptions.ValidateStructure() -> Codelab.Security.Keys.KeyMaterialResult
+Codelab.Security.Signing.ResponseSignatureHeader
+Codelab.Security.Signing.ResponseSignatureMiddleware
+Codelab.Security.Signing.ResponseSignatureMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Security.Signing.ResponseSignatureMiddleware.ResponseSignatureMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Signing.ResponseSigningOptions!>! options, Microsoft.Extensions.Logging.ILogger<Codelab.Security.Signing.ResponseSignatureMiddleware!>! logger) -> void
+Codelab.Security.Signing.ResponseSigningOptions
+Codelab.Security.Signing.ResponseSigningOptions.LargeBodyWarningBytes.get -> int
+Codelab.Security.Signing.ResponseSigningOptions.LargeBodyWarningBytes.set -> void
+Codelab.Security.Signing.ResponseSigningOptions.Mode.get -> Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.ResponseSigningOptions.Mode.set -> void
+Codelab.Security.Signing.ResponseSigningOptions.ResponseSigningOptions() -> void
+Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.SecurityEnforcementMode.Enforce = 2 -> Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.SecurityEnforcementMode.Off = 0 -> Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.SecurityEnforcementMode.Report = 1 -> Codelab.Security.Signing.SecurityEnforcementMode
+Codelab.Security.Signing.SessionIdentity
+Codelab.Security.Signing.SessionIdentity.<Clone>$() -> Codelab.Security.Signing.SessionIdentity!
+Codelab.Security.Signing.SessionIdentity.Deconstruct(out string! UserId, out string! SessionId) -> void
+Codelab.Security.Signing.SessionIdentity.Equals(Codelab.Security.Signing.SessionIdentity? other) -> bool
+Codelab.Security.Signing.SessionIdentity.Scope.get -> string!
+Codelab.Security.Signing.SessionIdentity.SessionId.get -> string!
+Codelab.Security.Signing.SessionIdentity.SessionId.init -> void
+Codelab.Security.Signing.SessionIdentity.SessionIdentity(string! UserId, string! SessionId) -> void
+Codelab.Security.Signing.SessionIdentity.UserId.get -> string!
+Codelab.Security.Signing.SessionIdentity.UserId.init -> void
+Codelab.Security.Signing.SessionKeyDerivation
+Codelab.Security.Signing.SessionKeyDerivation.Derive(System.ReadOnlySpan<byte> masterKey, Codelab.Security.Signing.SessionIdentity! session) -> byte[]!
+Codelab.Security.Signing.SessionKeyDerivation.SessionKeyDerivation(Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.Signing.SessionSigningKeyResponse
+Codelab.Security.Signing.SessionSigningKeyResponse.<Clone>$() -> Codelab.Security.Signing.SessionSigningKeyResponse!
+Codelab.Security.Signing.SessionSigningKeyResponse.Alg.get -> string!
+Codelab.Security.Signing.SessionSigningKeyResponse.Alg.init -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.Audience.get -> string!
+Codelab.Security.Signing.SessionSigningKeyResponse.Audience.init -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.Deconstruct(out string! Alg, out string! SessionSigningKey, out string! Audience, out bool VerifyResponses, out long ServerTimeUnix) -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.Equals(Codelab.Security.Signing.SessionSigningKeyResponse? other) -> bool
+Codelab.Security.Signing.SessionSigningKeyResponse.ServerTimeUnix.get -> long
+Codelab.Security.Signing.SessionSigningKeyResponse.ServerTimeUnix.init -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.SessionSigningKey.get -> string!
+Codelab.Security.Signing.SessionSigningKeyResponse.SessionSigningKey.init -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.SessionSigningKeyResponse(string! Alg, string! SessionSigningKey, string! Audience, bool VerifyResponses, long ServerTimeUnix) -> void
+Codelab.Security.Signing.SessionSigningKeyResponse.VerifyResponses.get -> bool
+Codelab.Security.Signing.SessionSigningKeyResponse.VerifyResponses.init -> void
+Codelab.Security.Signing.SignatureCanonicalForm
+Codelab.Security.Signing.SignatureCanonicalForm.Request(Codelab.Security.Signing.SignedRequestFields! fields) -> string!
+Codelab.Security.Signing.SignatureCanonicalForm.RequestBytes(Codelab.Security.Signing.SignedRequestFields! fields) -> byte[]!
+Codelab.Security.Signing.SignatureCanonicalForm.Response(Codelab.Security.Signing.SignedResponseFields! fields) -> string!
+Codelab.Security.Signing.SignatureCanonicalForm.ResponseBytes(Codelab.Security.Signing.SignedResponseFields! fields) -> byte[]!
+Codelab.Security.Signing.SignatureCanonicalForm.SignatureCanonicalForm(Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.Signing.SignatureEndpointConventions
+Codelab.Security.Signing.SignatureExemptAttribute
+Codelab.Security.Signing.SignatureExemptAttribute.Scope.get -> Codelab.Security.Signing.SignatureExemption
+Codelab.Security.Signing.SignatureExemptAttribute.SignatureExemptAttribute(Codelab.Security.Signing.SignatureExemption scope, string! why) -> void
+Codelab.Security.Signing.SignatureExemptAttribute.Why.get -> string!
+Codelab.Security.Signing.SignatureExemption
+Codelab.Security.Signing.SignatureExemption.BodyOnly = 0 -> Codelab.Security.Signing.SignatureExemption
+Codelab.Security.Signing.SignatureExemption.KeyIssuance = 2 -> Codelab.Security.Signing.SignatureExemption
+Codelab.Security.Signing.SignatureExemption.WholeRequest = 1 -> Codelab.Security.Signing.SignatureExemption
+Codelab.Security.Signing.SignatureHeader
+Codelab.Security.Signing.SignatureHeader.Format() -> string!
+Codelab.Security.Signing.SignatureHeader.Mac.get -> string!
+Codelab.Security.Signing.SignatureHeader.Nonce.get -> string!
+Codelab.Security.Signing.SignatureHeader.Timestamp.get -> string!
+Codelab.Security.Signing.SignatureHeader.TimestampUnixSeconds.get -> long
+Codelab.Security.Signing.SignedRequestBinding
+Codelab.Security.Signing.SignedRequestBinding.RequestNonce.get -> string!
+Codelab.Security.Signing.SignedRequestBinding.SessionKey.get -> byte[]!
+Codelab.Security.Signing.SignedRequestBinding.SignedRequestBinding(byte[]! sessionKey, string! requestNonce) -> void
+Codelab.Security.Signing.SignedRequestFields
+Codelab.Security.Signing.SignedRequestFields.<Clone>$() -> Codelab.Security.Signing.SignedRequestFields!
+Codelab.Security.Signing.SignedRequestFields.Audience.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Audience.init -> void
+Codelab.Security.Signing.SignedRequestFields.BodyHash.get -> string!
+Codelab.Security.Signing.SignedRequestFields.BodyHash.init -> void
+Codelab.Security.Signing.SignedRequestFields.Deconstruct(out string! Audience, out string! Method, out string! Path, out string! Query, out string! BodyHash, out string! Timestamp, out string! Nonce) -> void
+Codelab.Security.Signing.SignedRequestFields.Equals(Codelab.Security.Signing.SignedRequestFields? other) -> bool
+Codelab.Security.Signing.SignedRequestFields.Method.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Method.init -> void
+Codelab.Security.Signing.SignedRequestFields.Nonce.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Nonce.init -> void
+Codelab.Security.Signing.SignedRequestFields.Path.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Path.init -> void
+Codelab.Security.Signing.SignedRequestFields.Query.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Query.init -> void
+Codelab.Security.Signing.SignedRequestFields.SignedRequestFields(string! Audience, string! Method, string! Path, string! Query, string! BodyHash, string! Timestamp, string! Nonce) -> void
+Codelab.Security.Signing.SignedRequestFields.Timestamp.get -> string!
+Codelab.Security.Signing.SignedRequestFields.Timestamp.init -> void
+Codelab.Security.Signing.SignedResponseFields
+Codelab.Security.Signing.SignedResponseFields.<Clone>$() -> Codelab.Security.Signing.SignedResponseFields!
+Codelab.Security.Signing.SignedResponseFields.BodyHash.get -> string!
+Codelab.Security.Signing.SignedResponseFields.BodyHash.init -> void
+Codelab.Security.Signing.SignedResponseFields.ContentType.get -> string!
+Codelab.Security.Signing.SignedResponseFields.ContentType.init -> void
+Codelab.Security.Signing.SignedResponseFields.Deconstruct(out string! RequestNonce, out int Status, out string! ContentType, out string! BodyHash) -> void
+Codelab.Security.Signing.SignedResponseFields.Equals(Codelab.Security.Signing.SignedResponseFields? other) -> bool
+Codelab.Security.Signing.SignedResponseFields.RequestNonce.get -> string!
+Codelab.Security.Signing.SignedResponseFields.RequestNonce.init -> void
+Codelab.Security.Signing.SignedResponseFields.SignedResponseFields(string! RequestNonce, int Status, string! ContentType, string! BodyHash) -> void
+Codelab.Security.Signing.SignedResponseFields.Status.get -> int
+Codelab.Security.Signing.SignedResponseFields.Status.init -> void
+Codelab.Security.Signing.SigningKeyEndpoint
+Codelab.Security.Signing.SigningKeyIssuer
+Codelab.Security.Signing.SigningKeyIssuer.Issue(Microsoft.AspNetCore.Http.HttpContext! context) -> Microsoft.AspNetCore.Http.IResult!
+Codelab.Security.Signing.SigningKeyIssuer.SigningKeyIssuer(Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Signing.RequestSigningOptions!>! signingOptions, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Signing.ResponseSigningOptions!>! responseOptions, Microsoft.Extensions.Options.IOptionsMonitor<Codelab.Security.Sessions.SecuritySessionOptions!>! sessionOptions, System.TimeProvider! clock) -> void
+Codelab.Security.Signing.SigningKeyring
+Codelab.Security.Signing.SigningKeyring.ActiveKeyId.get -> string!
+Codelab.Security.Signing.SigningKeyring.KeyIds.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
+Codelab.Security.Signing.SigningKeyring.TryGet(string? keyId, out byte[]? masterKey) -> bool
+Codelab.Security.Signing.UnsignedResponseAttribute
+Codelab.Security.Signing.UnsignedResponseAttribute.UnsignedResponseAttribute(string! why) -> void
+Codelab.Security.Signing.UnsignedResponseAttribute.Why.get -> string!
+Codelab.Security.Signing.VerifiedProof
+Codelab.Security.Signing.VerifiedProof.<Clone>$() -> Codelab.Security.Signing.VerifiedProof!
+Codelab.Security.Signing.VerifiedProof.Deconstruct(out string! Nonce, out System.DateTimeOffset IssuedAt) -> void
+Codelab.Security.Signing.VerifiedProof.Equals(Codelab.Security.Signing.VerifiedProof? other) -> bool
+Codelab.Security.Signing.VerifiedProof.IssuedAt.get -> System.DateTimeOffset
+Codelab.Security.Signing.VerifiedProof.IssuedAt.init -> void
+Codelab.Security.Signing.VerifiedProof.Nonce.get -> string!
+Codelab.Security.Signing.VerifiedProof.Nonce.init -> void
+Codelab.Security.Signing.VerifiedProof.VerifiedProof(string! Nonce, System.DateTimeOffset IssuedAt) -> void
+Codelab.Security.Storage.IExpiredEntryPurger
+Codelab.Security.Storage.IExpiredEntryPurger.PurgeExpiredAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Codelab.Security.Storage.IExpiredEntryPurger.StoreName.get -> string!
+Codelab.Security.Storage.SecuritySqlSchema
+Codelab.Security.Storage.SecurityStoreKind
+Codelab.Security.Storage.SecurityStoreKind.Memory = 0 -> Codelab.Security.Storage.SecurityStoreKind
+Codelab.Security.Storage.SecurityStoreKind.SqlServer = 1 -> Codelab.Security.Storage.SecurityStoreKind
+Codelab.Security.Storage.SecurityStorePurgeJob
+Codelab.Security.Storage.SecurityStorePurgeJob.RunAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, int>!>!
+Codelab.Security.Storage.SecurityStorePurgeJob.SecurityStorePurgeJob(System.Collections.Generic.IEnumerable<Codelab.Security.Storage.IExpiredEntryPurger!>! purgers) -> void
+Codelab.Security.Storage.SqlStoreOptions
+Codelab.Security.Storage.SqlStoreOptions.CommandTimeoutSeconds.get -> int
+Codelab.Security.Storage.SqlStoreOptions.CommandTimeoutSeconds.set -> void
+Codelab.Security.Storage.SqlStoreOptions.ConnectionString.get -> string?
+Codelab.Security.Storage.SqlStoreOptions.ConnectionString.set -> void
+Codelab.Security.Storage.SqlStoreOptions.EnsureSchemaOnStart.get -> bool
+Codelab.Security.Storage.SqlStoreOptions.EnsureSchemaOnStart.set -> void
+Codelab.Security.Storage.SqlStoreOptions.SqlStoreOptions() -> void
+Codelab.Security.Tickets.ISealedTicketService
+Codelab.Security.Tickets.ISealedTicketService.OpenAsync(string! purpose, string! token, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.Tickets.TicketOpenResult!>!
+Codelab.Security.Tickets.ISealedTicketService.Seal(Codelab.Security.Tickets.TicketRequest! request) -> string!
+Codelab.Security.Tickets.SealedTicket
+Codelab.Security.Tickets.SealedTicket.<Clone>$() -> Codelab.Security.Tickets.SealedTicket!
+Codelab.Security.Tickets.SealedTicket.Data.get -> string?
+Codelab.Security.Tickets.SealedTicket.Data.init -> void
+Codelab.Security.Tickets.SealedTicket.Deconstruct(out string! Id, out string! Purpose, out string! Subject, out System.DateTimeOffset ExpiresAt, out string? Data) -> void
+Codelab.Security.Tickets.SealedTicket.Equals(Codelab.Security.Tickets.SealedTicket? other) -> bool
+Codelab.Security.Tickets.SealedTicket.ExpiresAt.get -> System.DateTimeOffset
+Codelab.Security.Tickets.SealedTicket.ExpiresAt.init -> void
+Codelab.Security.Tickets.SealedTicket.Id.get -> string!
+Codelab.Security.Tickets.SealedTicket.Id.init -> void
+Codelab.Security.Tickets.SealedTicket.Purpose.get -> string!
+Codelab.Security.Tickets.SealedTicket.Purpose.init -> void
+Codelab.Security.Tickets.SealedTicket.SealedTicket(string! Id, string! Purpose, string! Subject, System.DateTimeOffset ExpiresAt, string? Data) -> void
+Codelab.Security.Tickets.SealedTicket.Subject.get -> string!
+Codelab.Security.Tickets.SealedTicket.Subject.init -> void
+Codelab.Security.Tickets.SealedTicketOptions
+Codelab.Security.Tickets.SealedTicketOptions.Enabled.get -> bool
+Codelab.Security.Tickets.SealedTicketOptions.Enabled.set -> void
+Codelab.Security.Tickets.SealedTicketOptions.MaxLifetimeSeconds.get -> int
+Codelab.Security.Tickets.SealedTicketOptions.MaxLifetimeSeconds.set -> void
+Codelab.Security.Tickets.SealedTicketOptions.SealedTicketOptions() -> void
+Codelab.Security.Tickets.SealedTicketService
+Codelab.Security.Tickets.SealedTicketService.OpenAsync(string! purpose, string! token, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Security.Tickets.TicketOpenResult!>!
+Codelab.Security.Tickets.SealedTicketService.Seal(Codelab.Security.Tickets.TicketRequest! request) -> string!
+Codelab.Security.Tickets.SealedTicketService.SealedTicketService(Codelab.Security.Tickets.SealedTicketOptions! options, Codelab.Security.Replay.IReplayGuard! replayGuard, System.TimeProvider! clock, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.Tickets.TicketOpenResult
+Codelab.Security.Tickets.TicketOpenResult.<Clone>$() -> Codelab.Security.Tickets.TicketOpenResult!
+Codelab.Security.Tickets.TicketOpenResult.Deconstruct(out Codelab.Security.Tickets.TicketOpenStatus Status, out Codelab.Security.Tickets.SealedTicket? Ticket) -> void
+Codelab.Security.Tickets.TicketOpenResult.Equals(Codelab.Security.Tickets.TicketOpenResult? other) -> bool
+Codelab.Security.Tickets.TicketOpenResult.Status.get -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenResult.Status.init -> void
+Codelab.Security.Tickets.TicketOpenResult.Ticket.get -> Codelab.Security.Tickets.SealedTicket?
+Codelab.Security.Tickets.TicketOpenResult.Ticket.init -> void
+Codelab.Security.Tickets.TicketOpenResult.TicketOpenResult(Codelab.Security.Tickets.TicketOpenStatus Status, Codelab.Security.Tickets.SealedTicket? Ticket) -> void
+Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenStatus.AlreadyUsed = 3 -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenStatus.Expired = 2 -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenStatus.Invalid = 0 -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenStatus.StoreUnavailable = 4 -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketOpenStatus.Valid = 1 -> Codelab.Security.Tickets.TicketOpenStatus
+Codelab.Security.Tickets.TicketRequest
+Codelab.Security.Tickets.TicketRequest.<Clone>$() -> Codelab.Security.Tickets.TicketRequest!
+Codelab.Security.Tickets.TicketRequest.Data.get -> string?
+Codelab.Security.Tickets.TicketRequest.Data.init -> void
+Codelab.Security.Tickets.TicketRequest.Deconstruct(out string! Purpose, out string! Subject, out System.TimeSpan Lifetime) -> void
+Codelab.Security.Tickets.TicketRequest.Equals(Codelab.Security.Tickets.TicketRequest? other) -> bool
+Codelab.Security.Tickets.TicketRequest.Lifetime.get -> System.TimeSpan
+Codelab.Security.Tickets.TicketRequest.Lifetime.init -> void
+Codelab.Security.Tickets.TicketRequest.Purpose.get -> string!
+Codelab.Security.Tickets.TicketRequest.Purpose.init -> void
+Codelab.Security.Tickets.TicketRequest.Subject.get -> string!
+Codelab.Security.Tickets.TicketRequest.Subject.init -> void
+Codelab.Security.Tickets.TicketRequest.TicketRequest(string! Purpose, string! Subject, System.TimeSpan Lifetime) -> void
+Codelab.Security.Uploads.FileNames
+Codelab.Security.Uploads.FileSignatureSniffer
+Codelab.Security.Uploads.FileSignatureSniffer.FileSignatureSniffer(System.Collections.Generic.IEnumerable<string!>! allowedExtensions) -> void
+Codelab.Security.Uploads.FileSignatureSniffer.HasValidSignature(System.IO.Stream! content, string! fileName) -> bool
+Codelab.Security.Uploads.FileSignatureSniffer.IsAllowedExtension(string! fileName) -> bool
+Codelab.Security.Uploads.IUploadReceiptSigner
+Codelab.Security.Uploads.IUploadReceiptSigner.Sign(Codelab.Security.Uploads.UploadReceipt! receipt) -> string!
+Codelab.Security.Uploads.IUploadReceiptSigner.TryVerify(string? token, out Codelab.Security.Uploads.UploadReceipt? receipt) -> bool
+Codelab.Security.Uploads.UploadCapCounter
+Codelab.Security.Uploads.UploadCapCounter.BeginFile() -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapCounter.FileCount.get -> int
+Codelab.Security.Uploads.UploadCapCounter.Record(int byteCount) -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapCounter.UploadCapCounter(Codelab.Security.Uploads.UploadSafetyOptions! options) -> void
+Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapVerdict.Accepted = 0 -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapVerdict.FileTooLarge = 2 -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapVerdict.TooManyFiles = 1 -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadCapVerdict.TotalTooLarge = 3 -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadDigest
+Codelab.Security.Uploads.UploadReceipt
+Codelab.Security.Uploads.UploadReceipt.<Clone>$() -> Codelab.Security.Uploads.UploadReceipt!
+Codelab.Security.Uploads.UploadReceipt.Deconstruct(out string! Scope, out string! FileId, out long SizeBytes, out string! Sha256Hex, out string! FileName, out long IssuedAtUnix) -> void
+Codelab.Security.Uploads.UploadReceipt.Equals(Codelab.Security.Uploads.UploadReceipt? other) -> bool
+Codelab.Security.Uploads.UploadReceipt.FileId.get -> string!
+Codelab.Security.Uploads.UploadReceipt.FileId.init -> void
+Codelab.Security.Uploads.UploadReceipt.FileName.get -> string!
+Codelab.Security.Uploads.UploadReceipt.FileName.init -> void
+Codelab.Security.Uploads.UploadReceipt.IssuedAtUnix.get -> long
+Codelab.Security.Uploads.UploadReceipt.IssuedAtUnix.init -> void
+Codelab.Security.Uploads.UploadReceipt.Scope.get -> string!
+Codelab.Security.Uploads.UploadReceipt.Scope.init -> void
+Codelab.Security.Uploads.UploadReceipt.Sha256Hex.get -> string!
+Codelab.Security.Uploads.UploadReceipt.Sha256Hex.init -> void
+Codelab.Security.Uploads.UploadReceipt.SizeBytes.get -> long
+Codelab.Security.Uploads.UploadReceipt.SizeBytes.init -> void
+Codelab.Security.Uploads.UploadReceipt.UploadReceipt(string! Scope, string! FileId, long SizeBytes, string! Sha256Hex, string! FileName, long IssuedAtUnix) -> void
+Codelab.Security.Uploads.UploadReceiptSigner
+Codelab.Security.Uploads.UploadReceiptSigner.Sign(Codelab.Security.Uploads.UploadReceipt! receipt) -> string!
+Codelab.Security.Uploads.UploadReceiptSigner.TryVerify(string? token, out Codelab.Security.Uploads.UploadReceipt? receipt) -> bool
+Codelab.Security.Uploads.UploadReceiptSigner.UploadReceiptSigner(Codelab.Security.Keys.KeyRingOptions! ring, Codelab.Security.SecurityProtocol! protocol) -> void
+Codelab.Security.Uploads.UploadSafetyOptions
+Codelab.Security.Uploads.UploadSafetyOptions.AllowedExtensions.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Uploads.UploadSafetyOptions.AllowedExtensions.init -> void
+Codelab.Security.Uploads.UploadSafetyOptions.BlockedExtensions.get -> System.Collections.Generic.IList<string!>!
+Codelab.Security.Uploads.UploadSafetyOptions.BlockedExtensions.init -> void
+Codelab.Security.Uploads.UploadSafetyOptions.MaxFileBytes.get -> long
+Codelab.Security.Uploads.UploadSafetyOptions.MaxFileBytes.set -> void
+Codelab.Security.Uploads.UploadSafetyOptions.MaxFileCount.get -> int
+Codelab.Security.Uploads.UploadSafetyOptions.MaxFileCount.set -> void
+Codelab.Security.Uploads.UploadSafetyOptions.MaxTotalBytes.get -> long
+Codelab.Security.Uploads.UploadSafetyOptions.MaxTotalBytes.set -> void
+Codelab.Security.Uploads.UploadSafetyOptions.ReceiptsEnabled.get -> bool
+Codelab.Security.Uploads.UploadSafetyOptions.ReceiptsEnabled.set -> void
+Codelab.Security.Uploads.UploadSafetyOptions.UploadSafetyOptions() -> void
+const Codelab.Security.Cors.CodelabCorsOptions.PolicyName = "codelab" -> string!
+const Codelab.Security.Cors.CodelabCorsOptions.SectionName = "Codelab:Security:Cors" -> string!
+const Codelab.Security.Cors.CorsOriginValidator.Wildcard = "*" -> string!
+const Codelab.Security.Headers.HstsOptions.PreloadMinimumDays = 365 -> int
+const Codelab.Security.Headers.SecurityHeaderOptions.SectionName = "Codelab:Security:Headers" -> string!
+const Codelab.Security.Headers.SecurityHeadersMiddleware.JsonContentSecurityPolicy = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" -> string!
+const Codelab.Security.Headers.SecurityHeadersMiddleware.NoStore = "no-store" -> string!
+const Codelab.Security.Keys.KeyGuardOptions.SectionName = "Codelab:Security:KeyGuards" -> string!
+const Codelab.Security.Keys.KeyMaterialValidator.MinimumKeyBytes = 32 -> int
+const Codelab.Security.Keys.KeyMaterialValidator.PlaceholderMarker = "CHANGE-IN-PROD" -> string!
+const Codelab.Security.Keys.PublishedMaterialDenylist.EntriesProperty = "keyDigestHashes" -> string!
+const Codelab.Security.Keys.PublishedMaterialDenylist.ResourcePrefix = "Codelab.Security.PublishedMaterial." -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.PayloadTooLarge = "payload_too_large" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.RateLimited = "rate_limited" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SessionRevoked = "session_revoked" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SessionUnidentified = "session_unidentified" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SessionVersionStale = "session_version_stale" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SignatureInvalid = "signature_invalid" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SignatureKeyUnbound = "signature_key_unbound" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SignatureMissing = "signature_missing" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SignatureReplayed = "signature_replayed" -> string!
+const Codelab.Security.Problems.SecurityProblemCodes.SignatureStale = "signature_stale" -> string!
+const Codelab.Security.Problems.SecurityProblemWriter.CodeMember = "code" -> string!
+const Codelab.Security.Problems.SecurityProblemWriter.ProblemContentType = "application/problem+json" -> string!
+const Codelab.Security.PublicIds.PublicIdCodec.AadProfile = "PUBLICID-AAD" -> string!
+const Codelab.Security.PublicIds.PublicIdFormat.MaxDomainLength = 32 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.MaxKeyIdLength = 8 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.MinKeyIdLength = 1 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.MinimumId = 1 -> long
+const Codelab.Security.PublicIds.PublicIdFormat.NonceBytes = 12 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.OpenApiPattern = "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" -> string!
+const Codelab.Security.PublicIds.PublicIdFormat.PayloadBytes = 36 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.PayloadCharacters = 48 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.PlaintextBytes = 8 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.Separator = '_' -> char
+const Codelab.Security.PublicIds.PublicIdFormat.TagBytes = 16 -> int
+const Codelab.Security.PublicIds.PublicIdFormat.TokenPrefix = "m1_" -> string!
+const Codelab.Security.PublicIds.PublicIdFormat.UnreadableMessage = "The value is not a valid identifier." -> string!
+const Codelab.Security.PublicIds.PublicIdFormat.Version = "m1" -> string!
+const Codelab.Security.PublicIds.PublicIdKeyring.KdfProfile = "PUBLICID-KDF" -> string!
+const Codelab.Security.PublicIds.PublicIdKeyringOptions.SectionName = "Codelab:Security:PublicIds" -> string!
+const Codelab.Security.PublicIds.PublicIdRouteConstraint.ConstraintName = "publicid" -> string!
+const Codelab.Security.PublicIds.PublicIdSchemaTransformer.Description = "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire." -> string!
+const Codelab.Security.RateLimiting.ClientRateLimitOptions.ForwardedForHeader = "X-Forwarded-For" -> string!
+const Codelab.Security.RateLimiting.ClientRateLimitOptions.PolicyName = "codelab-client" -> string!
+const Codelab.Security.RateLimiting.ClientRateLimitOptions.SectionName = "Codelab:Security:RateLimiting" -> string!
+const Codelab.Security.Replay.ReplayProtectionOptions.SectionName = "Codelab:Security:ReplayProtection" -> string!
+const Codelab.Security.Replay.SqlReplayGuard.MaxPurgeBatches = 100 -> int
+const Codelab.Security.Replay.SqlReplayGuard.PurgeBatchSize = 5000 -> int
+const Codelab.Security.SecurityProtocol.MaxPrefixLength = 16 -> int
+const Codelab.Security.SecurityProtocol.MinPrefixLength = 2 -> int
+const Codelab.Security.SecurityProtocol.TestPrefix = "CODELABTEST" -> string!
+const Codelab.Security.SecurityProtocolOptions.SectionName = "Codelab:Security:Protocol" -> string!
+const Codelab.Security.SecuritySections.Cors = "Codelab:Security:Cors" -> string!
+const Codelab.Security.SecuritySections.Headers = "Codelab:Security:Headers" -> string!
+const Codelab.Security.SecuritySections.KeyGuards = "Codelab:Security:KeyGuards" -> string!
+const Codelab.Security.SecuritySections.Protocol = "Codelab:Security:Protocol" -> string!
+const Codelab.Security.SecuritySections.PublicIds = "Codelab:Security:PublicIds" -> string!
+const Codelab.Security.SecuritySections.RateLimiting = "Codelab:Security:RateLimiting" -> string!
+const Codelab.Security.SecuritySections.ReplayProtection = "Codelab:Security:ReplayProtection" -> string!
+const Codelab.Security.SecuritySections.RequestSigning = "Codelab:Security:RequestSigning" -> string!
+const Codelab.Security.SecuritySections.ResponseSigning = "Codelab:Security:ResponseSigning" -> string!
+const Codelab.Security.SecuritySections.Root = "Codelab:Security" -> string!
+const Codelab.Security.SecuritySections.ServiceAssertionClient = "Codelab:Security:ServiceAssertions:Client" -> string!
+const Codelab.Security.SecuritySections.ServiceAssertionServer = "Codelab:Security:ServiceAssertions:Server" -> string!
+const Codelab.Security.SecuritySections.Sessions = "Codelab:Security:Sessions" -> string!
+const Codelab.Security.SecuritySections.SqlStore = "Codelab:Security:SqlStore" -> string!
+const Codelab.Security.SecuritySections.Tickets = "Codelab:Security:Tickets" -> string!
+const Codelab.Security.SecuritySections.Uploads = "Codelab:Security:Uploads" -> string!
+const Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationHandler.SchemeName = "CodelabServiceAssertion" -> string!
+const Codelab.Security.ServiceAuth.ServiceAssertionClientOptions.SectionName = "Codelab:Security:ServiceAssertions:Client" -> string!
+const Codelab.Security.ServiceAuth.ServiceAssertionServerOptions.SectionName = "Codelab:Security:ServiceAssertions:Server" -> string!
+const Codelab.Security.ServiceAuth.ServiceAssertionToken.Algorithm = "ES256" -> string!
+const Codelab.Security.ServiceAuth.ServiceAssertionToken.KeySizeBits = 256 -> int
+const Codelab.Security.ServiceAuth.ServiceAssertionToken.MaxTokenLength = 4096 -> int
+const Codelab.Security.Sessions.SecurityClaimTypes.Service = "codelab_service" -> string!
+const Codelab.Security.Sessions.SecurityClaimTypes.SessionId = "sid" -> string!
+const Codelab.Security.Sessions.SecurityClaimTypes.SessionKeyId = "skid" -> string!
+const Codelab.Security.Sessions.SecurityClaimTypes.SessionVersion = "sver" -> string!
+const Codelab.Security.Sessions.SecurityClaimTypes.Subject = "sub" -> string!
+const Codelab.Security.Sessions.SecuritySessionOptions.SectionName = "Codelab:Security:Sessions" -> string!
+const Codelab.Security.Sessions.SqlSecurityStore.MaxKeyLength = 128 -> int
+const Codelab.Security.Signing.HmacSignature.MacBytes = 32 -> int
+const Codelab.Security.Signing.HmacSignature.MacCharacters = 43 -> int
+const Codelab.Security.Signing.RequestSigningOptions.DefaultMaxAgeSeconds = 120 -> int
+const Codelab.Security.Signing.RequestSigningOptions.SectionName = "Codelab:Security:RequestSigning" -> string!
+const Codelab.Security.Signing.ResponseSignatureHeader.HeaderLength = 45 -> int
+const Codelab.Security.Signing.ResponseSigningOptions.SectionName = "Codelab:Security:ResponseSigning" -> string!
+const Codelab.Security.Signing.SessionKeyDerivation.KeyBytes = 32 -> int
+const Codelab.Security.Signing.SignatureCanonicalForm.RequestFieldCount = 8 -> int
+const Codelab.Security.Signing.SignatureCanonicalForm.ResponseFieldCount = 5 -> int
+const Codelab.Security.Signing.SignatureCanonicalForm.UnsignedBody = "UNSIGNED-BODY" -> string!
+const Codelab.Security.Signing.SignatureHeader.MacLength = 43 -> int
+const Codelab.Security.Signing.SignatureHeader.MaxHeaderLength = 79 -> int
+const Codelab.Security.Signing.SignatureHeader.MaxTimestamp = 9999999999 -> long
+const Codelab.Security.Signing.SignatureHeader.MaxTimestampDigits = 10 -> int
+const Codelab.Security.Signing.SignatureHeader.MinHeaderLength = 70 -> int
+const Codelab.Security.Signing.SignatureHeader.NonceLength = 22 -> int
+const Codelab.Security.Signing.SignatureHeader.SchemeVersion = "1" -> string!
+const Codelab.Security.Signing.SignatureHeader.Separator = '.' -> char
+const Codelab.Security.Signing.SigningKeyEndpoint.DefaultPattern = "/api/security/session-signing-key" -> string!
+const Codelab.Security.Signing.SigningKeyEndpoint.ExemptionReason = "Issues the session signing key; the caller has no key to sign with yet." -> string!
+const Codelab.Security.Signing.SigningKeyIssuer.Algorithm = "HMAC-SHA256" -> string!
+const Codelab.Security.Storage.SecuritySqlSchema.ReplayNonceTable = "dbo.SecurityReplayNonce" -> string!
+const Codelab.Security.Storage.SecuritySqlSchema.RevokedSessionTable = "dbo.SecurityRevokedSession" -> string!
+const Codelab.Security.Storage.SecuritySqlSchema.ScriptResourceName = "Codelab.Security.Sql.codelab-security-stores.sql" -> string!
+const Codelab.Security.Storage.SecuritySqlSchema.SessionVersionTable = "dbo.SecuritySessionVersion" -> string!
+const Codelab.Security.Storage.SecurityStorePurgeJob.JobKey = "codelab-security-store-purge" -> string!
+const Codelab.Security.Storage.SqlStoreOptions.DefaultCommandTimeoutSeconds = 5 -> int
+const Codelab.Security.Storage.SqlStoreOptions.SectionName = "Codelab:Security:SqlStore" -> string!
+const Codelab.Security.Tickets.SealedTicketOptions.SectionName = "Codelab:Security:Tickets" -> string!
+const Codelab.Security.Tickets.SealedTicketService.TokenVersion = "t1" -> string!
+const Codelab.Security.Uploads.UploadReceiptSigner.TokenVersion = "r1" -> string!
+const Codelab.Security.Uploads.UploadSafetyOptions.SectionName = "Codelab:Security:Uploads" -> string!
+override Codelab.Security.Keys.KeyMaterialResult.GetHashCode() -> int
+override Codelab.Security.Problems.SecurityProblem.Equals(object? obj) -> bool
+override Codelab.Security.Problems.SecurityProblem.GetHashCode() -> int
+override Codelab.Security.Problems.SecurityProblem.ToString() -> string!
+override Codelab.Security.PublicIds.NullablePublicIdJsonConverter<TDomain>.HandleNull.get -> bool
+override Codelab.Security.PublicIds.NullablePublicIdJsonConverter<TDomain>.Read(ref System.Text.Json.Utf8JsonReader reader, System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> Codelab.Security.PublicIds.PublicId<TDomain>?
+override Codelab.Security.PublicIds.NullablePublicIdJsonConverter<TDomain>.Write(System.Text.Json.Utf8JsonWriter! writer, Codelab.Security.PublicIds.PublicId<TDomain>? value, System.Text.Json.JsonSerializerOptions! options) -> void
+override Codelab.Security.PublicIds.PublicId<TDomain>.Equals(object? obj) -> bool
+override Codelab.Security.PublicIds.PublicId<TDomain>.GetHashCode() -> int
+override Codelab.Security.PublicIds.PublicId<TDomain>.ToString() -> string!
+override Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.HandleNull.get -> bool
+override Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.Read(ref System.Text.Json.Utf8JsonReader reader, System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> Codelab.Security.PublicIds.PublicId<TDomain>
+override Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.ReadAsPropertyName(ref System.Text.Json.Utf8JsonReader reader, System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> Codelab.Security.PublicIds.PublicId<TDomain>
+override Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.Write(System.Text.Json.Utf8JsonWriter! writer, Codelab.Security.PublicIds.PublicId<TDomain> value, System.Text.Json.JsonSerializerOptions! options) -> void
+override Codelab.Security.PublicIds.PublicIdJsonConverter<TDomain>.WriteAsPropertyName(System.Text.Json.Utf8JsonWriter! writer, Codelab.Security.PublicIds.PublicId<TDomain> value, System.Text.Json.JsonSerializerOptions! options) -> void
+override Codelab.Security.PublicIds.PublicIdJsonConverterFactory.CanConvert(System.Type! typeToConvert) -> bool
+override Codelab.Security.PublicIds.PublicIdJsonConverterFactory.CreateConverter(System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> System.Text.Json.Serialization.JsonConverter!
+override Codelab.Security.Replay.ReplayNonce.Equals(object? obj) -> bool
+override Codelab.Security.Replay.ReplayNonce.GetHashCode() -> int
+override Codelab.Security.Replay.ReplayNonce.ToString() -> string!
+override Codelab.Security.SecurityProtocol.ToString() -> string!
+override Codelab.Security.ServiceAuth.ParsedServiceAssertion.Equals(object? obj) -> bool
+override Codelab.Security.ServiceAuth.ParsedServiceAssertion.GetHashCode() -> int
+override Codelab.Security.ServiceAuth.ParsedServiceAssertion.ToString() -> string!
+override Codelab.Security.ServiceAuth.ServiceAssertionClaims.Equals(object? obj) -> bool
+override Codelab.Security.ServiceAuth.ServiceAssertionClaims.GetHashCode() -> int
+override Codelab.Security.ServiceAuth.ServiceAssertionClaims.ToString() -> string!
+override Codelab.Security.ServiceAuth.ServiceAssertionHeader.Equals(object? obj) -> bool
+override Codelab.Security.ServiceAuth.ServiceAssertionHeader.GetHashCode() -> int
+override Codelab.Security.ServiceAuth.ServiceAssertionHeader.ToString() -> string!
+override Codelab.Security.ServiceAuth.ServiceAssertionRequest.Equals(object? obj) -> bool
+override Codelab.Security.ServiceAuth.ServiceAssertionRequest.GetHashCode() -> int
+override Codelab.Security.ServiceAuth.ServiceAssertionRequest.ToString() -> string!
+override Codelab.Security.ServiceAuth.ServiceAssertionResult.Equals(object? obj) -> bool
+override Codelab.Security.ServiceAuth.ServiceAssertionResult.GetHashCode() -> int
+override Codelab.Security.ServiceAuth.ServiceAssertionResult.ToString() -> string!
+override Codelab.Security.Sessions.SessionRevocation.Equals(object? obj) -> bool
+override Codelab.Security.Sessions.SessionRevocation.GetHashCode() -> int
+override Codelab.Security.Sessions.SessionRevocation.ToString() -> string!
+override Codelab.Security.Signing.ProofVerificationInput.Equals(object? obj) -> bool
+override Codelab.Security.Signing.ProofVerificationInput.GetHashCode() -> int
+override Codelab.Security.Signing.ProofVerificationInput.ToString() -> string!
+override Codelab.Security.Signing.SessionIdentity.Equals(object? obj) -> bool
+override Codelab.Security.Signing.SessionIdentity.GetHashCode() -> int
+override Codelab.Security.Signing.SessionIdentity.ToString() -> string!
+override Codelab.Security.Signing.SessionSigningKeyResponse.Equals(object? obj) -> bool
+override Codelab.Security.Signing.SessionSigningKeyResponse.GetHashCode() -> int
+override Codelab.Security.Signing.SessionSigningKeyResponse.ToString() -> string!
+override Codelab.Security.Signing.SignatureHeader.ToString() -> string!
+override Codelab.Security.Signing.SignedRequestBinding.ToString() -> string!
+override Codelab.Security.Signing.SignedRequestFields.Equals(object? obj) -> bool
+override Codelab.Security.Signing.SignedRequestFields.GetHashCode() -> int
+override Codelab.Security.Signing.SignedRequestFields.ToString() -> string!
+override Codelab.Security.Signing.SignedResponseFields.Equals(object? obj) -> bool
+override Codelab.Security.Signing.SignedResponseFields.GetHashCode() -> int
+override Codelab.Security.Signing.SignedResponseFields.ToString() -> string!
+override Codelab.Security.Signing.VerifiedProof.Equals(object? obj) -> bool
+override Codelab.Security.Signing.VerifiedProof.GetHashCode() -> int
+override Codelab.Security.Signing.VerifiedProof.ToString() -> string!
+override Codelab.Security.Tickets.SealedTicket.Equals(object? obj) -> bool
+override Codelab.Security.Tickets.SealedTicket.GetHashCode() -> int
+override Codelab.Security.Tickets.SealedTicket.ToString() -> string!
+override Codelab.Security.Tickets.TicketOpenResult.Equals(object? obj) -> bool
+override Codelab.Security.Tickets.TicketOpenResult.GetHashCode() -> int
+override Codelab.Security.Tickets.TicketOpenResult.ToString() -> string!
+override Codelab.Security.Tickets.TicketRequest.Equals(object? obj) -> bool
+override Codelab.Security.Tickets.TicketRequest.GetHashCode() -> int
+override Codelab.Security.Tickets.TicketRequest.ToString() -> string!
+override Codelab.Security.Uploads.UploadReceipt.Equals(object? obj) -> bool
+override Codelab.Security.Uploads.UploadReceipt.GetHashCode() -> int
+override Codelab.Security.Uploads.UploadReceipt.ToString() -> string!
+static Codelab.Security.Canonical.Base64UrlText.CharacterCount(int byteCount) -> int
+static Codelab.Security.Canonical.Base64UrlText.Encode(System.ReadOnlySpan<byte> bytes) -> string!
+static Codelab.Security.Canonical.Base64UrlText.IsAlphabetOnly(System.ReadOnlySpan<char> value) -> bool
+static Codelab.Security.Canonical.Base64UrlText.IsUnpadded(System.ReadOnlySpan<char> value, int expectedLength) -> bool
+static Codelab.Security.Canonical.Base64UrlText.TryDecode(System.ReadOnlySpan<char> value, System.Span<byte> destination) -> bool
+static Codelab.Security.Canonical.Base64UrlText.TryDecode(System.ReadOnlySpan<char> value, out byte[]! bytes) -> bool
+static Codelab.Security.Canonical.CanonicalText.CanonicalMethod(string! method) -> string!
+static Codelab.Security.Canonical.CanonicalText.Methods.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Security.Canonical.CanonicalText.NormalizePath(string! path) -> string!
+static Codelab.Security.Canonical.CanonicalText.TryCanonicalMethod(string? method, out string! canonical) -> bool
+static Codelab.Security.CodelabSecurityExtensions.AddCodelabSecurity(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Codelab.Security.CodelabSecurityExtensions.AddCodelabSecurity(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder) -> Microsoft.Extensions.Hosting.IHostApplicationBuilder!
+static Codelab.Security.CodelabSecurityExtensions.UseCodelabSecurity(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Codelab.Security.Cors.CorsOriginValidator.Validate(Codelab.Security.Cors.CodelabCorsOptions! options, bool isDevelopment) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Security.Keys.KeyMaterialDigests.Of(string! value) -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Security.Keys.KeyMaterialDigests.Sha256Hex(System.ReadOnlySpan<byte> bytes) -> string!
+static Codelab.Security.Keys.KeyMaterialResult.Fail(string! error) -> Codelab.Security.Keys.KeyMaterialResult
+static Codelab.Security.Keys.KeyMaterialResult.Ok() -> Codelab.Security.Keys.KeyMaterialResult
+static Codelab.Security.Keys.KeyMaterialResult.operator !=(Codelab.Security.Keys.KeyMaterialResult left, Codelab.Security.Keys.KeyMaterialResult right) -> bool
+static Codelab.Security.Keys.KeyMaterialResult.operator ==(Codelab.Security.Keys.KeyMaterialResult left, Codelab.Security.Keys.KeyMaterialResult right) -> bool
+static Codelab.Security.Keys.KeyMaterialValidator.ValidateBase64Key(string? value, string! settingPath) -> Codelab.Security.Keys.KeyMaterialResult
+static Codelab.Security.Keys.KeyMaterialValidator.ValidateRing(Codelab.Security.Keys.KeyRingOptions! ring, string! sectionPath) -> Codelab.Security.Keys.KeyMaterialResult
+static Codelab.Security.Keys.PublishedMaterialDenylist.Embedded.get -> Codelab.Security.Keys.PublishedMaterialDenylist!
+static Codelab.Security.Keys.PublishedMaterialDenylist.EntryFor(string! keyDigestHex) -> string!
+static Codelab.Security.Keys.PublishedMaterialDenylist.FromDigests(System.Collections.Generic.IEnumerable<string!>! keyDigests) -> Codelab.Security.Keys.PublishedMaterialDenylist!
+static Codelab.Security.Problems.SecurityProblem.operator !=(Codelab.Security.Problems.SecurityProblem? left, Codelab.Security.Problems.SecurityProblem? right) -> bool
+static Codelab.Security.Problems.SecurityProblem.operator ==(Codelab.Security.Problems.SecurityProblem? left, Codelab.Security.Problems.SecurityProblem? right) -> bool
+static Codelab.Security.Problems.SecurityProblemCodes.ForRejection(Codelab.Security.Signing.ProofRejectionReason reason) -> string!
+static Codelab.Security.Problems.SecurityProblemWriter.ToDetails(Codelab.Security.Problems.SecurityProblem! problem) -> Microsoft.AspNetCore.Mvc.ProblemDetails!
+static Codelab.Security.Problems.SecurityProblemWriter.TryWriteAsync(Microsoft.AspNetCore.Http.HttpContext! context, Codelab.Security.Problems.SecurityProblem! problem) -> System.Threading.Tasks.Task<bool>!
+static Codelab.Security.PublicIds.PublicId<TDomain>.From(long value) -> Codelab.Security.PublicIds.PublicId<TDomain>
+static Codelab.Security.PublicIds.PublicId<TDomain>.TryParse(string? token, out Codelab.Security.PublicIds.PublicId<TDomain> id) -> bool
+static Codelab.Security.PublicIds.PublicId<TDomain>.operator !=(Codelab.Security.PublicIds.PublicId<TDomain> left, Codelab.Security.PublicIds.PublicId<TDomain> right) -> bool
+static Codelab.Security.PublicIds.PublicId<TDomain>.operator ==(Codelab.Security.PublicIds.PublicId<TDomain> left, Codelab.Security.PublicIds.PublicId<TDomain> right) -> bool
+static Codelab.Security.PublicIds.PublicIdBindingExtensions.AddCodelabPublicIds(this Microsoft.AspNetCore.OpenApi.OpenApiOptions! options) -> Microsoft.AspNetCore.OpenApi.OpenApiOptions!
+static Codelab.Security.PublicIds.PublicIdBindingExtensions.AddPublicIdBinding(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Codelab.Security.PublicIds.PublicIdCodecAccessor.Codec.get -> Codelab.Security.PublicIds.IPublicIdCodec!
+static Codelab.Security.PublicIds.PublicIdCodecAccessor.Install(Codelab.Security.PublicIds.IPublicIdCodec! codec) -> System.IDisposable!
+static Codelab.Security.PublicIds.PublicIdCodecAccessor.IsInstalled.get -> bool
+static Codelab.Security.PublicIds.PublicIdFormat.IsWellFormedDomain(string? domain) -> bool
+static Codelab.Security.PublicIds.PublicIdFormat.IsWellFormedKeyId(string? keyId) -> bool
+static Codelab.Security.PublicIds.PublicIdFormat.IsWellFormedToken(string? token) -> bool
+static Codelab.Security.PublicIds.PublicIdFormat.TrySplit(string? token, out string! keyId, out string! payload) -> bool
+static Codelab.Security.PublicIds.PublicIdKeyring.Create(Codelab.Security.Keys.KeyRingOptions! options, Codelab.Security.SecurityProtocol! protocol) -> Codelab.Security.PublicIds.PublicIdKeyring!
+static Codelab.Security.PublicIds.PublicIdKeyring.Validate(Codelab.Security.Keys.KeyRingOptions! options) -> Codelab.Security.Keys.KeyMaterialResult
+static Codelab.Security.PublicIds.PublicIdTypes.TryGetDomain(System.Type! type, out System.Type? domain, out bool nullable) -> bool
+static Codelab.Security.RateLimiting.ClientRateLimiting.Configure(Microsoft.AspNetCore.RateLimiting.RateLimiterOptions! limiter, Codelab.Security.RateLimiting.ClientAddressResolver! resolver, Microsoft.Extensions.Options.IOptions<Codelab.Security.RateLimiting.ClientRateLimitOptions!>! options) -> void
+static Codelab.Security.Replay.ReplayNonce.operator !=(Codelab.Security.Replay.ReplayNonce? left, Codelab.Security.Replay.ReplayNonce? right) -> bool
+static Codelab.Security.Replay.ReplayNonce.operator ==(Codelab.Security.Replay.ReplayNonce? left, Codelab.Security.Replay.ReplayNonce? right) -> bool
+static Codelab.Security.Requests.RequestBodyCeiling.IsDeclaredOverLimit(Microsoft.AspNetCore.Http.HttpContext! context) -> bool
+static Codelab.Security.Requests.RequestBodyCeiling.RefuseOversizedBody<TBuilder>(this TBuilder builder) -> TBuilder
+static Codelab.Security.SecurityProtocol.Create(string! prefix) -> Codelab.Security.SecurityProtocol!
+static Codelab.Security.SecurityProtocol.IsValidPrefix(string? prefix) -> bool
+static Codelab.Security.ServiceAuth.ParsedServiceAssertion.operator !=(Codelab.Security.ServiceAuth.ParsedServiceAssertion? left, Codelab.Security.ServiceAuth.ParsedServiceAssertion? right) -> bool
+static Codelab.Security.ServiceAuth.ParsedServiceAssertion.operator ==(Codelab.Security.ServiceAuth.ParsedServiceAssertion? left, Codelab.Security.ServiceAuth.ParsedServiceAssertion? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionClaims.operator !=(Codelab.Security.ServiceAuth.ServiceAssertionClaims? left, Codelab.Security.ServiceAuth.ServiceAssertionClaims? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionClaims.operator ==(Codelab.Security.ServiceAuth.ServiceAssertionClaims? left, Codelab.Security.ServiceAuth.ServiceAssertionClaims? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionExtensions.AddCodelabServiceAssertion(this Microsoft.AspNetCore.Authentication.AuthenticationBuilder! builder, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> Microsoft.AspNetCore.Authentication.AuthenticationBuilder!
+static Codelab.Security.ServiceAuth.ServiceAssertionExtensions.AddCodelabServiceAssertion(this Microsoft.Extensions.DependencyInjection.IHttpClientBuilder! builder, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
+static Codelab.Security.ServiceAuth.ServiceAssertionHeader.operator !=(Codelab.Security.ServiceAuth.ServiceAssertionHeader? left, Codelab.Security.ServiceAuth.ServiceAssertionHeader? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionHeader.operator ==(Codelab.Security.ServiceAuth.ServiceAssertionHeader? left, Codelab.Security.ServiceAuth.ServiceAssertionHeader? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionRequest.operator !=(Codelab.Security.ServiceAuth.ServiceAssertionRequest? left, Codelab.Security.ServiceAuth.ServiceAssertionRequest? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionRequest.operator ==(Codelab.Security.ServiceAuth.ServiceAssertionRequest? left, Codelab.Security.ServiceAuth.ServiceAssertionRequest? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionResult.Refused(Codelab.Security.ServiceAuth.ServiceAssertionOutcome outcome) -> Codelab.Security.ServiceAuth.ServiceAssertionResult!
+static Codelab.Security.ServiceAuth.ServiceAssertionResult.operator !=(Codelab.Security.ServiceAuth.ServiceAssertionResult? left, Codelab.Security.ServiceAuth.ServiceAssertionResult? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionResult.operator ==(Codelab.Security.ServiceAuth.ServiceAssertionResult? left, Codelab.Security.ServiceAuth.ServiceAssertionResult? right) -> bool
+static Codelab.Security.ServiceAuth.ServiceAssertionToken.Create(Codelab.Security.ServiceAuth.ServiceAssertionHeader! header, Codelab.Security.ServiceAuth.ServiceAssertionClaims! claims, System.Security.Cryptography.ECDsa! key) -> string!
+static Codelab.Security.ServiceAuth.ServiceAssertionToken.Target(string! path, string! query) -> string!
+static Codelab.Security.ServiceAuth.ServiceAssertionToken.TryRead(string? token, out Codelab.Security.ServiceAuth.ParsedServiceAssertion? parsed) -> bool
+static Codelab.Security.Sessions.SessionClaims.Identity(System.Security.Claims.ClaimsPrincipal! user, Codelab.Security.Sessions.SecuritySessionOptions! options) -> Codelab.Security.Signing.SessionIdentity?
+static Codelab.Security.Sessions.SessionClaims.IsService(System.Security.Claims.ClaimsPrincipal! user) -> bool
+static Codelab.Security.Sessions.SessionClaims.UserId(System.Security.Claims.ClaimsPrincipal! user, Codelab.Security.Sessions.SecuritySessionOptions! options) -> string!
+static Codelab.Security.Sessions.SessionClaims.Value(System.Security.Claims.ClaimsPrincipal! user, System.Collections.Generic.IEnumerable<string!>! types) -> string!
+static Codelab.Security.Sessions.SessionClaims.Version(System.Security.Claims.ClaimsPrincipal! user, Codelab.Security.Sessions.SecuritySessionOptions! options) -> long?
+static Codelab.Security.Sessions.SessionRevocation.operator !=(Codelab.Security.Sessions.SessionRevocation? left, Codelab.Security.Sessions.SessionRevocation? right) -> bool
+static Codelab.Security.Sessions.SessionRevocation.operator ==(Codelab.Security.Sessions.SessionRevocation? left, Codelab.Security.Sessions.SessionRevocation? right) -> bool
+static Codelab.Security.Sessions.SqlSecurityStore.AddKey(Microsoft.Data.SqlClient.SqlParameterCollection! parameters, string! name, string! value) -> void
+static Codelab.Security.Sessions.SqlSecurityStore.AddTime(Microsoft.Data.SqlClient.SqlParameterCollection! parameters, string! name, System.DateTimeOffset value) -> void
+static Codelab.Security.Signing.HmacSignature.Compute(System.ReadOnlySpan<byte> key, System.ReadOnlySpan<byte> canonical) -> string!
+static Codelab.Security.Signing.HmacSignature.Verify(System.ReadOnlySpan<byte> key, System.ReadOnlySpan<byte> canonical, string? presentedMac) -> bool
+static Codelab.Security.Signing.ProofVerificationInput.operator !=(Codelab.Security.Signing.ProofVerificationInput? left, Codelab.Security.Signing.ProofVerificationInput? right) -> bool
+static Codelab.Security.Signing.ProofVerificationInput.operator ==(Codelab.Security.Signing.ProofVerificationInput? left, Codelab.Security.Signing.ProofVerificationInput? right) -> bool
+static Codelab.Security.Signing.ProofVerificationResult.Rejected(Codelab.Security.Signing.ProofRejectionReason reason) -> Codelab.Security.Signing.ProofVerificationResult!
+static Codelab.Security.Signing.ProofVerificationResult.Valid(Codelab.Security.Signing.VerifiedProof! proof) -> Codelab.Security.Signing.ProofVerificationResult!
+static Codelab.Security.Signing.ResponseSignatureHeader.Format(string! mac) -> string!
+static Codelab.Security.Signing.ResponseSignatureHeader.TryParse(string? value, out string? mac) -> bool
+static Codelab.Security.Signing.SessionIdentity.operator !=(Codelab.Security.Signing.SessionIdentity? left, Codelab.Security.Signing.SessionIdentity? right) -> bool
+static Codelab.Security.Signing.SessionIdentity.operator ==(Codelab.Security.Signing.SessionIdentity? left, Codelab.Security.Signing.SessionIdentity? right) -> bool
+static Codelab.Security.Signing.SessionSigningKeyResponse.operator !=(Codelab.Security.Signing.SessionSigningKeyResponse? left, Codelab.Security.Signing.SessionSigningKeyResponse? right) -> bool
+static Codelab.Security.Signing.SessionSigningKeyResponse.operator ==(Codelab.Security.Signing.SessionSigningKeyResponse? left, Codelab.Security.Signing.SessionSigningKeyResponse? right) -> bool
+static Codelab.Security.Signing.SignatureCanonicalForm.HashBody(System.ReadOnlySpan<byte> body) -> string!
+static Codelab.Security.Signing.SignatureEndpointConventions.WithSignatureExemption<TBuilder>(this TBuilder builder, Codelab.Security.Signing.SignatureExemption scope, string! why) -> TBuilder
+static Codelab.Security.Signing.SignatureEndpointConventions.WithUnsignedResponse<TBuilder>(this TBuilder builder, string! why) -> TBuilder
+static Codelab.Security.Signing.SignatureHeader.TryCreate(long timestampUnixSeconds, string? nonce, string? mac, out Codelab.Security.Signing.SignatureHeader? header) -> bool
+static Codelab.Security.Signing.SignatureHeader.TryCreate(string? timestamp, string? nonce, string? mac, out Codelab.Security.Signing.SignatureHeader? header) -> bool
+static Codelab.Security.Signing.SignatureHeader.TryParse(string? value, out Codelab.Security.Signing.SignatureHeader? header) -> bool
+static Codelab.Security.Signing.SignedRequestBinding.Find(Microsoft.AspNetCore.Http.HttpContext! context) -> Codelab.Security.Signing.SignedRequestBinding?
+static Codelab.Security.Signing.SignedRequestBinding.Stash(Microsoft.AspNetCore.Http.HttpContext! context, Codelab.Security.Signing.SignedRequestBinding! binding) -> void
+static Codelab.Security.Signing.SignedRequestFields.operator !=(Codelab.Security.Signing.SignedRequestFields? left, Codelab.Security.Signing.SignedRequestFields? right) -> bool
+static Codelab.Security.Signing.SignedRequestFields.operator ==(Codelab.Security.Signing.SignedRequestFields? left, Codelab.Security.Signing.SignedRequestFields? right) -> bool
+static Codelab.Security.Signing.SignedResponseFields.operator !=(Codelab.Security.Signing.SignedResponseFields? left, Codelab.Security.Signing.SignedResponseFields? right) -> bool
+static Codelab.Security.Signing.SignedResponseFields.operator ==(Codelab.Security.Signing.SignedResponseFields? left, Codelab.Security.Signing.SignedResponseFields? right) -> bool
+static Codelab.Security.Signing.SigningKeyEndpoint.MapCodelabSigningKeyEndpoint(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern = "/api/security/session-signing-key") -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static Codelab.Security.Signing.SigningKeyring.Create(Codelab.Security.Signing.RequestSigningOptions! options) -> Codelab.Security.Signing.SigningKeyring!
+static Codelab.Security.Signing.VerifiedProof.operator !=(Codelab.Security.Signing.VerifiedProof? left, Codelab.Security.Signing.VerifiedProof? right) -> bool
+static Codelab.Security.Signing.VerifiedProof.operator ==(Codelab.Security.Signing.VerifiedProof? left, Codelab.Security.Signing.VerifiedProof? right) -> bool
+static Codelab.Security.Storage.SecuritySqlSchema.EnsureCreatedAsync(string! connectionString, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+static Codelab.Security.Storage.SecuritySqlSchema.ReadScript() -> string!
+static Codelab.Security.Tickets.SealedTicket.operator !=(Codelab.Security.Tickets.SealedTicket? left, Codelab.Security.Tickets.SealedTicket? right) -> bool
+static Codelab.Security.Tickets.SealedTicket.operator ==(Codelab.Security.Tickets.SealedTicket? left, Codelab.Security.Tickets.SealedTicket? right) -> bool
+static Codelab.Security.Tickets.TicketOpenResult.Refused(Codelab.Security.Tickets.TicketOpenStatus status) -> Codelab.Security.Tickets.TicketOpenResult!
+static Codelab.Security.Tickets.TicketOpenResult.operator !=(Codelab.Security.Tickets.TicketOpenResult? left, Codelab.Security.Tickets.TicketOpenResult? right) -> bool
+static Codelab.Security.Tickets.TicketOpenResult.operator ==(Codelab.Security.Tickets.TicketOpenResult? left, Codelab.Security.Tickets.TicketOpenResult? right) -> bool
+static Codelab.Security.Tickets.TicketRequest.operator !=(Codelab.Security.Tickets.TicketRequest? left, Codelab.Security.Tickets.TicketRequest? right) -> bool
+static Codelab.Security.Tickets.TicketRequest.operator ==(Codelab.Security.Tickets.TicketRequest? left, Codelab.Security.Tickets.TicketRequest? right) -> bool
+static Codelab.Security.Uploads.FileNames.IsBlockedExtension(string! fileName, System.Collections.Generic.IEnumerable<string!>! blockedExtensions) -> bool
+static Codelab.Security.Uploads.FileNames.Normalize(string! fileName) -> string!
+static Codelab.Security.Uploads.FileNames.NormalizedExtension(string! fileName) -> string!
+static Codelab.Security.Uploads.FileNames.SafeLeafName(string? clientFileName) -> string?
+static Codelab.Security.Uploads.FileNames.TryResolveWithin(string! root, string! relativePath, out string! fullPath) -> bool
+static Codelab.Security.Uploads.FileSignatureSniffer.IsZipContainer(System.IO.Stream! content) -> bool
+static Codelab.Security.Uploads.UploadDigest.ComputeSha256HexAsync(System.IO.Stream! content, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string!>!
+static Codelab.Security.Uploads.UploadReceipt.operator !=(Codelab.Security.Uploads.UploadReceipt? left, Codelab.Security.Uploads.UploadReceipt? right) -> bool
+static Codelab.Security.Uploads.UploadReceipt.operator ==(Codelab.Security.Uploads.UploadReceipt? left, Codelab.Security.Uploads.UploadReceipt? right) -> bool
+static readonly Codelab.Security.Headers.SecurityHeadersMiddleware.Baseline -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+static readonly Codelab.Security.PublicIds.PublicIdSchemaTransformer.Example -> string!
+static readonly Codelab.Security.RateLimiting.ClientRateLimiting.Refusal -> Codelab.Security.Problems.SecurityProblem!
+static readonly Codelab.Security.Requests.RequestBodyCeiling.Refusal -> Codelab.Security.Problems.SecurityProblem!
+static readonly Codelab.Security.Uploads.FileSignatureSniffer.KnownSignatures -> System.Collections.Generic.IReadOnlyDictionary<string!, byte[]![]!>!
+~override Codelab.Security.Keys.KeyMaterialResult.Equals(object obj) -> bool
+~override Codelab.Security.Keys.KeyMaterialResult.ToString() -> string

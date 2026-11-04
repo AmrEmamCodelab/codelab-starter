@@ -1,0 +1,249 @@
+#nullable enable
+Codelab.Observability.CodelabHost
+Codelab.Observability.CodelabObservabilityExtensions
+Codelab.Observability.CorrelationId
+Codelab.Observability.CorrelationIdForwardingHandler
+Codelab.Observability.CorrelationIdForwardingHandler.CorrelationIdForwardingHandler(Microsoft.AspNetCore.Http.IHttpContextAccessor! httpContextAccessor) -> void
+Codelab.Observability.CorrelationIdMiddleware
+Codelab.Observability.CorrelationIdMiddleware.CorrelationIdMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next) -> void
+Codelab.Observability.CorrelationIdMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Observability.CorrelationLogProperties
+Codelab.Observability.CorrelationScope
+Codelab.Observability.DefaultFailureCodeResolver
+Codelab.Observability.DefaultFailureCodeResolver.DefaultFailureCodeResolver() -> void
+Codelab.Observability.DefaultFailureCodeResolver.Resolve(System.Exception? exception) -> Codelab.Observability.FailureCode
+Codelab.Observability.DeploymentEnvironments
+Codelab.Observability.ExceptionTextRedaction
+Codelab.Observability.FailureCode
+Codelab.Observability.FailureCode.Code.get -> string!
+Codelab.Observability.FailureCode.Code.init -> void
+Codelab.Observability.FailureCode.Deconstruct(out string! Code, out Microsoft.Extensions.Logging.LogLevel Level) -> void
+Codelab.Observability.FailureCode.Equals(Codelab.Observability.FailureCode other) -> bool
+Codelab.Observability.FailureCode.FailureCode() -> void
+Codelab.Observability.FailureCode.FailureCode(string! Code, Microsoft.Extensions.Logging.LogLevel Level) -> void
+Codelab.Observability.FailureCode.Level.get -> Microsoft.Extensions.Logging.LogLevel
+Codelab.Observability.FailureCode.Level.init -> void
+Codelab.Observability.FailureFingerprint
+Codelab.Observability.FingerprintInput
+Codelab.Observability.FingerprintInput.<Clone>$() -> Codelab.Observability.FingerprintInput!
+Codelab.Observability.FingerprintInput.Deconstruct(out System.Type! ExceptionType, out string! Site) -> void
+Codelab.Observability.FingerprintInput.Equals(Codelab.Observability.FingerprintInput? other) -> bool
+Codelab.Observability.FingerprintInput.ExceptionType.get -> System.Type!
+Codelab.Observability.FingerprintInput.ExceptionType.init -> void
+Codelab.Observability.FingerprintInput.FingerprintInput(System.Type! ExceptionType, string! Site) -> void
+Codelab.Observability.FingerprintInput.Site.get -> string!
+Codelab.Observability.FingerprintInput.Site.init -> void
+Codelab.Observability.HealthEndpoints
+Codelab.Observability.IFailureCodeResolver
+Codelab.Observability.IFailureCodeResolver.Resolve(System.Exception? exception) -> Codelab.Observability.FailureCode
+Codelab.Observability.JobFailureLogFilter
+Codelab.Observability.JobFailureLogFilter.JobFailureLogFilter(Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, Codelab.Observability.IFailureCodeResolver! codes) -> void
+Codelab.Observability.JobFailureLogFilter.OnStateElection(Hangfire.States.ElectStateContext! context) -> void
+Codelab.Observability.LogFileSettings
+Codelab.Observability.LogFileSettings.Directory.get -> string?
+Codelab.Observability.LogFileSettings.Directory.set -> void
+Codelab.Observability.LogFileSettings.Enabled.get -> bool
+Codelab.Observability.LogFileSettings.Enabled.set -> void
+Codelab.Observability.LogFileSettings.FileSizeLimitBytes.get -> long
+Codelab.Observability.LogFileSettings.FileSizeLimitBytes.set -> void
+Codelab.Observability.LogFileSettings.LogFileSettings() -> void
+Codelab.Observability.LogFileSettings.ResolvedDirectory.get -> string!
+Codelab.Observability.LogFileSettings.RetainedFileCountLimit.get -> int
+Codelab.Observability.LogFileSettings.RetainedFileCountLimit.set -> void
+Codelab.Observability.LogPropertyNames
+Codelab.Observability.LogUserContextMiddleware
+Codelab.Observability.LogUserContextMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext! context) -> System.Threading.Tasks.Task!
+Codelab.Observability.LogUserContextMiddleware.LogUserContextMiddleware(Microsoft.AspNetCore.Http.RequestDelegate! next, Codelab.Observability.UserIdHash! userIdHash, Serilog.IDiagnosticContext! diagnosticContext) -> void
+Codelab.Observability.ObservabilityBootstrap
+Codelab.Observability.ObservabilityOptions
+Codelab.Observability.ObservabilityOptions.Enrichers.get -> System.Collections.Generic.IReadOnlyList<Serilog.Core.ILogEventEnricher!>!
+Codelab.Observability.ObservabilityOptions.Enrichers.init -> void
+Codelab.Observability.ObservabilityOptions.HostAssembly.get -> System.Reflection.Assembly!
+Codelab.Observability.ObservabilityOptions.HostAssembly.init -> void
+Codelab.Observability.ObservabilityOptions.IsExcludedFromEverySink.get -> System.Func<Serilog.Events.LogEvent!, bool>!
+Codelab.Observability.ObservabilityOptions.IsExcludedFromEverySink.init -> void
+Codelab.Observability.ObservabilityOptions.IsUnsafeForRetainedSinks.get -> System.Func<Serilog.Events.LogEvent!, bool>!
+Codelab.Observability.ObservabilityOptions.IsUnsafeForRetainedSinks.init -> void
+Codelab.Observability.ObservabilityOptions.ObservabilityOptions() -> void
+Codelab.Observability.ObservabilityOptions.QuietRequestPaths.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Codelab.Observability.ObservabilityOptions.QuietRequestPaths.init -> void
+Codelab.Observability.ObservabilityOptions.ServiceName.get -> string!
+Codelab.Observability.ObservabilityOptions.ServiceName.init -> void
+Codelab.Observability.ObservabilityOptions.WriteToProviders.get -> bool
+Codelab.Observability.ObservabilityOptions.WriteToProviders.init -> void
+Codelab.Observability.ObservabilitySettings
+Codelab.Observability.ObservabilitySettings.DeploymentEnvironment.get -> string?
+Codelab.Observability.ObservabilitySettings.DeploymentEnvironment.set -> void
+Codelab.Observability.ObservabilitySettings.LogFile.get -> Codelab.Observability.LogFileSettings!
+Codelab.Observability.ObservabilitySettings.LogFile.set -> void
+Codelab.Observability.ObservabilitySettings.ObservabilitySettings() -> void
+Codelab.Observability.ObservabilitySettings.Seq.get -> Codelab.Observability.SeqSettings!
+Codelab.Observability.ObservabilitySettings.Seq.set -> void
+Codelab.Observability.ObservabilitySettings.Tracing.get -> Codelab.Observability.TracingSettings!
+Codelab.Observability.ObservabilitySettings.Tracing.set -> void
+Codelab.Observability.ObservabilitySettings.UserIdHash.get -> Codelab.Observability.UserIdHashSettings!
+Codelab.Observability.ObservabilitySettings.UserIdHash.set -> void
+Codelab.Observability.ObservabilitySettings.Validate(bool isDevelopment) -> void
+Codelab.Observability.OutboundPropagation
+Codelab.Observability.PiiAttribute
+Codelab.Observability.PiiAttribute.Kind.get -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiAttribute.PiiAttribute(Codelab.Observability.PiiKind kind = Codelab.Observability.PiiKind.Hidden) -> void
+Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.Email = 2 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.Hidden = 1 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.LoginName = 4 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.Phone = 3 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.Recipient = 6 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiKind.Url = 5 -> Codelab.Observability.PiiKind
+Codelab.Observability.PiiMask
+Codelab.Observability.PiiMaskingDestructuringPolicy
+Codelab.Observability.PiiMaskingDestructuringPolicy.PiiMaskingDestructuringPolicy() -> void
+Codelab.Observability.PiiMaskingDestructuringPolicy.TryDestructure(object! value, Serilog.Core.ILogEventPropertyValueFactory! propertyValueFactory, out Serilog.Events.LogEventPropertyValue? result) -> bool
+Codelab.Observability.PropagationScope
+Codelab.Observability.ReferenceCode
+Codelab.Observability.ReleaseVersion
+Codelab.Observability.RetainedSinkPolicy
+Codelab.Observability.SeqSettings
+Codelab.Observability.SeqSettings.ApiKey.get -> string?
+Codelab.Observability.SeqSettings.ApiKey.set -> void
+Codelab.Observability.SeqSettings.Enabled.get -> bool
+Codelab.Observability.SeqSettings.QueueSizeLimit.get -> int
+Codelab.Observability.SeqSettings.QueueSizeLimit.set -> void
+Codelab.Observability.SeqSettings.SeqSettings() -> void
+Codelab.Observability.SeqSettings.ServerUrl.get -> string?
+Codelab.Observability.SeqSettings.ServerUrl.set -> void
+Codelab.Observability.StructuredLogState
+Codelab.Observability.StructuredLogState.Count.get -> int
+Codelab.Observability.StructuredLogState.GetEnumerator() -> System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<string!, object?>>!
+Codelab.Observability.StructuredLogState.StructuredLogState(string! template, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, object?>>! properties) -> void
+Codelab.Observability.StructuredLogState.this[int index].get -> System.Collections.Generic.KeyValuePair<string!, object?>
+Codelab.Observability.TracingBootstrap
+Codelab.Observability.TracingSettings
+Codelab.Observability.TracingSettings.Enabled.get -> bool
+Codelab.Observability.TracingSettings.Enabled.set -> void
+Codelab.Observability.TracingSettings.OtlpEndpoint.get -> string?
+Codelab.Observability.TracingSettings.OtlpEndpoint.set -> void
+Codelab.Observability.TracingSettings.TracingSettings() -> void
+Codelab.Observability.UserIdHash
+Codelab.Observability.UserIdHash.IsEphemeral.get -> bool
+Codelab.Observability.UserIdHash.Of(System.Security.Claims.ClaimsPrincipal? user) -> string?
+Codelab.Observability.UserIdHash.Of(string? nameIdentifier) -> string?
+Codelab.Observability.UserIdHashSettings
+Codelab.Observability.UserIdHashSettings.Key.get -> string?
+Codelab.Observability.UserIdHashSettings.Key.set -> void
+Codelab.Observability.UserIdHashSettings.UserIdHashSettings() -> void
+const Codelab.Observability.CodelabHost.StartupFailureExitCode = 1 -> int
+const Codelab.Observability.CodelabHost.SuccessExitCode = 0 -> int
+const Codelab.Observability.CorrelationId.Header = "X-Correlation-ID" -> string!
+const Codelab.Observability.CorrelationId.MaxLength = 64 -> int
+const Codelab.Observability.CorrelationId.MinLength = 8 -> int
+const Codelab.Observability.DefaultFailureCodeResolver.InternalErrorCode = "INTERNAL_ERROR" -> string!
+const Codelab.Observability.DeploymentEnvironments.Development = "development" -> string!
+const Codelab.Observability.DeploymentEnvironments.Preproduction = "preproduction" -> string!
+const Codelab.Observability.DeploymentEnvironments.Production = "production" -> string!
+const Codelab.Observability.DeploymentEnvironments.Staging = "staging" -> string!
+const Codelab.Observability.DeploymentEnvironments.Test = "test" -> string!
+const Codelab.Observability.ExceptionTextRedaction.Mask = "***" -> string!
+const Codelab.Observability.FailureFingerprint.Length = 12 -> int
+const Codelab.Observability.FailureFingerprint.UnknownJobSite = "job:unknown" -> string!
+const Codelab.Observability.FailureFingerprint.UnroutedSite = "unrouted" -> string!
+const Codelab.Observability.HealthEndpoints.BasePath = "/health" -> string!
+const Codelab.Observability.HealthEndpoints.LivePath = "/health/live" -> string!
+const Codelab.Observability.HealthEndpoints.ReadyPath = "/health/ready" -> string!
+const Codelab.Observability.HealthEndpoints.ReadyTag = "ready" -> string!
+const Codelab.Observability.JobFailureLogFilter.LoggerCategory = "Codelab.Jobs" -> string!
+const Codelab.Observability.JobFailureLogFilter.RetryCountParameter = "RetryCount" -> string!
+const Codelab.Observability.JobFailureLogFilter.UnknownJobName = "unknown" -> string!
+const Codelab.Observability.LogFileSettings.DefaultDirectoryName = "logs" -> string!
+const Codelab.Observability.LogFileSettings.DefaultFileSizeLimitBytes = 52428800 -> long
+const Codelab.Observability.LogFileSettings.DefaultRetainedFileCountLimit = 31 -> int
+const Codelab.Observability.LogFileSettings.KeyPrefix = "Observability:LogFile" -> string!
+const Codelab.Observability.LogPropertyNames.Application = "Application" -> string!
+const Codelab.Observability.LogPropertyNames.Classifier = "Classifier" -> string!
+const Codelab.Observability.LogPropertyNames.Code = "Code" -> string!
+const Codelab.Observability.LogPropertyNames.CorrelationId = "CorrelationId" -> string!
+const Codelab.Observability.LogPropertyNames.DeploymentEnvironment = "DeploymentEnvironment" -> string!
+const Codelab.Observability.LogPropertyNames.Environment = "Environment" -> string!
+const Codelab.Observability.LogPropertyNames.ErrorFingerprint = "ErrorFingerprint" -> string!
+const Codelab.Observability.LogPropertyNames.ExceptionType = "ExceptionType" -> string!
+const Codelab.Observability.LogPropertyNames.InboundCorrelationId = "InboundCorrelationId" -> string!
+const Codelab.Observability.LogPropertyNames.Job = "Job" -> string!
+const Codelab.Observability.LogPropertyNames.JobId = "JobId" -> string!
+const Codelab.Observability.LogPropertyNames.MachineName = "MachineName" -> string!
+const Codelab.Observability.LogPropertyNames.ReferenceCode = "ReferenceCode" -> string!
+const Codelab.Observability.LogPropertyNames.Release = "Release" -> string!
+const Codelab.Observability.LogPropertyNames.Retry = "Retry" -> string!
+const Codelab.Observability.LogPropertyNames.RouteTemplate = "RouteTemplate" -> string!
+const Codelab.Observability.LogPropertyNames.StatusCode = "StatusCode" -> string!
+const Codelab.Observability.LogPropertyNames.UserIdHash = "UserIdHash" -> string!
+const Codelab.Observability.ObservabilitySettings.DeploymentEnvironmentKey = "Observability:DeploymentEnvironment" -> string!
+const Codelab.Observability.ObservabilitySettings.SectionName = "Observability" -> string!
+const Codelab.Observability.PiiMask.Hidden = "***" -> string!
+const Codelab.Observability.PropagationScope.TraceParentHeader = "traceparent" -> string!
+const Codelab.Observability.PropagationScope.TraceStateHeader = "tracestate" -> string!
+const Codelab.Observability.ReferenceCode.CorrelationIdLength = 32 -> int
+const Codelab.Observability.ReferenceCode.GroupLength = 5 -> int
+const Codelab.Observability.ReferenceCode.GroupSeparator = '-' -> char
+const Codelab.Observability.ReleaseVersion.Unknown = "unknown" -> string!
+const Codelab.Observability.RetainedSinkPolicy.DatabaseCommandSource = "Microsoft.EntityFrameworkCore.Database.Command" -> string!
+const Codelab.Observability.RetainedSinkPolicy.HostingDiagnosticsSource = "Microsoft.AspNetCore.Hosting.Diagnostics" -> string!
+const Codelab.Observability.SeqSettings.DefaultQueueSizeLimit = 100000 -> int
+const Codelab.Observability.SeqSettings.KeyPrefix = "Observability:Seq" -> string!
+const Codelab.Observability.StructuredLogState.OriginalFormatKey = "{OriginalFormat}" -> string!
+const Codelab.Observability.TracingSettings.KeyPrefix = "Observability:Tracing" -> string!
+const Codelab.Observability.UserIdHash.HashLength = 16 -> int
+const Codelab.Observability.UserIdHash.MinimumKeyBytes = 32 -> int
+const Codelab.Observability.UserIdHashSettings.KeyName = "Observability:UserIdHash:Key" -> string!
+override Codelab.Observability.FailureCode.GetHashCode() -> int
+override Codelab.Observability.FingerprintInput.Equals(object? obj) -> bool
+override Codelab.Observability.FingerprintInput.GetHashCode() -> int
+override Codelab.Observability.FingerprintInput.ToString() -> string!
+override Codelab.Observability.StructuredLogState.ToString() -> string!
+static Codelab.Observability.CodelabHost.Run<THost>(string![]! args, System.Func<string![]!, System.Threading.Tasks.Task<THost>!>! build, Codelab.Observability.ObservabilityOptions! options) -> int
+static Codelab.Observability.CodelabObservabilityExtensions.UseCodelabObservability(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Codelab.Observability.CodelabObservabilityExtensions.UseCodelabUserLogContext(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Codelab.Observability.CorrelationId.Current(Microsoft.AspNetCore.Http.HttpContext? context) -> string?
+static Codelab.Observability.CorrelationId.For(Microsoft.AspNetCore.Http.HttpContext! context) -> string!
+static Codelab.Observability.CorrelationId.InboundFor(Microsoft.AspNetCore.Http.HttpContext! context) -> string?
+static Codelab.Observability.CorrelationId.IsWellFormed(string? candidate) -> bool
+static Codelab.Observability.CorrelationLogProperties.EnrichRequestLine(Serilog.IDiagnosticContext! diagnosticContext, Microsoft.AspNetCore.Http.HttpContext! context) -> void
+static Codelab.Observability.CorrelationLogProperties.PushTo(Microsoft.AspNetCore.Http.HttpContext! context) -> System.IDisposable!
+static Codelab.Observability.CorrelationScope.Begin(string! correlationId) -> System.IDisposable!
+static Codelab.Observability.CorrelationScope.Current.get -> string?
+static Codelab.Observability.DeploymentEnvironments.All.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Observability.DeploymentEnvironments.Resolve(string? configured, Microsoft.Extensions.Hosting.IHostEnvironment! environment) -> string!
+static Codelab.Observability.ExceptionTextRedaction.Redact(string! text) -> string!
+static Codelab.Observability.ExceptionTextRedaction.Wrap(Serilog.Core.ILogEventSink! inner) -> Serilog.Core.ILogEventSink!
+static Codelab.Observability.FailureCode.operator !=(Codelab.Observability.FailureCode left, Codelab.Observability.FailureCode right) -> bool
+static Codelab.Observability.FailureCode.operator ==(Codelab.Observability.FailureCode left, Codelab.Observability.FailureCode right) -> bool
+static Codelab.Observability.FailureFingerprint.For(Codelab.Observability.FingerprintInput! input) -> string!
+static Codelab.Observability.FailureFingerprint.JobSite(System.Type! jobType, string! method) -> string!
+static Codelab.Observability.FailureFingerprint.RequestSite(Microsoft.AspNetCore.Http.HttpContext! httpContext) -> string!
+static Codelab.Observability.FailureFingerprint.RouteTemplateOf(Microsoft.AspNetCore.Http.HttpContext! httpContext) -> string?
+static Codelab.Observability.FailureFingerprint.StartupSite(string! serviceName) -> string!
+static Codelab.Observability.FingerprintInput.operator !=(Codelab.Observability.FingerprintInput? left, Codelab.Observability.FingerprintInput? right) -> bool
+static Codelab.Observability.FingerprintInput.operator ==(Codelab.Observability.FingerprintInput? left, Codelab.Observability.FingerprintInput? right) -> bool
+static Codelab.Observability.HealthEndpoints.MapCodelabHealth(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints) -> Microsoft.AspNetCore.Routing.IEndpointRouteBuilder!
+static Codelab.Observability.ObservabilityBootstrap.AddCodelabObservability(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, Codelab.Observability.ObservabilityOptions! options) -> Microsoft.Extensions.Hosting.IHostApplicationBuilder!
+static Codelab.Observability.ObservabilityBootstrap.AddCodelabObservability(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, string! serviceName) -> Microsoft.Extensions.Hosting.IHostApplicationBuilder!
+static Codelab.Observability.ObservabilityOptions.For(string! serviceName) -> Codelab.Observability.ObservabilityOptions!
+static Codelab.Observability.ObservabilitySettings.From(Microsoft.Extensions.Configuration.IConfiguration! configuration) -> Codelab.Observability.ObservabilitySettings!
+static Codelab.Observability.OutboundPropagation.AsExternalService(this Microsoft.Extensions.DependencyInjection.IHttpClientBuilder! builder) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
+static Codelab.Observability.OutboundPropagation.AsInternalService(this Microsoft.Extensions.DependencyInjection.IHttpClientBuilder! builder) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
+static Codelab.Observability.PiiMask.Email(string? email) -> string?
+static Codelab.Observability.PiiMask.For(Codelab.Observability.PiiKind kind, string? value) -> string?
+static Codelab.Observability.PiiMask.LoginName(string? loginName) -> string?
+static Codelab.Observability.PiiMask.Phone(string? phone) -> string?
+static Codelab.Observability.PiiMask.Recipient(string? recipient) -> string?
+static Codelab.Observability.PiiMask.UrlWithoutQuery(string? url) -> string?
+static Codelab.Observability.PropagationScope.DenyOutboundByDefault() -> void
+static Codelab.Observability.PropagationScope.ExternalPropagator.get -> System.Diagnostics.DistributedContextPropagator!
+static Codelab.Observability.PropagationScope.InternalPropagator.get -> System.Diagnostics.DistributedContextPropagator!
+static Codelab.Observability.ReferenceCode.From(string! correlationId) -> string!
+static Codelab.Observability.ReleaseVersion.Of(System.Reflection.Assembly! assembly) -> string!
+static Codelab.Observability.RetainedSinkPolicy.IsUnsafeByDefault(Serilog.Events.LogEvent! logEvent) -> bool
+static Codelab.Observability.StructuredLogState.Format(Codelab.Observability.StructuredLogState! state, System.Exception? _) -> string!
+static Codelab.Observability.TracingBootstrap.AddCodelabTracing(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, Codelab.Observability.ObservabilityOptions! options, Codelab.Observability.TracingSettings! settings) -> bool
+static Codelab.Observability.UserIdHash.Create(Codelab.Observability.UserIdHashSettings! settings, Microsoft.Extensions.Hosting.IHostEnvironment! environment) -> Codelab.Observability.UserIdHash!
+~override Codelab.Observability.FailureCode.Equals(object obj) -> bool
+~override Codelab.Observability.FailureCode.ToString() -> string

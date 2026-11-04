@@ -7,6 +7,8 @@ export const PATHS = Object.freeze({
   baseRules: 'rules/base.rules.yaml',
   compiled: 'rules/rules.compiled.json',
   eslintBoundaries: 'rules/eslint-boundaries.compiled.json',
+  // Base clean-code analyzer thresholds for every project (Codelab.Build.Sdk: GlobalAnalyzerConfigFiles).
+  globalconfig: 'rules/codelab.globalconfig',
   // Global banned list shipped by Codelab.Build.Sdk; module lists must not repeat its entries.
   sdkGlobalBannedSymbols: 'packages/dotnet/Codelab.Build.Sdk/Sdk/BannedSymbols.txt',
 });
@@ -50,6 +52,9 @@ export const REGENERATE_COMMAND = 'node tools/rules-engine/compile.mjs';
 
 /** Analyzer id that carries the cyclomatic-complexity threshold through CodeMetricsConfig.txt. */
 export const CYCLOMATIC_COMPLEXITY_RULE = 'CA1502';
+
+/** Base rule whose settings (allowedNumbers, excludeTests) feed CLB1004 and the ESLint no-magic-numbers data. */
+export const MAGIC_NUMBERS_RULE = 'base.no-magic-values';
 
 export const EXIT_CODES = Object.freeze({ ok: 0, failed: 1, usage: 2 });
 

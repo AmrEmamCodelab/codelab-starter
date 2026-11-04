@@ -1,0 +1,16 @@
+<Project>
+  <!--
+    The Codelab package versions the sample is tested against: the ONE place a fork pins them. tools/build.ps1 step 13
+    reads this file. When a pinned version is missing from feed\ (a fresh clone), step 13 packs a ci prerelease into a
+    temporary feed and overrides every property below on the command line (-p:CodelabSecurityVersion=0.5.0-ci.<n> ...).
+    The property name is the package id without dots, plus "Version".
+  -->
+  <PropertyGroup>
+    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">0.2.1</CodelabBuildSdkVersion>
+    <CodelabSecurityVersion Condition="'$(CodelabSecurityVersion)' == ''">0.5.1</CodelabSecurityVersion>
+    <CodelabObservabilityVersion Condition="'$(CodelabObservabilityVersion)' == ''">0.5.1</CodelabObservabilityVersion>
+    <CodelabErrorsVersion Condition="'$(CodelabErrorsVersion)' == ''">0.5.1</CodelabErrorsVersion>
+    <CodelabTestingVersion Condition="'$(CodelabTestingVersion)' == ''">0.5.0</CodelabTestingVersion>
+    <CodelabIntegrationVersion Condition="'$(CodelabIntegrationVersion)' == ''">0.1.0</CodelabIntegrationVersion>
+  </PropertyGroup>
+</Project>

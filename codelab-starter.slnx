@@ -1,6 +1,18 @@
 <Solution>
   <Folder Name="/packages/">
+    <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />
+    <Project Path="packages/dotnet/Codelab.Build.Analyzers.Tests/Codelab.Build.Analyzers.Tests.csproj" />
     <Project Path="packages/dotnet/Codelab.Build.Sdk/Codelab.Build.Sdk.csproj" />
+    <Project Path="packages/dotnet/Codelab.Errors/Codelab.Errors.csproj" />
+    <Project Path="packages/dotnet/Codelab.Errors.Tests/Codelab.Errors.Tests.csproj" />
+    <Project Path="packages/dotnet/Codelab.Integration/Codelab.Integration.csproj" />
+    <Project Path="packages/dotnet/Codelab.Integration.Tests/Codelab.Integration.Tests.csproj" />
+    <Project Path="packages/dotnet/Codelab.Observability/Codelab.Observability.csproj" />
+    <Project Path="packages/dotnet/Codelab.Observability.Tests/Codelab.Observability.Tests.csproj" />
+    <Project Path="packages/dotnet/Codelab.Security/Codelab.Security.csproj" />
+    <Project Path="packages/dotnet/Codelab.Security.Tests/Codelab.Security.Tests.csproj" />
+    <Project Path="packages/dotnet/Codelab.Testing/Codelab.Testing.csproj" />
+    <Project Path="packages/dotnet/Codelab.Testing.Tests/Codelab.Testing.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Starter.ArchitectureSpike.Fixture.Api/Starter.ArchitectureSpike.Fixture.Api.csproj" />

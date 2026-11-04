@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the @codelab/ng-tools package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: NgTools
+kind: angular
+description: "Frontend tooling: ESLint boundary preset, codelab/wire-id-cast, Stylelint preset, codelab-vectors-sync."
+mayDependOn: []
+mustNotDependOn: [NgSecurity]

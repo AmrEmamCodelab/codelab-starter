@@ -2,7 +2,10 @@
   <!--
     Central Package Management (CPM) from day one: every PackageReference in the repo takes its version from here.
     A PackageReference with a Version attribute fails restore (NU1008). Add new packages here, never inline.
-    Versions were checked against nuget.org on 2026-11-04 for net10.0.
+    Versions were checked against nuget.org on 2026-11-04 for net10.0 (latest stable unless a group says why not).
+    Phase 1 groups were derived from the packaging spike and the harvested security, observability, diagnostics,
+    integration and attachment csproj files, plus the namespaces their sources use; the set restores together on
+    net10.0 with warnings as errors.
   -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
@@ -15,10 +18,77 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0" />
   </ItemGroup>
 
+  <ItemGroup Label="Codelab.Build.Analyzers (Roslyn 5.0.0 = the .NET 10 GA compiler, the oldest every .NET 10 SDK can load; never newer than the SDK in global.json)">
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Codelab.Observability: Serilog + Seq">
+    <PackageVersion Include="Serilog" Version="4.4.0" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageVersion Include="Serilog.Sinks.Seq" Version="9.1.0" />
+    <PackageVersion Include="Serilog.Sinks.EventLog" Version="4.0.0" />
+    <PackageVersion Include="Serilog.Formatting.Compact" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Codelab.Observability: OpenTelemetry (opt-in)">
+    <PackageVersion Include="OpenTelemetry.Api" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.20.1" />
+  </ItemGroup>
+
+  <ItemGroup Label="Codelab.Security / Codelab.Errors: ASP.NET Core, tokens, SQL, OpenAPI">
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.23.0" />
+    <!-- SQL replay store and session revocation store (EF-less). -->
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <!-- The harvested concurrency classifier maps EF Core's DbUpdateConcurrencyException. -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
+    <!-- The harvested job failure log filter is a Hangfire filter. -->
+    <PackageVersion Include="Hangfire.Core" Version="1.8.25" />
+    <!--
+      Hangfire.Core depends on Newtonsoft.Json >= 11.0.1, which has a high-severity advisory (NU1903 fails the build).
+      Transitive pinning is off, so a project that references Hangfire.Core also references Newtonsoft.Json directly.
+    -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <!--
+    Microsoft.Extensions.* are part of the ASP.NET Core shared framework: a project with
+    <FrameworkReference Include="Microsoft.AspNetCore.App" /> must NOT reference them (NU1510 fails the build). They are
+    pinned for libraries without that framework reference (Codelab.Integration targets plain hosts too).
+  -->
+  <ItemGroup Label="Codelab.Integration: outbound engine (Microsoft.Extensions for libraries without the ASP.NET Core framework)">
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
+    <PackageVersion Include="Polly.Core" Version="8.9.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.14" />
+  </ItemGroup>
+
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
+    <!-- 3.1.x is the runner line for xunit 2.9 (v2). -->
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.11.0" />
   </ItemGroup>
 
   <ItemGroup Label="Architecture tests (ADR-011: NetArchTest first, ArchUnitNET fallback)">

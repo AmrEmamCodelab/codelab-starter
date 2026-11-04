@@ -1,13 +1,40 @@
 {
   "name": "@codelab/ng-tools",
-  "version": "0.0.1",
-  "description": "Codelab Angular tooling (placeholder in Phase 0): ESLint boundary config, RTL lint, wire-id lint, permission-gate lint, icon subsetting, vector sync, i18n check.",
+  "version": "0.1.0",
+  "description": "Codelab Angular tooling: ESLint boundary preset and wire-id cast rule, Stylelint tokens-and-logical-CSS preset, golden-vector sync.",
   "license": "UNLICENSED",
   "author": "Codelab",
   "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./eslint": "./dist/eslint/index.mjs",
+    "./stylelint": "./dist/stylelint/index.mjs",
+    "./vectors": "./dist/vectors/sync.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "codelab-vectors-sync": "dist/bin/codelab-vectors-sync.mjs"
+  },
   "files": [
-    "README.md"
+    "dist",
+    "README.md",
+    "MODULE.md"
   ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepack": "node scripts/build.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.72.1",
+    "eslint-plugin-boundaries": "7.4.1",
+    "stylelint-use-logical": "2.1.3"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0",
+    "stylelint": "^17.0.0",
+    "typescript": ">=6.0 <6.1"
+  },
   "engines": {
     "node": ">=24"
   },

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Security package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabSecurity
+kind: dotnet
+description: "Versioned security core: request/response signing, PublicId, canonical framing, replay guards, security headers, key-ring guards, service-to-service ES256, tickets, upload safety, session revocation."
+mayDependOn: []
+mustNotDependOn: [CodelabObservability, CodelabErrors, CodelabIntegration, CodelabTesting]

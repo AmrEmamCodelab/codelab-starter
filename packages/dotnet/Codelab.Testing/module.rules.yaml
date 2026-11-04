@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Testing package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabTesting
+kind: dotnet
+description: "Test helpers: architecture tests from rules.compiled.json, source sweeps, PII-leak canary sink, golden-vector runner, contract-test helpers."
+mayDependOn: []
+mustNotDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIntegration]

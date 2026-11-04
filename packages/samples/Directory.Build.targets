@@ -1,0 +1,4 @@
+<Project>
+  <!-- Pairs with Directory.Build.props: Codelab.Build.Sdk targets from the feed; never the repo-root source copy. -->
+  <Import Project="Sdk.targets" Sdk="Codelab.Build.Sdk" Version="$(CodelabBuildSdkVersion)" />
+</Project>

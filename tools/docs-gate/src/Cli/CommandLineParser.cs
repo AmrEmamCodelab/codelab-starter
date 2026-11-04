@@ -8,6 +8,9 @@ internal static class CommandLineParser
     public const string BaseOption = "--base";
     public const string DefaultRoot = ".";
 
+    /// <summary>Options come as name/value pairs after the command.</summary>
+    private const int OptionPairLength = 2;
+
     public const string Usage =
         "Usage: docs-gate check --root <path> [--base <git-ref>]\n" +
         "  --root  repository root to check (default: current directory)\n" +
@@ -23,7 +26,7 @@ internal static class CommandLineParser
 
         var root = DefaultRoot;
         string? baseRef = null;
-        for (var index = 1; index < arguments.Count; index += 2)
+        for (var index = 1; index < arguments.Count; index += OptionPairLength)
         {
             var name = arguments[index];
             if (index + 1 >= arguments.Count)

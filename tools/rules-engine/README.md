@@ -11,9 +11,10 @@ Nothing parses YAML at runtime.
 |---|---|---|
 | `rules/rules.compiled.json` | repo | hooks, CI, `Codelab.Testing` architecture tests |
 | `rules/eslint-boundaries.compiled.json` | repo | `@codelab/ng-tools` ESLint config (module boundaries, `no-magic-numbers` ignore list) |
+| `rules/codelab.globalconfig` | repo | Codelab.Build.Sdk (`GlobalAnalyzerConfigFiles`): base `codelab_*` thresholds for every project, with or without a module |
 | `CLAUDE.md` | every module folder | Claude Code (nested CLAUDE.md, auto-loaded) |
 | `BannedSymbols.generated.txt` | every .NET module folder | Codelab.Build.Sdk; each entry becomes build error RS0030 |
-| `.editorconfig` (not root) | every .NET module folder | Roslyn analyzer severities for the module |
+| `.editorconfig` (not root) | every .NET module folder | Roslyn analyzer severities and the module's `codelab_*` thresholds (Codelab.Build.Analyzers, CLB1001-CLB1004) |
 | `CodeMetricsConfig.txt` | every .NET module folder | CA1502 cyclomatic-complexity threshold (see Gotchas) |
 
 ## Use
@@ -35,7 +36,7 @@ After you change a rules file, run the compiler and commit the rules file togeth
 # yaml-language-server: $schema=../../../rules/rules.schema.json
 schemaVersion: 1
 module: Records                 # PascalCase; own rule ids start with "records."
-kind: dotnet                    # optional; inferred (.csproj in the folder => dotnet, else angular)
+kind: dotnet                    # optional; inferred (.csproj in the folder => dotnet, else angular); explicit dotnet works before the .csproj exists
 owners: ["@platform-owner"]     # optional; defaults to the base owners
 mayDependOn: [Workflow]
 mustNotDependOn: [Notifications]
@@ -49,6 +50,7 @@ forbidden:
     pattern: '\bFromSqlRaw\b'   # JavaScript regex over the whole file; flags in `flags` (i, m, s, u)
     appliesTo: ["**/*.cs"]      # relative to the module folder
     excludes: ["**/Migrations/**"]
+    # exemptEmittedFiles: true  # skip the engine's own outputs BY PATH (rules/codelab.globalconfig, the module's .editorconfig)
     fix: Add a repository method on the Records port.
     severity: error             # error (hooks refuse) or warning (hooks inform)
 bannedSymbols:
@@ -98,7 +100,8 @@ In the compiled JSON, every glob is repo-relative and every rule carries `source
   - exemptions of unknown base rules
   - contradicting dependency lists and self-dependencies
   - duplicate module names
-  - `kind: dotnet` in a folder without a `.csproj`
+  - `kind: angular` in a folder with a `.csproj` (an explicit `kind: dotnet` without one is allowed, so a module
+    folder can be scaffolded before its project)
   - banned symbols listed twice, or already in Codelab.Build.Sdk's global `BannedSymbols.txt`
 - `rules/`, `**/module.rules.yaml` and this folder change only with platform-owner review (CODEOWNERS).
 - The engine has no runtime dependencies beyond `ajv` and `yaml` (root devDependencies).
@@ -110,8 +113,13 @@ In the compiled JSON, every glob is repo-relative and every rule carries `source
   rules. The tests copy it into a temp workspace instead.
 - Banning a type (`T:`) also flags the type's own members that use `this`. To stop callers from creating an object,
   ban its constructor (`M:Ns.Type.#ctor`), as the fixture does.
-- The global time bans (`DateTime.Now` and similar) live in Codelab.Build.Sdk. Listing them again in a rules file
-  is an error (RS0030 would report a duplicate).
+- The global bans (`DateTime.Now` and similar, `Thread.Sleep`) live in Codelab.Build.Sdk. Listing them again in a
+  rules file is an error (RS0030 would report a duplicate). `base.bannedSymbols` is therefore empty.
+- The C# size and magic-number thresholds reach the build as `codelab_*` keys (ADR-012), emitted by
+  `lib/emitters/analyzer-settings.mjs` into each module `.editorconfig` and `rules/codelab.globalconfig`. The key
+  names must match `packages/dotnet/Codelab.Build.Analyzers/Options/OptionKeys.cs` (an emitter test checks it). A
+  module that exempts `base.no-magic-values` gets `codelab_magic_numbers_enforced = false`. Hand-written `codelab_*`
+  keys are refused by `base.no-threshold-override`; only files with the GENERATED marker may set them.
 - `CodeMetricsConfig.txt` is read by CA1502 only when it is passed as an `AdditionalFiles` item. Codelab.Build.Sdk
   must add it (same pattern as `BannedSymbols.generated.txt`). It was checked by hand: with the file wired in,
   `CA1502: 2` failed a method of complexity 4, and the `#` header line is accepted.

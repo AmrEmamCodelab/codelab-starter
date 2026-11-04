@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Errors package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabErrors
+kind: dotnet
+description: "One problem+json envelope, GlobalExceptionHandler, ordered failure classifiers, framework status-code and model-binding mapping, CodedRefusal."
+mayDependOn: [CodelabObservability]
+mustNotDependOn: [CodelabSecurity, CodelabIntegration, CodelabTesting]

@@ -8,5 +8,98 @@
       1
     ]
   },
-  "modules": []
+  "modules": [
+    {
+      "module": "CodelabBuildAnalyzers",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Build.Analyzers",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabIntegration",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabErrors",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Errors",
+      "mayDependOn": [
+        "CodelabObservability"
+      ],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabIntegration",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabIntegration",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Integration",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabObservability",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Observability",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabErrors",
+        "CodelabIntegration",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabSecurity",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Security",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabIntegration",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabTesting",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Testing",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabIntegration"
+      ]
+    },
+    {
+      "module": "NgSecurity",
+      "kind": "angular",
+      "path": "packages/npm/ng-security",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "NgTools"
+      ]
+    },
+    {
+      "module": "NgTools",
+      "kind": "angular",
+      "path": "packages/npm/ng-tools",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "NgSecurity"
+      ]
+    }
+  ]
 }

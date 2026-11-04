@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Observability package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabObservability
+kind: dotnet
+description: "Serilog + OpenTelemetry + Seq host bootstrap, correlation, reference codes, PII masking, user hash, job failure log filter, health endpoints."
+mayDependOn: []
+mustNotDependOn: [CodelabSecurity, CodelabErrors, CodelabIntegration, CodelabTesting]
