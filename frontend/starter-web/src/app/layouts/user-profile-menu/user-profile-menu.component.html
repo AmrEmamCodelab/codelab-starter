@@ -1,0 +1,21 @@
+<button
+  type="button"
+  class="menu__trigger"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="panelId"
+  (click)="toggle()"
+>
+  <dga-icon name="user" size="md" />
+  <span class="menu__name">{{ user()?.displayName }}</span>
+  <dga-icon name="chevron-down" />
+</button>
+
+@if (open()) {
+  <div class="menu__panel" role="menu" [id]="panelId">
+    <button type="button" role="menuitem" class="menu__item" (click)="logout()">
+      <dga-icon name="logout" />
+      <span>{{ 'layout.user-menu.logout' | t }}</span>
+    </button>
+  </div>
+}

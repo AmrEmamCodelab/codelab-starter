@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Kernel Infrastructure (ADR-004): the ASP.NET Core and EF Core aware plumbing every module uses. Module discovery
+    (IModule), the module DbContext base and migrations on start, startup tasks, the permission attribute
+    ([HasPermission]) and the authenticated-only marker, feature switches ([RequiresFeature]), the HTTP adapters of the
+    kernel ports (current user, audit context, language), refusal-to-problem+json mapping and the domain exception
+    classifiers. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Infrastructure</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Observability" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starter.Domain\Starter.Domain.csproj" />
+    <ProjectReference Include="..\Starter.Application\Starter.Application.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,39 @@
+<Project>
+  <!--
+    Backend build targets. Imports the repo-root Directory.Build.targets first (Codelab.Build.Sdk targets), then:
+
+    1. CodelabPackageReference items (ADR-002). A backend project lists a Codelab package once,
+         <CodelabPackageReference Include="Codelab.Security" />
+       and gets a ProjectReference to packages/dotnet/<Id>/<Id>.csproj while UseCodelabPackageSource=true (the starter
+       monorepo), or a PackageReference from the feed (version pinned in Directory.Packages.props) when it is false
+       (feed mode, every fork after init.ps1 removed packages/).
+
+    2. Module discovery for the host (CodelabModuleHost=true): every ProjectReference to a module project
+       (<Token>.Modules.<Name>.csproj) becomes an assembly attribute ModuleAssemblyAttribute("<assembly name>"), so the
+       ProjectReference list of the host project is the ONLY place that lists modules (ADR-004).
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <CodelabPackageSourceDirectory>$(CodelabRepoRoot)packages\dotnet\</CodelabPackageSourceDirectory>
+    <CodelabModuleProjectMarker>.Modules.</CodelabModuleProjectMarker>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseCodelabPackageSource)' == 'true'">
+    <ProjectReference Include="@(CodelabPackageReference->'$(CodelabPackageSourceDirectory)%(Identity)\%(Identity).csproj')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseCodelabPackageSource)' != 'true'">
+    <PackageReference Include="@(CodelabPackageReference)" />
+  </ItemGroup>
+
+  <Target Name="CodelabAddModuleAssemblyAttributes" BeforeTargets="GetAssemblyAttributes" Condition="'$(CodelabModuleHost)' == 'true'">
+    <ItemGroup>
+      <_CodelabModuleProject Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(Filename)').Contains('$(CodelabModuleProjectMarker)'))" />
+      <AssemblyAttribute Include="$(CodelabModuleAttributeType)" Condition="'@(_CodelabModuleProject)' != ''">
+        <_Parameter1>%(_CodelabModuleProject.Filename)</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+    <Error Code="CODELAB101" Condition="'$(CodelabModuleAttributeType)' == ''" Text="A module host must set CodelabModuleAttributeType to the full name of its module assembly attribute." />
+  </Target>
+</Project>

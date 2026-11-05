@@ -10,12 +10,15 @@
       4. rules tests        node --test "tools/rules-engine/tests/**/*.test.mjs"
       5. hook tests         node --test ".claude/hooks/tests/**/*.test.mjs"
       6. dotnet             <dotnet> build codelab-starter.slnx -warnaserror ; <dotnet> test codelab-starter.slnx
+                            --no-build --logger trx ; FAILS when 0 tests of Starter.Integration.Tests ran (the
+                            integration tier runs on LocalDB or CODELAB_TEST_SQL; a skipped tier never looks green)
       7. docs gate          <dotnet> run --project tools/docs-gate -- check --root . --base <base ref>
       8. conflict markers   node tools/ci/conflict-markers.mjs --root .
       9. content rules      node tools/rules-engine/check-content.mjs --root .   (every forbidden/required rule from
                             rules.compiled.json over every tracked file: the hooks' rules, enforced in CI)
-     10. scanner tests      node --test over tools/extract/tests, tools/ci/tests, tools/vectors/tests and
-                            deploy/handover/tests (**/*.test.mjs)
+     10. scanner tests      node --test over tools/extract/tests, tools/ci/tests, tools/vectors/tests,
+                            deploy/handover/tests, tools/fork/tests, tools/scaffold/tests (with the dogfood test),
+                            tools/devseed/tests and tools/run-local (**/*.test.mjs)
      11. npm build+lint+test npm ci (only when node_modules is missing) ; npm run build --workspaces ;
                             node tools/ci/lint-packages.mjs (ESLint: magic numbers, module boundaries) ;
                             npm test --workspaces
@@ -33,6 +36,13 @@
                             Test-HandoverKit.ps1 restores and builds both from the kit alone: empty package folders and
                             HTTP blocked through an unroutable proxy. A simulation; the VM run with the network adapter
                             disabled stays an owner step (ADR-008).
+     15. provenance origins node tools/extract/check-origins.mjs --root .   (every harvested file is rewritten with an
+                            existing target, or staged with a note or a deferred field)
+     16. generated drift    <dotnet> run --project backend/tools/Starter.DocsGen -- --out docs/generated --check ;
+                            npm run api:gen:check --workspace frontend/starter-web
+     17. frontend lint      npm run lint --workspace frontend/starter-web   (ESLint, Stylelint, i18n parity; step 11
+                            lints packages/npm only)
+     18. fork-model test    tools\fork\Test-ForkModel.ps1 -RemoveModule Demo   (ADR-003; all in %TEMP%, the repo is only read)
     A step whose entry point does not exist yet FAILS with a MISSING message; nothing is skipped silently.
     All steps run (unless -FailFast) and a summary is printed; the exit code is 1 when any step failed.
     The protected (platform-owned) paths the branch changes against the base ref are listed at the end, so the
@@ -157,7 +167,19 @@ $PackageSourceSwitch   = 'UseCodelabPackageSource'
 $BaseRefScript         = 'tools/ci/base-ref.mjs'
 $NoBaseRef             = 'NONE'
 # Platform-owned paths (CODEOWNERS); kept in step with .claude/hooks/lib/constants.mjs PlatformOwnedGlobs.
-$ProtectedPathPattern  = '^(rules/|packages/|\.claude/|deploy/|\.github/|docs/adr/|provenance/|tools/extract/|tools/build\.ps1$|tools/extract/[^/]+\.(txt|yaml)$|Directory\.(Build|Packages)\.|global\.json$|nuget\.config$|.*/module\.rules\.yaml$|module\.rules\.yaml$)'
+$ProtectedPathPattern  = '^(rules/|packages/|\.claude/|deploy/|\.github/|docs/adr/|docs/standards/|provenance/|tools/extract/|tools/build\.ps1$|frontend/starter-web/(eslint\.config\.mjs$|stylelint\.config\.mjs$|tools/lint/)|(.*/)?(Directory\.Build\.[^/]*$|Directory\.Packages\.props$|global\.json$|nuget\.config$|\.editorconfig$|module\.rules\.yaml$))'
+# Step 6: the integration tier must run (counted from the TRX results); it is never skipped silently.
+$IntegrationTestsProject = 'backend/tests/Starter.Integration.Tests/Starter.Integration.Tests.csproj'
+$IntegrationTestAssembly = 'Starter.Integration.Tests.dll'
+$TrxLogger             = 'trx'
+$TrxFilePattern        = '*.trx'
+# Steps 15 to 18.
+$CheckOriginsScript    = 'tools/extract/check-origins.mjs'
+$DocsGenProject        = 'backend/tools/Starter.DocsGen'
+$GeneratedDocsDir      = 'docs/generated'
+$FrontendWorkspace     = 'frontend/starter-web'
+$ForkModelScript       = 'tools/fork/Test-ForkModel.ps1'
+$ForkModelModule       = 'Demo'
 # Test files are named *.test.mjs. Node 24 'node --test <dir>' treats the dir as a script, so a glob is passed.
 $TestFilePattern       = '*.test.mjs'
 $ExitSuccess           = 0
@@ -311,10 +333,45 @@ function Invoke-SecretScanStep {
     return ($ownScanPassed -and $gitleaksPassed)
 }
 
+# Sums the executed and failed counts of every TRX file whose tests come from the named test assembly.
+function Get-TrxCounters([string] $ResultsDir, [string] $AssemblyName) {
+    $totals = [pscustomobject]@{ Files = 0; Executed = 0; Failed = 0 }
+    foreach ($trx in @(Get-ChildItem -LiteralPath $ResultsDir -Recurse -File -Filter $TrxFilePattern -ErrorAction SilentlyContinue)) {
+        [xml] $document = Get-Content -LiteralPath $trx.FullName -Raw
+        $definitions = $document.TestRun.SelectNodes("//*[local-name()='UnitTest']")
+        $storages = @($definitions | ForEach-Object { [IO.Path]::GetFileName($_.GetAttribute('storage')) })
+        if ($storages -notcontains $AssemblyName) { continue }
+        $counters = $document.TestRun.SelectSingleNode("//*[local-name()='Counters']")
+        $totals.Files += 1
+        $totals.Executed += [int] $counters.GetAttribute('executed')
+        $totals.Failed += [int] $counters.GetAttribute('failed')
+    }
+    return $totals
+}
+
+# FAILS when the integration assembly ran no test: a skipped fixture or an unregistered project never looks green.
+function Test-IntegrationTestsRan([string] $ResultsDir) {
+    $integration = Get-TrxCounters $ResultsDir $IntegrationTestAssembly
+    if ($integration.Executed -eq 0) {
+        Write-Host "FAIL: 0 integration tests ran ($IntegrationTestAssembly). LocalDB (or CODELAB_TEST_SQL) must be reachable and the project must be in the solution." -ForegroundColor Red
+        return $false
+    }
+    Write-Host "Integration tests executed: $($integration.Executed) (failed: $($integration.Failed))."
+    return $true
+}
+
 function Invoke-DotnetStep([string] $Dotnet) {
-    if (-not (Test-EntryPoints @($SolutionFile) 'repo skeleton')) { return $false }
+    if (-not (Test-EntryPoints @($SolutionFile, $IntegrationTestsProject) 'repo skeleton + backend/tests')) { return $false }
     if ((Invoke-Native $Dotnet @('build', $SolutionFile, '-warnaserror')) -ne $ExitSuccess) { return $false }
-    return (Invoke-Native $Dotnet @('test', $SolutionFile)) -eq $ExitSuccess
+    Write-Host "Test SQL server: $(if ($env:CODELAB_TEST_SQL) { $env:CODELAB_TEST_SQL } else { '(localdb)\MSSQLLocalDB (default)' })"
+    $resultsDir = New-TempFolder 'test-results'
+    try {
+        $testArguments = @('test', $SolutionFile, '--no-build', '--logger', $TrxLogger, '--results-directory', $resultsDir)
+        $testsPassed = (Invoke-Native $Dotnet $testArguments) -eq $ExitSuccess
+        $integrationRan = Test-IntegrationTestsRan $resultsDir
+        return ($testsPassed -and $integrationRan)
+    }
+    finally { Remove-Item -LiteralPath $resultsDir -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # Step 11: every npm workspace builds its dist, passes the package lint and its tests. npm ci runs only when node_modules is missing.
@@ -555,6 +612,29 @@ function Invoke-HandoverStep {
     finally { Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
+# Step 16: the generated docs and the frontend client match the code (exit 1 on drift).
+function Invoke-GeneratedDriftStep([string] $Dotnet) {
+    $entryPoints = @($DocsGenProject, $GeneratedDocsDir, "$FrontendWorkspace/package.json")
+    if (-not (Test-EntryPoints $entryPoints 'backend/tools/Starter.DocsGen + frontend api-gen')) { return $false }
+    $docsArguments = @('run', '--project', $DocsGenProject, '--', '--out', $GeneratedDocsDir, '--check')
+    if ((Invoke-Native $Dotnet $docsArguments) -ne $ExitSuccess) { return $false }
+    return (Invoke-Native $NpmCommand @('run', 'api:gen:check', '--workspace', $FrontendWorkspace)) -eq $ExitSuccess
+}
+
+# Step 17: the app's ESLint (boundaries, HTTP only in core/api), Stylelint (tokens, logical CSS) and i18n parity.
+function Invoke-FrontendLintStep {
+    if (-not (Test-EntryPoints @("$FrontendWorkspace/package.json") 'frontend/starter-web')) { return $false }
+    return (Invoke-Native $NpmCommand @('run', 'lint', '--workspace', $FrontendWorkspace)) -eq $ExitSuccess
+}
+
+# Step 18: scaffold a module upstream, fork, init -Minimal -RemoveModule, upstream-merge, build the fork from the feed.
+function Invoke-ForkModelStep {
+    if (-not (Test-EntryPoints @($ForkModelScript) 'tools/fork')) { return $false }
+    $script = Join-Path $RepoRoot $ForkModelScript
+    $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', $script, '-RemoveModule', $ForkModelModule)
+    return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
+}
+
 # Returns the base ref to diff against, $NoBaseRef for a repository without commits, or $null (reason printed).
 function Resolve-BaseRef {
     $arguments = @($BaseRefScript, '--root', '.')
@@ -617,11 +697,15 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '7 docs gate';        Run = { Invoke-DocsGateStep $Dotnet } },
         @{ Name = '8 conflict markers'; Run = { Invoke-NodeScriptStep 'tools/ci/conflict-markers.mjs' @('--root', '.') 'tools/ci' } },
         @{ Name = '9 content rules';    Run = { Invoke-NodeScriptStep 'tools/rules-engine/check-content.mjs' @('--root', '.') 'tools/rules-engine' } },
-        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests') 'tools/extract + tools/ci + tools/vectors + deploy/handover' } },
+        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/run-local') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local' } },
         @{ Name = '11 npm build+lint+test';  Run = { Invoke-NpmStep } },
         @{ Name = '12 vectors verify';  Run = { Invoke-VectorsStep } },
         @{ Name = '13 package integration test'; Run = { Invoke-PackageIntegrationStep $Dotnet } },
-        @{ Name = '14 handover offline'; Run = { Invoke-HandoverStep } }
+        @{ Name = '14 handover offline'; Run = { Invoke-HandoverStep } },
+        @{ Name = '15 provenance origins'; Run = { Invoke-NodeScriptStep $CheckOriginsScript @('--root', '.') 'tools/extract' } },
+        @{ Name = '16 generated drift'; Run = { Invoke-GeneratedDriftStep $Dotnet } },
+        @{ Name = '17 frontend lint';   Run = { Invoke-FrontendLintStep } },
+        @{ Name = '18 fork-model test'; Run = { Invoke-ForkModelStep } }
     )
 
     $results = New-Object System.Collections.Generic.List[object]

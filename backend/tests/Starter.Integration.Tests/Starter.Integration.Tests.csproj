@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Integration tier: the real host (Program, every module) on a throwaway SQL Server database StarterIt_<guid>
+    (LocalDB by default; CODELAB_TEST_SQL overrides the server). Each fixture creates its database, lets the host
+    migrate it and seed it through the startup tasks with secrets generated at run time, and drops ONLY that database
+    afterwards, also when a test or the start fails. See README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup Label="Test host support shared with Starter.Contract.Tests">
+    <Compile Include="..\Starter.Contract.Tests\Support\Hosting\*.cs" Link="Shared\Hosting\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Starter.Api\Starter.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

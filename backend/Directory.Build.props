@@ -1,0 +1,7 @@
+<Project>
+  <!--
+    Backend build settings. Imports the repo-root Directory.Build.props first (Codelab.Build.Sdk from source or feed,
+    ADR-002), so everything the root sets still applies to every backend project.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

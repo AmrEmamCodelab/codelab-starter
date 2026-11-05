@@ -1,0 +1,44 @@
+:host {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1em;
+  block-size: 1em;
+  font-size: inherit;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+:host([data-size='xs']) {
+  font-size: var(--dga-size-icon-xs);
+}
+
+:host([data-size='sm']) {
+  font-size: var(--dga-size-icon-sm);
+}
+
+:host([data-size='md']) {
+  font-size: var(--dga-size-icon-md);
+}
+
+:host([data-size='lg']) {
+  font-size: var(--dga-size-icon-lg);
+}
+
+.dga-icon__glyph {
+  display: inline-block;
+  font-family: var(--dga-font-family-icons);
+  font-style: normal;
+  font-weight: var(--dga-font-weight-regular);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  font-feature-settings: 'liga' 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+:host-context([dir='rtl']) .dga-icon__glyph--mirror {
+  transform: scaleX(-1);
+}

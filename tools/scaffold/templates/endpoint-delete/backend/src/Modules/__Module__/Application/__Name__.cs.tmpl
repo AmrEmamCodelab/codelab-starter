@@ -1,0 +1,30 @@
+using Starter.Application.Results;
+
+namespace Starter.Modules.{{Module}}.Application;
+
+/// <summary>The input of <see cref="{{Name}}"/>.</summary>
+/// <param name="Id">The record's internal id (the endpoint decodes it from the PublicId in the route).</param>
+public sealed record {{Name}}Query(long Id);
+
+/// <summary>The data port of <see cref="{{Name}}"/>, implemented in Infrastructure.</summary>
+public interface I{{Name}}Store
+{
+    /// <summary>Deletes the record with <paramref name="id"/>; false when there is no such record.</summary>
+    Task<bool> DeleteAsync(long id, CancellationToken cancellationToken);
+}
+
+/// <summary>Deletes one {{Module}} record (<c>{{HttpRoute}}</c>). The permission is enforced by the endpoint.</summary>
+public sealed class {{Name}}(I{{Name}}Store store)
+{
+    /// <summary>Done, or a 404 refusal (<see cref="{{Module}}ErrorCodes.{{ErrorConst}}"/>) when the record does not exist.</summary>
+    public async Task<Outcome<Done>> ExecuteAsync({{Name}}Query query, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        if (!await store.DeleteAsync(query.Id, cancellationToken))
+        {
+            return Refusal.NotFound({{Module}}ErrorCodes.{{ErrorConst}});
+        }
+
+        return Done.Value;
+    }
+}

@@ -1,0 +1,4 @@
+// Lint fixture: a bare number in feature logic (base.no-magic-values).
+export function feeFor(amount: number): number {
+  return amount * 5000;
+}

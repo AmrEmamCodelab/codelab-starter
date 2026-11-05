@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../../rules/rules.schema.json
+# Rules for the starter web app's features/dashboard (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebDashboard
+kind: angular
+description: "Starter web dashboard: the landing page inside the shell, gated by dashboard.view; empty in P2."
+mayDependOn: []
+mustNotDependOn: []

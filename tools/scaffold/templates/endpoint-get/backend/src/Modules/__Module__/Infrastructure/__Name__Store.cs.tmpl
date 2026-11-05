@@ -1,0 +1,17 @@
+using Starter.Modules.{{Module}}.Application;
+
+namespace Starter.Modules.{{Module}}.Infrastructure;
+
+/// <summary>
+/// The data access of <see cref="{{Name}}"/>. A placeholder written by the scaffolder: it finds nothing, so the
+/// endpoint answers 404 until the module's query replaces the body of <see cref="FindAsync"/>.
+/// </summary>
+public sealed class {{Name}}Store : I{{Name}}Store
+{
+    /// <inheritdoc />
+    public Task<{{Name}}Result?> FindAsync(long id, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<{{Name}}Result?>(null);
+    }
+}

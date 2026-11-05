@@ -1,0 +1,10 @@
+// Lint case (must PASS): a feature reaching shared, core and @codelab/ng-dga.
+import { DgaButton } from '@codelab/ng-dga';
+import { ApiService } from '../../core/api/api.service';
+import { StatusLabel } from '../../shared/status-label/status-label';
+
+export class OrdersSummaryComponent {
+  readonly button = DgaButton;
+
+  constructor(readonly api: ApiService, readonly label: StatusLabel) {}
+}

@@ -1,0 +1,9 @@
+@if (icon(); as name) {
+  <span class="dga-info-field__icon"><dga-icon [name]="name" size="md" /></span>
+}
+<span class="dga-info-field__text">
+  @if (label(); as text) {
+    <span class="dga-info-field__label" [id]="labelId">{{ text }}</span>
+  }
+  <span class="dga-info-field__value" [attr.data-size]="size()" [attr.dir]="valueDir()"><ng-content /></span>
+</span>

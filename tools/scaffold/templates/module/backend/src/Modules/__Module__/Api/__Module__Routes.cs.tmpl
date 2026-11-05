@@ -1,0 +1,17 @@
+using Codelab.Security.PublicIds;
+using Starter.Infrastructure.Hosting;
+
+namespace Starter.Modules.{{Module}}.Api;
+
+/// <summary>The {{Module}} routes, built from the kernel prefix (no route literal elsewhere).</summary>
+public static class {{Module}}Routes
+{
+    /// <summary>The root of every {{Module}} endpoint: <c>/api/{{ModuleKebab}}</c>.</summary>
+    public const string Root = ApiRoutes.Prefix + ApiRoutes.Separator + "{{ModuleKebab}}";
+
+    /// <summary>The name of the route parameter that carries a record's PublicId.</summary>
+    public const string IdParameter = "id";
+
+    /// <summary>The route template of a record id: a PublicId, never a raw number.</summary>
+    public const string IdTemplate = "{" + IdParameter + ":" + PublicIdRouteConstraint.ConstraintName + "}";
+}

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of Starter.DocsGen: argument parsing, each renderer on fixtures, the reflection scanners on fixture
+    types, endpoint access classification, determinism (same surface, same bytes, LF only), the writer's drift
+    detection in a temp folder, the command's exit codes, and one test that boots the real host without a database.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starter.DocsGen\Starter.DocsGen.csproj" />
+  </ItemGroup>
+</Project>

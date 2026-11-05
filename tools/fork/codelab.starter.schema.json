@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.test/codelab/codelab.starter.schema.json",
+  "title": "Codelab starter fork manifest",
+  "description": "Schema for codelab.starter.json at the repo root (ADR-003). The starter ships it as the template (starterBase null); init.ps1 fills it in a fork, and tools/upstream-merge.ps1 and tools/remove-module.ps1 keep it current.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "starterVersion",
+    "productPrefix",
+    "productName",
+    "starterBase",
+    "renameMap",
+    "requiredModules",
+    "removedModules",
+    "prefixTargets",
+    "hashes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "description": "Version of this manifest format."
+    },
+    "starterVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$",
+      "description": "The starter release the fork was cut from (semver)."
+    },
+    "productPrefix": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]{1,15}$",
+      "description": "The product prefix (protocol labels {Prefix}-SIG-v1 and X-{Prefix}-...); 2-16 characters, A-Z then A-Z or 0-9."
+    },
+    "productName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "ar"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "ar": { "type": "string", "minLength": 1 }
+      },
+      "description": "Display name in English and Arabic."
+    },
+    "starterBase": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$" }
+      ],
+      "description": "The starter commit the fork is based on: null in the starter itself, set by init.ps1 and moved by upstream-merge.ps1."
+    },
+    "renameMap": {
+      "type": "array",
+      "description": "Old-to-new names applied by init's rename and replayed by upstream-merge.ps1 (longest first, case variants, identifier boundaries). Identity entries protect names.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "requiredModules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+      "description": "Modules remove-module.ps1 refuses to remove."
+    },
+    "removedModules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+      "description": "Modules removed from this fork; upstream-merge.ps1 drops upstream changes under them."
+    },
+    "prefixTargets": {
+      "type": "array",
+      "description": "JSON files whose value at jsonPath is set to productPrefix by init.ps1. jsonPath segments are separated by ':' or '.'.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "jsonPath"],
+        "properties": {
+          "file": { "type": "string", "pattern": "^[^\\\\:]+\\.json$" },
+          "jsonPath": { "type": "string", "pattern": "^[A-Za-z0-9_$-]+([:.][A-Za-z0-9_$-]+)*$" }
+        }
+      }
+    },
+    "hashes": {
+      "type": "object",
+      "description": "sha256 (hex) of the LF-normalized content of every source-owned tracked file, by repo-relative path.",
+      "propertyNames": { "pattern": "^[^\\\\]+$" },
+      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+    }
+  }
+}

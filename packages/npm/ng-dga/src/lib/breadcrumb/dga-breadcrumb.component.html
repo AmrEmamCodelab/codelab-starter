@@ -1,0 +1,30 @@
+<nav class="dga-breadcrumb" [attr.aria-label]="label()">
+  <ol class="dga-breadcrumb__list">
+    @for (item of resolved(); track $index; let last = $last) {
+      <li class="dga-breadcrumb__entry">
+        @if (item.isLink) {
+          <a class="dga-breadcrumb__item dga-breadcrumb__link" [routerLink]="item.link">
+            @if (item.icon; as name) {
+              <dga-icon class="dga-breadcrumb__icon" [name]="name" size="xs" />
+            }
+            <span>{{ item.label }}</span>
+          </a>
+        } @else {
+          <span
+            class="dga-breadcrumb__item"
+            [class.dga-breadcrumb__item--current]="item.isCurrent"
+            [attr.aria-current]="item.isCurrent ? 'page' : null"
+          >
+            @if (item.icon; as name) {
+              <dga-icon class="dga-breadcrumb__icon" [name]="name" size="xs" />
+            }
+            <span>{{ item.label }}</span>
+          </span>
+        }
+        @if (!last) {
+          <dga-icon class="dga-breadcrumb__separator" name="chevron-end" size="xs" />
+        }
+      </li>
+    }
+  </ol>
+</nav>

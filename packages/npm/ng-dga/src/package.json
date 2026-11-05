@@ -1,0 +1,12 @@
+{
+  "$comment": "ng-packagr input manifest only (the library build reads it next to ng-package.json). The published manifest is ../package.json; a test keeps the peer dependencies of both equal.",
+  "name": "@codelab/ng-dga",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "peerDependencies": {
+    "@angular/common": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/router": "^22.2.0"
+  }
+}

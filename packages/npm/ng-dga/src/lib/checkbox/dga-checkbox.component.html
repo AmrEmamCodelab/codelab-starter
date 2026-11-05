@@ -1,0 +1,48 @@
+<div class="dga-checkbox">
+  <label class="dga-checkbox__row" [class.dga-checkbox__row--disabled]="disabled()">
+    <input
+      type="checkbox"
+      class="dga-checkbox__native"
+      [id]="inputId"
+      [checked]="checked()"
+      [indeterminate]="indeterminate()"
+      [attr.name]="name()"
+      [required]="required()"
+      [disabled]="disabled()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      (change)="onChange($event)"
+      (blur)="onBlur()"
+    />
+    <span
+      class="dga-checkbox__box"
+      aria-hidden="true"
+      [class.dga-checkbox__box--on]="mark() !== null"
+      [class.dga-checkbox__box--invalid]="isInvalid()"
+    >
+      @switch (mark()) {
+        @case ('tick') {
+          <dga-icon class="dga-checkbox__mark" name="check" size="xs" />
+        }
+        @case ('dash') {
+          <span class="dga-checkbox__dash"></span>
+        }
+      }
+    </span>
+    <span class="dga-checkbox__label">
+      @if (label(); as text) {
+        {{ text }}
+      }
+      <ng-content />
+      @if (required()) {
+        <span class="dga-checkbox__required" aria-hidden="true">*</span>
+      }
+    </span>
+  </label>
+  @if (hasError()) {
+    <span class="dga-checkbox__message dga-checkbox__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-checkbox__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

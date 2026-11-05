@@ -6,31 +6,31 @@ namespace Codelab.Security.Tests.TestSupport;
 
 /// <summary>
 /// A throwaway SQL Server database: created with a unique name for one test class and dropped when it is disposed.
-/// The server comes from <c>CODELAB_TEST_SQL</c> (a connection string), default the local default instance with
-/// Windows authentication. No server reachable: the test FAILS with this message (never a silent skip).
+/// The server comes from <c>CODELAB_TEST_SQL</c> through <see cref="SqlTestServer"/> (a server name or a connection
+/// string; default <c>(localdb)\MSSQLLocalDB</c>, as for the integration tier). No server reachable: the test FAILS
+/// with this message (never a silent skip).
 /// </summary>
 public sealed class SqlTestDatabase : IAsyncLifetime
 {
-    public const string ServerVariable = "CODELAB_TEST_SQL";
-    public const string DefaultServer = "Server=.;Integrated Security=true;TrustServerCertificate=true;Encrypt=true";
-
     private const string NamePrefix = "CodelabSecurityTest_";
+    private const string MasterDatabase = "master";
     private const int ConnectTimeoutSeconds = 5;
 
     private readonly string _serverConnectionString;
 
     public SqlTestDatabase()
     {
-        var builder = new SqlConnectionStringBuilder(Environment.GetEnvironmentVariable(ServerVariable) is { Length: > 0 } configured ? configured : DefaultServer)
-        {
-            ConnectTimeout = ConnectTimeoutSeconds,
-            InitialCatalog = "master",
-        };
+        var builder = SqlTestServer.FromEnvironment();
+        builder.ConnectTimeout = ConnectTimeoutSeconds;
+        builder.InitialCatalog = MasterDatabase;
+        ServerName = builder.DataSource;
         _serverConnectionString = builder.ConnectionString;
         DatabaseName = NamePrefix + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         builder.InitialCatalog = DatabaseName;
         ConnectionString = builder.ConnectionString;
     }
+
+    public string ServerName { get; }
 
     public string DatabaseName { get; }
 
@@ -45,7 +45,7 @@ public sealed class SqlTestDatabase : IAsyncLifetime
         catch (SqlException ex)
         {
             throw new InvalidOperationException(
-                $"The SQL store tests need a SQL Server. None was reachable with {ServerVariable} or the default local instance ({DefaultServer}). Set {ServerVariable} to a connection string for a server where this account may create databases. Cause: {ex.Message}",
+                $"The SQL store tests need a SQL Server. None was reachable at '{ServerName}' ({SqlTestServer.ServerVariable}, default {SqlTestServer.DefaultServer}). Set {SqlTestServer.ServerVariable} to a server name or a connection string for a server where this account may create databases. Cause: {ex.Message}",
                 ex);
         }
 

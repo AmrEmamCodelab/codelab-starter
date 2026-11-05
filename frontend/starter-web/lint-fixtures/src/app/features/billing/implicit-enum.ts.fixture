@@ -1,0 +1,5 @@
+// Lint fixture: enum members without explicit values (base.enum-explicit-values).
+export enum InvoiceState {
+  Draft,
+  Sent,
+}

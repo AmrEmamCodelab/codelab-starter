@@ -1,0 +1,100 @@
+/* Tokens only, logical CSS only: the trail runs along the inline axis, so it reverses in RTL by itself. */
+:host {
+  display: block;
+}
+
+.dga-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.dga-stepper__item {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--dga-space-2);
+  min-inline-size: 0;
+}
+
+.dga-stepper__item:last-child {
+  flex: 0 0 auto;
+}
+
+.dga-stepper__bullet {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-bullet);
+  block-size: var(--dga-size-bullet);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-text-on-color);
+  background-color: var(--dga-color-neutral-solid);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: 1;
+}
+
+.dga-stepper__text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.dga-stepper__label {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-medium);
+  line-height: var(--dga-line-height-sm);
+  white-space: nowrap;
+}
+
+.dga-stepper__description {
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+/* Screen-reader-only state text. */
+.dga-stepper__state {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dga-stepper__line {
+  flex: 1 1 auto;
+  min-inline-size: var(--dga-space-6);
+  block-size: var(--dga-border-width-thick);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-border-default);
+}
+
+.dga-stepper__line[data-filled] {
+  background-color: var(--dga-color-primary);
+}
+
+.dga-stepper__item[data-state='completed'] .dga-stepper__bullet {
+  background-color: var(--dga-color-primary);
+}
+
+.dga-stepper__item[data-state='current'] .dga-stepper__bullet {
+  background-color: var(--dga-color-primary-active);
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-stepper__item[data-state='completed'] .dga-stepper__label,
+.dga-stepper__item[data-state='current'] .dga-stepper__label {
+  color: var(--dga-color-text-display);
+}

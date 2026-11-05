@@ -1,0 +1,10 @@
+// Lint case (must FAIL): a feature component injecting HttpClient instead of ApiService.
+import { HttpClient } from '@angular/common/http';
+
+export class OrdersComponent {
+  constructor(private readonly http: HttpClient) {}
+
+  load(): HttpClient {
+    return this.http;
+  }
+}

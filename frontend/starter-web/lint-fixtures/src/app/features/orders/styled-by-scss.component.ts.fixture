@@ -1,0 +1,12 @@
+// Lint case (must PASS): styles in a .scss file, classes and a non-style attribute that ends in "style".
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-styled-by-scss',
+  host: { class: 'app-styled-by-scss' },
+  template: `<p class="note" data-style="plain" [class.active]="active">x</p>`,
+  styleUrl: './styled-by-scss.component.scss',
+})
+export class StyledByScssComponent {
+  protected readonly active = true;
+}

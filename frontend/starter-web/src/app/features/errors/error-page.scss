@@ -1,0 +1,46 @@
+// Shared by the 404 and 403 pages of this feature.
+:host {
+  display: block;
+  min-block-size: 100vh;
+  background-color: var(--dga-color-surface-page);
+}
+
+.error-page {
+  display: grid;
+  place-items: center;
+  min-block-size: 100vh;
+  padding-inline: var(--dga-space-4);
+}
+
+.error-page__card {
+  inline-size: 100%;
+  max-inline-size: 32rem;
+}
+
+.error-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--dga-space-3);
+}
+
+.error-page__action {
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-6);
+  border-radius: var(--dga-radius-sm);
+  background-color: var(--dga-color-primary);
+  color: var(--dga-color-text-on-primary);
+  font-weight: var(--dga-font-weight-semibold);
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--dga-color-primary-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-space-half);
+  }
+}

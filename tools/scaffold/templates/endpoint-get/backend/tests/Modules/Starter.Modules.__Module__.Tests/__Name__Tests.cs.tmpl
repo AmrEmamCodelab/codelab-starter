@@ -1,0 +1,56 @@
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
+using Starter.Application.Results;
+using Starter.Infrastructure.Authorization;
+using Starter.Modules.{{Module}}.Api;
+using Starter.Modules.{{Module}}.Application;
+using Starter.Modules.{{Module}}.Infrastructure;
+
+namespace Starter.Modules.{{Module}}.Tests;
+
+public sealed class {{Name}}Tests
+{
+    private const long KnownId = 42;
+
+    [Fact]
+    public async Task Returns_the_record_the_store_finds()
+    {
+        var useCase = new {{Name}}(new FakeStore(new {{Name}}Result(Id: KnownId, Name: "Sample")));
+
+        var outcome = await useCase.ExecuteAsync(new {{Name}}Query(KnownId), CancellationToken.None);
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(KnownId, outcome.Value.Id);
+    }
+
+    [Fact]
+    public async Task Refuses_with_not_found_when_the_store_finds_nothing()
+    {
+        var outcome = await new {{Name}}(new FakeStore(found: null)).ExecuteAsync(new {{Name}}Query(KnownId), CancellationToken.None);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal(RefusalCategory.NotFound, outcome.Refusal.Category);
+        Assert.Equal({{Module}}ErrorCodes.{{ErrorConst}}, outcome.Refusal.Code);
+    }
+
+    [Fact]
+    public async Task The_placeholder_store_finds_nothing_until_it_is_written()
+    {
+        Assert.Null(await new {{Name}}Store().FindAsync(KnownId, CancellationToken.None));
+    }
+
+    [Fact]
+    public void The_endpoint_is_guarded_and_routed_under_the_module()
+    {
+        var controller = typeof({{Name}}Controller);
+
+        Assert.Equal({{Module}}PermissionKeys.{{PermissionConst}}, Assert.Single(controller.GetCustomAttributes<HasPermissionAttribute>()).Permission);
+        Assert.Equal("api/{{ModuleKebab}}/{{Route}}", controller.GetCustomAttribute<RouteAttribute>()!.Template);
+    }
+
+    private sealed class FakeStore({{Name}}Result? found) : I{{Name}}Store
+    {
+        public Task<{{Name}}Result?> FindAsync(long id, CancellationToken cancellationToken) =>
+            Task.FromResult(found is not null && found.Id == id ? found : null);
+    }
+}

@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the kernel Domain project (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterDomain
+kind: dotnet
+description: "Kernel Domain: the domain exceptions every module throws for broken invariants and the kernel value types (AppLanguage)."
+mayDependOn: []
+mustNotDependOn: [StarterApplication, StarterInfrastructure, StarterApi]
+forbidden:
+  - id: starterdomain.no-frameworks
+    description: The kernel Domain is plain .NET; frameworks and Codelab packages belong to Infrastructure.
+    pattern: '^\s*using\s+(Microsoft\.(AspNetCore|EntityFrameworkCore|Extensions)|Codelab)\b'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Move the code that needs the framework to Starter.Infrastructure, behind a port in Starter.Application.
+    severity: error

@@ -10,8 +10,10 @@ Human- and agent-readable documentation for the starter: standards and decisions
 | --- | --- |
 | [standards/](standards/SKILL.md) | You are about to implement or review anything. The `coding-standards` skill loads it. |
 | [adr/](adr/README.md) | You need to know why the repo is shaped the way it is, or you are about to change a structural decision. |
+| [recipes/](recipes/README.md) | You are adding an endpoint (step-by-step recipes). |
+| [generated/](generated/README.md) | You need the current permission, endpoint, error-code or config-key list (derived; never hand-edited). |
 
-Later phases add `recipes/` (how to add an endpoint, permission, workflow type, page, integration, notification or lookup), `runbooks/`, `design/` and `generated/` (drift-checked output; never hand-edited).
+Later phases add more recipes (permission, workflow type, page, integration, notification, lookup), `runbooks/` and `design/`.
 
 ## Extend
 

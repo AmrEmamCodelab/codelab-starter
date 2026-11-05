@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Kernel Application (ADR-004): ports only. The persistence, language, current-user and audit ports, the permission
+    catalog and grant ports, the user directory port, the validator port and the use-case result types. No EF Core, no
+    ASP.NET Core, no configuration or DI types (AssemblyPurityRules); adapters live in Starter.Infrastructure and the
+    modules.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Application</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starter.Domain\Starter.Domain.csproj" />
+  </ItemGroup>
+</Project>

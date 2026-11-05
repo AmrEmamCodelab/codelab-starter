@@ -1,0 +1,46 @@
+{
+  "openapi": "3.1.1",
+  "info": { "title": "WireId transform fixture", "version": "1.0.0" },
+  "paths": {
+    "/api/records/{recordId}": {
+      "get": {
+        "operationId": "GetRecord",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecordResponse" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RecordResponse": {
+        "type": "object",
+        "required": ["id", "requestTypeId", "title"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" },
+          "requestTypeId": { "type": "string", "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" },
+          "ownerId": { "type": ["string", "null"], "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" },
+          "attachmentIds": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$" }
+          },
+          "approverRef": {
+            "type": "string",
+            "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+            "x-codelab-id-domain": "employee"
+          },
+          "reference": { "type": "string", "pattern": "^[A-Z]{3}-[0-9]+$" },
+          "title": { "type": "string" }
+        }
+      }
+    }
+  }
+}

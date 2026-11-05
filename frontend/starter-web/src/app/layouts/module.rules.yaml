@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../rules/rules.schema.json
+# Rules for the starter web app's layouts (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebLayouts
+kind: angular
+description: "Starter web layouts: the staff app-shell (header, permission-gated navigation, page outlet), the language switcher, the user profile menu with logout and the app-wide error dialog."
+mayDependOn: []
+mustNotDependOn: []

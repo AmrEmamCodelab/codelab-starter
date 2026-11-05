@@ -1,0 +1,93 @@
+/* Tokens only, logical CSS only. The native input stays in the accessibility tree and takes the focus. */
+:host {
+  display: inline-block;
+}
+
+.dga-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-checkbox__row {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  cursor: pointer;
+}
+
+.dga-checkbox__row--disabled {
+  opacity: var(--dga-opacity-disabled);
+  cursor: not-allowed;
+}
+
+.dga-checkbox__native {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: var(--dga-size-toggle);
+  block-size: var(--dga-size-toggle);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.dga-checkbox__box {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-toggle);
+  block-size: var(--dga-size-toggle);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-strong);
+  border-radius: var(--dga-radius-xs);
+  color: var(--dga-color-text-on-primary);
+  background-color: var(--dga-color-surface-default);
+  transition:
+    background-color var(--dga-duration-fast) var(--dga-easing-standard),
+    border-color var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-checkbox__box--invalid {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-checkbox__box--on {
+  border-color: var(--dga-color-primary);
+  background-color: var(--dga-color-primary);
+}
+
+.dga-checkbox__native:focus-visible + .dga-checkbox__box {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-ring-width);
+}
+
+.dga-checkbox__dash {
+  inline-size: 60%;
+  block-size: var(--dga-border-width-thick);
+  border-radius: var(--dga-radius-full);
+  background-color: currentColor;
+}
+
+.dga-checkbox__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-checkbox__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-checkbox__message {
+  padding-inline-start: calc(var(--dga-size-toggle) + var(--dga-space-2));
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-checkbox__message--error {
+  color: var(--dga-color-text-error);
+}

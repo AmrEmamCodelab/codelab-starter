@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Endpoint contract tests over the real host (WebApplicationFactory<Program>, no database): every endpoint has a
+    permission or an EndpointAllowlist entry, ids on the wire are PublicIds, every request body has a validator, and
+    every error is problem+json. Support/Hosting is shared with Starter.Integration.Tests (linked there). See README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Starter.Api\Starter.Api.csproj" />
+  </ItemGroup>
+</Project>

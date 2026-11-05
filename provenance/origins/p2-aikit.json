@@ -1,0 +1,111 @@
+{
+  "batch": "p2-aikit",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "sourceRoot": "E:\\codelab-harvest\\modhs-a6a4b134",
+  "sourceContentDigest": null,
+  "extractedWith": "tools/extract/extract.ps1 -Batch p2-aikit -Clean (staging %TEMP%codelab-extract${b}, outside the repo). Promoted by the phase 2 wave 1 harvest-aikit owner: agent rewrites are recorded as rewritten (target = the agent file, stagedTarget = the staging path); material not carried stays staged with a note or deferred field.",
+  "origins": [
+    {
+      "batch": "p2-aikit",
+      "entryId": "agent-commit-gate",
+      "source": ".claude/agents/commit-gate.md",
+      "target": ".claude/agents/commit-gate.md",
+      "mode": "copy",
+      "sourceGitBlob": "589e3a75c7b137afa323cdb7d2d065f235519098",
+      "sourceSha256": "4307238c971680b50c927e8e0070cd733740a6aeaa8162ff1437d9088c7c9af7",
+      "stagedSha256": "4307238c971680b50c927e8e0070cd733740a6aeaa8162ff1437d9088c7c9af7",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p2/aikit/agents/commit-gate.md",
+      "note": "Rewritten: the green-before-commit and stage-only-intended discipline kept; checks replaced by tools/build.ps1 -Target CI, the docs gate, generated-doc and client drift, package CHANGELOG/versions.json and the Docs-Not-Needed rule."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "agent-bug-verifier",
+      "source": ".claude/agents/bug-verifier.md",
+      "target": ".claude/agents/bug-verifier.md",
+      "mode": "copy",
+      "sourceGitBlob": "9cd79e190bd222e46efd755a5d6c9eefe804940d",
+      "sourceSha256": "975d6e748bed9a04a02c6574d523c2d6c6043fa99465edab079ef53043bfa126",
+      "stagedSha256": "975d6e748bed9a04a02c6574d523c2d6c6043fa99465edab079ef53043bfa126",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p2/aikit/agents/bug-verifier.md",
+      "note": "Rewritten: verdict-per-finding process kept and extended to reviewer findings (CONFIRMED/REFUTED/PLAUSIBLE) with rule-citation checks; source-product orientation dropped."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "standards-material",
+      "source": ".claude/skills/coding-standards/ERROR-HANDLING.md",
+      "target": "reference/p2/aikit/standards/ERROR-HANDLING.md",
+      "mode": "copy",
+      "sourceGitBlob": "133ed08eda8fe901d6c29d3b8626827aec1536ce",
+      "sourceSha256": "9be377d0255114fdc3b2e2d862a81d1241f16155fe14567250aada678c74f1fa",
+      "stagedSha256": "9be377d0255114fdc3b2e2d862a81d1241f16155fe14567250aada678c74f1fa",
+      "promotion": "staged",
+      "note": "Not carried into the agent: the phase 0 rewrite docs/standards/ERROR-HANDLING.md is the single copy; standards-reviewer and security-reviewer link it."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "standards-material",
+      "source": ".claude/skills/coding-standards/EXAMPLES.md",
+      "target": "reference/p2/aikit/standards/EXAMPLES.md",
+      "mode": "copy",
+      "sourceGitBlob": "dd70fb3a67dba24e8a4375be3afcbe34da5c8336",
+      "sourceSha256": "7b8581d393d8d9188bfa1f60c2fff6cef4391fb5438137802a426a2dc254d789",
+      "stagedSha256": "7b8581d393d8d9188bfa1f60c2fff6cef4391fb5438137802a426a2dc254d789",
+      "promotion": "staged",
+      "note": "Not carried into the agent: the phase 0 rewrite docs/standards/EXAMPLES.md is the single copy; standards-reviewer links it."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "standards-material",
+      "source": ".claude/skills/coding-standards/SKILL.md",
+      "target": ".claude/agents/standards-reviewer.md",
+      "mode": "copy",
+      "sourceGitBlob": "95e4f42f86b1b4656d0c54ce7c0cafa56dc85059",
+      "sourceSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "stagedSha256": "891318af779c86e2d71c62ee49405a3d7517d539528fee04e02714b1aed38816",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p2/aikit/standards/SKILL.md",
+      "note": "Rewritten: the review procedure became standards-reviewer, which loads the starter docs/standards (the phase 0 rewrite of this skill) instead of copying it."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "security-material",
+      "source": "docs/security/account-security.md",
+      "target": ".claude/agents/security-reviewer.md",
+      "mode": "copy",
+      "sourceGitBlob": "95c03389298d5574ee90901c492237aabaddda45",
+      "sourceSha256": "5d84483a1f6a6d8ad61c809426b2b1d7129a1301e40cf53ad7078323477dd8e8",
+      "stagedSha256": "5d84483a1f6a6d8ad61c809426b2b1d7129a1301e40cf53ad7078323477dd8e8",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p2/aikit/security/account-security.md",
+      "note": "Rewritten as checklist items: identical refusal for unknown user, wrong password, locked and inactive accounts; session version bumps; no secret in logs."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "security-material",
+      "source": "docs/security/spa-headers.md",
+      "target": "reference/p2/aikit/security/spa-headers.md",
+      "mode": "copy",
+      "sourceGitBlob": "f921a47d39f335ea6d826fb8fb55d0e41bc65413",
+      "sourceSha256": "6510f634c0bbe8d9cf4b08e7a20fd25f5dc92a3870d48de118660bef7d29d6a6",
+      "stagedSha256": "6510f634c0bbe8d9cf4b08e7a20fd25f5dc92a3870d48de118660bef7d29d6a6",
+      "promotion": "staged",
+      "deferred": "P8: the SPA document CSP (report-only to enforce), COOP and HSTS edge templates and their review checks land with the deploy kits and the security edge."
+    },
+    {
+      "batch": "p2-aikit",
+      "entryId": "security-material",
+      "source": "docs/security/wire-id-cutover.md",
+      "target": ".claude/agents/security-reviewer.md",
+      "mode": "copy",
+      "sourceGitBlob": "8272419b9d8890b108b164b30606b4beda05ff8e",
+      "sourceSha256": "c26ab4437c63ef561b916e744ee5bba8e74177004b02554fba0984a5bfde2423",
+      "stagedSha256": "c26ab4437c63ef561b916e744ee5bba8e74177004b02554fba0984a5bfde2423",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p2/aikit/security/wire-id-cutover.md",
+      "note": "Rewritten as checklist items: no raw id on the wire, a response carrying a token and its number publishes a dictionary, PublicId is not authorization, published-key guards refuse committed keys. National-integration content not carried."
+    }
+  ],
+  "denied": []
+}

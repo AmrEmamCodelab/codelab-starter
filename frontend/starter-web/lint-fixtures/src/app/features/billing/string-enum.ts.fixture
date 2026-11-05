@@ -1,0 +1,5 @@
+// Lint fixture: string-valued enum members (base.enums-as-int).
+export enum InvoiceChannel {
+  Email = 'email',
+  Sms = `sms`,
+}

@@ -1,0 +1,230 @@
+/* The variant matrix sets three private custom properties; one rule paints them. Tokens only, logical CSS only. */
+
+:host {
+  display: inline-flex;
+}
+
+:host(.dga-button--full) {
+  display: flex;
+}
+
+.dga-btn {
+  --dga-btn-bg: var(--dga-color-primary);
+  --dga-btn-fg: var(--dga-color-text-on-primary);
+  --dga-btn-border: transparent;
+  --dga-btn-bg-hover: var(--dga-color-primary-hover);
+
+  position: relative;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dga-space-1);
+  overflow: hidden;
+  block-size: var(--dga-size-control-lg);
+  padding-block: 0;
+  padding-inline: var(--dga-space-4);
+  border: var(--dga-border-width-thin) solid var(--dga-btn-border);
+  border-radius: var(--dga-radius-sm);
+  color: var(--dga-btn-fg);
+  background-color: var(--dga-btn-bg);
+  font-family: inherit;
+  font-size: var(--dga-font-size-md);
+  font-weight: var(--dga-font-weight-medium);
+  line-height: var(--dga-line-height-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dga-duration-fast) var(--dga-easing-standard),
+    color var(--dga-duration-fast) var(--dga-easing-standard),
+    border-color var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-btn:hover:not(:disabled) {
+  background-color: var(--dga-btn-bg-hover);
+}
+
+.dga-btn:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-ring-width);
+}
+
+.dga-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.dga-btn[data-size='sm'] {
+  block-size: var(--dga-size-control-sm);
+  padding-inline: var(--dga-space-2);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-btn[data-size='md'] {
+  block-size: var(--dga-size-control-md);
+  padding-inline: var(--dga-space-3);
+  font-size: var(--dga-font-size-sm);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-btn__icon {
+  font-size: var(--dga-size-icon-lg);
+}
+
+.dga-btn[data-size='sm'] .dga-btn__icon {
+  font-size: var(--dga-size-icon-sm);
+}
+
+.dga-btn[data-size='md'] .dga-btn__icon {
+  font-size: var(--dga-size-icon-md);
+}
+
+.dga-btn--icon-only {
+  gap: 0;
+  padding-inline: 0;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+
+/* Variants */
+.dga-btn[data-variant='neutral'] {
+  --dga-btn-bg: var(--dga-color-surface-inverse);
+  --dga-btn-bg-hover: var(--dga-color-surface-inverse-hover);
+  --dga-btn-fg: var(--dga-color-text-on-color);
+}
+
+.dga-btn[data-variant='secondary-solid'] {
+  --dga-btn-bg: var(--dga-color-surface-subtle);
+  --dga-btn-bg-hover: var(--dga-color-surface-strong);
+  --dga-btn-fg: var(--dga-color-text-default);
+}
+
+.dga-btn[data-variant='secondary-outline'] {
+  --dga-btn-bg: transparent;
+  --dga-btn-bg-hover: var(--dga-color-surface-muted);
+  --dga-btn-fg: var(--dga-color-text-default);
+  --dga-btn-border: var(--dga-color-border-default);
+}
+
+.dga-btn[data-variant='subtle'] {
+  --dga-btn-bg: transparent;
+  --dga-btn-bg-hover: var(--dga-color-surface-strong);
+  --dga-btn-fg: var(--dga-color-text-default);
+}
+
+.dga-btn[data-variant='transparent'] {
+  --dga-btn-bg: transparent;
+  --dga-btn-bg-hover: transparent;
+  --dga-btn-fg: var(--dga-color-text-default);
+}
+
+/* Selected */
+.dga-btn[data-variant='primary'][data-selected] {
+  --dga-btn-bg: var(--dga-color-primary-selected);
+}
+
+.dga-btn[data-variant='neutral'][data-selected] {
+  --dga-btn-bg: var(--dga-color-surface-inverse-selected);
+}
+
+.dga-btn[data-variant='secondary-solid'][data-selected],
+.dga-btn[data-variant='subtle'][data-selected] {
+  --dga-btn-bg: var(--dga-color-surface-strong);
+}
+
+.dga-btn[data-variant='secondary-outline'][data-selected] {
+  --dga-btn-border: var(--dga-color-border-primary);
+}
+
+.dga-btn[data-variant='transparent'][data-selected] {
+  --dga-btn-fg: var(--dga-color-text-primary);
+}
+
+/* Destructive */
+.dga-btn[data-destructive][data-variant='primary'],
+.dga-btn[data-destructive][data-variant='neutral'] {
+  --dga-btn-bg: var(--dga-color-error-solid);
+  --dga-btn-bg-hover: var(--dga-color-error-hover);
+  --dga-btn-fg: var(--dga-color-text-on-color);
+}
+
+.dga-btn[data-destructive][data-variant='secondary-solid'] {
+  --dga-btn-bg: var(--dga-color-error-surface);
+  --dga-btn-bg-hover: var(--dga-color-error-border);
+  --dga-btn-fg: var(--dga-color-text-error);
+}
+
+.dga-btn[data-destructive][data-variant='secondary-outline'] {
+  --dga-btn-fg: var(--dga-color-text-error);
+  --dga-btn-border: var(--dga-color-error-border);
+  --dga-btn-bg-hover: var(--dga-color-error-surface);
+}
+
+.dga-btn[data-destructive][data-variant='subtle'],
+.dga-btn[data-destructive][data-variant='transparent'] {
+  --dga-btn-fg: var(--dga-color-error-solid);
+}
+
+/* On a dark or brand surface */
+.dga-btn[data-on-color][data-variant='primary'],
+.dga-btn[data-on-color][data-variant='neutral'] {
+  --dga-btn-bg: var(--dga-color-surface-default);
+  --dga-btn-bg-hover: var(--dga-color-surface-subtle);
+  --dga-btn-fg: var(--dga-color-text-default);
+}
+
+.dga-btn[data-on-color][data-variant='secondary-solid'] {
+  --dga-btn-bg: var(--dga-color-surface-on-color);
+  --dga-btn-bg-hover: var(--dga-color-surface-on-color);
+  --dga-btn-fg: var(--dga-color-text-on-color);
+}
+
+.dga-btn[data-on-color][data-variant='secondary-outline'] {
+  --dga-btn-bg: transparent;
+  --dga-btn-bg-hover: var(--dga-color-surface-on-color);
+  --dga-btn-fg: var(--dga-color-text-on-color);
+  --dga-btn-border: var(--dga-color-border-on-color);
+}
+
+.dga-btn[data-on-color][data-variant='subtle'],
+.dga-btn[data-on-color][data-variant='transparent'] {
+  --dga-btn-bg: transparent;
+  --dga-btn-bg-hover: var(--dga-color-surface-on-color);
+  --dga-btn-fg: var(--dga-color-text-on-color);
+}
+
+/* Disabled (after the variants so it wins) */
+.dga-btn:disabled:not([data-on-color]) {
+  --dga-btn-bg: var(--dga-color-surface-disabled);
+  --dga-btn-fg: var(--dga-color-text-disabled);
+  --dga-btn-border: transparent;
+}
+
+.dga-btn[data-on-color]:disabled {
+  --dga-btn-bg: var(--dga-color-surface-on-color-disabled);
+  --dga-btn-fg: var(--dga-color-text-on-color-disabled);
+}
+
+/* Loading: the label keeps its width but is hidden behind the spinner */
+.dga-btn--loading .dga-btn__label,
+.dga-btn--loading .dga-btn__icon {
+  visibility: hidden;
+}
+
+.dga-btn__spinner {
+  position: absolute;
+  inline-size: var(--dga-size-icon-sm);
+  block-size: var(--dga-size-icon-sm);
+  border: var(--dga-border-width-thick) solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--dga-radius-full);
+  animation: dga-btn-spin var(--dga-duration-spin) linear infinite;
+}
+
+@keyframes dga-btn-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

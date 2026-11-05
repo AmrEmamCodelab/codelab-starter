@@ -169,8 +169,10 @@ editor as the last line of defence.
    fire. SessionStart adds the guardrail briefing; UserPromptSubmit adds the intent → skill routing table.
 5. A new module folder without `module.rules.yaml` is refused and pointed at the `new-module` skill.
 6. **Platform-owner check** for the CODEOWNERS paths and every guardrail switch (`rules/**`, `packages/**`,
-   `.claude/**`, `deploy/**`, `.github/**`, `docs/adr/**`, `provenance/**`, `tools/build.ps1`, the scrub lists,
-   `Directory.Build.*`, `Directory.Packages.props`, `global.json`, `nuget.config`; see `PlatformOwnedGlobs`) and
+   `.claude/**`, `deploy/**`, `.github/**`, `docs/adr/**`, `docs/standards/**`, `provenance/**`, `tools/build.ps1`,
+   `tools/extract/**`, the frontend lint configs (`eslint.config.mjs`, `stylelint.config.mjs`, `tools/lint/**`), and at any
+   depth `Directory.Build.*`, `Directory.Packages.props`, `global.json`, `nuget.config`, `.editorconfig`; see
+   `PlatformOwnedGlobs`, kept equal to CODEOWNERS and `build.ps1` by `tests/protected-paths-parity.test.mjs`) and
    for the `exemptions` block of any `module.rules.yaml`, via `CODELAB_PLATFORM_OWNER=1`. Analyzer opt-outs
    (`CodelabEnableBannedApis=false`, `NoWarn`/`#pragma`/`.editorconfig` for RS0030 or CA1502) are the base rule
    `base.no-analyzer-opt-out`. The real gate is

@@ -1,0 +1,4 @@
+// Lint case (must FAIL): a third-party UI kit instead of @codelab/ng-dga.
+import { MatButtonModule } from '@angular/material/button';
+
+export const imports = [MatButtonModule];

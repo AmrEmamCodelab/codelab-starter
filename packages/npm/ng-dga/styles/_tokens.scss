@@ -1,0 +1,220 @@
+// Design tokens of @codelab/ng-dga as CSS custom properties (--dga-*). This is the ONLY file that holds literal
+// colours and sizes (the Stylelint preset and base.fe-design-tokens exempt _tokens*.scss). Everything else, in the
+// package and in apps, reads var(--dga-*).
+//
+// Layers: the palette (--dga-palette-*) is raw DGA colour; components and apps use the semantic tokens below it
+// (--dga-color-*), so a project re-brands by overriding semantic tokens, never by editing component styles.
+// Sass values used at build time (breakpoints, grid columns) are exported as $dga-* variables.
+
+// --- Build-time values (Sass) ------------------------------------------------------------------------------------
+$dga-breakpoints: (
+  sm: 36rem,
+  md: 48rem,
+  lg: 62rem,
+  xl: 75rem,
+  xxl: 87.5rem,
+) !default;
+$dga-grid-columns: 12 !default;
+$dga-spacing-steps: (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16) !default;
+
+@mixin root-tokens {
+  // --- Palette: DGA "SA flag" primary green ----------------------------------------------------------------------
+  --dga-palette-primary-25: #f7fdf9;
+  --dga-palette-primary-50: #f3fcf6;
+  --dga-palette-primary-100: #dff6e7;
+  --dga-palette-primary-200: #b8eacb;
+  --dga-palette-primary-300: #88d8ad;
+  --dga-palette-primary-400: #54c08a;
+  --dga-palette-primary-500: #25935f;
+  --dga-palette-primary-600: #1b8354;
+  --dga-palette-primary-700: #166a45;
+  --dga-palette-primary-800: #14573a;
+  --dga-palette-primary-900: #104631;
+  --dga-palette-primary-950: #092a1e;
+
+  // --- Palette: neutral -----------------------------------------------------------------------------------------
+  --dga-palette-neutral-0: #ffffff;
+  --dga-palette-neutral-25: #fcfcfd;
+  --dga-palette-neutral-50: #f9fafb;
+  --dga-palette-neutral-100: #f3f4f6;
+  --dga-palette-neutral-200: #e5e7eb;
+  --dga-palette-neutral-300: #d2d6db;
+  --dga-palette-neutral-400: #9da4ae;
+  --dga-palette-neutral-500: #6c737f;
+  --dga-palette-neutral-600: #4d5761;
+  --dga-palette-neutral-700: #384250;
+  --dga-palette-neutral-800: #1f2a37;
+  --dga-palette-neutral-900: #111927;
+  --dga-palette-neutral-950: #0d121c;
+
+  // --- Palette: feedback ----------------------------------------------------------------------------------------
+  --dga-palette-success-50: #ecfdf3;
+  --dga-palette-success-200: #abefc6;
+  --dga-palette-success-600: #079455;
+  --dga-palette-success-700: #067647;
+  --dga-palette-success-800: #085d3a;
+  --dga-palette-info-50: #eff8ff;
+  --dga-palette-info-200: #b2ddff;
+  --dga-palette-info-600: #1570ef;
+  --dga-palette-info-700: #175cd3;
+  --dga-palette-info-800: #1849a9;
+  --dga-palette-warning-50: #fffaeb;
+  --dga-palette-warning-200: #fedf89;
+  --dga-palette-warning-600: #dc6803;
+  --dga-palette-warning-700: #b54708;
+  --dga-palette-warning-800: #93370d;
+  --dga-palette-error-50: #fef3f2;
+  --dga-palette-error-100: #fee4e2;
+  --dga-palette-error-200: #fecdca;
+  --dga-palette-error-600: #d92d20;
+  --dga-palette-error-700: #b42318;
+  --dga-palette-error-800: #912018;
+
+  // --- Semantic colours: text -----------------------------------------------------------------------------------
+  --dga-color-text-default: var(--dga-palette-neutral-950);
+  --dga-color-text-display: var(--dga-palette-neutral-900);
+  --dga-color-text-paragraph: var(--dga-palette-neutral-700);
+  --dga-color-text-secondary: var(--dga-palette-neutral-600);
+  --dga-color-text-muted: var(--dga-palette-neutral-500);
+  --dga-color-text-placeholder: var(--dga-palette-neutral-400);
+  --dga-color-text-disabled: var(--dga-palette-neutral-400);
+  --dga-color-text-on-primary: var(--dga-palette-neutral-0);
+  --dga-color-text-on-color: var(--dga-palette-neutral-0);
+  --dga-color-text-link: var(--dga-palette-primary-700);
+  --dga-color-text-link-hover: var(--dga-palette-primary-800);
+  --dga-color-text-primary: var(--dga-palette-primary-600);
+  --dga-color-text-error: var(--dga-palette-error-700);
+
+  // --- Semantic colours: surfaces -------------------------------------------------------------------------------
+  --dga-color-surface-page: var(--dga-palette-neutral-0);
+  --dga-color-surface-default: var(--dga-palette-neutral-0);
+  --dga-color-surface-muted: var(--dga-palette-neutral-50);
+  --dga-color-surface-subtle: var(--dga-palette-neutral-100);
+  --dga-color-surface-strong: var(--dga-palette-neutral-200);
+  --dga-color-surface-inverse: var(--dga-palette-neutral-950);
+  --dga-color-surface-inverse-hover: var(--dga-palette-neutral-800);
+  --dga-color-surface-inverse-selected: var(--dga-palette-neutral-700);
+  --dga-color-surface-disabled: var(--dga-palette-neutral-200);
+  --dga-color-surface-on-color: rgba(255, 255, 255, 0.2);
+  --dga-color-surface-on-color-disabled: rgba(255, 255, 255, 0.2);
+  --dga-color-text-on-color-disabled: rgba(255, 255, 255, 0.4);
+  --dga-color-border-on-color: rgba(255, 255, 255, 0.6);
+
+  // --- Semantic colours: primary --------------------------------------------------------------------------------
+  --dga-color-primary: var(--dga-palette-primary-600);
+  --dga-color-primary-hover: var(--dga-palette-primary-700);
+  --dga-color-primary-active: var(--dga-palette-primary-800);
+  --dga-color-primary-selected: var(--dga-palette-primary-900);
+  --dga-color-primary-subtle: var(--dga-palette-primary-50);
+  --dga-color-primary-muted: var(--dga-palette-primary-100);
+
+  // --- Semantic colours: borders and focus ----------------------------------------------------------------------
+  --dga-color-border-default: var(--dga-palette-neutral-300);
+  --dga-color-border-subtle: var(--dga-palette-neutral-200);
+  --dga-color-border-strong: var(--dga-palette-neutral-400);
+  --dga-color-border-primary: var(--dga-palette-primary-600);
+  --dga-color-border-disabled: var(--dga-palette-neutral-200);
+  --dga-color-border-error: var(--dga-palette-error-600);
+  --dga-color-focus-ring: var(--dga-palette-primary-600);
+  --dga-color-focus-halo: var(--dga-palette-primary-100);
+  --dga-color-focus-halo-error: var(--dga-palette-error-100);
+
+  // --- Semantic colours: tones (tags, status tags, feedback) ----------------------------------------------------
+  --dga-color-neutral-surface: var(--dga-palette-neutral-50);
+  --dga-color-neutral-border: var(--dga-palette-neutral-200);
+  --dga-color-neutral-text: var(--dga-palette-neutral-800);
+  --dga-color-neutral-solid: var(--dga-palette-neutral-600);
+  --dga-color-success-surface: var(--dga-palette-success-50);
+  --dga-color-success-border: var(--dga-palette-success-200);
+  --dga-color-success-text: var(--dga-palette-success-800);
+  --dga-color-success-solid: var(--dga-palette-success-600);
+  --dga-color-info-surface: var(--dga-palette-info-50);
+  --dga-color-info-border: var(--dga-palette-info-200);
+  --dga-color-info-text: var(--dga-palette-info-800);
+  --dga-color-info-solid: var(--dga-palette-info-600);
+  --dga-color-warning-surface: var(--dga-palette-warning-50);
+  --dga-color-warning-border: var(--dga-palette-warning-200);
+  --dga-color-warning-text: var(--dga-palette-warning-800);
+  --dga-color-warning-solid: var(--dga-palette-warning-600);
+  --dga-color-error-surface: var(--dga-palette-error-50);
+  --dga-color-error-border: var(--dga-palette-error-200);
+  --dga-color-error-text: var(--dga-palette-error-800);
+  --dga-color-error-solid: var(--dga-palette-error-600);
+  --dga-color-error-hover: var(--dga-palette-error-700);
+  --dga-color-progress-surface: var(--dga-palette-primary-50);
+  --dga-color-progress-border: var(--dga-palette-primary-200);
+  --dga-color-progress-text: var(--dga-palette-primary-900);
+  --dga-color-progress-solid: var(--dga-palette-primary-600);
+
+  // --- Spacing scale (4px grid) ----------------------------------------------------------------------------------
+  --dga-space-0: 0;
+  --dga-space-half: 0.125rem;
+  --dga-space-1: 0.25rem;
+  --dga-space-2: 0.5rem;
+  --dga-space-3: 0.75rem;
+  --dga-space-4: 1rem;
+  --dga-space-5: 1.25rem;
+  --dga-space-6: 1.5rem;
+  --dga-space-8: 2rem;
+  --dga-space-10: 2.5rem;
+  --dga-space-12: 3rem;
+  --dga-space-16: 4rem;
+
+  // --- Typography (Arabic first; the Arabic face covers only the Arabic ranges, Latin falls through) -------------
+  --dga-font-family-base: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, 'Segoe UI', Tahoma, Arial, sans-serif;
+  --dga-font-family-icons: 'Codelab Icons';
+  --dga-font-weight-regular: 400;
+  --dga-font-weight-medium: 500;
+  --dga-font-weight-semibold: 600;
+  --dga-font-weight-bold: 700;
+  --dga-font-size-xs: 0.75rem;
+  --dga-font-size-sm: 0.875rem;
+  --dga-font-size-md: 1rem;
+  --dga-font-size-lg: 1.125rem;
+  --dga-font-size-xl: 1.25rem;
+  --dga-font-size-2xl: 1.5rem;
+  --dga-font-size-3xl: 1.875rem;
+  --dga-font-size-4xl: 2.25rem;
+  --dga-line-height-xs: 1rem;
+  --dga-line-height-sm: 1.25rem;
+  --dga-line-height-md: 1.5rem;
+  --dga-line-height-lg: 1.75rem;
+  --dga-line-height-xl: 1.875rem;
+  --dga-line-height-2xl: 2rem;
+  --dga-line-height-3xl: 2.375rem;
+  --dga-line-height-4xl: 2.75rem;
+
+  // --- Radius ------------------------------------------------------------------------------------------------------
+  --dga-radius-none: 0;
+  --dga-radius-xs: 0.125rem;
+  --dga-radius-sm: 0.25rem;
+  --dga-radius-md: 0.5rem;
+  --dga-radius-lg: 0.75rem;
+  --dga-radius-xl: 1rem;
+  --dga-radius-full: 9999px;
+
+  // --- Borders, elevation, sizes, motion ---------------------------------------------------------------------------
+  --dga-border-width-thin: 1px;
+  --dga-border-width-thick: 2px;
+  --dga-border-width-heavy: 6px;
+  --dga-focus-ring-width: 2px;
+  --dga-focus-halo-width: 3px;
+  --dga-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+  --dga-shadow-md: 0 2px 4px rgba(16, 24, 40, 0.06), 0 4px 8px rgba(16, 24, 40, 0.1);
+  --dga-size-control-sm: 1.5rem;
+  --dga-size-control-md: 2rem;
+  --dga-size-control-lg: 2.5rem;
+  --dga-size-icon-xs: 0.875rem;
+  --dga-size-icon-sm: 1rem;
+  --dga-size-icon-md: 1.25rem;
+  --dga-size-icon-lg: 1.5rem;
+  --dga-size-toggle: 1.25rem;
+  --dga-size-dot: 0.375rem;
+  --dga-size-bullet: 2rem;
+  --dga-size-avatar: 3rem;
+  --dga-size-container: 80rem;
+  --dga-duration-fast: 150ms;
+  --dga-duration-spin: 700ms;
+  --dga-easing-standard: ease;
+  --dga-opacity-disabled: 0.6;
+}

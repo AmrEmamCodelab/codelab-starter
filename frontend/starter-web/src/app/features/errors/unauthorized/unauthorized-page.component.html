@@ -1,0 +1,21 @@
+<main class="error-page" id="main-content">
+  <dga-card
+    class="error-page__card"
+    centered
+    icon="lock"
+    [heading]="'error-pages.unauthorized.title' | t"
+    [description]="'error-pages.unauthorized.message' | t"
+    [headingLevel]="1"
+  >
+    <div class="error-page__actions" dgaCardActions>
+      @if (isAuthenticated()) {
+        <a class="error-page__action" [routerLink]="homeLink">{{ 'error-pages.home' | t }}</a>
+        <dga-button variant="secondary-outline" size="md" (click)="signInAsAnotherUser()">
+          {{ 'error-pages.unauthorized.sign-in-as-another-user' | t }}
+        </dga-button>
+      } @else {
+        <a class="error-page__action" [routerLink]="loginLink">{{ 'error-pages.unauthorized.sign-in' | t }}</a>
+      }
+    </div>
+  </dga-card>
+</main>

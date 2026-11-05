@@ -13,12 +13,13 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 | When the work is... | Skill | Status |
 | --- | --- | --- |
 | Any business scenario ("we need...", a BRD, use-case workbook, DGA screenshot or Figma frame) | `build-feature` | planned (phase 9) |
-| A new business area | `new-module` | planned (phase 2) |
-| A new action or API operation | `new-endpoint` | planned (phase 2) |
+| A new business area, record type or module | `new-module` | ready |
+| A new action or API operation | `new-endpoint` | ready |
 | A new page | `new-screen` (+ the 8 page patterns) | planned (phase 4) |
-| A new permission | `new-permission` | planned (phase 2) |
+| A new permission | `new-permission` | ready |
 | A new status or status flow | `new-transition` | planned (phase 7) |
 | A new reference-data list | `new-lookup` | planned (phase 5) |
+| A time limit, deadline or SLA | recipe in `docs/recipes/` (deadline) | planned (phase 7) |
 | Any implementation or review | `coding-standards` | ready |
 | Executing a planned unit of work or a plan phase | `do-work` | ready |
 | Creating or changing a skill | `write-a-skill` | ready |
@@ -37,18 +38,22 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 10. **Lookups are seeded only by migrations.**
 11. **Generated files are never hand-edited:** `rules/rules.compiled.json`, nested module `CLAUDE.md`, `BannedSymbols.generated.txt`, `docs/generated/`. Change the source and rerun the generator.
 12. **Docs move with code.** A module change updates its `MODULE.md` (Purpose, Use, Extend, Rules, Gotchas), or the commit message or PR description carries `Docs-Not-Needed: <reason>`.
-13. **Platform-owner review** for `rules/`, `packages/`, `.claude/`, `**/module.rules.yaml` (its `exemptions`), `deploy/`, `.github/`, `docs/adr/`, `provenance/`, `tools/extract/`, `tools/build.ps1` and the repo-wide build settings (CODEOWNERS; the hooks refuse these edits without `CODELAB_PLATFORM_OWNER=1`).
+13. **Platform-owner review** for `rules/`, `packages/`, `.claude/`, `**/module.rules.yaml` (its `exemptions`), `deploy/`, `.github/`, `docs/adr/`, `provenance/`, `docs/standards/`, `tools/extract/`, `tools/build.ps1`, the frontend lint configs (`eslint.config.mjs`, `stylelint.config.mjs`, `tools/lint/`) and the build settings at any depth (`.editorconfig`, `Directory.Build.*`, `Directory.Packages.props`, `nuget.config`, `global.json`) (CODEOWNERS; the hooks refuse these edits without `CODELAB_PLATFORM_OWNER=1`).
 14. **Central package versions.** Never put a `Version` on a `PackageReference`; pin it in `Directory.Packages.props`.
 
 ## Build
 
 ```powershell
-# Full CI contract (14 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
+# Full CI contract (18 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI
 # Pack every package in packages/versions.json as <version>-ci.<n> prereleases into feed\nuget and feed\npm
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack
 # Release the exact versions (platform owner only; packs after a green CI, refused when a version is in the feed)
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release
+# Local stack: API :5180, web :4280 (+ Seq :5341 when available); -Stop stops only what it started
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1
+# Once, before the first run: fresh local secrets (gitignored appsettings.Development.local.json)
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1
 ```
 
 **dotnet is private on this machine.** The .NET 10 SDK (10.0.403, pinned in `global.json`) is at `E:\codelab-tools\dotnet10\dotnet.exe` and is **not on PATH**; the `dotnet` on PATH is .NET 9 and cannot build this repo. Invoke that exe directly, or set `$env:CODELAB_DOTNET`. `build.ps1` resolves `CODELAB_DOTNET`, then that path, then `dotnet` on PATH. Details: [tools/README.md](tools/README.md).

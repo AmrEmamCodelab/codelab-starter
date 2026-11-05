@@ -1,0 +1,95 @@
+/* Tokens only, logical CSS only. */
+:host {
+  display: block;
+}
+
+.dga-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-field__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-field__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  block-size: var(--dga-size-control-md);
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+  transition:
+    border-color var(--dga-duration-fast) var(--dga-easing-standard),
+    box-shadow var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-field__control:focus-within {
+  border-color: var(--dga-color-border-primary);
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-field__control--invalid,
+.dga-field__control--invalid:focus-within {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-field__control--invalid:focus-within {
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo-error);
+}
+
+.dga-field__control--readonly {
+  background-color: var(--dga-color-surface-muted);
+}
+
+.dga-field__control--disabled {
+  border-color: var(--dga-color-border-disabled);
+  background-color: var(--dga-color-surface-disabled);
+}
+
+.dga-field__icon {
+  color: var(--dga-color-text-secondary);
+}
+
+.dga-field__input {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--dga-color-text-default);
+  background: transparent;
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  text-align: start;
+}
+
+.dga-field__input::placeholder {
+  color: var(--dga-color-text-placeholder);
+}
+
+.dga-field__input:disabled {
+  color: var(--dga-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.dga-field__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-field__message--error {
+  color: var(--dga-color-text-error);
+}

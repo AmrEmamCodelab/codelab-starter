@@ -1,0 +1,53 @@
+{
+  "name": "@codelab/ng-dga",
+  "version": "0.0.0",
+  "description": "Codelab DGA component library for Angular: design tokens, base and typography styles, self-hosted Arabic and Latin fonts, the owned icon font, and standalone RTL-correct components.",
+  "license": "UNLICENSED",
+  "author": "Codelab",
+  "type": "module",
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/codelab-ng-dga.d.ts",
+      "default": "./dist/fesm2022/codelab-ng-dga.mjs"
+    },
+    "./styles": {
+      "sass": "./styles/_index.scss",
+      "style": "./styles/_index.scss",
+      "default": "./styles/_index.scss"
+    },
+    "./styles.css": "./dist/ng-dga.css",
+    "./assets/*": "./assets/*",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/types/codelab-ng-dga.d.ts",
+  "files": [
+    "dist",
+    "styles",
+    "assets",
+    "README.md",
+    "MODULE.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/compile-specs.mjs && vitest run",
+    "icons:generate": "node scripts/generate-icon-font.mjs",
+    "icons:check": "node scripts/generate-icon-font.mjs --check",
+    "assets:import": "node scripts/import-assets.mjs",
+    "assets:check": "node scripts/import-assets.mjs --check"
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/router": "^22.2.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

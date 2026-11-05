@@ -1,0 +1,55 @@
+/* Tokens only, logical CSS only: the icon sits on the inline-start side in both directions. */
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-4);
+  min-inline-size: 0;
+}
+
+:host(.dga-info-field--wide) {
+  grid-column: 1 / -1;
+}
+
+:host([data-align='start']) {
+  align-items: flex-start;
+}
+
+.dga-info-field__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--dga-size-avatar);
+  block-size: var(--dga-size-avatar);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-text-secondary);
+  background-color: var(--dga-color-surface-muted);
+}
+
+.dga-info-field__text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  text-align: start;
+}
+
+.dga-info-field__label {
+  margin-block-end: var(--dga-space-1);
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-info-field__value {
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-md);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-md);
+  overflow-wrap: anywhere;
+  unicode-bidi: isolate;
+}
+
+.dga-info-field__value[data-size='lg'] {
+  font-size: var(--dga-font-size-lg);
+  line-height: var(--dga-line-height-lg);
+}

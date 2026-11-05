@@ -1,0 +1,28 @@
+using Codelab.Security.PublicIds;
+using Microsoft.AspNetCore.Mvc;
+using Starter.Infrastructure.Authorization;
+using Starter.Infrastructure.Hosting;
+using Starter.Infrastructure.Results;
+using Starter.Modules.{{Module}}.Application;
+
+namespace Starter.Modules.{{Module}}.Api;
+
+/// <summary>The body of a successful <c>{{HttpRoute}}</c>.</summary>
+/// <param name="Id">The new record's PublicId.</param>
+public sealed record {{Name}}Response([property: WireId] PublicId<{{Module}}Ids> Id);
+
+/// <summary><c>{{HttpRoute}}</c>: thin; binds, calls the <see cref="{{Name}}"/> use case and maps its outcome.</summary>
+[ApiController]
+[Route({{Name}}Controller.Route)]
+[HasPermission({{Module}}PermissionKeys.{{PermissionConst}})]
+public sealed class {{Name}}Controller({{Name}} useCase) : ControllerBase
+{
+    /// <summary>The route of this endpoint.</summary>
+    public const string Route = {{Module}}Routes.Root + ApiRoutes.Separator + "{{Route}}";
+
+    /// <summary>Creates one record.</summary>
+    [HttpPost]
+    public async Task<ActionResult<{{Name}}Response>> Handle({{Name}}Command command, CancellationToken cancellationToken) =>
+        (await useCase.ExecuteAsync(command, cancellationToken))
+            .ToActionResult(result => new {{Name}}Response(PublicId<{{Module}}Ids>.From(result.Id)));
+}

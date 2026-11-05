@@ -1,0 +1,55 @@
+:host {
+  display: inline-flex;
+}
+
+.dga-status {
+  --dga-status-surface: var(--dga-color-neutral-surface);
+  --dga-status-text: var(--dga-color-neutral-text);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-1);
+  min-block-size: var(--dga-size-control-sm);
+  padding-block: var(--dga-space-half);
+  padding-inline: var(--dga-space-3);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-status-text);
+  background-color: var(--dga-status-surface);
+  font-size: var(--dga-font-size-xs);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+  white-space: nowrap;
+}
+
+.dga-status__dot {
+  flex: none;
+  inline-size: var(--dga-size-dot);
+  block-size: var(--dga-size-dot);
+  border-radius: var(--dga-radius-full);
+  background-color: currentColor;
+}
+
+.dga-status[data-tone='info'] {
+  --dga-status-surface: var(--dga-color-info-surface);
+  --dga-status-text: var(--dga-color-info-text);
+}
+
+.dga-status[data-tone='warning'] {
+  --dga-status-surface: var(--dga-color-warning-surface);
+  --dga-status-text: var(--dga-color-warning-text);
+}
+
+.dga-status[data-tone='success'] {
+  --dga-status-surface: var(--dga-color-success-surface);
+  --dga-status-text: var(--dga-color-success-text);
+}
+
+.dga-status[data-tone='error'] {
+  --dga-status-surface: var(--dga-color-error-surface);
+  --dga-status-text: var(--dga-color-error-text);
+}
+
+.dga-status[data-tone='progress'] {
+  --dga-status-surface: var(--dga-color-progress-surface);
+  --dga-status-text: var(--dga-color-progress-text);
+}

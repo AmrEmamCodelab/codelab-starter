@@ -1,0 +1,83 @@
+// Type scale on the tokens. Headings and the text utilities share one map, so a size is defined once.
+@use 'sass:map';
+
+$dga-type-scale: (
+  xs: (size: var(--dga-font-size-xs), line: var(--dga-line-height-xs)),
+  sm: (size: var(--dga-font-size-sm), line: var(--dga-line-height-sm)),
+  md: (size: var(--dga-font-size-md), line: var(--dga-line-height-md)),
+  lg: (size: var(--dga-font-size-lg), line: var(--dga-line-height-lg)),
+  xl: (size: var(--dga-font-size-xl), line: var(--dga-line-height-xl)),
+  2xl: (size: var(--dga-font-size-2xl), line: var(--dga-line-height-2xl)),
+  3xl: (size: var(--dga-font-size-3xl), line: var(--dga-line-height-3xl)),
+  4xl: (size: var(--dga-font-size-4xl), line: var(--dga-line-height-4xl)),
+);
+
+$dga-heading-sizes: (
+  h1: 4xl,
+  h2: 3xl,
+  h3: 2xl,
+  h4: xl,
+  h5: lg,
+  h6: md,
+);
+
+$dga-font-weights: (
+  regular: var(--dga-font-weight-regular),
+  medium: var(--dga-font-weight-medium),
+  semibold: var(--dga-font-weight-semibold),
+  bold: var(--dga-font-weight-bold),
+);
+
+@mixin type-step($step) {
+  $entry: map.get($dga-type-scale, $step);
+  font-size: map.get($entry, size);
+  line-height: map.get($entry, line);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--dga-font-weight-bold);
+  color: var(--dga-color-text-display);
+}
+
+@each $heading, $step in $dga-heading-sizes {
+  #{$heading} {
+    @include type-step($step);
+  }
+}
+
+p {
+  color: var(--dga-color-text-paragraph);
+}
+
+small {
+  font-size: var(--dga-font-size-sm);
+}
+
+@each $step, $entry in $dga-type-scale {
+  .dga-text-#{$step} {
+    @include type-step($step);
+  }
+}
+
+@each $name, $weight in $dga-font-weights {
+  .dga-font-#{$name} {
+    font-weight: $weight;
+  }
+}
+
+.dga-text-secondary {
+  color: var(--dga-color-text-secondary);
+}
+
+.dga-text-start {
+  text-align: start;
+}
+
+.dga-text-end {
+  text-align: end;
+}

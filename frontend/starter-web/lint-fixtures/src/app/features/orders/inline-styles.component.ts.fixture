@@ -1,0 +1,11 @@
+// Lint case (must FAIL): inline styles bypass the design-token and logical-CSS checks (Stylelint sees only .scss).
+import { Component } from '@angular/core';
+import { NgStyle } from '@angular/common';
+
+@Component({
+  selector: 'app-inline-styles',
+  imports: [NgStyle],
+  template: '<p style="margin-left:4px;color:#ff0000">x</p>',
+  styles: ['p { margin-left: 4px; color: #fff; }'],
+})
+export class InlineStylesComponent {}

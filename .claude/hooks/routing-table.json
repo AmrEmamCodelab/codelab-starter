@@ -9,6 +9,8 @@
     { "intent": "a new lookup or reference list", "skill": "new-lookup", "keywords": ["lookup", "reference data", "dropdown", "list of values"] },
     { "intent": "a time limit, deadline or SLA", "recipe": "docs/recipes (deadline recipe)", "keywords": ["deadline", "sla", "time limit", "timer", "overdue"] },
     { "intent": "a whole feature from a BRD, use case or design", "skill": "build-feature", "keywords": ["feature", "brd", "use case", "figma", "design"] },
+    { "intent": "executing a planned unit of work or a plan phase", "skill": "do-work", "keywords": ["plan phase", "unit of work", "do the work"] },
+    { "intent": "creating or changing a skill", "skill": "write-a-skill", "keywords": ["skill", "new skill"] },
     { "intent": "any implementation or review", "skill": "coding-standards", "keywords": [] }
   ]
 }

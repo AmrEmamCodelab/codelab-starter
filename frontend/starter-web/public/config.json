@@ -1,0 +1,11 @@
+{
+  "apiBaseUrl": "http://localhost:5180",
+  "origins": {
+    "api": ["http://localhost:5180"],
+    "attachment": []
+  },
+  "security": {
+    "protocolPrefix": "STARTER"
+  },
+  "defaultLanguage": "ar"
+}

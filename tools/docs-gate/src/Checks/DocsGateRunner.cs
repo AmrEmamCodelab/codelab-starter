@@ -40,7 +40,9 @@ internal sealed class DocsGateRunner(IGitClient git, Func<string, string?> readE
         }
 
         var changes = new ChangeDetector(git, options.Root);
-        var changedFiles = changes.ChangedFiles(options.BaseRef);
+        var changedFiles = changes.ChangedFiles(options.BaseRef)
+            .Where(file => !GeneratedModuleInstructions.IsGenerated(root: options.Root, relativePath: file))
+            .ToList();
         var reason = DocsNotNeededOverride.Resolve(readEnvironment, changes.LatestCommitMessage());
         return ModuleChangeCheck.Check(
             moduleDirectories: modules,

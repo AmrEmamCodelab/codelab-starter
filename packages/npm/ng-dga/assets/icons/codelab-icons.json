@@ -1,0 +1,93 @@
+{
+  "fontFamily": "Codelab Icons",
+  "icons": {
+    "menu": {
+      "codepoint": "E001",
+      "mirrorInRtl": false
+    },
+    "user": {
+      "codepoint": "E002",
+      "mirrorInRtl": false
+    },
+    "logout": {
+      "codepoint": "E003",
+      "mirrorInRtl": true
+    },
+    "language": {
+      "codepoint": "E004",
+      "mirrorInRtl": false
+    },
+    "chevron-start": {
+      "codepoint": "E005",
+      "mirrorInRtl": true
+    },
+    "chevron-end": {
+      "codepoint": "E006",
+      "mirrorInRtl": true
+    },
+    "chevron-up": {
+      "codepoint": "E007",
+      "mirrorInRtl": false
+    },
+    "chevron-down": {
+      "codepoint": "E008",
+      "mirrorInRtl": false
+    },
+    "arrow-start": {
+      "codepoint": "E009",
+      "mirrorInRtl": true
+    },
+    "arrow-end": {
+      "codepoint": "E00A",
+      "mirrorInRtl": true
+    },
+    "arrow-up": {
+      "codepoint": "E00B",
+      "mirrorInRtl": false
+    },
+    "arrow-down": {
+      "codepoint": "E00C",
+      "mirrorInRtl": false
+    },
+    "close": {
+      "codepoint": "E00D",
+      "mirrorInRtl": false
+    },
+    "check": {
+      "codepoint": "E00E",
+      "mirrorInRtl": false
+    },
+    "alert": {
+      "codepoint": "E00F",
+      "mirrorInRtl": false
+    },
+    "info": {
+      "codepoint": "E010",
+      "mirrorInRtl": false
+    },
+    "home": {
+      "codepoint": "E011",
+      "mirrorInRtl": false
+    },
+    "dashboard": {
+      "codepoint": "E012",
+      "mirrorInRtl": false
+    },
+    "lock": {
+      "codepoint": "E013",
+      "mirrorInRtl": false
+    },
+    "search": {
+      "codepoint": "E014",
+      "mirrorInRtl": false
+    },
+    "eye": {
+      "codepoint": "E015",
+      "mirrorInRtl": false
+    },
+    "eye-off": {
+      "codepoint": "E016",
+      "mirrorInRtl": false
+    }
+  }
+}

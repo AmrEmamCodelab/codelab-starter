@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "starterVersion": "0.2.0",
+  "productPrefix": "STARTER",
+  "productName": {
+    "en": "Codelab Starter",
+    "ar": "قالب كودلاب"
+  },
+  "starterBase": null,
+  "renameMap": [],
+  "requiredModules": [
+    "Identity",
+    "Access"
+  ],
+  "removedModules": [],
+  "prefixTargets": [
+    {
+      "file": "backend/src/Starter.Api/appsettings.json",
+      "jsonPath": "Codelab:Security:Protocol:Prefix"
+    },
+    {
+      "file": "frontend/starter-web/public/config.json",
+      "jsonPath": "security.protocolPrefix"
+    }
+  ],
+  "hashes": {}
+}

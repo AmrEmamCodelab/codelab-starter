@@ -1,0 +1,529 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Starter.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/access/admin": {
+      "get": {
+        "tags": [
+          "AccessAdmin"
+        ],
+        "summary": "The access administration overview.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessAdminResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessAdminResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessAdminResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Signs in with a user name and password.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Ends the caller's session; the access token in hand is refused from the next request on.",
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Rotates the refresh token and issues a new access token.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "The dashboard's data.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/features": {
+      "get": {
+        "tags": [
+          "Features"
+        ],
+        "summary": "Every declared flag and its effective value.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeaturesResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeaturesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeaturesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/permissions": {
+      "get": {
+        "tags": [
+          "MyPermissions"
+        ],
+        "summary": "The permission keys the caller holds now.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPermissionsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPermissionsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPermissionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/security/session-signing-key": {
+      "get": {
+        "tags": [
+          "Starter.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionSigningKeyResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessAdminResponse": {
+        "type": "object",
+        "description": "The body of `GET /api/access/admin` (an empty placeholder in phase 2)."
+      },
+      "DashboardResponse": {
+        "type": "object",
+        "description": "The body of `GET /api/dashboard` (empty in phase 2)."
+      },
+      "FeaturesResponse": {
+        "required": [
+          "flags"
+        ],
+        "type": "object",
+        "properties": {
+          "flags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Every declared flag name to its effective value. Flags only: never an identity or a setting."
+          }
+        },
+        "description": "The feature flags of this deployment, as the client reads them."
+      },
+      "LoginCommand": {
+        "required": [
+          "userName",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The user name."
+          },
+          "password": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The password."
+          }
+        },
+        "description": "The body of `POST /api/auth/login`."
+      },
+      "MyPermissionsResponse": {
+        "required": [
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The permission keys the caller holds now, sorted."
+          }
+        },
+        "description": "The body of `GET /api/me/permissions`."
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "PublicIdOfUsers": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "RefreshCommand": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The refresh token from the login or the previous refresh."
+          }
+        },
+        "description": "The body of `POST /api/auth/refresh`."
+      },
+      "SessionResponse": {
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "accessTokenExpiresAt",
+          "idleTimeoutMinutes",
+          "user"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The bearer access token."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token (single use: every refresh returns a new one)."
+          },
+          "accessTokenExpiresAt": {
+            "type": "string",
+            "description": "When the access token expires.",
+            "format": "date-time"
+          },
+          "idleTimeoutMinutes": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The idle timeout the client enforces, in minutes.",
+            "format": "int32"
+          },
+          "user": {
+            "description": "The signed-in user.",
+            "$ref": "#/components/schemas/SessionUserResponse"
+          }
+        },
+        "description": "The body of a successful login or refresh."
+      },
+      "SessionSigningKeyResponse": {
+        "required": [
+          "alg",
+          "sessionSigningKey",
+          "audience",
+          "verifyResponses",
+          "serverTimeUnix"
+        ],
+        "type": "object",
+        "properties": {
+          "alg": {
+            "type": "string",
+            "description": "Always `HMAC-SHA256`; an algorithm change is a visible wire change."
+          },
+          "sessionSigningKey": {
+            "type": "string",
+            "description": "The 32-byte derived session key, base64. Never the master."
+          },
+          "audience": {
+            "type": "string",
+            "description": "The audience every proof must carry (a signed field the client cannot guess)."
+          },
+          "verifyResponses": {
+            "type": "boolean",
+            "description": "True when the server signs responses (response signing is not Off)."
+          },
+          "serverTimeUnix": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The server clock, so the client can correct its skew.",
+            "format": "int64"
+          }
+        },
+        "description": "The signing block the client stores per session. Wire names are camelCase and fixed (the client reads them)."
+      },
+      "SessionUserResponse": {
+        "required": [
+          "id",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The user's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfUsers"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The display name."
+          }
+        },
+        "description": "A signed-in user as the client sees it."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Starter.Api"
+    },
+    {
+      "name": "Features"
+    },
+    {
+      "name": "MyPermissions"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "AccessAdmin"
+    },
+    {
+      "name": "Auth"
+    }
+  ]
+}

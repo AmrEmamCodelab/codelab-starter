@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Generated docs v1 (contract section 8): boots Starter.Api in-process (Development, no database), fetches
+    /openapi/v1.json and reads the permission catalog, endpoints, error codes and options sections by reflection, then
+    writes docs/generated or, in check mode, reports drift. The commands are in MODULE.md.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.DocsGen</RootNamespace>
+    <AssemblyName>Starter.DocsGen</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Starter.Api\Starter.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.DocsGen.Tests" />
+  </ItemGroup>
+</Project>

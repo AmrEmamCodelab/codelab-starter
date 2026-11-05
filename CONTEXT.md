@@ -1,6 +1,6 @@
 # CONTEXT.md
 
-Status: **phase 1** (core packages). The versioned security core is released to the local feed: `Codelab.Security`, `Codelab.Observability` and `Codelab.Errors` 0.5.1 (0.5.0 is known insecure), `Codelab.Testing` 0.5.0, `Codelab.Integration` 0.1.0, `Codelab.Build.Sdk` 0.2.1, `@codelab/ng-security` 0.5.1 and `@codelab/ng-tools` 0.1.1, proven by a feed-only sample (`packages/samples`). No application code exists yet (phase 2). This file grows with every phase. Sections marked *planned* describe the target from the platform team's build plan (kept outside the repository; its decisions are in [docs/adr/](docs/adr/README.md)).
+Status: **phase 2** (walking skeleton). The backend kernel and host (`Starter.Api`), two modules (Identity: login, refresh and logout; Access: the permission catalog, grants and the live per-user resolve), the Angular 22 app `frontend/starter-web` (login, staff shell, dashboard, admin placeholder, 403 and 404 pages, Arabic-first), the owned component library `@codelab/ng-dga` 0.1.0, generated docs and client, the scaffold generators, the fork model (`init.ps1`, `tools/remove-module.ps1`, `tools/upstream-merge.ps1`) and the local runner exist. The versioned security core from phase 1 is consumed from source in the starter and from the feed in a fork. This file grows with every phase. Sections marked *planned* describe the target from the platform team's build plan (kept outside the repository; its decisions are in [docs/adr/](docs/adr/README.md)).
 
 ## Business context
 
@@ -10,114 +10,169 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 
 ## Glossary
 
-| Term | Meaning | Code name (target) |
+| Term | Meaning | Code name |
 | --- | --- | --- |
 | Starter | This repository, the upstream of every project fork. | `codelab-starter`, `Starter.*` |
 | Fork | A project repository created from the starter and fully renamed by `init.ps1` (ADR-003). | `codelab.starter.json` (`renameMap`, `starterBase`) |
 | Platform owner | The person who approves rules, packages, hooks and deploy changes (Amr Emam). | `.github/CODEOWNERS` |
 | Package | Versioned, security-critical code consumed by version (ADR-000, ADR-002). | `Codelab.*`, `@codelab/*` |
-| Module | One business or platform area: one backend project plus one frontend feature folder (ADR-004). | `Starter.Modules.<Name>` |
+| Module | One business or platform area: one backend project plus one frontend feature folder (ADR-004). | `Starter.Modules.<Name>`, `IModule` |
+| Kernel | The shared backend projects every module builds on: ports, results, validation, modularity, persistence, hosting. | `Starter.{Domain,Application,Infrastructure,Api}` |
+| Use case | One Application class a controller calls; it returns an `Outcome<T>` (a value or a `Refusal`). | `<Verb><Noun>`, `<Name>UseCase` |
 | Rules file | A module's machine-readable guardrails, inherited from the base rules. | `module.rules.yaml`, `rules/base.rules.yaml` |
-| Record | A business item that moves through a workflow; the sample record type is a service request. | `Record`, `ServiceRequest` |
-| Transition | An allowed move from one status to another, with its permission and reason requirement. | `TransitionRule`, transition catalog |
-| Lookup | Bilingual reference data seeded by migrations, referenced through ID constants. | `LookupEntity`, `<Name>Ids` |
-| Refusal | An expected business "no" returned with an error code, not thrown. | `CodedRefusal` |
+| Permission key | A dotted, typed key (`dashboard.view`). The token carries none; every request resolves them live. | `<Name>PermissionKeys`, `PermissionKeys` (TypeScript, generated) |
+| Break-glass account | The seeded administrator that holds every permission; its password comes only from local secrets or the environment. | `Identity:BreakGlass` |
+| Record | A business item that moves through a workflow; the sample record type is a service request (planned, P7). | `Record`, `ServiceRequest` |
+| Transition | An allowed move from one status to another, with its permission and reason requirement (planned, P7). | `TransitionRule` |
+| Lookup | Bilingual reference data seeded by migrations, referenced through ID constants (planned, P5). | `LookupEntity`, `<Name>Ids` |
+| Refusal | An expected business "no" returned with an error code, not thrown; mapped to problem+json. | `Refusal`, `<Name>ErrorCodes`, `OutcomeResults` |
 | PublicId | An opaque, encrypted identifier used on the wire instead of a database ID. | `PublicId<T>`, `WireId<T>` (TypeScript) |
 | Reference code | The short code shown to a user on an error, linking to the log entry. | `referenceCode` in problem+json |
 | Feed | Where packages are published: a local folder now, GitHub Packages later. | `feed/nuget`, `feed/npm` |
 
-## Repo map (what exists after phase 1)
+## Repo map (what exists after phase 2)
 
 | Path | What it is | Owner doc |
 | --- | --- | --- |
 | `CLAUDE.md`, `CONTEXT.md` | Agent entry point and this map. | this file |
-| `codelab-starter.slnx` | The single solution. Every .NET project is added here. | [tools/README.md](tools/README.md) |
+| `codelab-starter.slnx` | The single solution: `/packages/`, `/backend/`, `/tests/` (the P0 spike), `/tools/`. | [tools/README.md](tools/README.md) |
+| `codelab.starter.json` | Fork manifest: product prefix, `requiredModules` (Identity, Access), `removedModules`, `renameMap`, `starterBase` and the strict-JSON `prefixTargets`. | [tools/fork/README.md](tools/fork/README.md) |
+| `init.ps1` | Fork bootstrap: `-Minimal -ProductPrefix -RemoveModule [-FeedDir -RenameMap -SkipSecrets -SkipNpmLock -AllowMissingTargets]`. It pins `Codelab.*` and `@codelab/*` to the feed, drops `packages/` and writes fresh secrets. | [tools/fork/README.md](tools/fork/README.md) |
+| `tools/remove-module.ps1`, `tools/upstream-merge.ps1` | Remove a module from a fork; merge the upstream starter with rename replay (`-Upstream`, `-Continue`). | [tools/fork/README.md](tools/fork/README.md) |
+| `tools/fork/` | The fork-model library and `Test-ForkModel.ps1`, the real-repo fork test. | [tools/fork/README.md](tools/fork/README.md) |
 | `global.json`, `.nvmrc` | .NET SDK 10.0.403 and Node 24 pins (ADR-005). | [ADR-005](docs/adr/ADR-005-node-pin.md) |
-| `Directory.Build.props/.targets`, `Directory.Packages.props` | Imports Codelab.Build.Sdk from source or feed (`UseCodelabPackageSource`), central package versions. | [ADR-002](docs/adr/ADR-002-package-consumption.md) |
-| `nuget.config`, `.npmrc`, `package.json` | Package sources (`Codelab.*` only from the feed), npm workspaces for `packages/npm/*`. | [ADR-002](docs/adr/ADR-002-package-consumption.md) |
-| `packages/dotnet/Codelab.Build.Sdk/` | MSBuild SDK: analyzers, banned APIs (global and per-project, `Thread.Sleep` included), PublicApiAnalyzers, package validation, release stamping. | `README.md` in the folder |
-| `packages/dotnet/Codelab.Build.Analyzers/` | The clean-code analyzers CLB1001 method lines, CLB1002 file lines, CLB1003 parameters, CLB1004 magic numbers, CLB1005 enum member values (ADR-012), shipped inside Codelab.Build.Sdk; thresholds from the module `.editorconfig`, then `rules/codelab.globalconfig`. | `MODULE.md` in the folder |
-| `packages/dotnet/Codelab.Security/` | Request/response signing, PublicIds, replay guards (memory, SQL), security headers, CORS, body ceiling, rate limiting, key-ring guards with the published-material denylist, sealed tickets, ES256 service assertions, upload safety, session revocation. | `MODULE.md` in the folder |
-| `packages/dotnet/Codelab.Observability/` | One Serilog bootstrap, correlation id and reference codes, PII masking, user hash, opt-in OTel and Seq, job failure filter, health endpoints. | `MODULE.md` in the folder |
-| `packages/dotnet/Codelab.Errors/` | `GlobalExceptionHandler`, the ordered failure classifier table, one problem+json envelope, `CodedRefusal`. | `MODULE.md` in the folder |
-| `packages/dotnet/Codelab.Integration/` | Outbound engine 0.1: typed clients, retry and timeout policy, failure classification, certificate validation always on. | `MODULE.md` in the folder |
-| `packages/dotnet/Codelab.Testing/` | Architecture rules from `rules.compiled.json`, source sweeps, the PII canary sink, the golden-vector runner, endpoint contract checks. | `MODULE.md` in the folder |
-| `packages/dotnet/*.Tests/` | One test project per package (in `codelab-starter.slnx`, run by CI step 6). | the package's `MODULE.md` |
-| `packages/npm/ng-security/` | `@codelab/ng-security`: canonical framing, request signing and response verification interceptors, session keys, `WireId<T>`, the problem+json parser; `./core` has no Angular import. | `MODULE.md` in the folder |
-| `packages/npm/ng-tools/` | `@codelab/ng-tools` 0.1: ESLint boundary preset, `codelab/wire-id-cast`, Stylelint preset, `codelab-vectors-sync`. | `MODULE.md` in the folder |
-| `packages/vectors/` | Golden vectors (canonical, request and response signature, PublicId, session keys) over TEST-ONLY fixture keys (`fixture-keys/`); C# and TS both run them. | `README.md` in the folder |
-| `packages/samples/` | The package integration test (CI step 13): `Package.Sample.Api` + `Package.Sample.Tests` and `ng-security-consumer`, restored from the feed only. Not in the solution. | `README.md` in the folder |
-| `packages/versions.json`, `packages/CHANGELOG.md` | The one version source of every package, and the package changelog. | [tools/README.md](tools/README.md) (Versioning) |
-| `feed/` | Local package feed filled by `tools/build.ps1 -Pack` (contents gitignored). | `feed/README.md` |
-| `tools/build.ps1` | The one build entry for CI and humans: 14 CI steps, `-Pack`, `-Pack -Release`. | [tools/README.md](tools/README.md) |
-| `tools/vectors/` | `verify-vectors.mjs` (C# and TS agree for a prefix) and `fixture-keys.mjs` (fixture keys and their denylist file). | `README.md` in the folder |
-| `tools/extract/` | Allowlist extraction from the harvest copy, scrub sweep, secret scan, term denylist. | `README.md` in the folder |
-| `tools/rules-engine/`, `rules/` | Rules schema, base rules, compiler to `rules/rules.compiled.json`, `rules/codelab.globalconfig` and the per-module files, emitters. | `README.md` in the folder |
-| `tools/docs-gate/` | .NET tool: MODULE.md sections, dead references, module-changed-without-docs. | `README.md` in the folder |
-| `tools/ci/` | Host-neutral CI checks (conflict markers, base ref) and the pack planner `package-versions.mjs`. | `README.md` in the folder |
-| `deploy/handover/` | `New-HandoverKit.ps1` (the full offline dependency closure, ADR-008) and `Test-HandoverKit.ps1` (offline restore and build proof). | `README.md` in the folder |
-| `.claude/hooks/`, `.claude/settings.json` | Claude Code hooks that refuse rule violations early (ADR-006). | `README.md` in the folder |
-| `.claude/skills/` | Skills: `coding-standards`, `do-work`, `write-a-skill`, and the planned scaffold skills. | [CLAUDE.md](CLAUDE.md) routing table |
-| `docs/standards/` | Coding standards, error handling, examples. | [docs/standards/SKILL.md](docs/standards/SKILL.md) |
-| `docs/adr/` | Architecture decisions. | [docs/adr/README.md](docs/adr/README.md) |
-| `provenance/` | Harvest source commit, tree hash and per-file origin map. | `SOURCE.md` in the folder |
+| `Directory.Build.props/.targets`, `Directory.Packages.props` | Imports Codelab.Build.Sdk from source or feed (`UseCodelabPackageSource`); central package versions, including the feed-mode `Codelab.*` pins. | [ADR-002](docs/adr/ADR-002-package-consumption.md) |
+| `nuget.config`, `.npmrc`, `package.json` | Package sources (`Codelab.*` only from the feed); npm workspaces `packages/npm/*` and `frontend/starter-web`. | [ADR-002](docs/adr/ADR-002-package-consumption.md) |
+| `backend/Directory.Build.props/.targets` | `CodelabPackageReference` (a project reference from source, a feed package in a fork) and module discovery: every `*.Modules.*` reference of the host becomes a `ModuleAssemblyAttribute`. | [backend/src/Modules/README.md](backend/src/Modules/README.md) |
+| `backend/src/Starter.Domain/` | Kernel domain: domain exceptions, `AppLanguage`. | [MODULE.md](backend/src/Starter.Domain/MODULE.md) |
+| `backend/src/Starter.Application/` | Ports only (no EF, no ASP.NET): `Outcome<T>` and `Refusal`, `IValidator<T>`, `IUnitOfWork`, `ICurrentUserContext`, `IUserDirectory`, `IPermissionCatalogSource`, `IUserPermissionGrants`, `ICurrentLanguage`, auditing. | [MODULE.md](backend/src/Starter.Application/MODULE.md) |
+| `backend/src/Starter.Infrastructure/` | Modularity (`IModule`, `ModuleCatalog`), `ModuleDbContext`, startup tasks (`ReferenceData`, then `Accounts`), `[HasPermission]` and `[AuthenticatedUser]`, the pipeline, the features endpoint, `OutcomeResults` (problem+json). | [MODULE.md](backend/src/Starter.Infrastructure/MODULE.md) |
+| `backend/src/Starter.Api/` | The host: `Program.cs` (at most 150 lines, asserted by a test), OpenAPI v1, `appsettings*.json`, the launch profile on :5180. | [MODULE.md](backend/src/Starter.Api/MODULE.md) |
+| `backend/src/Modules/<Name>/` | One project per module (`Starter.Modules.<Name>`, folders `Domain/`, `Application/`, `Infrastructure/`, `Api/`), with `module.rules.yaml`, `MODULE.md` and the generated `CLAUDE.md`, `BannedSymbols.generated.txt` and `.editorconfig`. The ONLY module list is the ProjectReference list of `Starter.Api.csproj` (plus the slnx). | [backend/src/Modules/README.md](backend/src/Modules/README.md) |
+| `backend/tests/Modules/Starter.Modules.<Name>.Tests/` | Module unit tests (fakes, `FakeTimeProvider`, no database). | the module's `MODULE.md` |
+| `backend/tests/Starter.Application.Tests`, `Starter.Api.Tests` | Kernel tests without a database (Api.Tests uses a TestServer host with probe modules). | [MODULE.md](backend/src/Starter.Infrastructure/MODULE.md) |
+| `backend/tests/Starter.Architecture.Tests` | Module boundaries from `rules/rules.compiled.json`, layers, thin controllers, int enums and the `Program.cs` size; modules are discovered. | [README.md](backend/tests/Starter.Architecture.Tests/README.md) |
+| `backend/tests/Starter.Contract.Tests` | The endpoint contract over the real host without a database: a permission or an allowlist entry (`EndpointAllowlist.cs`), PublicIds, validators, problem+json. | [README.md](backend/tests/Starter.Contract.Tests/README.md) |
+| `backend/tests/Starter.Integration.Tests` | The real host on a throwaway `StarterIt_<guid>` LocalDB database: login, refresh, logout then 401, 403 for the dev user, seeding per environment. | [README.md](backend/tests/Starter.Integration.Tests/README.md) |
+| `backend/tools/Starter.DocsGen` (+ `.Tests`) | Starts the host in process (no SQL, no secrets) and writes `docs/generated`; `--check` fails on drift. | [MODULE.md](backend/tools/Starter.DocsGen/MODULE.md) |
+| `docs/generated/` | DERIVED: `openapi.v1.json`, `permissions.json/.md`, `endpoints.md`, `error-codes.md`, `config-keys.md`. Never hand-edited. | [README.md](docs/generated/README.md) |
+| `frontend/starter-web/` | Angular 22 app (standalone, signals, Vitest, an npm workspace): `src/app/core` (ApiService, auth, permissions, i18n, session), `layouts/`, `features/{auth,dashboard,admin,errors}`, `shared/` (empty) and `patterns/` (reserved for P4). | [MODULE.md](frontend/starter-web/MODULE.md) |
+| `frontend/starter-web/tools/` | ESLint and Stylelint config, `i18n-parity.mjs`, `api-gen` (the generated client and `permission-keys.generated.ts`), the lint-fixture spec. | [README.md](frontend/starter-web/tools/README.md) |
+| `packages/npm/ng-dga/` | `@codelab/ng-dga` 0.1.0: 12 standalone OnPush components, `--dga-*` tokens, the IBM Plex fonts and the owned icon font (ADR-009). | [MODULE.md](packages/npm/ng-dga/MODULE.md) |
+| `packages/dotnet/Codelab.Build.Sdk/`, `Codelab.Build.Analyzers/` | MSBuild SDK (analyzers, banned APIs, release stamping) and the clean-code analyzers CLB1001 to CLB1005 (ADR-012). | the folder's README or `MODULE.md` |
+| `packages/dotnet/Codelab.{Security,Observability,Errors,Integration,Testing}/` | The versioned core: signing, PublicIds, replay and sid-revocation stores; Serilog, correlation and health; problem+json; the outbound engine; architecture and contract checks. | `MODULE.md` in each folder |
+| `packages/npm/ng-security/`, `packages/npm/ng-tools/` | `@codelab/ng-security` (signing interceptors, `WireId<T>`, the problem+json parser) and `@codelab/ng-tools` (ESLint and Stylelint presets). | `MODULE.md` in each folder |
+| `packages/vectors/`, `packages/samples/` | Golden vectors over TEST-ONLY fixture keys; the feed-only package integration test (CI step 13). | `README.md` in each folder |
+| `packages/versions.json`, `packages/CHANGELOG.md` | The one version source of every package, and the package changelog. | [tools/README.md](tools/README.md) |
+| `feed/` | Local package feed filled by `tools/build.ps1 -Pack` (contents gitignored). | [feed/README.md](feed/README.md) |
+| `tools/build.ps1` | The one build entry for CI and humans: the CI steps, `-Pack`, `-Pack -Release`. | [tools/README.md](tools/README.md) |
+| `tools/scaffold/` | `new-module.mjs`, `new-endpoint.mjs`, `new-permission.mjs`: deterministic generators, and the only sanctioned editor of the slnx and the host's module list. | [README.md](tools/scaffold/README.md) |
+| `tools/devseed/` | `New-LocalSecrets.ps1` writes the gitignored `backend/src/Starter.Api/appsettings.Development.local.json` with fresh random values (`-Force` replaces it). | [MODULE.md](backend/src/Starter.Api/MODULE.md) |
+| `run-local.ps1`, `tools/run-local/` | The one-command local stack: API :5180, web :4280, Seq :5341 when available; `-Stop` stops only what it started. | [README.md](tools/run-local/README.md) |
+| `docs/recipes/` | Step-by-step recipes (add an endpoint). | [README.md](docs/recipes/README.md) |
+| `tools/extract/` | Allowlist extraction from the harvest copy, scrub sweep, secret scan, provenance (`generate-source.mjs`, `check-origins.mjs`). | `README.md` in the folder |
+| `tools/rules-engine/`, `rules/` | Rules schema, base rules, the compiler to `rules/rules.compiled.json`, `rules/codelab.globalconfig` and the per-module files, the content check. | `README.md` in the folder |
+| `tools/docs-gate/`, `tools/ci/`, `tools/vectors/` | The MODULE.md and dead-reference gate; host-neutral CI checks and the pack planner; the C# against TS vector check. | `README.md` in each folder |
+| `deploy/handover/` | The offline handover kit and its proof (ADR-008). | `README.md` in the folder |
+| `.claude/hooks/`, `.claude/skills/`, `.claude/agents/` | Hooks that refuse rule violations early (ADR-006); skills (`coding-standards`, `do-work`, `write-a-skill`, `new-module`, `new-endpoint`, `new-permission`); the review and commit-gate agents. | [CLAUDE.md](CLAUDE.md) routing table |
+| `docs/standards/`, `docs/adr/` | Coding standards, error handling, examples; architecture decisions. | [docs/standards/SKILL.md](docs/standards/SKILL.md), [docs/adr/README.md](docs/adr/README.md) |
+| `provenance/` | Harvest source commit, tree hash and per-file origin map (`origins/*.json`; `SOURCE.md` is generated). | `SOURCE.md` in the folder |
 | `.github/` | `CODEOWNERS` and the PR template, ready for the GitHub move (ADR-007). | [ADR-007](docs/adr/ADR-007-repo-host-ci.md) |
 
 ## Planned layout (later phases)
 
 | Path | Phase | What it will hold |
 | --- | --- | --- |
-| `backend/src/Starter.{Domain,Application,Infrastructure,Api}` | P2 | Kernel: ports, use-case plumbing, EF, outbox, numbering, jobs, auditing, host (`Program.cs` at most 150 lines). |
-| `backend/src/Modules/<Name>/` | P2 onward | One project per module, with `module.rules.yaml`, `MODULE.md` and a generated `CLAUDE.md`. |
-| `backend/tests/` | P2 | Architecture, contract, application, API and integration tests. |
-| `frontend/starter-web/` | P2 | Angular 22 app: `core`, `layouts`, `patterns`, `shared`, `features`, `showcase`. |
 | `packages/dotnet/Codelab.Identity` | P3 | AD (LDAP) and OIDC SSO providers and guards. |
-| `packages/npm/ng-dga` | P2 | The owned DGA component library. |
+| `frontend/starter-web/src/app/patterns/`, `showcase/` | P4 | The 8 page patterns and the component showcase. |
 | `services/{attachment-service,integration-gateway,ops-console}` | P6, P8 | Separately released deployables. |
-| `deploy/` | P6, P8, P10 | IIS kits, security headers, SQL scripts for the DBA, Seq; the handover kit (`deploy/handover`, v0 since P1) is finished in P10. |
-| `docs/{recipes,runbooks,design,generated}` | P2 onward | How-to recipes, runbooks, design catalog, generated docs (drift-checked). |
-| `init.ps1`, `run-local.ps1`, `tools/upstream-merge.ps1`, `tools/remove-module.ps1` | P2, P10 | Fork bootstrap, local run, upstream merge with rename replay. |
+| `deploy/` | P6, P8, P10 | IIS kits, security headers, SQL scripts for the DBA, Seq; the handover kit is finished in P10. |
+| `docs/{runbooks,design}` | P4 onward | Runbooks and the design catalog. |
 
-## Module index (planned)
+## Module index
 
-| # | Module | Phase |
-| --- | --- | --- |
-| 1 | Identity and login (basic, AD, SSO; one session issuer; lockout; idle timeout; logout; break-glass admin) | P2, P3 |
-| 2 | Users and organizations (internal and external users, organizations, Excel import) | P3, P5 |
-| 3 | Roles and permissions (catalog in code, role tree editor, direct grants, live changes, org scope) | P2, P3 |
-| 4 | Lookups (bilingual, seeded by migrations) | P5 |
-| 5 | Audit and record history (personal data masked) | P5 |
-| 6 | Settings and background jobs | P5 |
-| 7 | Requests and records (base record, numbering, draft and submit wizard, cancel and resubmit) | P7 |
-| 8 | Workflow engine (startup-validated transition table, allowed actions, reasons, timeline) | P7 |
-| 9 | Assignment and queues | P7 |
-| 10 | Deadlines and SLA timers | P7 |
-| 11 | Detail and oversight views | P7 |
-| 12 | Notifications (bell, email, SMS, bilingual templates, outbox) | P5, P8 |
-| 13 | Attachments (service, typed links, upload UI) | P6 |
-| 14 | Integrations | deferred (gateway extension point in P8) |
-| 15 | Public portal pages and contact us | P4, P5 |
-| 16 | Logs, error reference codes, ops console | P1, P8 |
-| sample | Service requests (Draft → Submitted → Under Review → Approved/Rejected), deleted or renamed per project | P7 |
+| # | Module | Code | Phase |
+| --- | --- | --- | --- |
+| 1 | Identity and login: basic login; the single session issuer (JWT with `sub`, `sid` and `sver`, a rotated refresh token); logout revokes the sid; idle timeout; break-glass and Development-only dev accounts; `IUserDirectory`. AD and SSO come in P3. | [Starter.Modules.Identity](backend/src/Modules/Identity/MODULE.md), schema `identity` | P2, P3 |
+| 2 | Users and organizations | planned | P3, P5 |
+| 3 | Roles and permissions: the catalog in code (`AccessPermissionKeys`), the `[HasPermission]` handler, the live per-user resolve, direct grants, the catalog synchronizer. The role tree and org scope come in P3. | [Starter.Modules.Access](backend/src/Modules/Access/MODULE.md), schema `access` | P2, P3 |
+| 4 | Lookups (bilingual, seeded by migrations) | planned | P5 |
+| 5 | Audit and record history (personal data masked) | planned | P5 |
+| 6 | Settings and background jobs | planned | P5 |
+| 7 | Requests and records (base record, numbering, draft and submit wizard, cancel and resubmit) | planned | P7 |
+| 8 | Workflow engine (startup-validated transition table, allowed actions, reasons, timeline) | planned | P7 |
+| 9 | Assignment and queues | planned | P7 |
+| 10 | Deadlines and SLA timers | planned | P7 |
+| 11 | Detail and oversight views | planned | P7 |
+| 12 | Notifications (bell, email, SMS, bilingual templates, outbox) | planned | P5, P8 |
+| 13 | Attachments (service, typed links, upload UI) | planned | P6 |
+| 14 | Integrations | deferred (gateway extension point in P8) | - |
+| 15 | Public portal pages and contact us | planned | P4, P5 |
+| 16 | Logs, error reference codes, ops console | packages since P1; console planned | P1, P8 |
+| sample | Service requests (Draft → Submitted → Under Review → Approved/Rejected), deleted or renamed per project | planned | P7 |
+
+Frontend features: [auth](frontend/starter-web/src/app/features/auth/MODULE.md) (login), [dashboard](frontend/starter-web/src/app/features/dashboard/MODULE.md), [admin](frontend/starter-web/src/app/features/admin/MODULE.md) (placeholder) and [errors](frontend/starter-web/src/app/features/errors/MODULE.md) (403, 404). The shell is in [layouts](frontend/starter-web/src/app/layouts/MODULE.md) and the core in [core](frontend/starter-web/src/app/core/MODULE.md).
 
 ## Commands
+
+Run from the repo root. Put `E:\codelab-tools\node24` first on PATH in any shell that runs node, npm, npx or ng.
 
 | Task | Command |
 | --- | --- |
 | Install Node tooling | `npm install` (repo root) |
+| Local secrets (once; `-Force` replaces them) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1` |
+| Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`) |
+| API only | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend\src\Starter.Api` (http://localhost:5180) |
+| Web only | `npm start --workspace frontend/starter-web` (http://localhost:4280) |
 | Full CI | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI` |
-| Pack prereleases to the local feed | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack` |
-| Release (platform owner; all CI steps first, refused when a version is already in the feed) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release` |
-| npm packages build and test (Vitest) | `npm run build --workspaces` then `npm test --workspaces` (repo root, Node 24 first on PATH) |
-| Golden vectors, C# against TS | `node tools/vectors/verify-vectors.mjs --prefix CODELABTEST` (and a second prefix, e.g. `--prefix ALTPFX`) |
-| Package integration test (feed only) | CI step 13; by hand see [packages/samples/README.md](packages/samples/README.md) |
-| Offline handover kit | `powershell -NoProfile -ExecutionPolicy Bypass -File deploy\handover\New-HandoverKit.ps1 -OutputPath <kit> -Projects <csproj,...> -NpmProjects <folder,...>`, then `deploy\handover\Test-HandoverKit.ps1 -KitPath <kit>` |
 | Build and test .NET | `E:\codelab-tools\dotnet10\dotnet.exe build codelab-starter.slnx -warnaserror` then `... test codelab-starter.slnx` |
+| Frontend test, lint, build | `npm test --workspace frontend/starter-web`, `npm run lint --workspace frontend/starter-web`, `npm run build --workspace frontend/starter-web` |
+| Generated docs (`--check` for drift) | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend/tools/Starter.DocsGen -- --out docs/generated` |
+| Generated client (`api:gen:check` for drift) | `npm run api:gen --workspace frontend/starter-web` (after the docs) |
+| New module, endpoint, permission | `node tools/scaffold/new-module.mjs --name <Pascal>`; `node tools/scaffold/new-endpoint.mjs --module <Name> --name <Pascal> --method <GET, POST, PUT or DELETE> --route <segment>`; `node tools/scaffold/new-permission.mjs --module <Name> --action <kebab>` |
 | Recompile rules | `node tools/rules-engine/compile.mjs` (`--check` for the drift check) |
 | Docs gate | `E:\codelab-tools\dotnet10\dotnet.exe run --project tools/docs-gate -- check --root .` |
+| Provenance | `node tools/extract/check-origins.mjs --root .`; `node tools/extract/generate-source.mjs` (needs the harvest copy) |
+| Fork-model test | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\fork\Test-ForkModel.ps1 -RemoveModule Demo` |
+| Pack prereleases to the local feed | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack` |
+| Release (platform owner) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release` |
+| Golden vectors, C# against TS | `node tools/vectors/verify-vectors.mjs --prefix CODELABTEST` (and `--prefix ALTPFX`) |
 
 The .NET 10 SDK is not on PATH on this machine; see [CLAUDE.md](CLAUDE.md#build).
 
-## Use-case tracing (planned, phase 2 onward)
+## Local ports and database
 
-To trace a use case end to end: route in `frontend/starter-web/src/app/features/<module>/` → feature API client (wrapping the generated client through `ApiService`) → endpoint in `Starter.Modules.<Name>` (`.Api` namespace, `[HasPermission]`) → use case (`.Application`) → domain rule or transition (`.Domain`) → repository (`.Infrastructure`). The permission, endpoint, error-code and status lists are generated into `docs/generated/`. Each module's `MODULE.md` names its entry points.
+| What | Where |
+| --- | --- |
+| API | http://localhost:5180 (launch profile Development; the Development CORS policy allows the web origin) |
+| Web | http://localhost:4280 (`public/config.json` points at the API) |
+| Seq (optional) | http://localhost:5341 |
+| Dev database | LocalDB `(localdb)\MSSQLLocalDB`, database `StarterDev`; migrations run on start in Development only |
+| Integration tests | `StarterIt_<guid>` on LocalDB, created and dropped by each fixture; `CODELAB_TEST_SQL` overrides the server |
+
+LocalDB note: when `sqllocaldb info MSSQLLocalDB` says Running but connections fail with named-pipe error 121 or 40, stop and start the instance from a normal (unsandboxed) shell: `sqllocaldb stop MSSQLLocalDB -k`, then `sqllocaldb start MSSQLLocalDB`. This disconnects every LocalDB user, including `StarterDev`.
+
+## Use-case tracing
+
+Trace a use case end to end. For example, the login and the permission sync after it:
+
+1. **Route**: `frontend/starter-web/src/app/app.routes.ts` (`RoutePaths.Login`) → `features/auth/login-page/login-page.component.ts` → `features/auth/sign-in.service.ts`.
+2. **Core service and client**: `core/auth/auth.service.ts` (`login`) → `core/api/clients/auth.client.ts` → `ApiService.post(ApiPaths.Login)` in `core/api/api.service.ts`, the only `HttpClient` user. The wire shapes are generated into `core/api/generated/openapi.ts` from `docs/generated/openapi.v1.json`; the phase 2 clients still use the hand-written `core/api/clients/api.models.ts`.
+3. **Endpoint**: `POST /api/auth/login` → `AuthController` in `Starter.Modules.Identity.Api` (`backend/src/Modules/Identity/Api/AuthController.cs`), `[AllowAnonymous]` and listed in `EndpointAllowlist.cs`.
+4. **Use case**: `LoginUseCase` in `Application/SignInUseCases.cs`, validated by `LoginCommandValidator`, → `SessionIssuer` → the ports implemented by `Infrastructure/Persistence/Repositories.cs` and `Infrastructure/Security/JwtAccessTokenIssuer.cs`.
+5. **Permissions**: `core/permissions/permission-sync.service.ts` → `MeClient.permissions()` → `GET /api/me/permissions` → `MyPermissionsController` in `backend/src/Modules/Access/Api/AccessControllers.cs` (`[AuthenticatedUser]`) → `GetMyPermissions` in `Application/UseCases.cs` → `IUserPermissionResolver` → `IUserDirectory`, implemented by Identity.
+6. **Gated page**: `/` → `permissionGuard()` with the generated `PermissionKeys.DashboardView` → `GET /api/dashboard` → `DashboardController` (`[HasPermission(AccessPermissionKeys.DashboardView)]`) → `GetDashboard`.
+
+The permission, endpoint, error-code and config-key lists are generated into `docs/generated/`. Each module's `MODULE.md` names its entry points.
+
+## Ports between modules
+
+| Port (kernel, `Starter.Application` or `Starter.Infrastructure`) | Implemented by | Used by |
+| --- | --- | --- |
+| `IUserDirectory` (`FindBySubjectAsync` returns a `DirectoryUser`) | Identity | Access (the resolver and the handler) |
+| `IUserPermissionGrants` (`EnsureGrantedAsync`) | Access | Identity (Development dev-user seeding) |
+| `IPermissionCatalogSource` | every module with permissions (Access in P2) | Access `PermissionCatalog`, the union of all sources |
+| `ICurrentUserContext` (`IsAuthenticated`, `SubjectId`, `SessionId`) | the kernel (`HttpCurrentUserContext`) | every module |
+| `IStartupTask` (`ReferenceData` = 1, then `Accounts` = 2) | Access (catalog sync), Identity (account seeding) | the kernel `StartupTaskRunner` |
+
+Identity and Access never reference each other (`mustNotDependOn` in each `module.rules.yaml`); they meet only through these ports.

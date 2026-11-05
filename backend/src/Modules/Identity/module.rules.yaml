@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for module 1, Identity (inherits rules/base.rules.yaml). Platform-owner review for exemptions.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Identity
+kind: dotnet
+description: "Basic username/password login, the one session issuer (JWT access token with sub/sid/sver, rotated refresh token, idle timeout), logout that revokes the sid, and the configured accounts (break-glass administrator; Development users)."
+owners:
+  - "@platform-owner"
+# Layers by namespace (ADR-004): Domain <- Application <- Infrastructure <- Api. Identity depends on the kernel
+# (Starter.Domain/Application/Infrastructure) and the Codelab packages only; it never references another module.
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Access]
+required:
+  - id: identity.layers
+    statement: "Domain references nothing outside itself; Application references Domain and the kernel ports only (no EF Core, no ASP.NET Core, no Codelab.Security); Infrastructure holds EF Core, JWT and the security-store adapters; Api holds thin controllers that call one use case each."
+    enforcedBy: [architecture-test, review]
+  - id: identity.one-session-issuer
+    statement: "Every access and refresh token is issued by SessionIssuer (through SessionTokens); no other code signs a token or writes a session."
+    enforcedBy: [review]
+  - id: identity.token-identity-only
+    statement: "Access tokens carry identity and session claims only (sub, sid, sver, skid, jti); never a permission or role claim. Permissions are resolved live by the Access module."
+    enforcedBy: [review]
+  - id: identity.no-access-reference
+    statement: "Identity never references the Access module. Grants go through IUserPermissionGrants; the keys a Development user receives are constants of DevUserPermissionKeys."
+    enforcedBy: [architecture-test, review]
+forbidden:
+  - id: identity.no-secret-defaults
+    description: A password or signing key default in code or a committed settings file defeats New-LocalSecrets.ps1.
+    pattern: '(Password|SigningKey)\s*\{\s*get;\s*set;\s*\}\s*=\s*"'
+    appliesTo: ["**/*.cs"]
+    fix: Leave the property null; the value comes from the local secrets file or the environment, and the options validator fails the start without it.

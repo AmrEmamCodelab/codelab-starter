@@ -1,0 +1,28 @@
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Starter.Application.Authorization;
+using Starter.Modules.{{Module}}.Application;
+
+namespace Starter.Modules.{{Module}}.Infrastructure;
+
+/// <summary>The {{Module}} module's registrations (called by <see cref="{{Module}}Module"/>).</summary>
+public static class {{Module}}ModuleRegistration
+{
+    /// <summary>Registers the module's permission catalog source, use cases, validators and stores.</summary>
+    public static IServiceCollection Add{{Module}}Module(this IServiceCollection services, IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPermissionCatalogSource, {{Module}}PermissionCatalogSource>());
+        // scaffold:registrations
+        return services;
+    }
+
+    /// <summary>Maps nothing extra: every {{Module}} endpoint is a controller, found by the kernel.</summary>
+    public static IEndpointRouteBuilder Use{{Module}}Module(this IEndpointRouteBuilder endpoints)
+    {
+        ArgumentNullException.ThrowIfNull(endpoints);
+        return endpoints;
+    }
+}

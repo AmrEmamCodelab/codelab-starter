@@ -1,0 +1,55 @@
+<div class="dga-radio-group">
+  @if (label(); as text) {
+    <span class="dga-radio-group__label" [id]="labelId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-radio-group__required" aria-hidden="true">*</span>
+      }
+    </span>
+  }
+  <div
+    class="dga-radio-group__options"
+    role="radiogroup"
+    [attr.data-orientation]="orientation()"
+    [attr.aria-labelledby]="label() ? labelId : null"
+    [attr.aria-label]="label() ? null : ariaLabel()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-required]="required() ? 'true' : null"
+    [attr.aria-invalid]="isInvalid() ? 'true' : null"
+    [attr.aria-disabled]="disabled() ? 'true' : null"
+  >
+    @for (option of options(); track option.value; let index = $index) {
+      <label class="dga-radio" [class.dga-radio--disabled]="isOptionDisabled(option)">
+        <input
+          type="radio"
+          class="dga-radio__native"
+          [id]="optionId(index)"
+          [attr.name]="radioName()"
+          [attr.value]="option.value"
+          [checked]="option.value === value()"
+          [disabled]="isOptionDisabled(option)"
+          (change)="select(option)"
+          (blur)="onBlur()"
+        />
+        <span
+          class="dga-radio__dot"
+          aria-hidden="true"
+          [class.dga-radio__dot--on]="option.value === value()"
+          [class.dga-radio__dot--invalid]="isInvalid()"
+        ></span>
+        <span class="dga-radio__text">
+          <span class="dga-radio__label">{{ option.label }}</span>
+          @if (option.hint; as optionHint) {
+            <span class="dga-radio__hint">{{ optionHint }}</span>
+          }
+        </span>
+      </label>
+    }
+  </div>
+  @if (hasError()) {
+    <span class="dga-radio-group__message dga-radio-group__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-radio-group__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

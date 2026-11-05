@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the kernel Application project (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterApplication
+kind: dotnet
+description: "Kernel Application: ports only (persistence, language, current user, audit, permission catalog and grants, user directory, validator) and the use-case result types (Outcome, Refusal)."
+mayDependOn: [StarterDomain]
+mustNotDependOn: [StarterInfrastructure, StarterApi]
+required:
+  - id: starterapplication.ports-only
+    statement: Starter.Application declares interfaces, records and pure helpers only; every adapter lives in Starter.Infrastructure or a module.
+    enforcedBy: [architecture-test, review]
+forbidden:
+  - id: starterapplication.no-frameworks
+    description: Application code never references EF Core, ASP.NET Core, configuration, DI or a Codelab package.
+    pattern: '^\s*using\s+(Microsoft\.(AspNetCore|EntityFrameworkCore|Extensions)|Codelab)\b'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Declare a port here and implement it in Starter.Infrastructure.
+    severity: error

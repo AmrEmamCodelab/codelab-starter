@@ -49,11 +49,13 @@ org-forces/i: armed\s+forces
 integration-national-sso/i: nafath
 integration-identity-lookup/i: yakeen
 integration-national-center/i: \bnic\b
+integration-national-center-name/i: national\s+information\s+cent(?:er|re)
 
 # Arabic terms. Lines are matched after normalization (tashkeel and tatweel removed, alef forms unified to ا,
 # alef maqsura to ي; see lib/term-text.mjs), so write the patterns in that normalized form.
 integration-ar-national-sso: نفاذ
 integration-ar-identity-lookup: يقين
+integration-ar-national-center: مركز\s+المعلومات\s+الوطني
 domain-ar-care-subject: مريض|مرضي
 domain-ar-transfer: اخلاء
 domain-ar-aviation: رحل[ةه]|رحلات|طيران

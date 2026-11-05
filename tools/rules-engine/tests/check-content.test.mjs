@@ -49,6 +49,71 @@ describe('check-content', () => {
     assert.match(result.stderr, /warning .*base\.no-commented-out-code/);
   });
 
+  test('regression: a suppression of any analyzer rule, inline or in a nested .editorconfig or csproj, fails CI', () => {
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/Application/A.cs', [
+      '#pragma warning disable CA1822, CA2000',
+      '[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000")]',
+      'sealed class A { }',
+    ].join('\n'));
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/Application/.editorconfig', '[*.cs]\ndotnet_diagnostic.CA2000.severity = none\n');
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/Starter.Modules.Demo.csproj', '<Project><PropertyGroup><NoWarn>$(NoWarn);CA1822;CA2000</NoWarn></PropertyGroup></Project>\n');
+    const found = checkContent(root).violations.map((item) => `${item.path}:${item.rule.id}`).sort();
+    assert.deepEqual(found, [
+      'backend/src/Modules/Demo/Application/.editorconfig:base.no-hand-written-editorconfig',
+      'backend/src/Modules/Demo/Application/.editorconfig:base.no-inline-suppression',
+      'backend/src/Modules/Demo/Application/A.cs:base.no-inline-suppression',
+      'backend/src/Modules/Demo/Starter.Modules.Demo.csproj:base.no-inline-suppression',
+    ]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('regression: a spaced pragma, an aliased SuppressMessage, a ruleset and an extra analyzer config fail CI', () => {
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/Application/B.cs', [
+      'using SM = System.Diagnostics.CodeAnalysis.SuppressMessageAttribute;',
+      '# pragma warning disable CA1822, CA2000',
+      'sealed class B { }',
+    ].join('\n'));
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/Starter.Modules.Demo.csproj', [
+      '<Project><PropertyGroup><CodeAnalysisRuleSet>off.ruleset</CodeAnalysisRuleSet></PropertyGroup>',
+      '<ItemGroup><GlobalAnalyzerConfigFiles Include="analysis.cfg" /></ItemGroup></Project>',
+    ].join('\n'));
+    writeWorkspaceFile(root, 'backend/src/Modules/Demo/off.ruleset', '<RuleSet Name="off"><Rules AnalyzerId="X" RuleNamespace="X"><Rule Id="CA2000" Action="None" /></Rules></RuleSet>\n');
+    const found = checkContent(root).violations.map((item) => `${item.path}:${item.rule.id}`).sort();
+    assert.deepEqual(found, [
+      'backend/src/Modules/Demo/Application/B.cs:base.no-inline-suppression',
+      'backend/src/Modules/Demo/Starter.Modules.Demo.csproj:base.no-analyzer-config-redirect',
+      'backend/src/Modules/Demo/off.ruleset:base.no-ruleset-file',
+    ]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('regression: an eslint, stylelint or TypeScript suppression comment in the frontend fails CI', () => {
+    const feature = 'frontend/starter-web/src/app/features/dashboard';
+    writeWorkspaceFile(root, `${feature}/a.ts`, '/* eslint-disable */\nexport const a = 1;\n');
+    writeWorkspaceFile(root, `${feature}/b.ts`, '// @ts-ignore\nexport const b = 1;\n');
+    writeWorkspaceFile(root, `${feature}/c.scss`, '/* stylelint-disable */\n');
+    const found = checkContent(root).violations.filter((item) => item.rule.id === 'base.no-lint-suppression').map((item) => item.path).sort();
+    assert.deepEqual(found, [`${feature}/a.ts`, `${feature}/b.ts`, `${feature}/c.scss`]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('a clean frontend file and a spec using a suppression comment do not trip base.no-lint-suppression', () => {
+    const feature = 'frontend/starter-web/src/app/features/dashboard';
+    writeWorkspaceFile(root, `${feature}/clean.ts`, 'export const clean = true;\n');
+    writeWorkspaceFile(root, `${feature}/clean.spec.ts`, '// @ts-ignore\nexport const s = true;\n');
+    const found = checkContent(root).violations.filter((item) => item.rule.id === 'base.no-lint-suppression');
+    assert.deepEqual(found, []);
+  });
+
+  test('regression: raw text in an .html template or an inline component template fails CI', () => {
+    const feature = 'frontend/starter-web/src/app/features/dashboard';
+    writeWorkspaceFile(root, `${feature}/x.component.html`, '<section><h1>Order list</h1><button>Delete all</button></section>\n');
+    writeWorkspaceFile(root, `${feature}/y.component.ts`, "@Component({ selector: 'app-y', template: '<h1>Delete all</h1>' })\nexport class Y {}\n");
+    const ids = checkContent(root).violations.map((item) => item.rule.id).sort();
+    assert.deepEqual(ids, ['base.fe-raw-text-in-inline-template', 'base.fe-raw-text-in-template']);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
   test('fails when rules.compiled.json is missing', () => {
     const empty = createWorkspace();
     try {

@@ -1,0 +1,14 @@
+{
+  "permissions": [
+    {
+      "key": "access.admin.view",
+      "module": "Access",
+      "description": "Open the access administration area."
+    },
+    {
+      "key": "dashboard.view",
+      "module": "Access",
+      "description": "Open the dashboard."
+    }
+  ]
+}

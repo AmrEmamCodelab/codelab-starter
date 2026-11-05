@@ -10,6 +10,142 @@
   },
   "modules": [
     {
+      "module": "Access",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Access",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity"
+      ]
+    },
+    {
+      "module": "Identity",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Identity",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Access"
+      ]
+    },
+    {
+      "module": "StarterApi",
+      "kind": "dotnet",
+      "path": "backend/src/Starter.Api",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "StarterApplication",
+      "kind": "dotnet",
+      "path": "backend/src/Starter.Application",
+      "mayDependOn": [
+        "StarterDomain"
+      ],
+      "mustNotDependOn": [
+        "StarterInfrastructure",
+        "StarterApi"
+      ]
+    },
+    {
+      "module": "StarterDomain",
+      "kind": "dotnet",
+      "path": "backend/src/Starter.Domain",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "StarterApplication",
+        "StarterInfrastructure",
+        "StarterApi"
+      ]
+    },
+    {
+      "module": "StarterInfrastructure",
+      "kind": "dotnet",
+      "path": "backend/src/Starter.Infrastructure",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "StarterApi"
+      ]
+    },
+    {
+      "module": "StarterDocsGen",
+      "kind": "dotnet",
+      "path": "backend/tools/Starter.DocsGen",
+      "mayDependOn": [
+        "StarterApi",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabObservability"
+      ],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebCore",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/core",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebAdmin",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/admin",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebAuth",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/auth",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebDashboard",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/dashboard",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebErrors",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/errors",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebLayouts",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/layouts",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
       "module": "CodelabBuildAnalyzers",
       "kind": "dotnet",
       "path": "packages/dotnet/Codelab.Build.Analyzers",
@@ -81,6 +217,16 @@
         "CodelabObservability",
         "CodelabErrors",
         "CodelabIntegration"
+      ]
+    },
+    {
+      "module": "NgDga",
+      "kind": "angular",
+      "path": "packages/npm/ng-dga",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "NgSecurity",
+        "NgTools"
       ]
     },
     {

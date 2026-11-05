@@ -1,0 +1,57 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Starter.Application.Authorization;
+using Starter.Modules.{{Module}}.Api;
+using Starter.Modules.{{Module}}.Application;
+using Starter.Modules.{{Module}}.Infrastructure;
+
+namespace Starter.Modules.{{Module}}.Tests;
+
+public sealed class {{Module}}ModuleTests
+{
+    [Fact]
+    public void The_module_is_named_after_its_assembly()
+    {
+        Assert.Equal("{{Module}}", new {{Module}}Module().Name);
+    }
+
+    [Fact]
+    public void Every_catalog_key_is_well_formed_unique_and_described()
+    {
+        var permissions = new {{Module}}PermissionCatalogSource().Permissions;
+
+        Assert.NotEmpty(permissions);
+        Assert.All(permissions, permission => Assert.True(PermissionKeyFormat.IsValid(permission.Key), permission.Key));
+        Assert.All(permissions, permission => Assert.False(string.IsNullOrWhiteSpace(permission.Description)));
+        Assert.Equal(permissions.Count, permissions.Select(permission => permission.Key).Distinct(StringComparer.Ordinal).Count());
+    }
+
+    [Fact]
+    public void Every_declared_key_is_in_the_catalog()
+    {
+        var declared = typeof({{Module}}PermissionKeys).GetFields()
+            .Where(field => field.IsLiteral)
+            .Select(field => (string)field.GetRawConstantValue()!);
+        var catalog = new {{Module}}PermissionCatalogSource().Permissions.Select(permission => permission.Key);
+
+        Assert.Equal(declared.Order(StringComparer.Ordinal), catalog.Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void Registration_declares_the_catalog_source()
+    {
+        var services = new ServiceCollection();
+
+        services.Add{{Module}}Module(new ConfigurationBuilder().Build());
+
+        Assert.Contains(services, descriptor =>
+            descriptor.ServiceType == typeof(IPermissionCatalogSource) && descriptor.ImplementationType == typeof({{Module}}PermissionCatalogSource));
+    }
+
+    [Fact]
+    public void Routes_live_under_the_module_root()
+    {
+        Assert.Equal("api/{{ModuleKebab}}", {{Module}}Routes.Root);
+        Assert.Equal("{{ModuleKebab}}", {{Module}}Ids.DomainLabel);
+    }
+}

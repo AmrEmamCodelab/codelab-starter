@@ -1,0 +1,22 @@
+// The owned icon font (ADR-009), generated from the SVG sources in icons/svg by scripts/generate-icon-font.mjs.
+// <dga-icon> renders its glyph with this face; the class below is for the rare place a glyph is placed by hand.
+
+@font-face {
+  font-family: 'Codelab Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../assets/icons/codelab-icons.woff2') format('woff2');
+}
+
+.dga-icon-glyph {
+  font-family: var(--dga-font-family-icons);
+  font-style: normal;
+  font-weight: var(--dga-font-weight-regular);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  font-feature-settings: 'liga' 0;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,112 @@
+{
+  "$comment": "Licence manifest of every file under assets/ (ADR-009). No asset may be added without an entry here and a row in the ADR-009 sources table; tests/licences.test.mjs fails otherwise. Entries with 'from' are copied byte for byte from the source npm package by npm run assets:import -w @codelab/ng-dga, which also records their sha256. Entries with 'generatedBy' are build outputs, checked by the icon-font regeneration test.",
+  "schemaVersion": 1,
+  "decision": "docs/adr/ADR-009-font-and-icon-licences.md",
+  "sources": [
+    {
+      "id": "ibm-plex-sans-arabic",
+      "title": "IBM Plex Sans Arabic",
+      "package": "@fontsource/ibm-plex-sans-arabic",
+      "version": "5.3.0",
+      "licence": "OFL-1.1",
+      "copyright": "Copyright 2019 IBM Corp.",
+      "licenceFile": "fonts/LICENSE-ibm-plex-sans-arabic.txt"
+    },
+    {
+      "id": "ibm-plex-sans",
+      "title": "IBM Plex Sans",
+      "package": "@fontsource/ibm-plex-sans",
+      "version": "5.3.0",
+      "licence": "OFL-1.1",
+      "copyright": "Copyright 2019 IBM Corp.",
+      "licenceFile": "fonts/LICENSE-ibm-plex-sans.txt"
+    },
+    {
+      "id": "bootstrap-icons",
+      "title": "Bootstrap Icons",
+      "package": "bootstrap-icons",
+      "version": "1.13.2",
+      "licence": "MIT",
+      "copyright": "Copyright (c) 2019-2024 The Bootstrap Authors",
+      "licenceFile": "icons/LICENSE-bootstrap-icons.txt"
+    }
+  ],
+  "files": [
+    {
+      "path": "fonts/LICENSE-ibm-plex-sans-arabic.txt",
+      "source": "ibm-plex-sans-arabic",
+      "from": "LICENSE",
+      "sha256": "1c32ddc3fc6efd167cdcbe475195287f2dc26ed1a4c92fbe31c87ceaffe44f98"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2",
+      "source": "ibm-plex-sans-arabic",
+      "from": "files/ibm-plex-sans-arabic-arabic-400-normal.woff2",
+      "sha256": "6010e7fd0dce5d527583951750728cbe3c895efbd16aa0f809ab8c824878c9d8"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2",
+      "source": "ibm-plex-sans-arabic",
+      "from": "files/ibm-plex-sans-arabic-arabic-500-normal.woff2",
+      "sha256": "90aef64fea9794f232332e907d45810ab268d1a11721340025eba2a2cdb36d5c"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2",
+      "source": "ibm-plex-sans-arabic",
+      "from": "files/ibm-plex-sans-arabic-arabic-600-normal.woff2",
+      "sha256": "16734a5adb27b0f363e566cbbeacec480da0dc0baa19c8f0053251c2e2bc0eac"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2",
+      "source": "ibm-plex-sans-arabic",
+      "from": "files/ibm-plex-sans-arabic-arabic-700-normal.woff2",
+      "sha256": "04c730b4292731ccedadd5bd80756124364ae4923895145d9cd7b1f28e443de1"
+    },
+    {
+      "path": "fonts/LICENSE-ibm-plex-sans.txt",
+      "source": "ibm-plex-sans",
+      "from": "LICENSE",
+      "sha256": "d0283623ef57e722fd0eb688a8041589670c608ab780cd3612d06ba6f153d3fd"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-latin-400-normal.woff2",
+      "source": "ibm-plex-sans",
+      "from": "files/ibm-plex-sans-latin-400-normal.woff2",
+      "sha256": "3b646991d30055a93a4ecc499713d4347953a74a947ecab435ab72070cbdab0e"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-latin-500-normal.woff2",
+      "source": "ibm-plex-sans",
+      "from": "files/ibm-plex-sans-latin-500-normal.woff2",
+      "sha256": "0717336fb31fcdcde4b8deb3675bb4a0f7f6d484864afcd6751ac29975962203"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-latin-600-normal.woff2",
+      "source": "ibm-plex-sans",
+      "from": "files/ibm-plex-sans-latin-600-normal.woff2",
+      "sha256": "8960851d691c054ed38e259bdcf1a6190d157b4203ed5bb32c632a863fb8ec2f"
+    },
+    {
+      "path": "fonts/ibm-plex-sans-latin-700-normal.woff2",
+      "source": "ibm-plex-sans",
+      "from": "files/ibm-plex-sans-latin-700-normal.woff2",
+      "sha256": "42e7b0c143c19df9d99fd896e76b48f846edf0902d200bc29796b34d12c33aa7"
+    },
+    {
+      "path": "icons/LICENSE-bootstrap-icons.txt",
+      "source": "bootstrap-icons",
+      "from": "LICENSE",
+      "sha256": "0fb3e11bd57e896c5a512afd64864d28a37de45d19835016c87ca1ad19ead969"
+    },
+    {
+      "path": "icons/codelab-icons.woff2",
+      "source": "bootstrap-icons",
+      "generatedBy": "scripts/generate-icon-font.mjs"
+    },
+    {
+      "path": "icons/codelab-icons.json",
+      "source": "bootstrap-icons",
+      "generatedBy": "scripts/generate-icon-font.mjs"
+    }
+  ]
+}

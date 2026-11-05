@@ -1,0 +1,48 @@
+<div class="dga-field">
+  @if (label(); as text) {
+    <label class="dga-field__label" [attr.for]="inputId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-field__required" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+  <div
+    class="dga-field__control"
+    [class.dga-field__control--invalid]="isInvalid()"
+    [class.dga-field__control--disabled]="disabled()"
+    [class.dga-field__control--readonly]="readonly()"
+  >
+    @if (leadIcon(); as name) {
+      <dga-icon class="dga-field__icon" [name]="name" size="md" />
+    }
+    <input
+      class="dga-field__input"
+      [id]="inputId"
+      [attr.type]="type()"
+      [value]="value()"
+      [attr.name]="name()"
+      [attr.placeholder]="placeholder()"
+      [attr.autocomplete]="autocomplete()"
+      [attr.inputmode]="inputMode()"
+      [attr.maxlength]="maxLength()"
+      [attr.aria-label]="label() ? null : ariaLabel()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      [disabled]="disabled()"
+      [readOnly]="readonly()"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    />
+    @if (trailIcon(); as name) {
+      <dga-icon class="dga-field__icon" [name]="name" size="md" />
+    }
+  </div>
+  @if (hasError()) {
+    <span class="dga-field__message dga-field__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-field__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

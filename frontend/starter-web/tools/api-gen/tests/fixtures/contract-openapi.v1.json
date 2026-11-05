@@ -1,0 +1,158 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Starter.Api | v1",
+    "version": "1.0.0",
+    "description": "Bootstrap fixture built from the phase 2 HTTP contract (section 5). Replaced by docs/generated/openapi.v1.json once Starter.DocsGen has run."
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "operationId": "Login",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionResponse" } } } },
+          "400": { "description": "Bad Request", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "operationId": "Refresh",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RefreshRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionResponse" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "operationId": "Logout",
+        "responses": {
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    },
+    "/api/me/permissions": {
+      "get": {
+        "tags": ["Me"],
+        "operationId": "GetMyPermissions",
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MyPermissionsResponse" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    },
+    "/api/features": {
+      "get": {
+        "tags": ["Features"],
+        "operationId": "GetFeatures",
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FeatureFlagsResponse" } } } }
+        }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "operationId": "GetDashboard",
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DashboardResponse" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } },
+          "403": { "description": "Forbidden", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    },
+    "/api/access/admin": {
+      "get": {
+        "tags": ["Access"],
+        "operationId": "GetAccessAdmin",
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccessAdminResponse" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } },
+          "403": { "description": "Forbidden", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/ProblemDetails" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessAdminResponse": { "type": "object" },
+      "DashboardResponse": { "type": "object" },
+      "FeatureFlagsResponse": {
+        "type": "object",
+        "required": ["flags"],
+        "properties": {
+          "flags": { "type": "object", "additionalProperties": { "type": "boolean" } }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["userName", "password"],
+        "properties": {
+          "userName": { "type": "string" },
+          "password": { "type": "string" }
+        }
+      },
+      "MyPermissionsResponse": {
+        "type": "object",
+        "required": ["permissions"],
+        "properties": {
+          "permissions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": { "type": ["null", "string"] },
+          "title": { "type": ["null", "string"] },
+          "status": { "type": ["null", "integer"], "format": "int32" },
+          "detail": { "type": ["null", "string"] },
+          "instance": { "type": ["null", "string"] }
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": { "type": "string" }
+        }
+      },
+      "SessionResponse": {
+        "type": "object",
+        "required": ["accessToken", "refreshToken", "accessTokenExpiresAt", "idleTimeoutMinutes", "user"],
+        "properties": {
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "accessTokenExpiresAt": { "type": "string", "format": "date-time" },
+          "idleTimeoutMinutes": { "type": "integer", "format": "int32" },
+          "user": { "$ref": "#/components/schemas/SessionUser" }
+        }
+      },
+      "SessionUser": {
+        "type": "object",
+        "required": ["id", "displayName"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+            "description": "An opaque identifier."
+          },
+          "displayName": { "type": "string" }
+        }
+      }
+    }
+  }
+}

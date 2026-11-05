@@ -1,0 +1,18 @@
+using Starter.Modules.{{Module}}.Application;
+
+namespace Starter.Modules.{{Module}}.Infrastructure;
+
+/// <summary>
+/// The data access of <see cref="{{Name}}"/>. A placeholder written by the scaffolder: it stores nothing and refuses,
+/// so the endpoint answers 422 until the module's write replaces the body of <see cref="CreateAsync"/>.
+/// </summary>
+public sealed class {{Name}}Store : I{{Name}}Store
+{
+    /// <inheritdoc />
+    public Task<long?> CreateAsync({{Name}}Command command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<long?>(null);
+    }
+}

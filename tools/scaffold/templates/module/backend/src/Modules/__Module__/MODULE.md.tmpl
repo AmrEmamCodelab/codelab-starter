@@ -1,0 +1,42 @@
+# {{Module}} module
+
+## Purpose
+
+The {{Module}} module. Replace this paragraph with the business area it owns, the records it keeps and the
+screens that use it. It was created by `node tools/scaffold/new-module.mjs --name {{Module}}`; the layout follows
+[the canonical module anatomy](../README.md).
+
+## Use
+
+- Permissions: `{{Module}}PermissionKeys` (`Application/{{Module}}PermissionKeys.cs`), declared to the catalog by
+  `{{Module}}PermissionCatalogSource`. It starts with `{{Module}}PermissionKeys.View` (`{{ModuleKebab}}.view`).
+- Error codes: `{{Module}}ErrorCodes`; the client renders `errors.<CODE>` from its ar and en bundles.
+- Routes: every endpoint lives under `{{Module}}Routes.Root` (`/api/{{ModuleKebab}}`); ids on the wire are
+  `PublicId<{{Module}}Ids>`.
+- Registration: `{{Module}}Module` calls `Add{{Module}}Module` and `Use{{Module}}Module`
+  (`Infrastructure/{{Module}}ModuleRegistration.cs`).
+
+## Extend
+
+- New endpoint: `node tools/scaffold/new-endpoint.mjs --module {{Module}} --name <Pascal> --method <GET|POST|PUT|DELETE> --route <segment>`
+  (see [the add-endpoint recipe](../../../../docs/recipes/add-endpoint.md)). Then fill in only the business logic
+  (the `<Name>Store` in Infrastructure and the use case's rules), extend the generated tests and update this file.
+- New permission: `node tools/scaffold/new-permission.mjs --module {{Module}} --action <kebab>`.
+- Data: add a `{{Module}}DbContext : ModuleDbContext` in `Infrastructure/Persistence` with schema `{{ModuleKebab}}`
+  and one `InitialCreate` migration, as the module anatomy describes.
+
+## Rules
+
+- `module.rules.yaml` holds this module's rules; run `node tools/rules-engine/compile.mjs` after changing it.
+- Never reference another module's project; use a kernel port in `Starter.Application`.
+- Keys, error codes, routes and limits are constants (`{{Module}}PermissionKeys`, `{{Module}}ErrorCodes`,
+  `{{Module}}Routes`, `{{Module}}Limits`), never literals at the call site.
+- Every use case, validator and domain rule has unit tests in `backend/tests/Modules/Starter.Modules.{{Module}}.Tests`.
+
+## Gotchas
+
+- The generated `<Name>Store` classes are placeholders: a read or an update finds nothing (404) and a create is
+  refused (422) until the data access is written.
+- The `// scaffold:...` marker comments show the generators where to add keys, error codes and registrations; keep them.
+- `CLAUDE.md`, `BannedSymbols.generated.txt`, `.editorconfig` and `CodeMetricsConfig.txt` in this folder are generated
+  by the rules engine; never edit them by hand.

@@ -226,3 +226,24 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 #### Added
 
 - Placeholder package to prove the npm feed.
+
+## @codelab/ng-dga
+
+### [Unreleased] - 0.1.0
+
+#### Added
+
+- First release of the owned DGA component library (decision D5), in Angular package format (ng-packagr, partial
+  compilation) for Angular 22.
+- Styles entry `@use '@codelab/ng-dga/styles'`: `--dga-*` design tokens on `:root`, reset, base, typography, grid and
+  spacing helpers, the `media-up`, `visually-hidden` and `focus-ring` Sass helpers, and the precompiled
+  `dist/ng-dga.css` for apps without Sass.
+- Self-hosted IBM Plex Sans Arabic and IBM Plex Sans (OFL-1.1), and the owned `Codelab Icons` font generated
+  deterministically from Bootstrap Icons (MIT) SVGs with fixed Private Use Area code points. No remote URL in the
+  built CSS or JavaScript.
+- Components (standalone, OnPush, signal inputs, accessible, RTL-correct, no built-in text): `dga-button`,
+  `dga-card`, `dga-tag`, `dga-status-tag`, `dga-tabs`, `dga-stepper`, `dga-breadcrumb`, `dga-text-input`,
+  `dga-checkbox`, `dga-radio-group`, `dga-info-field` and `dga-icon`. The form controls are signal-model controls
+  (`[(value)]` / `[(checked)]`, `[(touched)]`) that also serve as signal-forms field controls.
+- `assets/LICENCES.json` with every asset's source, version, licence and sha256, checked against ADR-009 by the
+  package tests; `assets:import` / `assets:check` and `icons:generate` / `icons:check` scripts.

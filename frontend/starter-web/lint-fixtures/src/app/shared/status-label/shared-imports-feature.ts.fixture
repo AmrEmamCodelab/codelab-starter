@@ -1,0 +1,4 @@
+// Lint case (must FAIL): shared reaching into a feature.
+import { OrdersPage } from '../../features/orders/orders-page';
+
+export const page = OrdersPage;

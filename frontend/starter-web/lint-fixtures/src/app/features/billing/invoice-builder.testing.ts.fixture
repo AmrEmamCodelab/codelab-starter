@@ -1,0 +1,2 @@
+// Lint fixture: a test builder may use bare numbers too.
+export const sampleAmount = 42 * 7;

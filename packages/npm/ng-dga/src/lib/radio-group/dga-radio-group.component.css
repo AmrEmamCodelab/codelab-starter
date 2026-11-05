@@ -1,0 +1,104 @@
+/* Tokens only, logical CSS only. The native radios stay in the accessibility tree and take the focus. */
+:host {
+  display: block;
+}
+
+.dga-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+}
+
+.dga-radio-group__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-radio-group__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-radio-group__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+}
+
+.dga-radio-group__options[data-orientation='horizontal'] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--dga-space-6);
+}
+
+.dga-radio {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--dga-space-2);
+  cursor: pointer;
+}
+
+.dga-radio--disabled {
+  opacity: var(--dga-opacity-disabled);
+  cursor: not-allowed;
+}
+
+.dga-radio__native {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: var(--dga-size-toggle);
+  block-size: var(--dga-size-toggle);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.dga-radio__dot {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--dga-size-toggle);
+  block-size: var(--dga-size-toggle);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-strong);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-surface-default);
+  transition: border-color var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-radio__dot--invalid {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-radio__dot--on {
+  border: var(--dga-border-width-heavy) solid var(--dga-color-primary);
+}
+
+.dga-radio__native:focus-visible + .dga-radio__dot {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-ring-width);
+}
+
+.dga-radio__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.dga-radio__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-radio__hint,
+.dga-radio-group__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-radio-group__message--error {
+  color: var(--dga-color-text-error);
+}

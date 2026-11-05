@@ -1,0 +1,36 @@
+using Starter.Application.Results;
+
+namespace Starter.Modules.{{Module}}.Application;
+
+/// <summary>The input of <see cref="{{Name}}"/>.</summary>
+/// <param name="Id">The record's internal id (the endpoint decodes it from the PublicId in the route).</param>
+public sealed record {{Name}}Query(long Id);
+
+/// <summary>What <see cref="{{Name}}"/> returns.</summary>
+/// <param name="Id">The record's internal id.</param>
+/// <param name="Name">The record's display name.</param>
+public sealed record {{Name}}Result(long Id, string Name);
+
+/// <summary>The data port of <see cref="{{Name}}"/>, implemented in Infrastructure.</summary>
+public interface I{{Name}}Store
+{
+    /// <summary>The record with <paramref name="id"/>, or null when there is none.</summary>
+    Task<{{Name}}Result?> FindAsync(long id, CancellationToken cancellationToken);
+}
+
+/// <summary>Reads one {{Module}} record (<c>{{HttpRoute}}</c>). The permission is enforced by the endpoint.</summary>
+public sealed class {{Name}}(I{{Name}}Store store)
+{
+    /// <summary>The record, or a 404 refusal (<see cref="{{Module}}ErrorCodes.{{ErrorConst}}"/>) when it does not exist.</summary>
+    public async Task<Outcome<{{Name}}Result>> ExecuteAsync({{Name}}Query query, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        var found = await store.FindAsync(query.Id, cancellationToken);
+        if (found is null)
+        {
+            return Refusal.NotFound({{Module}}ErrorCodes.{{ErrorConst}});
+        }
+
+        return found;
+    }
+}

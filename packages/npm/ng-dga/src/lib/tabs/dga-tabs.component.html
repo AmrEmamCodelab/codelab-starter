@@ -1,0 +1,23 @@
+<div class="dga-tabs" role="tablist" [attr.aria-label]="label()">
+  @for (tab of tabs(); track tab.value; let index = $index) {
+    <button
+      #tabButton
+      type="button"
+      role="tab"
+      class="dga-tabs__tab"
+      [id]="tabId(tab.value)"
+      [class.dga-tabs__tab--active]="tab.value === value()"
+      [attr.aria-selected]="tab.value === value()"
+      [attr.aria-controls]="panelId(tab.value)"
+      [attr.tabindex]="index === focusableIndex() ? 0 : -1"
+      [disabled]="tab.disabled ?? false"
+      (click)="select(tab)"
+      (keydown)="onKeydown($event, index)"
+    >
+      @if (tab.icon; as name) {
+        <dga-icon class="dga-tabs__icon" [name]="name" size="sm" />
+      }
+      <span>{{ tab.label }}</span>
+    </button>
+  }
+</div>

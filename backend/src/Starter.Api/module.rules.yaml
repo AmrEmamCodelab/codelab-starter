@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the host (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterApi
+kind: dotnet
+description: "The host: Program.cs wires the Codelab packages, the kernel and the modules discovered from its ProjectReferences; configuration files and launch settings."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabObservability, CodelabErrors]
+required:
+  - id: starterapi.program-size
+    statement: Program.cs stays at 150 lines or fewer and names no module; new wiring goes into a kernel or module Add/Use extension.
+    enforcedBy: [architecture-test, review]
+  - id: starterapi.modules-from-references
+    statement: Modules are listed only as ProjectReferences in Starter.Api.csproj, added by tools/scaffold/new-module.mjs and removed by tools/remove-module.ps1.
+    enforcedBy: [architecture-test, review]
+forbidden:
+  - id: starterapi.no-module-namespace
+    description: The host never uses a module's types; it only references the module projects for discovery.
+    pattern: '^\s*using\s+\w+\.Modules\.'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Put the wiring in the module's Add/Use extension, called through its IModule.
+    severity: error

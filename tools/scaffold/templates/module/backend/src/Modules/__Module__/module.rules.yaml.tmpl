@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the {{Module}} module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: {{Module}}
+kind: dotnet
+description: "The {{Module}} module. Replace this line with the business area it owns."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: []
+required:
+  - id: {{ModuleKebab}}.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a {{Module}}PermissionKeys constant and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: {{ModuleKebab}}.data-through-ports
+    statement: Application code reads and writes data only through ports it declares; the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+recipes: [docs/recipes/add-endpoint.md]

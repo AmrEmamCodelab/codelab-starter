@@ -122,6 +122,10 @@ describe('pre-tool-use: path guards and ratchet', () => {
       'tools/extract/allowlist.manifest.yaml', '.claude/hooks/lib/constants.mjs', '.claude/settings.local.json',
       'Directory.Build.props', 'backend/src/Modules/ServiceRequests/Directory.Build.props', 'global.json',
       'docs/adr/ADR-001.md', 'provenance/SOURCE.md',
+      // Lint/analyzer configs and nested MSBuild/feed settings switch guardrails off too.
+      'frontend/starter-web/eslint.config.mjs', 'frontend/starter-web/tools/lint/starter-eslint-config.mjs',
+      'frontend/starter-web/stylelint.config.mjs', '.editorconfig', 'backend/Directory.Build.targets',
+      'backend/nuget.config', 'tools/extract/scan.mjs', 'docs/standards/SKILL.md',
     ]) {
       const { output } = runHookScript(SCRIPT, write(relativePath), { projectRoot: root });
       assert.equal(decisionOf(output), DENY, relativePath);
@@ -148,7 +152,8 @@ describe('pre-tool-use: path guards and ratchet', () => {
       ['backend/src/Starter.Api/Clock.cs', '#pragma warning disable RS0030\nclass Clock { }\n'],
       ['backend/src/Starter.Api/.editorconfig', '[*.cs]\ndotnet_diagnostic.RS0030.severity = none\n'],
     ]) {
-      const { output } = runHookScript(SCRIPT, write(relativePath, content), { projectRoot: root });
+      // .editorconfig is platform-owned too; the owner unlock proves the opt-out rule still refuses it.
+      const { output } = runHookScript(SCRIPT, write(relativePath, content), { projectRoot: root, env: { CODELAB_PLATFORM_OWNER: '1' } });
       assert.equal(decisionOf(output), DENY, content);
       assert.match(reasonOf(output), /\[base\.no-analyzer-opt-out\]/, content);
     }

@@ -45,6 +45,10 @@
     {
       "reason": "SSO logout hints are identity (phase 3), not the security core",
       "pattern": "SsoLogoutHint"
+    },
+    {
+      "reason": "national identity-lookup ports, services, contracts and tests",
+      "pattern": "IdentityVerif|IdentityLookup"
     }
   ],
   "flaggedSamples": [
@@ -56,12 +60,16 @@
     "certs/signing.pfx",
     "svc/YakeenClient.cs",
     "services/nafath-service/a.cs",
-    "x/Security/IdentityVerifyThrottle.cs"
+    "x/Security/IdentityVerifyThrottle.cs",
+    "x/Abstractions/IIdentityVerifier.cs",
+    "x/Services/IdentityLookupTokenService.cs"
   ],
   "allowedSamples": [
     "src/app/core/security/canonical.ts",
     "x/Security/SigningKeyring.cs",
     "x/Tests/SecurityKeyringValidatorTests.cs",
-    "x/Middleware/SecurityHeadersMiddleware.cs"
+    "x/Middleware/SecurityHeadersMiddleware.cs",
+    "x/Identity/IdentityPolicy.cs",
+    "x/Authorization/UserPermissionResolver.cs"
   ]
 }

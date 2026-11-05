@@ -1,0 +1,88 @@
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
+using Starter.Application.Results;
+using Starter.Application.Validation;
+using Starter.Infrastructure.Authorization;
+using Starter.Modules.{{Module}}.Api;
+using Starter.Modules.{{Module}}.Application;
+using Starter.Modules.{{Module}}.Domain;
+using Starter.Modules.{{Module}}.Infrastructure;
+
+namespace Starter.Modules.{{Module}}.Tests;
+
+public sealed class {{Name}}Tests
+{
+    private const long NewId = 7;
+
+    [Fact]
+    public async Task Creates_a_valid_record_and_returns_its_id()
+    {
+        var store = new FakeStore(NewId);
+
+        var outcome = await new {{Name}}(new {{Name}}Validator(), store).ExecuteAsync(new {{Name}}Command("Sample"), CancellationToken.None);
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal(NewId, outcome.Value.Id);
+        Assert.Equal(1, store.Calls);
+    }
+
+    [Fact]
+    public async Task Refuses_an_invalid_command_with_every_field_error_and_stores_nothing()
+    {
+        var store = new FakeStore(NewId);
+
+        var outcome = await new {{Name}}(new {{Name}}Validator(), store).ExecuteAsync(new {{Name}}Command(" "), CancellationToken.None);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal(RefusalCategory.Invalid, outcome.Refusal.Category);
+        Assert.Equal(PlatformErrorCodes.Validation, outcome.Refusal.Code);
+        Assert.Contains(FieldNames.Of(nameof({{Name}}Command.Name)), outcome.Refusal.FieldErrors.Keys);
+        Assert.Equal(0, store.Calls);
+    }
+
+    [Fact]
+    public async Task Refuses_with_unprocessable_when_the_store_refuses()
+    {
+        var outcome = await new {{Name}}(new {{Name}}Validator(), new FakeStore(id: null)).ExecuteAsync(new {{Name}}Command("Sample"), CancellationToken.None);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal(RefusalCategory.Unprocessable, outcome.Refusal.Category);
+        Assert.Equal({{Module}}ErrorCodes.{{ErrorConst}}, outcome.Refusal.Code);
+    }
+
+    [Fact]
+    public void The_validator_refuses_a_blank_or_too_long_name_and_accepts_a_valid_one()
+    {
+        var validator = new {{Name}}Validator();
+
+        Assert.False(validator.Validate(new {{Name}}Command(string.Empty)).IsValid);
+        Assert.False(validator.Validate(new {{Name}}Command(new string('x', {{Module}}Limits.NameMaxLength + 1))).IsValid);
+        Assert.True(validator.Validate(new {{Name}}Command(new string('x', {{Module}}Limits.NameMaxLength))).IsValid);
+    }
+
+    [Fact]
+    public async Task The_placeholder_store_refuses_until_it_is_written()
+    {
+        Assert.Null(await new {{Name}}Store().CreateAsync(new {{Name}}Command("Sample"), CancellationToken.None));
+    }
+
+    [Fact]
+    public void The_endpoint_is_guarded_and_routed_under_the_module()
+    {
+        var controller = typeof({{Name}}Controller);
+
+        Assert.Equal({{Module}}PermissionKeys.{{PermissionConst}}, Assert.Single(controller.GetCustomAttributes<HasPermissionAttribute>()).Permission);
+        Assert.Equal("api/{{ModuleKebab}}/{{Route}}", controller.GetCustomAttribute<RouteAttribute>()!.Template);
+    }
+
+    private sealed class FakeStore(long? id) : I{{Name}}Store
+    {
+        public int Calls { get; private set; }
+
+        public Task<long?> CreateAsync({{Name}}Command command, CancellationToken cancellationToken)
+        {
+            Calls++;
+            return Task.FromResult(id);
+        }
+    }
+}

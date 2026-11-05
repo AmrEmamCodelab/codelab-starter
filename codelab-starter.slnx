@@ -1,4 +1,21 @@
 <Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/src/Modules/Access/Starter.Modules.Access.csproj" />
+    <Project Path="backend/src/Modules/Identity/Starter.Modules.Identity.csproj" />
+    <Project Path="backend/src/Starter.Api/Starter.Api.csproj" />
+    <Project Path="backend/src/Starter.Application/Starter.Application.csproj" />
+    <Project Path="backend/src/Starter.Domain/Starter.Domain.csproj" />
+    <Project Path="backend/src/Starter.Infrastructure/Starter.Infrastructure.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Access.Tests/Starter.Modules.Access.Tests.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Identity.Tests/Starter.Modules.Identity.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Api.Tests/Starter.Api.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Application.Tests/Starter.Application.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Architecture.Tests/Starter.Architecture.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Contract.Tests/Starter.Contract.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Integration.Tests/Starter.Integration.Tests.csproj" />
+    <Project Path="backend/tools/Starter.DocsGen/Starter.DocsGen.csproj" />
+    <Project Path="backend/tools/Starter.DocsGen.Tests/Starter.DocsGen.Tests.csproj" />
+  </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />
     <Project Path="packages/dotnet/Codelab.Build.Analyzers.Tests/Codelab.Build.Analyzers.Tests.csproj" />

@@ -18,7 +18,8 @@ Keeps the starter free of source-product code, names and secrets (ADR-001). It h
   (docx, xlsx, pptx, nupkg, zip): each entry is scanned as `file.docx!word/document.xml`, with OOXML runs joined.
   Any other binary is a finding (`unscannable-binary`) unless it is an image or font (`lib/files.mjs`).
 - **Provenance.** `generate-source.mjs` writes `provenance/SOURCE.md`. It records the source commit and tree hash, the
-  harvest manifest check, the per-file origin map and the hard-deny list.
+  harvest manifest check, the per-file origin map and the hard-deny list. `check-origins.mjs` checks every
+  `provenance/origins/*.json` entry without the harvest copy (`lib/origins-check.mjs`), so CI can run it.
 
 ## Use
 
@@ -36,6 +37,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\extract\extract.ps1 -B
 # Regenerate provenance/SOURCE.md (exit 1 = written, but the harvest check is not a 100% byte match)
 node tools/extract/generate-source.mjs
 
+# Check provenance/origins/*.json: rewritten with an existing target, or staged with a note or deferred field
+# (exit 0 valid, 1 findings, 2 usage). Proposed as CI step 15 (provenance origins).
+node tools/extract/check-origins.mjs --root .
+
 # Rebuild the digest denylist from the harvest copy (platform owner, once per harvest commit)
 node tools/extract/build-secret-digests.mjs
 ```
@@ -46,7 +51,8 @@ node tools/extract/build-secret-digests.mjs
 2. Rewrite the staged files with starter names until both scans pass.
 3. Copy them to their target paths in the repo.
 4. Copy `<staging>\origins.json` to `provenance\origins\<batch>.json`.
-5. Run `node tools/extract/generate-source.mjs` and commit the result.
+5. Run `node tools/extract/generate-source.mjs` and `node tools/extract/check-origins.mjs --root .`, and commit the
+   result.
 
 `origins.json` holds one entry per file: batch, entry id, source and target paths, mode, the source git blob, and
 the source and staged SHA-256. When you promote, set `target` to the repo file the rewrite produced, keep the staging
@@ -54,6 +60,11 @@ path as `stagedTarget`, and set `promotion: rewritten`. A batch that is extracte
 recorded with `promotion: staged`. An entry deliberately not carried (left for a later phase, or not a package
 primitive) also stays `staged` and must carry a `note` or `deferred` field giving the reason. The package spike is
 recorded as three batches (`pkg-spike-security`, `pkg-spike-observability`, `pkg-spike-sample`) sharing one source.
+
+**Phase 2 batches.** `p2-backend`, `p2-frontend`, `p2-ng-dga` and `p2-aikit` follow the same rule: one batch per later
+owner, each owner updates only its own `provenance/origins/<batch>.json`. Every phase 2 file is a rewrite reference;
+entries kept on purpose say why (`deferred` for the developer autofill inventory, `note` for the host and build-file
+references), and `tests/batches.test.mjs` checks that hard-deny recorded the national-integration files it kept out.
 
 ## Extend
 
@@ -101,8 +112,13 @@ recorded as three batches (`pkg-spike-security`, `pkg-spike-observability`, `pkg
   `dist/`, `artifacts/` or `bin/` in a batch is scanned, never promoted unseen.
 - **Matching rules.** Term rules match the line as written and a normalized copy: identifiers split on case, digit
   and `_` boundaries (PascalCase, camelCase, SCREAMING_CASE), Arabic without tashkeel/tatweel and with alef forms
-  unified (`lib/term-text.mjs`). Write Arabic terms in that normalized form. Term rules also match file names. The DGA check applies only to package manifests, lockfiles,
-  `angular.json` and code or style files.
+  unified (`lib/term-text.mjs`). Write Arabic terms in that normalized form. Term rules also match file names.
+- **The DGA check covers every scanned file** (since phase 2): code, styles, templates, every JSON file (tsconfig paths,
+  i18n values, `angular.json`), YAML, Markdown docs, CLAUDE.md files and agents. Only `provenance/` and `docs/adr/`
+  may name the dropped external package. The owned `@codelab/ng-dga`, its `--dga-*` tokens and the DGA web site are
+  not matches. `tests/p2-scrub-coverage.test.mjs` proves the phase 2 roots (backend, frontend, the owned DGA package,
+  `init.ps1`, `run-local.ps1`, `codelab.starter.json`, `tools/fork`, `tools/scaffold`) are reached, including
+  untracked files, and that `.gitignore` hides none of them.
 - **Allowed by design.** `in-flight` is not an aviation term. `appsettings.local.json` is a file name, not a host.
   Four dotted numbers count as a version only directly after a version keyword (`<AssemblyVersion>1.0.0.0`,
   `"version": "1.2.3.4"`, `Version=4.0.0.0`); "version" elsewhere on the line exempts nothing. Reserved test

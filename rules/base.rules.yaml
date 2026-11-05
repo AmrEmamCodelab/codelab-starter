@@ -19,10 +19,11 @@ owners:
 
 required:
   # --- Architecture -------------------------------------------------------------------------------
+  # Starter.Architecture.Tests (P2): ControllerShape checks sealed, .Api namespace, use-case-only constructor, verb per action.
   - id: base.thin-controllers
     statement: Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access.
     enforcedBy: [architecture-test, review]
-    availableFrom: P1
+    availableFrom: P2
   - id: base.application-ports-only
     statement: Application code depends only on Domain types and ports (interfaces); it never references EF Core, DbContext or infrastructure types.
     enforcedBy: [architecture-test, hook]
@@ -34,7 +35,7 @@ required:
   - id: base.endpoint-contract
     statement: Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.
     enforcedBy: [contract-test, review]
-    availableFrom: P1
+    availableFrom: P2
   - id: base.lookups-via-migrations
     statement: Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.
     enforcedBy: [review]
@@ -58,11 +59,13 @@ required:
     statement: Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.
     enforcedBy: [analyzer, review]
     availableFrom: P1
-  # Declared, not yet enforced (ADR-012): no CI step measures coverage yet. The coverage gate and the use-case
-  # contract test arrive with the first Domain/Application and frontend core layers (P2); until then review enforces it.
+  # Since P2 the scaffold generators emit a test project and tests with every module, endpoint and permission, and the
+  # commit-gate agent refuses a change without its tests. The line-coverage gate is still OPEN (ADR-012): the
+  # thresholds below (backendLineCoverage, frontendLineCoverage) are declared, but no coverage collector is pinned and
+  # no CI step measures coverage yet; until it lands, review enforces the coverage half of this rule.
   - id: base.unit-tests-mandatory
     statement: Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.
-    enforcedBy: [contract-test, coverage-gate, scaffold, commit-gate]
+    enforcedBy: [scaffold, commit-gate, review]
     availableFrom: P2
 
   # --- Frontend ------------------------------------------------------------------------------------
@@ -78,10 +81,11 @@ required:
     statement: Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.
     enforcedBy: [stylelint, hook]
     availableFrom: P2
+  # No lint rule checks route or button gating yet; the app's route spec (frontend/starter-web/src/app/app.spec.ts)
+  # asserts the shipped routes, and review enforces the rule for new ones.
   - id: base.fe-permission-gated
     statement: Every route and every action button is gated by a typed permission key.
-    enforcedBy: [eslint, review]
-    availableFrom: P2
+    enforcedBy: [review]
 
 forbidden:
   # --- Time ----------------------------------------------------------------------------------------
@@ -99,10 +103,52 @@ forbidden:
   # --- Analyzer opt-outs ---------------------------------------------------------------------------
   - id: base.no-analyzer-opt-out
     description: Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).
-    pattern: '<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\b[^>]*>\s*(?!true\s*<)|<EnableNETAnalyzers\b[^>]*>\s*(?!true\s*<)|<AnalysisLevel\w*\b[^>]*>[^<]*\bnone\b|<AnalysisMode\w*\b[^>]*>\s*none\b|<NoWarn>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|#pragma\s+warning\s+disable\b[^\r\n]*\b(?:RS0030|CA1502|CLB\d{4})\b|dotnet_diagnostic\.(?:RS0030|CA1502|CLB\d{4})\.severity\s*=\s*(?:none|silent|suggestion)|SuppressMessage\([^)]*\b(?:RS0030|CA1502|CLB\d{4})\b|#pragma\s+warning\s+disable[ \t]*(?://[^\r\n]*)?(?:\r?\n|$)|dotnet_analyzer_diagnostic\.(?:category-[\w.-]+\.)?severity\s*=\s*(?:none|silent|suggestion)|\bgenerated_code\s*=\s*true|<TreatWarningsAsErrors>\s*false|<WarningsNotAsErrors>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|<RunAnalyzers(?:DuringBuild)?>\s*false'
+    pattern: '<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\b[^>]*>\s*(?!true\s*<)|<EnableNETAnalyzers\b[^>]*>\s*(?!true\s*<)|<AnalysisLevel\w*\b[^>]*>[^<]*\bnone\b|<AnalysisMode\w*\b[^>]*>\s*none\b|<NoWarn>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|#\s*pragma\s+warning\s+disable\b[^\r\n]*\b(?:RS0030|CA1502|CLB\d{4})\b|dotnet_diagnostic\.(?:RS0030|CA1502|CLB\d{4})\.severity\s*=\s*(?:none|silent|suggestion)|SuppressMessage\([^)]*\b(?:RS0030|CA1502|CLB\d{4})\b|#\s*pragma\s+warning\s+disable[ \t]*(?://[^\r\n]*)?(?:\r?\n|$)|dotnet_analyzer_diagnostic\.(?:category-[\w.-]+\.)?severity\s*=\s*(?:none|silent|suggestion)|\bgenerated_code\s*=\s*true|<TreatWarningsAsErrors>\s*false|<WarningsNotAsErrors>[^<]*\b(?:RS0030|CA1502|CLB\d{4})\b|<RunAnalyzers(?:DuringBuild)?>\s*false'
     flags: i
     appliesTo: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets", "**/.editorconfig", "**/*.globalconfig"]
     fix: Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.
+  # Any diagnostic, not only the gate analyzers: a reliability (CA2xxx) or security (CA5xxx) rule switched off inline
+  # skips platform-owner review. Platform-owned files (packages/, the root .editorconfig, Directory.Build.*) are
+  # reviewed through CODEOWNERS and stay out of scope; the module's generated .editorconfig is exempt by path.
+  # "*/**/.editorconfig" means every .editorconfig except the root one: the hooks read a glob without a slash as
+  # "this name in any folder", so a bare ".editorconfig" exclude would exempt every nested file too.
+  - id: base.no-inline-suppression
+    description: An inline suppression (a pragma, with or without a space after the '#'; the SuppressMessage attribute named anywhere, so an alias such as 'using SM = ...SuppressMessageAttribute' is caught too; a unicode escape outside a string or comment, which could spell that name; a NoWarn or WarningsNotAsErrors entry; WarningLevel 0; or a diagnostic severity set to none, silent or suggestion) switches an analyzer off without platform-owner review.
+    pattern: '#\s*pragma\s+warning\s+disable\b|\b(?:Unconditional)?SuppressMessage(?:Attribute)?\b|^[^"''/\r\n]*\\[uU][0-9a-fA-F]{4}|<WarningLevel\b[^>]*>\s*0\s*<|<NoWarn\b[^>]*>(?!\s*(?:\$\(NoWarn\)\s*;?\s*)?<)|<WarningsNotAsErrors\b[^>]*>(?!\s*(?:\$\(WarningsNotAsErrors\)\s*;?\s*)?<)|dotnet_diagnostic\.[\w-]+\.severity\s*=\s*(?:none|silent|suggestion)\b'
+    flags: im
+    appliesTo: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets", "*/**/.editorconfig", "**/*.globalconfig"]
+    excludes: ["packages/**", "**/Directory.Build.*"]
+    exemptEmittedFiles: true
+    fix: Fix the code. A justified suppression is a module.rules.yaml `analyzers` severity (generated into the module .editorconfig) or an `exemptions` entry, both reviewed by the platform owner.
+  # Analyzer configuration that bypasses the module .editorconfig: a ruleset, an extra global or editor config, an
+  # AdditionalFiles entry (BannedSymbols, CodeMetricsConfig thresholds) or an extra analyzer (a DiagnosticSuppressor
+  # silences any diagnostic). Codelab.Build.Sdk and Directory.Build.* wire these, and both are platform-owned.
+  - id: base.no-analyzer-config-redirect
+    description: A CodeAnalysisRuleSet, GlobalAnalyzerConfigFiles, EditorConfigFiles, AdditionalFiles or Analyzer item in a project file points the analyzers at configuration (or a suppressor) that no platform owner reviewed, so it can switch any diagnostic off.
+    pattern: '<(?:CodeAnalysisRuleSet\w*|GlobalAnalyzerConfigFiles|EditorConfigFiles|AnalyzerConfigFiles|AdditionalFiles|Analyzer)\b|\bOutputItemType\s*=\s*"\s*Analyzer\s*"'
+    flags: i
+    appliesTo: ["**/*.csproj", "**/*.props", "**/*.targets"]
+    excludes: ["packages/**", "**/Directory.Build.*"]
+    fix: Remove the item. Analyzer severities and thresholds come from the module.rules.yaml (generated into the module .editorconfig); a new analyzer or analyzer config is a platform-owner change to Codelab.Build.Sdk.
+  - id: base.no-ruleset-file
+    description: A .ruleset file can set any diagnostic to Action="None"; the starter configures analyzers only through the rules engine, so no ruleset may exist.
+    pattern: '^[\s\S]'
+    appliesTo: ["**/*.ruleset"]
+    fix: Delete the file. Set analyzer severities in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.
+  # The ESLint side is also closed by noInlineConfig in the frontend ESLint config; this rule covers stylelint and
+  # TypeScript suppressions, which no lint config can refuse.
+  - id: base.no-lint-suppression
+    description: An eslint, stylelint or TypeScript suppression comment (eslint-disable, an inline eslint config, stylelint-disable, @ts-ignore, @ts-nocheck) switches a frontend gate off without platform-owner review.
+    pattern: 'eslint-disable|eslint-enable|/\*\s*eslint\s|stylelint-disable|@ts-ignore|@ts-nocheck'
+    appliesTo: ["frontend/**/*.ts", "frontend/**/*.html", "frontend/**/*.scss"]
+    excludes: ["**/*.spec.ts", "**/node_modules/**", "frontend/starter-web/lint-fixtures/**", "frontend/starter-web/tools/README.md"]
+    fix: Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.
+  - id: base.no-hand-written-editorconfig
+    description: A nested .editorconfig applies to every file below it, so a hand-written one can switch analyzers off or change thresholds for part of a module; the only nested ones are those the rules engine emits at each module root.
+    pattern: '^[\s\S]'
+    appliesTo: ["*/**/.editorconfig"]
+    exemptEmittedFiles: true
+    fix: Delete the file. Set analyzer severities and thresholds in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.
   - id: base.no-fixture-gate-opt-out
     description: CodelabFixtureGateOptOut lets a build switch the quality gates off without CODELAB002; only the SDK's own fixture builds may pass it.
     pattern: '\bCodelabFixtureGateOptOut\b'
@@ -230,14 +276,22 @@ forbidden:
     pattern: 'from\s+[''"](?:@angular/material|primeng|ngx-bootstrap|@ng-bootstrap|@(?:dev-)?dga[/@])'
     appliesTo: ["**/*.ts"]
     fix: Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.
+  # Text between tags with at least one letter outside an HTML entity (&nbsp; and &times; are not text). A text
+  # check cannot see raw text inside {{ }} or @if blocks or in attributes; the template AST lint is open (phase-log).
   - id: base.fe-raw-text-in-template
     description: Raw text in a template is not translated.
-    pattern: '>[^<>{}]*\p{L}[^<>{}]*<'
+    pattern: '>(?:[^<>{}&\p{L}]|&#?[\p{L}\d]{1,10};)*\p{L}[^<>{}]*<'
     flags: u
     appliesTo: ["**/*.html"]
-    excludes: ["**/showcase/**"]
+    excludes: ["**/showcase/**", "**/src/index.html"]
     fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.
-    severity: warning
+  - id: base.fe-raw-text-in-inline-template
+    description: Raw text in an inline component template is not translated.
+    pattern: '\btemplate\s*:\s*(?:`[^`]*?|''[^'']*?|"[^"]*?)>(?:[^<>{}&`''"\p{L}]|&#?[\p{L}\d]{1,10};)*\p{L}[^<>{}`''"]*<'
+    flags: u
+    appliesTo: ["**/*.ts"]
+    excludes: ["**/showcase/**", "**/*.spec.ts"]
+    fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.
   - id: base.fe-logical-css
     description: Physical left/right properties break RTL.
     pattern: '\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:|\btext-align\s*:\s*(?:left|right)\b|\bfloat\s*:\s*(?:left|right)\b'
@@ -265,7 +319,7 @@ thresholds:
   fileLines: 400
   cyclomaticComplexity: 10
   parameters: 5
-  # Declared, not yet enforced (ADR-012): no emitter or CI step reads the coverage thresholds before P2.
+  # Declared, not yet enforced (ADR-012): no emitter or CI step reads the coverage thresholds yet (open after P2).
   backendLineCoverage: 80
   frontendLineCoverage: 70
 

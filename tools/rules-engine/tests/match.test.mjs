@@ -146,6 +146,39 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
     ['base.fe-no-hardcoded-paths', 'web/features/a.ts', "this.router.navigate(['/records']);", 'this.router.navigate([AppRoutes.records]);'],
     ['base.fe-ui-library-only', 'web/features/a.ts', "import { MatButton } from '@angular/material/button';", "import { DgaButton } from '@codelab/ng-dga';"],
     ['base.fe-raw-text-in-template', 'web/a.html', '<p>Submit request</p>', "<p>{{ 'records.submit' | translate }}</p>"],
+    // Regression (P2 review): suppressions of ANY diagnostic, not only RS0030/CA1502/CLB*, passed every gate.
+    ['base.no-inline-suppression', 'src/A.cs', '#pragma warning disable CA1822, CA2000', '#pragma warning restore CA1822'],
+    ['base.no-inline-suppression', 'src/A.cs', '[SuppressMessage("Reliability", "CA2000")]', '[Obsolete("Use B")]'],
+    ['base.no-inline-suppression', 'src/A.cs', '[UnconditionalSuppressMessage("Trimming", "IL2026")]', 'var message = Suppress(input);'],
+    ['base.no-inline-suppression', 'src/A.cs', '[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Design", "CA1001")]', '[ExcludeFromCodeCoverage]'],
+    ['base.no-inline-suppression', 'src/A.csproj', '<NoWarn>$(NoWarn);CA1822;CA2000;CS1591</NoWarn>', '<NoWarn>$(NoWarn)</NoWarn>'],
+    ['base.no-inline-suppression', 'src/A.csproj', '<NoWarn>CA5350</NoWarn>', '<NoWarn></NoWarn>'],
+    ['base.no-inline-suppression', 'src/A.csproj', '<WarningsNotAsErrors>$(WarningsNotAsErrors);CA2100</WarningsNotAsErrors>', '<WarningsNotAsErrors>$(WarningsNotAsErrors);</WarningsNotAsErrors>'],
+    ['base.no-inline-suppression', 'src/X/Application/.editorconfig', '[*.cs]\ndotnet_diagnostic.CA2000.severity = none', '[*.cs]\ndotnet_diagnostic.CA2000.severity = error'],
+    ['base.no-inline-suppression', 'src/X/Application/.editorconfig', '[*.cs]\ndotnet_diagnostic.IDE0005.severity = silent', '[*.cs]\ndotnet_diagnostic.IDE0005.severity = warning'],
+    // Regression (P2 review round 2): each of these compiled and switched an analyzer off while every gate passed.
+    ['base.no-inline-suppression', 'src/A.cs', '# pragma warning disable CA1822, CA2000', '# pragma warning restore CA1822'],
+    ['base.no-inline-suppression', 'src/A.cs', 'using SM = System.Diagnostics.CodeAnalysis.SuppressMessageAttribute;', 'using Attr = System.ObsoleteAttribute;'],
+    ['base.no-inline-suppression', 'src/A.cs', 'global using SM = System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute;', 'global using System.Diagnostics.CodeAnalysis;'],
+    ['base.no-inline-suppression', 'src/A.cs', 'using S\\u004D = System.Diagnostics.CodeAnalysis.Suppress\\u004DessageAttribute;', 'var text = "\\u0041";'],
+    ['base.no-inline-suppression', 'src/A.cs', 'class A {}\n[\\u0053uppressMessage("Reliability", "CA2000")]', 'class A {}\n// \\u0041 is the letter A'],
+    ['base.no-inline-suppression', 'src/A.csproj', '<WarningLevel>0</WarningLevel>', '<WarningLevel>9999</WarningLevel>'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', '# pragma warning disable CLB1001', '# pragma warning restore CLB1001'],
+    ['base.no-analyzer-opt-out', 'src/A.cs', 'class A {}\n#  pragma warning disable', 'class A {}\n#  pragma warning restore'],
+    ['base.no-analyzer-config-redirect', 'src/A.csproj', '<CodeAnalysisRuleSet>off.ruleset</CodeAnalysisRuleSet>', '<IsPackable>false</IsPackable>'],
+    ['base.no-analyzer-config-redirect', 'src/A.csproj', '<ItemGroup><GlobalAnalyzerConfigFiles Include="analysis.cfg" /></ItemGroup>', '<ItemGroup><Compile Include="A.cs" /></ItemGroup>'],
+    ['base.no-analyzer-config-redirect', 'src/A.props', '<EditorConfigFiles Include="x.cfg" />', '<None Include="x.cfg" />'],
+    ['base.no-analyzer-config-redirect', 'src/A.targets', '<AdditionalFiles Include="CodeMetricsConfig.txt" />', '<Content Include="readme.txt" />'],
+    ['base.no-analyzer-config-redirect', 'src/A.csproj', '<Analyzer Include="Suppressor.dll" />', '<Reference Include="Lib.dll" />'],
+    ['base.no-analyzer-config-redirect', 'src/A.csproj', '<ProjectReference Include="S.csproj" OutputItemType="Analyzer" />', '<ProjectReference Include="S.csproj" />'],
+    ['base.no-ruleset-file', 'src/off.ruleset', '<RuleSet Name="off"><Rules><Rule Id="CA2000" Action="None" /></Rules></RuleSet>', ''],
+    ['base.no-hand-written-editorconfig', 'src/X/Application/.editorconfig', '[*.cs]\nindent_size = 4', ''],
+    // Regression (P2 review): HTML entities are not text, and inline component templates were never scanned.
+    ['base.fe-raw-text-in-template', 'web/a.html', '<button>&times; Delete all</button>', '<button aria-hidden="true">&times;</button>'],
+    ['base.fe-raw-text-in-template', 'web/a.html', '<section><h1>Order list</h1></section>', '<span>&nbsp;</span>'],
+    ['base.fe-raw-text-in-inline-template', 'web/features/y.component.ts', "@Component({ selector: 'app-y', template: '<h1>Delete all</h1>' })", "@Component({ selector: 'app-y', templateUrl: './y.component.html' })"],
+    ['base.fe-raw-text-in-inline-template', 'web/features/y.component.ts', '@Component({\n  template: `\n    <section>\n      <h1>Order list</h1>\n    </section>`,\n})', '@Component({\n  template: `<section><h1>{{ title() | translate }}</h1></section>`,\n})'],
+    ['base.fe-raw-text-in-inline-template', 'web/features/y.component.ts', '@Component({ template: "<p>Saved</p>" })', 'const isGreater = a > b && c < d;'],
     ['base.fe-logical-css', 'web/a.scss', '.a { margin-left: 4px; }', '.a { margin-inline-start: 4px; }'],
     ['base.fe-logical-css', 'web/a.scss', '.a { text-align: right; }', '.a { text-align: end; }'],
     ['base.fe-design-tokens', 'web/a.scss', '.a { color: #fff; }', '.a { color: var(--codelab-color-text); }'],
@@ -159,6 +192,21 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
     });
   }
 
+  test('platform-owned build files and the generated module .editorconfig may set severities; nothing else may', () => {
+    assert.ok(!hits('packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.props', '<NoWarn>$(NoWarn);CS1591</NoWarn>').includes('base.no-inline-suppression'));
+    assert.ok(!hits('.editorconfig', '[*.cs]\ndotnet_diagnostic.CA1707.severity = none').includes('base.no-inline-suppression'));
+    assert.ok(!hits('.editorconfig', 'root = true').includes('base.no-hand-written-editorconfig'));
+    assert.ok(hits('backend/tests/Starter.Records.Tests/Starter.Records.Tests.csproj', '<NoWarn>CA2000</NoWarn>').includes('base.no-inline-suppression'));
+    assert.ok(!hits('packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.targets', '<GlobalAnalyzerConfigFiles Include="$(CodelabRulesGlobalConfig)" />').includes('base.no-analyzer-config-redirect'));
+    assert.ok(!hits('backend/Directory.Build.props', '<AdditionalFiles Include="BannedSymbols.txt" />').includes('base.no-analyzer-config-redirect'));
+  });
+
+  test('the html raw-text rule is an error (CI fails), and the host page index.html is not a template', () => {
+    const rule = compiled.base.forbidden.find((item) => item.id === 'base.fe-raw-text-in-template');
+    assert.notEqual(rule.severity, 'warning');
+    assert.deepEqual(hits('frontend/starter-web/src/index.html', '<title>Starter</title>'), []);
+  });
+
   test('excludes win over appliesTo (HttpClient allowed in core/http)', () => {
     assert.deepEqual(hits('web/core/http/api.service.ts', 'constructor(private http: HttpClient) {}'), []);
   });
@@ -170,14 +218,14 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
   test('only the engine outputs, by path, may carry codelab_* keys; a forged GENERATED marker proves nothing', () => {
     const generated = '# GENERATED by tools/rules-engine from rules/base.rules.yaml. Do not edit.\n';
     assert.deepEqual(hits('rules/codelab.globalconfig', `${generated}is_global = true\ncodelab_method_lines = 40`), []);
-    assert.deepEqual(hits('src/Modules/X/.editorconfig', '[*.cs]\ncodelab_method_lines = 300'), ['base.no-threshold-override']);
+    assert.deepEqual(hits('src/Modules/X/.editorconfig', '[*.cs]\ncodelab_method_lines = 300'), ['base.no-hand-written-editorconfig', 'base.no-threshold-override']);
     // Regression: a hand-written .globalconfig with the marker raised the thresholds of a test project unnoticed.
     const forged = `# GENERATED by tools/rules-engine (forged)\nis_global = true\nglobal_level = 100\ncodelab_method_lines = 400`;
     assert.deepEqual(
       hits('packages/dotnet/Codelab.Errors.Tests/.globalconfig', forged).sort(),
       ['base.no-hand-written-globalconfig', 'base.no-threshold-override'],
     );
-    assert.deepEqual(hits('src/Modules/X/.editorconfig', `${generated}[*.cs]\ncodelab_magic_numbers_enforced = false`), ['base.no-threshold-override']);
+    assert.deepEqual(hits('src/Modules/X/.editorconfig', `${generated}[*.cs]\ncodelab_magic_numbers_enforced = false`), ['base.no-hand-written-editorconfig', 'base.no-threshold-override']);
   });
 });
 
@@ -209,7 +257,14 @@ describe('engine outputs are exempt by path, never by content', () => {
     const keys = '[*.cs]\ncodelab_method_lines = 30';
 
     assert.deepEqual(hits('src/Modules/Records/.editorconfig', keys), []);
-    assert.deepEqual(hits('src/Modules/Records/Sub/.editorconfig', keys), ['base.no-threshold-override']);
-    assert.deepEqual(hits('src/Modules/Records.Tests/.editorconfig', keys), ['base.no-threshold-override']);
+    const handWritten = ['base.no-hand-written-editorconfig', 'base.no-threshold-override'];
+    assert.deepEqual(hits('src/Modules/Records/Sub/.editorconfig', keys), handWritten);
+    assert.deepEqual(hits('src/Modules/Records.Tests/.editorconfig', keys), handWritten);
+    // Regression (P2 review): a hand-written nested .editorconfig switched analyzers off for part of a module.
+    assert.deepEqual(
+      hits('src/Modules/Records/Application/.editorconfig', '[*.cs]\ndotnet_diagnostic.CA2000.severity = none').sort(),
+      ['base.no-hand-written-editorconfig', 'base.no-inline-suppression'],
+    );
+    assert.deepEqual(hits('src/Modules/Records/.editorconfig', '[*.cs]\ndotnet_diagnostic.CA1062.severity = none'), []);
   });
 });

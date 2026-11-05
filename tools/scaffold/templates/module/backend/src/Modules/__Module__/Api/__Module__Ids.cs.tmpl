@@ -1,0 +1,13 @@
+using Codelab.Security.PublicIds;
+
+namespace Starter.Modules.{{Module}}.Api;
+
+/// <summary>The family of {{Module}} record ids on the wire (<c>PublicId&lt;{{Module}}Ids&gt;</c>).</summary>
+public sealed class {{Module}}Ids : IIdDomain
+{
+    /// <summary>The domain label bound into every {{Module}} PublicId (part of the wire format; never rename).</summary>
+    public const string DomainLabel = "{{ModuleKebab}}";
+
+    /// <inheritdoc />
+    public static string Domain => DomainLabel;
+}

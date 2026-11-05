@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Access module (inherits rules/base.rules.yaml).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Access
+kind: dotnet
+description: "Permission catalog (union of every module's IPermissionCatalogSource), the [HasPermission] handler over a live per-user resolve, direct user grants, and the catalog synchronizer."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabErrors]
+mustNotDependOn: [Identity]
+required:
+  - id: access.users-through-directory
+    statement: Read user state (active, break-glass) only through the kernel IUserDirectory port; never reference the Identity module or its tables.
+    enforcedBy: [architecture-test, review]
+  - id: access.live-resolve
+    statement: Permissions are resolved live per request from the current rows; never put permission claims in a token and never cache a resolve without invalidating it on every grant change.
+    enforcedBy: [review]
+  - id: access.catalog-in-code
+    statement: Permission keys are constants of a <Name>PermissionKeys class declared through an IPermissionCatalogSource; the database rows are written only by the PermissionSynchronizer.
+    enforcedBy: [contract-test, review]
+forbidden:
+  - id: access.no-identity-reference
+    description: The Access module reads users through IUserDirectory; a reference to the Identity module couples the two and breaks removing either.
+    pattern: '(?<![A-Za-z0-9_])Modules[.]Identity(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use Starter.Application.Users.IUserDirectory (DirectoryUser carries the id, the active flag and break-glass status).

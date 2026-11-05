@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Module 2, Access (phase 2 minimum): the permission catalog in code (the union of every module's
+    IPermissionCatalogSource, validated at start), the [HasPermission] handler over a live per-user resolve (the token
+    carries identity only), direct user grants, and the catalog written to the database on every start. Layers by
+    namespace (ADR-004): .Domain, .Application, .Infrastructure, .Api. User data comes only through the kernel
+    IUserDirectory port, never from the Identity module. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Modules.Access</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Starter.Domain\Starter.Domain.csproj" />
+    <ProjectReference Include="..\..\Starter.Application\Starter.Application.csproj" />
+    <ProjectReference Include="..\..\Starter.Infrastructure\Starter.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.Modules.Access.Tests" />
+  </ItemGroup>
+</Project>

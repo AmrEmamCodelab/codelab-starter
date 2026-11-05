@@ -1,0 +1,45 @@
+// Document defaults on the tokens: font stack, colours, links, focus and selection. Direction comes from the dir
+// attribute on <html> (the app's language service sets it); nothing here assumes LTR.
+@use 'mixins';
+
+html {
+  font-family: var(--dga-font-family-base);
+  font-size: 100%;
+  line-height: var(--dga-line-height-md);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-page);
+}
+
+body {
+  min-block-size: 100vh;
+  font-size: var(--dga-font-size-md);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--dga-color-text-link);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--dga-color-text-link-hover);
+}
+
+:focus-visible {
+  @include mixins.focus-ring;
+}
+
+::selection {
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-primary-muted);
+}
+
+.dga-visually-hidden {
+  @include mixins.visually-hidden;
+}
+
+// A glyph that points along the reading direction (forward arrows, chevrons) mirrors in RTL.
+[dir='rtl'] .dga-flip-rtl {
+  transform: scaleX(-1);
+}

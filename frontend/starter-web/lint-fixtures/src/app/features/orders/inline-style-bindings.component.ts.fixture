@@ -1,0 +1,11 @@
+// Lint case (must FAIL): style bindings in an inline template literal and in host metadata.
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-inline-style-bindings',
+  host: { '[style.color]': 'colour', style: 'display: block' },
+  template: `<p [style.margin-left.px]="4" [ngStyle]="{ color: colour }">x</p>`,
+})
+export class InlineStyleBindingsComponent {
+  protected readonly colour = 'red';
+}

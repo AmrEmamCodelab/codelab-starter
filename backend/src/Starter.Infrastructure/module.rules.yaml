@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the kernel Infrastructure project (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterInfrastructure
+kind: dotnet
+description: "Kernel Infrastructure: module discovery and registration, the module DbContext base and startup runner, authorization defaults, feature switches, HTTP adapters of the kernel ports, refusal and exception mapping, the request pipeline."
+mayDependOn: [StarterDomain, StarterApplication, CodelabSecurity, CodelabObservability, CodelabErrors]
+mustNotDependOn: [StarterApi]
+required:
+  - id: starterinfrastructure.no-module-names
+    statement: The kernel never names a module; modules are discovered from the host's ProjectReferences and every name is derived from assembly names (ADR-003, ADR-004).
+    enforcedBy: [architecture-test, review]
+  - id: starterinfrastructure.api-freeze
+    statement: Public kernel types are a contract with every module; add members, never rename, remove or change a signature without a migration of every module.
+    enforcedBy: [review]
+forbidden:
+  - id: starterinfrastructure.no-module-reference
+    description: The kernel must not reference a module namespace.
+    pattern: '^\s*using\s+\w+\.Modules\.'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Declare a port in Starter.Application and let the module implement it.
+    severity: error

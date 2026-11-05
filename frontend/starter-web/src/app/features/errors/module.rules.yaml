@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../../rules/rules.schema.json
+# Rules for the starter web app's features/errors (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebErrors
+kind: angular
+description: "Starter web error pages: 404 not-found and 403 unauthorized, rendered without a session."
+mayDependOn: []
+mustNotDependOn: []

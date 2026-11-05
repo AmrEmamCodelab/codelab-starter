@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the @codelab/ng-dga package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: NgDga
+kind: angular
+description: "Owned DGA component library: design tokens, base and typography styles, self-hosted fonts, the owned icon font (ADR-009) and standalone, OnPush, signal-input, RTL-correct components."
+mayDependOn: []
+mustNotDependOn: [NgSecurity, NgTools]

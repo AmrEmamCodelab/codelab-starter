@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../rules/rules.schema.json
+# Rules for the starter web app's core (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebCore
+kind: angular
+description: "Starter web core: runtime config, ApiService (the only HttpClient user) and API clients, response-phase interceptors, session (tokens, refresh, idle timeout), permission store and guards, feature flags, i18n (language, translations, t pipe), route paths and the ng-security wiring."
+mayDependOn: []
+mustNotDependOn: []

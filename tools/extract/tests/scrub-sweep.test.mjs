@@ -37,13 +37,23 @@ test('the gateway extension-point doc may name integrations but not the brand', 
   assert.ok(ruleIdsFor(gatewayDocPath, brandLine).includes('term-brand-product'));
 });
 
-test('the DGA check covers package manifests and code, not prose', () => {
+test('the DGA check covers every file type, prose included (phase 2 exit), but not provenance or ADRs', () => {
   const { packageJsonDependency, devPackage, tarballPath } = samples.dga;
   assert.ok(ruleIdsFor('package.json', packageJsonDependency).includes('dga-package'));
   assert.ok(ruleIdsFor('frontend/app/main.ts', devPackage).includes('dga-package'));
   assert.ok(ruleIdsFor('frontend/styles.scss', devPackage).includes('dga-package'));
-  assert.deepEqual(ruleIdsFor('docs/notes.md', packageJsonDependency), []);
+  assert.ok(ruleIdsFor('docs/notes.md', packageJsonDependency).includes('dga-package'));
+  assert.ok(ruleIdsFor('CLAUDE.md', devPackage).includes('dga-package'));
+  assert.deepEqual(ruleIdsFor(samples.exceptions.adrPath, devPackage), []);
+  assert.deepEqual(ruleIdsFor(samples.exceptions.provenancePath, devPackage), []);
   assert.ok(ruleIdsFor(tarballPath, null).includes('dga-tarball'), 'file names are scanned even for binaries');
+});
+
+test('the owned DGA package, its tokens and the DGA site are not flagged as the external package', () => {
+  for (const line of samples.dga.allowed) {
+    assert.ok(!ruleIdsFor('frontend/starter-web/angular.json', line).includes('dga-package'), line);
+    assert.ok(!ruleIdsFor('docs/design/tokens.md', line).includes('dga-package'), line);
+  }
 });
 
 test('term rules also scan file names', () => {

@@ -1,0 +1,58 @@
+using Starter.Application.Results;
+using Starter.Application.Validation;
+using Starter.Modules.{{Module}}.Domain;
+
+namespace Starter.Modules.{{Module}}.Application;
+
+/// <summary>The request body of <c>{{HttpRoute}}</c>, validated by <see cref="{{Name}}Validator"/>.</summary>
+/// <param name="Name">The record's new display name.</param>
+public sealed record {{Name}}Command(string Name);
+
+/// <summary>What <see cref="{{Name}}"/> returns.</summary>
+/// <param name="Id">The updated record's internal id.</param>
+public sealed record {{Name}}Result(long Id);
+
+/// <summary>Validates <see cref="{{Name}}Command"/>: every field error at once, never throws.</summary>
+public sealed class {{Name}}Validator : IValidator<{{Name}}Command>
+{
+    /// <inheritdoc />
+    public ValidationErrors Validate({{Name}}Command input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        return new ValidationErrors().RequireText(
+            field: FieldNames.Of(nameof({{Name}}Command.Name)),
+            value: input.Name,
+            maxLength: {{Module}}Limits.NameMaxLength);
+    }
+}
+
+/// <summary>The data port of <see cref="{{Name}}"/>, implemented in Infrastructure.</summary>
+public interface I{{Name}}Store
+{
+    /// <summary>Applies the command to the record with <paramref name="id"/>; false when there is no such record.</summary>
+    Task<bool> UpdateAsync(long id, {{Name}}Command command, CancellationToken cancellationToken);
+}
+
+/// <summary>Updates one {{Module}} record (<c>{{HttpRoute}}</c>). The permission is enforced by the endpoint.</summary>
+public sealed class {{Name}}(IValidator<{{Name}}Command> validator, I{{Name}}Store store)
+{
+    /// <summary>
+    /// The updated record's id; a 400 refusal with every field error when the command is invalid; a 404 refusal
+    /// (<see cref="{{Module}}ErrorCodes.{{ErrorConst}}"/>) when the record does not exist.
+    /// </summary>
+    public async Task<Outcome<{{Name}}Result>> ExecuteAsync(long id, {{Name}}Command command, CancellationToken cancellationToken)
+    {
+        var errors = validator.Validate(command);
+        if (!errors.IsValid)
+        {
+            return Refusal.Invalid(errors);
+        }
+
+        if (!await store.UpdateAsync(id, command, cancellationToken))
+        {
+            return Refusal.NotFound({{Module}}ErrorCodes.{{ErrorConst}});
+        }
+
+        return new {{Name}}Result(id);
+    }
+}

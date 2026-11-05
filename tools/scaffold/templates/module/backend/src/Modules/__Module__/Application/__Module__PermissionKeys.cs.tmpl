@@ -1,0 +1,14 @@
+namespace Starter.Modules.{{Module}}.Application;
+
+/// <summary>
+/// The permission keys the {{Module}} module declares (format: <c>Starter.Application.Authorization.PermissionKeyFormat</c>).
+/// Guard endpoints with these constants, never with literals. Add one with
+/// <c>node tools/scaffold/new-permission.mjs --module {{Module}} --action &lt;kebab&gt;</c>.
+/// </summary>
+public static class {{Module}}PermissionKeys
+{
+    /// <summary>View {{Module}} records.</summary>
+    public const string View = "{{ModuleKebab}}.view";
+
+    // scaffold:permission-keys
+}

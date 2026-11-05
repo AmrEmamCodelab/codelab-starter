@@ -1,0 +1,2 @@
+// Lint fixture: a test may use bare numbers (base.no-magic-values excludeTests).
+export const expectedFee = 5000 * 3;

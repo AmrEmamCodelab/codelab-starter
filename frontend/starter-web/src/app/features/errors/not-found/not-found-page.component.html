@@ -1,0 +1,14 @@
+﻿<main class="error-page" id="main-content">
+  <dga-card
+    class="error-page__card"
+    centered
+    icon="search"
+    [heading]="'error-pages.not-found.title' | t"
+    [description]="'error-pages.not-found.message' | t"
+    [headingLevel]="1"
+  >
+    <div class="error-page__actions" dgaCardActions>
+      <a class="error-page__action" [routerLink]="homeLink">{{ 'error-pages.home' | t }}</a>
+    </div>
+  </dga-card>
+</main>

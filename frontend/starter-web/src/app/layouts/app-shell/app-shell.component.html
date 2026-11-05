@@ -1,0 +1,32 @@
+<div class="shell">
+  <header class="shell__header">
+    <a class="shell__brand" [routerLink]="homeLink">
+      <dga-icon name="home" size="md" />
+      <span>{{ 'layout.shell.brand' | t }}</span>
+    </a>
+
+    <nav class="shell__nav" [attr.aria-label]="'layout.shell.nav-label' | t">
+      @for (item of navItems(); track item.path) {
+        <a
+          class="shell__link"
+          [routerLink]="item.link"
+          routerLinkActive="shell__link--active"
+          ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <dga-icon [name]="item.icon" />
+          <span>{{ item.labelKey | t }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="shell__actions">
+      <app-language-switcher />
+      <app-user-profile-menu />
+    </div>
+  </header>
+
+  <main class="shell__content" id="main-content">
+    <router-outlet />
+  </main>
+</div>

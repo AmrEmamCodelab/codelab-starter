@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": ".angular/spec",
+    "sourceMap": true,
+    "inlineSources": true,
+    "declaration": false,
+    "noEmitOnError": true
+  },
+  "angularCompilerOptions": {
+    "compilationMode": "full"
+  },
+  "include": ["src/**/*.ts"]
+}

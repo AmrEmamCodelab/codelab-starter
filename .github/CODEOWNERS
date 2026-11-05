@@ -14,11 +14,15 @@
 /provenance/              @platform-owner
 # Repo-wide build settings and the build script can switch analyzers and gates off.
 /tools/build.ps1          @platform-owner
-/Directory.Build.props    @platform-owner
-/Directory.Build.targets  @platform-owner
-/Directory.Packages.props @platform-owner
-/global.json              @platform-owner
-/nuget.config             @platform-owner
+**/Directory.Build.*      @platform-owner
+**/Directory.Packages.props @platform-owner
+**/global.json            @platform-owner
+**/nuget.config           @platform-owner
+**/.editorconfig          @platform-owner
+# Frontend lint configs enforce the HTTP boundary, element boundaries, UI-library ban, tokens and logical CSS.
+/frontend/starter-web/eslint.config.mjs   @platform-owner
+/frontend/starter-web/stylelint.config.mjs @platform-owner
+/frontend/starter-web/tools/lint/         @platform-owner
 
 # The scrub-sweep term list, its exceptions and the extract allowlist decide what may enter the repo.
 /tools/extract/           @platform-owner

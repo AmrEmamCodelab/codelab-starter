@@ -1,0 +1,31 @@
+{
+  "$comment": "Source manifest of the owned icon font (ADR-009). Each icon names its SVG source file in the source package; npm run assets:import -w @codelab/ng-dga copies it to icons/svg/<name>.svg and npm run icons:generate -w @codelab/ng-dga builds assets/icons/codelab-icons.woff2, assets/icons/codelab-icons.json and src/lib/icon/dga-icon-names.generated.ts. A code point never changes once released; add new icons at the next free code point. mirrorInRtl marks glyphs that point along the reading direction (drawn for LTR, mirrored in RTL).",
+  "fontFamily": "Codelab Icons",
+  "fileStem": "codelab-icons",
+  "source": "bootstrap-icons",
+  "sourceFolder": "icons",
+  "icons": [
+    { "name": "menu", "file": "list.svg", "codepoint": "E001" },
+    { "name": "user", "file": "person.svg", "codepoint": "E002" },
+    { "name": "logout", "file": "box-arrow-right.svg", "codepoint": "E003", "mirrorInRtl": true },
+    { "name": "language", "file": "globe.svg", "codepoint": "E004" },
+    { "name": "chevron-start", "file": "chevron-left.svg", "codepoint": "E005", "mirrorInRtl": true },
+    { "name": "chevron-end", "file": "chevron-right.svg", "codepoint": "E006", "mirrorInRtl": true },
+    { "name": "chevron-up", "file": "chevron-up.svg", "codepoint": "E007" },
+    { "name": "chevron-down", "file": "chevron-down.svg", "codepoint": "E008" },
+    { "name": "arrow-start", "file": "arrow-left.svg", "codepoint": "E009", "mirrorInRtl": true },
+    { "name": "arrow-end", "file": "arrow-right.svg", "codepoint": "E00A", "mirrorInRtl": true },
+    { "name": "arrow-up", "file": "arrow-up.svg", "codepoint": "E00B" },
+    { "name": "arrow-down", "file": "arrow-down.svg", "codepoint": "E00C" },
+    { "name": "close", "file": "x-lg.svg", "codepoint": "E00D" },
+    { "name": "check", "file": "check-lg.svg", "codepoint": "E00E" },
+    { "name": "alert", "file": "exclamation-triangle.svg", "codepoint": "E00F" },
+    { "name": "info", "file": "info-circle.svg", "codepoint": "E010" },
+    { "name": "home", "file": "house.svg", "codepoint": "E011" },
+    { "name": "dashboard", "file": "speedometer2.svg", "codepoint": "E012" },
+    { "name": "lock", "file": "lock.svg", "codepoint": "E013" },
+    { "name": "search", "file": "search.svg", "codepoint": "E014" },
+    { "name": "eye", "file": "eye.svg", "codepoint": "E015" },
+    { "name": "eye-off", "file": "eye-slash.svg", "codepoint": "E016" }
+  ]
+}

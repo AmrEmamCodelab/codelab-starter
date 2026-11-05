@@ -1,0 +1,6 @@
+<span class="dga-tag" [attr.data-tone]="tone()">
+  @if (icon(); as name) {
+    <dga-icon class="dga-tag__icon" [name]="name" size="xs" />
+  }
+  <ng-content />
+</span>

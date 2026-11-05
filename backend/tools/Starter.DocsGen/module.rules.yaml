@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the generated-docs tool (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterDocsGen
+kind: dotnet
+description: "Generated docs v1: boots the API host in-process without a database and writes docs/generated (OpenAPI, permissions, endpoints, error codes, config keys); --check fails on drift."
+mayDependOn: [StarterApi, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabObservability]
+required:
+  - id: starterdocsgen.deterministic
+    statement: The same code gives the same bytes in docs/generated (ordinal sorting, LF line endings, no timestamps, no host name, no random value in any output).
+    enforcedBy: [review]
+  - id: starterdocsgen.no-module-types
+    statement: DocsGen discovers modules like the host (ModuleAssemblyAttribute) and reads their conventions by reflection; it never names a module type, so removing a module never breaks its build.
+    enforcedBy: [review]
+  - id: starterdocsgen.never-hand-edit
+    statement: Files under docs/generated change only through this tool; a code change that moves them regenerates them in the same change.
+    enforcedBy: [review]
+forbidden:
+  - id: starterdocsgen.no-module-namespace
+    description: DocsGen never uses a module's types; it would stop compiling when tools/remove-module.ps1 removes that module.
+    pattern: '^\s*using\s+\w+\.Modules\.'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Read the convention by reflection over the discovered module assemblies.
+    severity: error

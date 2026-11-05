@@ -1,0 +1,18 @@
+<section
+  class="dga-card"
+  [attr.data-effect]="effect()"
+  [class.dga-card--centered]="centered()"
+  [attr.aria-labelledby]="heading() ? headingId : null"
+>
+  @if (icon(); as name) {
+    <span class="dga-card__icon"><dga-icon [name]="name" size="lg" /></span>
+  }
+  @if (heading(); as text) {
+    <div class="dga-card__heading" role="heading" [attr.aria-level]="ariaLevel()" [id]="headingId">{{ text }}</div>
+  }
+  @if (description(); as text) {
+    <p class="dga-card__description">{{ text }}</p>
+  }
+  <div class="dga-card__body"><ng-content /></div>
+  <ng-content select="[dgaCardActions]" />
+</section>

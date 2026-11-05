@@ -1,0 +1,50 @@
+<main class="login" id="main-content">
+  <div class="login__toolbar">
+    <app-language-switcher />
+  </div>
+
+  <dga-card
+    class="login__card"
+    effect="shadow"
+    icon="lock"
+    [heading]="'auth.login.title' | t"
+    [description]="'auth.login.subtitle' | t"
+    [headingLevel]="1"
+  >
+    @if (noticeKey(); as notice) {
+      <p class="login__notice" role="status">{{ notice | t }}</p>
+    }
+
+    @if (signIn.failure(); as failure) {
+      <div class="login__error" role="alert">
+        <p class="login__error-message">{{ failure.messageKey | t }}</p>
+        @if (failure.referenceCode; as code) {
+          <p class="login__error-reference">{{ 'core.error-dialog.reference-code' | t: { code: code } }}</p>
+        }
+      </div>
+    }
+
+    <form class="login__form" novalidate (submit)="submit($event)">
+      <dga-text-input
+        name="userName"
+        autocomplete="username"
+        required
+        leadIcon="user"
+        [label]="'auth.login.user-name-label' | t"
+        [error]="userNameError()"
+        [(value)]="userNameInput"
+      />
+      <dga-text-input
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        required
+        leadIcon="lock"
+        [label]="'auth.login.password-label' | t"
+        [error]="passwordError()"
+        [(value)]="passwordInput"
+      />
+      <dga-button type="submit" fullWidth [loading]="signIn.busy()">{{ 'auth.login.submit' | t }}</dga-button>
+    </form>
+  </dga-card>
+</main>

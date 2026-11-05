@@ -1,0 +1,26 @@
+<ol class="dga-stepper" [attr.aria-label]="label()">
+  @for (step of steps(); track $index; let index = $index; let last = $last) {
+    @let state = stateAt(index);
+    <li class="dga-stepper__item" [attr.data-state]="state" [attr.aria-current]="state === 'current' ? 'step' : null">
+      <span class="dga-stepper__bullet" aria-hidden="true">
+        @if (state === 'completed') {
+          <dga-icon name="check" size="sm" />
+        } @else {
+          {{ index + 1 }}
+        }
+      </span>
+      <span class="dga-stepper__text">
+        <span class="dga-stepper__label">{{ step.label }}</span>
+        @if (step.description; as description) {
+          <span class="dga-stepper__description">{{ description }}</span>
+        }
+        @if (stateText(state); as text) {
+          <span class="dga-stepper__state">{{ text }}</span>
+        }
+      </span>
+      @if (!last) {
+        <span class="dga-stepper__line" aria-hidden="true" [attr.data-filled]="state === 'completed' ? '' : null"></span>
+      }
+    </li>
+  }
+</ol>

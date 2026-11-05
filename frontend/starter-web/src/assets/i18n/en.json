@@ -1,0 +1,81 @@
+{
+  "errors": {
+    "VALIDATION_FAILED": "Some of the information you entered is not valid. Check the highlighted fields.",
+    "MALFORMED_REQUEST": "The request could not be understood. Refresh the page and try again.",
+    "INVALID_FILE": "The file cannot be accepted. Check its type and size.",
+    "BUSINESS_RULE_VIOLATED": "This action is not allowed in the current state.",
+    "UNAUTHENTICATED": "Your session has ended. Sign in again.",
+    "FORBIDDEN": "You do not have permission to do this.",
+    "NOT_FOUND": "The item you asked for was not found.",
+    "CONCURRENCY": "Someone else changed this item. Reload it and try again.",
+    "RETRYABLE": "The service is busy. Try again in a moment.",
+    "UPSTREAM_UNAVAILABLE": "A connected service is not responding. Try again later.",
+    "INTERNAL_ERROR": "Something went wrong. Try again, and quote the reference code if it keeps happening.",
+    "NETWORK": "The server could not be reached. Check your connection and try again."
+  },
+  "core": {
+    "error-dialog": {
+      "title": "Something went wrong",
+      "reference-code": "Reference code: {{code}}",
+      "dismiss": "Close"
+    },
+    "session-ended": {
+      "expired": "Your session has expired. Sign in again to continue.",
+      "idle": "You were signed out after a period of inactivity."
+    }
+  },
+  "layout": {
+    "shell": {
+      "brand": "Services Portal",
+      "nav-label": "Main navigation"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "admin": "Administration"
+    },
+    "language-switcher": {
+      "ar": "العربية",
+      "en": "English"
+    },
+    "user-menu": {
+      "logout": "Sign out"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in with your user name and password.",
+      "user-name-label": "User name",
+      "password-label": "Password",
+      "submit": "Sign in",
+      "user-name-required": "Enter your user name.",
+      "password-required": "Enter your password.",
+      "invalid-credentials": "The user name or password is not correct."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "empty": "There is nothing here yet."
+  },
+  "admin": {
+    "title": "Administration",
+    "placeholder": {
+      "heading": "Access administration",
+      "text": "User and role management will appear here."
+    }
+  },
+  "error-pages": {
+    "home": "Go to the home page",
+    "not-found": {
+      "title": "Page not found",
+      "message": "The page you are looking for does not exist or has moved."
+    },
+    "unauthorized": {
+      "title": "Access denied",
+      "message": "You do not have permission to open this page.",
+      "sign-in": "Sign in",
+      "sign-in-as-another-user": "Sign in as another user"
+    }
+  }
+}

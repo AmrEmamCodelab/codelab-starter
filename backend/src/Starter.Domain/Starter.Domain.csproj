@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Kernel Domain (ADR-004): the domain exceptions every module throws for broken invariants, and the kernel value
+    types. No reference to ASP.NET Core, EF Core, configuration or any Codelab package (AssemblyPurityRules).
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Domain</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

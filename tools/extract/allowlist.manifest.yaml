@@ -31,6 +31,10 @@ hardDeny:
     - '*nafath*'
     - '*yakeen*'
     - 'ExternalUserMocked.cs'
+    # The national identity-lookup ports, services, contracts and tests (verifier, lookup auditor, lookup token,
+    # verification permissions and controller) are the same integration under neutral names (phase 2 review).
+    - '*IdentityVerif*'
+    - '*IdentityLookup*'
     # The dropped external DGA npm package (D5).
     - '*dev-dga*.tgz'
     # Key material and dependencies never come across.
@@ -252,6 +256,158 @@ batches:
       - id: ng-api-error
         source: 'frontend/modhs-web/src/app/core/http/{api-error,api-error.spec}.ts'
         target: 'reference/p1/ng-security/http/'
+        mode: copy
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Phase 2 inputs (walking skeleton). One batch per later owner: p2-backend (wave 2 backend), p2-frontend (wave 3
+  # frontend), p2-ng-dga (wave 2 ng-dga), p2-aikit (wave 1). Every file is a REWRITE reference: nothing is copied whole.
+  # Leave-behind (plan, phase 2): the national-SSO controller, proxy client and options, and the national-SSO
+  # branches inside the auth controller, session issuer, auth payload, login and feature contracts, signature-exempt
+  # usages and the audit context accessor; in the SPA the national-SSO service, its branches in the auth service,
+  # models, SSO helper and feature store, the login tab with its polling, and its i18n text. Hard-deny keeps the
+  # national-integration FILES out; the branches inside allowlisted files are dropped by the rewrite, and the
+  # scrub sweep blocks any leftover.
+  # ---------------------------------------------------------------------------------------------------------------
+  p2-backend:
+    description: 'Phase 2 input (owner: wave 2 backend): kernel ports, authorization, basic login, session issuer, feature flags.'
+    entries:
+      # Read to split into AddXxx/UseXxx composition extensions; never copied whole (the 2,243-line defect).
+      - id: api-program
+        source: 'backend/MODHS.Api/Program.cs'
+        target: 'reference/p2/backend/api/Program.cs'
+        mode: copy
+      - id: api-authorization
+        source: 'backend/MODHS.Api/Authorization/{HasPermissionAttribute,PermissionHandler,CurrentUserContext,ICurrentUserContext,HttpAuditContextAccessor,AuthPayload}.cs'
+        target: 'reference/p2/backend/api/authorization/'
+        mode: copy
+      - id: infrastructure-authorization
+        source: 'backend/MODHS.Infrastructure/Authorization/{UserPermissionResolver,PermissionSynchronizer}.cs'
+        target: 'reference/p2/backend/infrastructure/authorization/'
+        mode: copy
+      # The user store is renamed on rewrite; hard-deny keeps every national-SSO file of the folder out.
+      - id: infrastructure-identity
+        source: 'backend/MODHS.Infrastructure/Identity/**'
+        target: 'reference/p2/backend/infrastructure/identity/'
+        mode: copy
+      # The kernel ports (unit of work, current language, audit context, permission resolver, clock -> TimeProvider).
+      # Hard-deny keeps the national identity-lookup ports out.
+      - id: domain-abstractions
+        source: 'backend/MODHS.Domain/Abstractions/**'
+        target: 'reference/p2/backend/domain/abstractions/'
+        mode: copy
+      # The permission catalog in code (rewritten as per-module <Name>PermissionKeys).
+      - id: domain-permission-catalog
+        source: 'backend/MODHS.Domain/Constants/Permissions.cs'
+        target: 'reference/p2/backend/domain/constants/Permissions.cs'
+        mode: copy
+      # Feature flags only: the anonymous endpoint discloses flags, never identities.
+      - id: feature-flags
+        source: 'backend/MODHS.Api/{Services/FeatureOptions,Services/FeatureGate,Controllers/FeaturesController,Contracts/FeatureContracts}.cs'
+        target: 'reference/p2/backend/api/features/'
+        mode: copy
+      # Basic login only (one session issuer, sid claim, rotated refresh token, logout revokes the sid).
+      - id: auth-login
+        source: 'backend/MODHS.Api/{Controllers/AuthController,Services/LoginSessionIssuer,Services/TokenService,Contracts/LoginContracts}.cs'
+        target: 'reference/p2/backend/api/auth/'
+        mode: copy
+      - id: current-language
+        source: 'backend/MODHS.Api/Services/ScopedCurrentLanguage.cs'
+        target: 'reference/p2/backend/api/services/ScopedCurrentLanguage.cs'
+        mode: copy
+      # Test references for the classes above (logic only; fixtures are rewritten with starter-only values).
+      - id: tests-api
+        source: 'backend/MODHS.Api.Tests/{PermissionHandlerTests,HttpAuditContextAccessorTests,TokenServiceTests,TokenClaimContractTests,LoginRejectionContractTests,AuthUserPayloadContractTests,FeatureGateConventionTests,FeatureSwitchContractTests,ControllerPermissionAttributeTests}.cs'
+        target: 'reference/p2/backend/tests/api/'
+        mode: copy
+      - id: tests-application
+        source: 'backend/MODHS.Application.Tests/PermissionCatalogTests.cs'
+        target: 'reference/p2/backend/tests/application/PermissionCatalogTests.cs'
+        mode: copy
+      - id: tests-integration
+        source: 'backend/MODHS.IntegrationTests/{Uc001InternalLoginTests,PermissionEnforcementTests,PermissionCacheResilienceTests,FeatureSwitchEndpointTests}.cs'
+        target: 'reference/p2/backend/tests/integration/'
+        mode: copy
+
+  p2-frontend:
+    description: 'Phase 2 input (owner: wave 3 frontend): SPA core (api, config, auth, http, i18n), staff shell, login, 404/403, i18n.'
+    entries:
+      - id: core-api-config
+        source: 'frontend/modhs-web/src/app/core/{api.service.ts,api.service.spec.ts,app-config.service.ts}'
+        target: 'reference/p2/frontend/core/'
+        mode: copy
+      # Hard-deny keeps the national-SSO service out; its branches in the other files are dropped by the rewrite.
+      - id: core-auth
+        source: 'frontend/modhs-web/src/app/core/auth/**'
+        target: 'reference/p2/frontend/core/auth/'
+        mode: copy
+      - id: core-http
+        source: 'frontend/modhs-web/src/app/core/http/**'
+        target: 'reference/p2/frontend/core/http/'
+        mode: copy
+      - id: core-i18n
+        source: 'frontend/modhs-web/src/app/core/i18n/**'
+        target: 'reference/p2/frontend/core/i18n/'
+        mode: copy
+      - id: core-config
+        source: 'frontend/modhs-web/src/app/core/config/**'
+        target: 'reference/p2/frontend/core/config/'
+        mode: copy
+      # Inventory only: the developer autofill tool lands in phase 7.
+      - id: core-dev-inventory
+        source: 'frontend/modhs-web/src/app/core/dev/**'
+        target: 'reference/p2/frontend/core/dev/'
+        mode: copy
+      - id: layout-shell
+        source: 'frontend/modhs-web/src/app/shared/layout/{app-shell,language-switcher,user-profile-menu}.component*'
+        target: 'reference/p2/frontend/layouts/'
+        mode: copy
+      # Basic tab only; the national-SSO tab and its polling are left behind.
+      - id: login
+        source: 'frontend/modhs-web/src/app/features/auth/login/**'
+        target: 'reference/p2/frontend/features/auth/login/'
+        mode: copy
+      - id: error-pages
+        source: 'frontend/modhs-web/src/app/shared/components/{not-found,unauthorized}/**'
+        target: 'reference/p2/frontend/features/errors/'
+        mode: copy
+      - id: i18n-bundles
+        source: 'frontend/modhs-web/src/{assets/i18n,i18n-protected}/{ar,en}.json'
+        target: 'reference/p2/frontend/i18n/'
+        mode: copy
+      # Rewrite references only: the starter files reference @codelab/ng-dga, never the external DGA package.
+      - id: app-build-references
+        source: 'frontend/modhs-web/{src/styles.scss,angular.json,package.json}'
+        target: 'reference/p2/frontend/app/'
+        mode: copy
+
+  p2-ng-dga:
+    description: 'Phase 2 input (owner: wave 2 ng-dga): the DGA components ported into @codelab/ng-dga 0.1.'
+    entries:
+      - id: dga-components
+        source: 'frontend/modhs-web/src/app/shared/ui/dga/**'
+        target: 'reference/p2/ng-dga/components/'
+        mode: copy
+
+  p2-aikit:
+    description: 'Phase 2 input (owner: wave 1 harvest-aikit): material behind AI kit v1 (reviewers, bug verifier, commit gate).'
+    entries:
+      - id: agent-commit-gate
+        source: '.claude/agents/commit-gate.md'
+        target: 'reference/p2/aikit/agents/commit-gate.md'
+        mode: copy
+      - id: agent-bug-verifier
+        source: '.claude/agents/bug-verifier.md'
+        target: 'reference/p2/aikit/agents/bug-verifier.md'
+        mode: copy
+      # Behind standards-reviewer (the starter's own docs/standards already carries the rewritten skill).
+      - id: standards-material
+        source: '.claude/skills/coding-standards/**'
+        target: 'reference/p2/aikit/standards/'
+        mode: copy
+      # Behind security-reviewer: account security, SPA headers, the wire-id cutover.
+      - id: security-material
+        source: 'docs/security/{account-security,spa-headers,wire-id-cutover}.md'
+        target: 'reference/p2/aikit/security/'
         mode: copy
 
 secretDigests:

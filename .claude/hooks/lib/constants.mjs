@@ -67,10 +67,13 @@ export const DefaultModuleRoots = Object.freeze([
 ]);
 
 /**
- * Platform-owned globs: editing them through Claude needs CODELAB_PLATFORM_OWNER=1. Matches .github/CODEOWNERS
- * plus the files that switch guardrails off (build script, scrub lists, repo-wide MSBuild and SDK settings).
+ * Platform-owned globs: editing them through Claude needs CODELAB_PLATFORM_OWNER=1. The same set is listed in
+ * .github/CODEOWNERS and in tools/build.ps1 $ProtectedPathPattern (protected-path report); the parity test
+ * (tests/protected-paths-parity.test.mjs) fails when the three lists disagree. It covers every file that switches
+ * a guardrail off: build script, scrub lists, repo-wide MSBuild/SDK/feed settings at any depth, analyzer
+ * .editorconfig files and the frontend lint configs (HTTP boundary, element boundaries, UI-library ban, tokens).
  * A module.rules.yaml is NOT listed: the new-module scaffold writes it. Only its `exemptions` block is guarded
- * (ModuleRulesExemptionsKey). tools/build.ps1 keeps the same list for its protected-path report.
+ * (ModuleRulesExemptionsKey); CODEOWNERS and build.ps1 still list the whole file (ModuleRulesFileGlob).
  */
 export const PlatformOwnedGlobs = Object.freeze([
   'rules/**',
@@ -79,15 +82,22 @@ export const PlatformOwnedGlobs = Object.freeze([
   'deploy/**',
   '.github/**',
   'docs/adr/**',
+  'docs/standards/**',
   'provenance/**',
   'tools/build.ps1',
-  'tools/extract/*.txt',
-  'tools/extract/*.yaml',
-  'Directory.Build.*',
-  'Directory.Packages.props',
-  'global.json',
-  'nuget.config',
+  'tools/extract/**',
+  'frontend/starter-web/eslint.config.mjs',
+  'frontend/starter-web/stylelint.config.mjs',
+  'frontend/starter-web/tools/lint/**',
+  '**/Directory.Build.*',
+  '**/Directory.Packages.props',
+  '**/global.json',
+  '**/nuget.config',
+  '**/.editorconfig',
 ]);
+
+/** The module rules file: owner-reviewed in CODEOWNERS, but the hooks guard only its exemptions block. */
+export const ModuleRulesFileGlob = '**/module.rules.yaml';
 
 /** The module.rules.yaml key that drops a base rule; adding or changing it needs the platform owner. */
 export const ModuleRulesExemptionsKey = 'exemptions';

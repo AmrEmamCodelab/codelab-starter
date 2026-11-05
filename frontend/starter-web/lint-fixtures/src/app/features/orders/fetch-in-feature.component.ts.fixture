@@ -1,0 +1,6 @@
+// Lint case (must FAIL): a feature component calling fetch directly.
+export class OrdersExportComponent {
+  async download(url: string): Promise<Response> {
+    return fetch(url);
+  }
+}

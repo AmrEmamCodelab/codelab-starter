@@ -276,6 +276,18 @@
     {
       "rule": "term-brand-legacy-name",
       "line": "MedEva_Infrastructure Details"
+    },
+    {
+      "rule": "term-integration-national-center-name",
+      "line": "National Information Center lookup"
+    },
+    {
+      "rule": "term-integration-ar-national-center",
+      "line": "خدمة مركز المعلومات الوطني"
+    },
+    {
+      "rule": "term-integration-ar-national-center",
+      "line": "مركز  المعلومات  الوطنيّ"
     }
   ],
   "allowed": [
@@ -308,7 +320,14 @@
   "dga": {
     "packageJsonDependency": "\"@dga/ui\": \"1.0.0\"",
     "devPackage": "\"@dev-dga/angular\": \"0.0.1\"",
-    "tarballPath": "vendor/dev-dga-angular-0.0.1.tgz"
+    "tarballPath": "vendor/dev-dga-angular-0.0.1.tgz",
+    "allowed": [
+      "@use '@codelab/ng-dga/styles';",
+      "\"@codelab/ng-dga\": \"0.1.0\"",
+      "{ \"glob\": \"**/*\", \"input\": \"node_modules/@codelab/ng-dga/assets\", \"output\": \"assets/ng-dga\" }",
+      "color: var(--dga-color-primary);",
+      "see https://dga.gov.sa for the platform guidelines"
+    ]
   },
   "exceptions": {
     "brandPath": "backend/MODHS.Api/Program.cs",
@@ -336,14 +355,20 @@
       "deploy/check-env-production.ps1",
       "frontend/web/dev-dga-angular-0.0.1-ng20.1.tgz",
       "services/gateway/dev-keys/gw-local.key.pem",
-      "frontend/web/node_modules/x/index.js"
+      "frontend/web/node_modules/x/index.js",
+      "backend/Domain/Abstractions/IIdentityVerifier.cs",
+      "backend/Domain/Abstractions/IIdentityLookupAuditor.cs",
+      "backend/Api/Services/IdentityLookupTokenService.cs",
+      "backend/Api/Authorization/IdentityVerificationPermissions.cs"
     ],
     "allowed": [
       "backend/Domain/Constants/ClinicalRanges.cs",
       "docs/Technical.md",
       "backend/Domain/Security/CanonicalString.cs",
       "deploy/config/README.md",
-      ".claude/skills/prep-deploy/SKILL.md"
+      ".claude/skills/prep-deploy/SKILL.md",
+      "backend/Infrastructure/Identity/IdentityPolicy.cs",
+      "backend/Api/Authorization/CurrentUserContext.cs"
     ]
   },
   "pathFlagged": [
@@ -354,6 +379,153 @@
     {
       "rule": "term-domain-care-subject",
       "path": "frontend/app/PatientCard.component.ts"
+    }
+  ],
+  "p2Roots": [
+    {
+      "path": "frontend/starter-web/src/styles.scss",
+      "line": "@use '@dga/ui/styles' as dga;",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/src/styles.scss",
+      "line": "@import '~@dev-dga/angular/styles';",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/angular.json",
+      "line": "{ \"glob\": \"**/*\", \"input\": \"node_modules/@dev-dga/angular/assets\", \"output\": \"assets\" }",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/tsconfig.json",
+      "line": "\"paths\": { \"@dga\": [\"vendor/dga/index.ts\"] }",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/package.json",
+      "line": "\"ui-kit\": \"file:vendor/dev-dga-angular-0.0.1-ng20.1.tgz\"",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/src/assets/i18n/ar.json",
+      "line": "\"auth.login.national\": \"الدخول عبر نفاذ\"",
+      "rule": "term-integration-ar-national-sso"
+    },
+    {
+      "path": "frontend/starter-web/src/assets/i18n/en.json",
+      "line": "\"auth.login.national\": \"Sign in with Nafath\"",
+      "rule": "term-integration-national-sso"
+    },
+    {
+      "path": "frontend/starter-web/src/assets/i18n/ar.json",
+      "line": "\"identity.lookup\": \"التحقق عبر يقين\"",
+      "rule": "term-integration-ar-identity-lookup"
+    },
+    {
+      "path": "frontend/starter-web/public/i18n/ar.json",
+      "line": "\"identity.registry\": \"مركز المعلومات الوطني\"",
+      "rule": "term-integration-ar-national-center"
+    },
+    {
+      "path": "frontend/starter-web/src/app/features/auth/login/login.component.html",
+      "line": "<dga-tabs [tabs]=\"nafathTabs\"></dga-tabs>",
+      "rule": "term-integration-national-sso"
+    },
+    {
+      "path": "frontend/starter-web/src/app/features/auth/module.rules.yaml",
+      "line": "description: wraps @dga/ui buttons",
+      "rule": "dga-package"
+    },
+    {
+      "path": "frontend/starter-web/src/app/features/auth/CLAUDE.md",
+      "line": "Use the YakeenClient for lookups.",
+      "rule": "term-integration-identity-lookup"
+    },
+    {
+      "path": "backend/src/Modules/Identity/Starter.Modules.Identity.csproj",
+      "line": "<Compile Include=\"NicIdentityVerifier.cs\" />",
+      "rule": "term-integration-national-center"
+    },
+    {
+      "path": "backend/src/Modules/Identity/MODULE.md",
+      "line": "The login page mirrors the external @dga/ui kit.",
+      "rule": "dga-package"
+    },
+    {
+      "path": "backend/src/Starter.Api/appsettings.json",
+      "line": "\"Features\": { \"NafathLogin\": false }",
+      "rule": "term-integration-national-sso"
+    },
+    {
+      "path": "packages/npm/ng-dga/src/lib/button/dga-button.component.scss",
+      "line": "@use '@dga/ui/tokens';",
+      "rule": "dga-package"
+    },
+    {
+      "path": "packages/npm/ng-dga/package.json",
+      "line": "\"peerDependencies\": { \"@dev-dga/angular\": \"0.0.1\" }",
+      "rule": "dga-package"
+    },
+    {
+      "path": "packages/npm/ng-dga/assets/LICENCES.json",
+      "line": "\"source\": \"@dga/ui icon font\"",
+      "rule": "dga-package"
+    },
+    {
+      "path": "init.ps1",
+      "line": "$legacyKit = '@dev-dga/angular'",
+      "rule": "dga-package"
+    },
+    {
+      "path": "run-local.ps1",
+      "line": "# starts the Nafath simulator",
+      "rule": "term-integration-national-sso"
+    },
+    {
+      "path": "codelab.starter.json",
+      "line": "\"productName\": { \"en\": \"MODHS portal\" }",
+      "rule": "term-brand-product"
+    },
+    {
+      "path": "tools/fork/Test-ForkModel.ps1",
+      "line": "Remove-Item 'src/@dga/ui'",
+      "rule": "dga-package"
+    },
+    {
+      "path": "tools/scaffold/new-module.mjs",
+      "line": "const kit = '@dga/ui';",
+      "rule": "dga-package"
+    },
+    {
+      "path": "tools/scaffold/templates/module/MODULE.md.tmpl",
+      "line": "Talks to Yakeen for identity data.",
+      "rule": "term-integration-identity-lookup"
+    },
+    {
+      "path": "rules/eslint-boundaries.compiled.json",
+      "line": "\"allowedUi\": [\"@dga/ui\"]",
+      "rule": "dga-package"
+    },
+    {
+      "path": ".claude/agents/security-reviewer.md",
+      "line": "Check the @dev-dga/angular imports.",
+      "rule": "dga-package"
+    },
+    {
+      "path": "docs/generated/config-keys.md",
+      "line": "| Nafath:BaseUrl | string |",
+      "rule": "term-integration-national-sso"
+    },
+    {
+      "path": "docs/recipes/add-endpoint.md",
+      "line": "Style buttons with @dga/ui.",
+      "rule": "dga-package"
+    },
+    {
+      "path": "CLAUDE.md",
+      "line": "Use @dga/ui components.",
+      "rule": "dga-package"
     }
   ]
 }

@@ -1,0 +1,28 @@
+<button
+  class="dga-btn"
+  [attr.type]="type()"
+  [disabled]="isDisabled()"
+  [attr.aria-label]="label()"
+  [attr.aria-pressed]="pressed()"
+  [attr.aria-busy]="loading() ? 'true' : null"
+  [attr.data-variant]="variant()"
+  [attr.data-size]="size()"
+  [attr.data-destructive]="destructive() ? '' : null"
+  [attr.data-on-color]="onColor() ? '' : null"
+  [attr.data-selected]="selected() ? '' : null"
+  [class.dga-btn--loading]="loading()"
+  [class.dga-btn--icon-only]="iconOnly()"
+>
+  @if (leadIcon(); as icon) {
+    <dga-icon class="dga-btn__icon" [name]="icon" />
+  }
+  @if (!iconOnly()) {
+    <span class="dga-btn__label"><ng-content /></span>
+  }
+  @if (trailIcon(); as icon) {
+    <dga-icon class="dga-btn__icon" [name]="icon" />
+  }
+  @if (loading()) {
+    <span class="dga-btn__spinner" aria-hidden="true"></span>
+  }
+</button>

@@ -1,6 +1,5 @@
 // Built-in scrub rules that are not plain terms: addresses, national-ID-like numbers, internal hosts, LDAP domains
 // and the DGA package check (D5: no external DGA npm package). Term rules come from modhs-terms.txt.
-import { posix } from 'node:path';
 
 /**
  * @typedef {'content' | 'path' | 'both'} RuleScope
@@ -107,16 +106,14 @@ const ALLOWED_HOSTS = new Set(['dga.gov.sa', 'www.dga.gov.sa', 'example.gov.sa',
 const LDAP_DOMAIN_PATTERN = /\bDC=(?!(?:example|test|invalid|com|org|net)\b)[a-z0-9-]+/gi;
 
 // --- DGA package check ------------------------------------------------------------------------------------------
-const DGA_PACKAGE_PATTERN = /@dev-dga|@dga\//g;
+// D5 and the phase 2 exit: no reference to the external DGA package in ANY scanned file (code, styles, templates,
+// every JSON file such as tsconfig paths or i18n values, YAML, Markdown docs, CLAUDE.md files and agents).
+// provenance/ and docs/adr/ record the decision by name and are excepted in scrub-exceptions.txt. Matched forms:
+// the dev scope with anything after it; the short scope followed by "/" or ending a token (a quoted "@dga" paths
+// key); and the package tarball file name referenced from content ("file:vendor/<name>.tgz"). An e-mail address at
+// a DGA domain is not a package and is left to the e-mail rule.
+const DGA_PACKAGE_PATTERN = /@dev-dga|@dga(?:\/|(?=["'`\s,;)\]]|$))|\bdev-dga[\w.-]*\.tgz\b/gi;
 const DGA_TARBALL_PATTERN = /dev-dga/gi;
-const DGA_CHECKED_FILE_NAMES = new Set([
-  'package.json', 'package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'angular.json',
-]);
-const DGA_CHECKED_EXTENSIONS = new Set(['.ts', '.scss', '.css', '.js', '.mjs', '.cjs', '.html']);
-
-function isDgaCheckedFile(path) {
-  return DGA_CHECKED_FILE_NAMES.has(posix.basename(path)) || DGA_CHECKED_EXTENSIONS.has(posix.extname(path));
-}
 
 /** @returns {ScrubRule[]} the built-in rules, fresh RegExp state per call */
 export function builtInScrubRules() {
@@ -188,7 +185,6 @@ export function builtInScrubRules() {
       pattern: DGA_PACKAGE_PATTERN,
       message: 'external DGA npm package reference (D5: the starter owns its DGA components in @codelab/ng-dga)',
       scope: SCOPE_CONTENT,
-      appliesTo: isDgaCheckedFile,
     },
     {
       id: 'dga-tarball',

@@ -15,8 +15,20 @@ const SPIKE_BATCHES = {
   'pkg-spike-observability': 'src/Codelab.Observability/**',
   'pkg-spike-sample': 'sample/**',
 };
-const HARVEST_BATCHES = ['p0', 'p1-security', 'p1-observability-errors', 'p1-integration', 'p1-testing', 'p1-ng-security'];
+const P2_BATCHES = ['p2-backend', 'p2-frontend', 'p2-ng-dga', 'p2-aikit'];
+const HARVEST_BATCHES = ['p0', 'p1-security', 'p1-observability-errors', 'p1-integration', 'p1-testing', 'p1-ng-security',
+  ...P2_BATCHES];
 const RETIRED_BATCHES = ['pkg-spike'];
+const PROMOTION_STAGED = 'staged';
+const PROMOTION_REWRITTEN = 'rewritten';
+// Phase 2 entries kept as references on purpose; each must say why it is not promoted (README "Promote a batch").
+const P2_DEFERRED_ENTRIES = { 'p2-frontend': ['core-dev-inventory'] };
+const P2_REFERENCE_ONLY_ENTRIES = { 'p2-backend': ['api-program'], 'p2-frontend': ['app-build-references'] };
+// Batches whose allowlist globs reach folders holding national-integration files, so hard-deny must have fired.
+const NATIONAL_EXCLUSION_REASONS = {
+  'p2-frontend': 'national-integration code',
+  'p2-backend': 'national identity-lookup ports, services, contracts and tests',
+};
 
 const manifest = loadManifest(MANIFEST_FILE);
 const exclusions = JSON.parse(readFileSync(join(TESTS_DIRECTORY, 'fixtures', 'harvest-exclusions.json'), 'utf8'));
@@ -104,4 +116,42 @@ test('no harvest batch staged a vector, key fixture, key file, settings file or 
 test('the exclusion rules flag the shapes they describe', () => {
   for (const path of exclusions.flaggedSamples) assert.ok(forbidden.some((rule) => rule.regex.test(path)), path);
   for (const path of exclusions.allowedSamples) assert.ok(!forbidden.some((rule) => rule.regex.test(path)), path);
+});
+
+const ruleFor = (reason) => forbidden.find((rule) => rule.reason === reason);
+const hardDenyPatterns = new Set([...manifest.hardDeny.caseInsensitive, ...manifest.hardDeny.caseSensitive]);
+
+test('phase 2 hard-deny kept the national-integration files out and recorded each one as denied', () => {
+  for (const [name, reason] of Object.entries(NATIONAL_EXCLUSION_REASONS)) {
+    const document = originFiles.get(name);
+    const rule = ruleFor(reason);
+    assert.ok(rule, `harvest-exclusions.json has no rule "${reason}"`);
+    assert.ok(document.denied.some((entry) => rule.regex.test(entry.source)), `${name}: no national file was denied`);
+    for (const entry of document.denied) {
+      assert.ok(hardDenyPatterns.has(entry.pattern), `${name}: ${entry.source} denied by unknown pattern ${entry.pattern}`);
+    }
+  }
+});
+
+test('phase 2 deferred and reference-only entries say why they are not promoted', () => {
+  const check = (entries, field) => {
+    for (const [name, entryIds] of Object.entries(entries)) {
+      const origins = originFiles.get(name).origins.filter((origin) => entryIds.includes(origin.entryId));
+      assert.ok(origins.length > 0, `${name}: no origin for ${entryIds.join(', ')}`);
+      for (const origin of origins) {
+        if (origin.promotion === PROMOTION_STAGED) assert.ok(origin[field], `${origin.source}: staged without ${field}`);
+      }
+    }
+  };
+  check(P2_DEFERRED_ENTRIES, 'deferred');
+  check(P2_REFERENCE_ONLY_ENTRIES, 'note');
+});
+
+test('a promoted phase 2 origin names a repo file that exists and keeps its staging path', () => {
+  for (const name of P2_BATCHES) {
+    for (const origin of originFiles.get(name).origins.filter((item) => item.promotion === PROMOTION_REWRITTEN)) {
+      assert.ok(existsSync(join(REPO_ROOT, origin.target)), `${origin.source}: target ${origin.target} does not exist`);
+      assert.ok(origin.stagedTarget, `${origin.source}: rewritten without stagedTarget`);
+    }
+  }
 });
