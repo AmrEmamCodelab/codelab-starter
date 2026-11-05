@@ -8,6 +8,7 @@
 
 # Build output
 bin/
+!packages/npm/*/src/bin/
 obj/
 /artifacts/
 TestResults/

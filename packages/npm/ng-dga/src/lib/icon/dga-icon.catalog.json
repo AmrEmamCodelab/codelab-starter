@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-icon",
+  "className": "DgaIconComponent",
+  "category": "media",
+  "summary": "One glyph of the owned Codelab icon font; decorative unless labelled; reading-direction glyphs mirror in RTL.",
+  "inputs": [
+    {
+      "name": "name",
+      "type": "DgaIconName",
+      "required": true,
+      "description": "The icon (see dga-icon-names.generated.ts)."
+    },
+    {
+      "name": "label",
+      "type": "string | null",
+      "required": false,
+      "default": "null",
+      "description": "Accessible name (translated); omit for a decorative icon next to visible text."
+    },
+    {
+      "name": "size",
+      "type": "DgaIconSize (inherit | xs | sm | md | lg)",
+      "required": false,
+      "default": "'inherit'",
+      "description": "Size on the --dga-size-icon-* tokens."
+    },
+    {
+      "name": "flipInRtl",
+      "type": "boolean | undefined",
+      "required": false,
+      "default": "undefined",
+      "description": "Mirror in RTL; defaults to the manifest setting of the icon."
+    }
+  ],
+  "outputs": [],
+  "slots": [],
+  "a11y": "aria-hidden without a label; role=img with aria-label when labelled.",
+  "since": "1.0.0"
+}

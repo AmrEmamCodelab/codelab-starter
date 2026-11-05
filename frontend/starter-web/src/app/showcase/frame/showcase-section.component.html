@@ -1,0 +1,22 @@
+<section class="section" [id]="anchor()" [attr.aria-labelledby]="headingId()">
+  @if (level() === Levels.Section) {
+    <h2 class="section__heading section__heading--section" [id]="headingId()">
+      <ng-container [ngTemplateOutlet]="title" />
+    </h2>
+  } @else {
+    <h3 class="section__heading" [id]="headingId()">
+      <ng-container [ngTemplateOutlet]="title" />
+    </h3>
+  }
+  <div class="section__demos">
+    <ng-content />
+  </div>
+</section>
+
+<ng-template #title>
+  @if (titleKey(); as key) {
+    {{ key | t }}
+  } @else {
+    <code class="section__selector" dir="ltr" data-fixed-direction>{{ anchor() }}</code>
+  }
+</ng-template>

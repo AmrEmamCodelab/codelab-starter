@@ -74,6 +74,24 @@ describe('pre-tool-use: new module flow', () => {
     projectRoot, toolName: 'Write', toolInputFields: { file_path: `${projectRoot}/${relativePath}`, content },
   });
 
+  it('regression: refuses a page in a new frontend feature area without module.rules.yaml and names new-screen', () => {
+    const page = 'frontend/starter-web/src/app/features/invoices/list/list-page.component.ts';
+    const { output } = runHookScript(SCRIPT, newModuleFile(root, page, 'export class ListPageComponent {}\n'), { projectRoot: root });
+    assert.equal(decisionOf(output), DENY);
+    assert.match(reasonOf(output), /\[hooks\.module-without-rules\]/);
+    assert.match(reasonOf(output), /new-screen/);
+    assert.match(reasonOf(output), /features\/dashboard\//);
+    assert.match(reasonOf(output), /tools\/rules-engine\/compile\.mjs/);
+    assert.doesNotMatch(reasonOf(output), /new-module/);
+  });
+
+  it('allows a page in a new frontend feature area once its module.rules.yaml exists', () => {
+    writeFiles(root, { 'frontend/starter-web/src/app/features/receipts/module.rules.yaml': 'module: Receipts\n' });
+    const page = 'frontend/starter-web/src/app/features/receipts/list/list-page.component.ts';
+    const { output } = runHookScript(SCRIPT, newModuleFile(root, page, 'export class ListPageComponent {}\n'), { projectRoot: root });
+    assert.doesNotMatch(reasonOf(output) ?? '', /hooks\.module-without-rules/);
+  });
+
   it('allows writing module.rules.yaml and MODULE.md into a new module folder', () => {
     for (const name of ['module.rules.yaml', 'MODULE.md']) {
       const { output } = runHookScript(SCRIPT, newModuleFile(root, `backend/src/Modules/Invoices/${name}`, 'x\n'), { projectRoot: root });

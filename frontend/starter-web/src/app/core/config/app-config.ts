@@ -1,3 +1,4 @@
+import { type DgaBranding, DgaBrandingField, DgaBrandingInvalidError, parseDgaBranding } from '@codelab/ng-dga';
 import { isAppLanguage, type AppLanguage } from '../i18n/language';
 
 /**
@@ -19,6 +20,23 @@ export interface AppConfig {
    * {@link DEFAULT_PERMISSION_REFRESH_SECONDS}.
    */
   readonly permissionRefreshSeconds: number;
+  /**
+   * The project's branding (primary colour, logo, name in ar and en), written by `init.ps1`. Optional: without it
+   * the DGA default green applies. Validated by `@codelab/ng-dga` (hex colour, app-served logo path, both names).
+   */
+  readonly branding?: DgaBranding;
+  /**
+   * Serves the live component showcase at `/showcase` (dev and staging only). Optional in the file: defaults to
+   * false, so a production config that names nothing never exposes it. A development build forces it on
+   * (`DEVELOPMENT_BUILD_OVERRIDES` in runtime-config.loader.ts).
+   */
+  readonly showcase: boolean;
+  /**
+   * Offers the public contact form at `/portal/contact`. Optional in the file: defaults to false until the deployed
+   * API serves `POST api/portal/contact-messages`, so the page never shows a form that can only fail; while off the
+   * page shows the ways to reach the team and a "form coming soon" notice.
+   */
+  readonly portalContactForm: boolean;
 }
 
 /** The background permission sync interval when `config.json` names none. */
@@ -48,6 +66,9 @@ export class AppConfigInvalidError extends Error {
   }
 }
 
+/** The config.json field of the branding block; a bad branding field is reported as `branding.<field>`. */
+export const BRANDING_FIELD = 'branding';
+
 type JsonObject = Record<string, unknown>;
 
 function isObject(value: unknown): value is JsonObject {
@@ -64,6 +85,24 @@ function isStringList(value: unknown): value is string[] {
 
 function isRefreshSeconds(value: unknown): value is number {
   return Number.isInteger(value) && (value as number) >= 0 && (value as number) <= MAX_PERMISSION_REFRESH_SECONDS;
+}
+
+function isBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
+}
+
+/** The branding block, validated by its owner (`parseDgaBranding`); undefined when the file has none. */
+function optionalBranding(value: unknown): DgaBranding | undefined {
+  if (value === undefined) return undefined;
+  try {
+    return parseDgaBranding(value);
+  } catch (error) {
+    if (error instanceof DgaBrandingInvalidError) {
+      const isRoot = error.field === DgaBrandingField.Root;
+      throw new AppConfigInvalidError(isRoot ? BRANDING_FIELD : `${BRANDING_FIELD}.${error.field}`);
+    }
+    throw error;
+  }
 }
 
 function optionalField<T>(value: unknown, field: string, check: (candidate: unknown) => candidate is T, fallback: T): T {
@@ -103,7 +142,15 @@ export function parseAppConfig(raw: unknown): AppConfig {
       isRefreshSeconds,
       DEFAULT_PERMISSION_REFRESH_SECONDS,
     ),
+    ...withBranding(optionalBranding(root[BRANDING_FIELD])),
+    showcase: optionalField(root['showcase'], 'showcase', isBoolean, false),
+    portalContactForm: optionalField(root['portalContactForm'], 'portalContactForm', isBoolean, false),
   };
+}
+
+/** Leaves the key out entirely when the file has no branding, so a parsed config compares equal to its source. */
+function withBranding(branding: DgaBranding | undefined): Pick<AppConfig, 'branding'> {
+  return branding === undefined ? {} : { branding };
 }
 
 /** Joins a path onto a base, collapsing the slashes on either side so a leading slash never matters. */

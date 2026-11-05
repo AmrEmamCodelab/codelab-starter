@@ -1,0 +1,10 @@
+// Lint case (must PASS): a feature reaching a page pattern, a layout and @codelab/ng-dga.
+import { DgaCard } from '@codelab/ng-dga';
+import { PortalFrame } from '../../layouts/portal-frame/portal-frame';
+import { RecordListPattern } from '../../patterns/record-list/record-list-pattern';
+
+export class OrdersOverviewComponent {
+  readonly card = DgaCard;
+
+  constructor(readonly frame: PortalFrame, readonly list: RecordListPattern) {}
+}

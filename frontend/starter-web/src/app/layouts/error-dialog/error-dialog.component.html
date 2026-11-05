@@ -1,21 +1,13 @@
 @if (store.messageKey(); as messageKey) {
-  <div class="error-dialog__backdrop">
-    <section
-      class="error-dialog"
-      role="alertdialog"
-      aria-modal="true"
-      [attr.aria-labelledby]="titleId"
-      [attr.aria-describedby]="messageId"
-    >
-      <h2 class="error-dialog__title" [id]="titleId">
-        <dga-icon name="alert" size="md" />
-        <span>{{ 'core.error-dialog.title' | t }}</span>
-      </h2>
-      <p class="error-dialog__message" [id]="messageId">{{ messageKey | t }}</p>
-      @if (store.referenceCode(); as code) {
-        <p class="error-dialog__reference">{{ 'core.error-dialog.reference-code' | t: { code: code } }}</p>
-      }
-      <dga-button variant="primary" size="md" (click)="dismiss()">{{ 'core.error-dialog.dismiss' | t }}</dga-button>
-    </section>
-  </div>
+  <dga-error-dialog
+    open
+    [title]="keys.Title | t"
+    [message]="messageKey | t"
+    [referenceLabel]="keys.Reference | t"
+    [referenceCode]="store.referenceCode()"
+    [copyLabel]="keys.Copy | t"
+    [copiedLabel]="keys.Copied | t"
+    [closeLabel]="keys.Close | t"
+    (closed)="dismiss()"
+  />
 }

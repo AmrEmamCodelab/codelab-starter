@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-accordion",
+  "className": "DgaAccordionComponent",
+  "category": "content",
+  "summary": "The DGA accordion: a stack of dga-accordion-item sections that open one at a time (single) or independently (multiple), for FAQs and long content split into sections.",
+  "inputs": [
+    { "name": "mode", "type": "DgaAccordionMode ('single' | 'multiple')", "required": false, "default": "'single'", "description": "single closes the other items when the user opens one; multiple lets items open independently." },
+    { "name": "headingLevel", "type": "DgaAccordionHeadingLevel (H2..H6: 2 | 3 | 4 | 5 | 6)", "required": false, "default": "3", "description": "The aria-level of every item heading, to fit the page outline." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The dga-accordion-item elements, as direct content children (control flow such as @for is fine)." }
+  ],
+  "a11y": "WAI-ARIA accordion pattern. Up and Down move focus between item headers (wrapping), Home and End jump to the first and last; disabled headers are skipped. Enter and Space toggle through the native header buttons. Block-direction keys, so the behaviour is the same in RTL and LTR.",
+  "since": "1.0.0"
+}

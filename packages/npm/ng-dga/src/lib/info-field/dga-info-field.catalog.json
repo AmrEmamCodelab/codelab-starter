@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-info-field",
+  "className": "DgaInfoFieldComponent",
+  "category": "data",
+  "summary": "The DGA info field: one labelled read-only value with an optional decorative icon, for detail and profile pages. Lay several out in a CSS grid; wide spans a full row.",
+  "inputs": [
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "The caption above the value (translated)." },
+    { "name": "icon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative leading icon in a circle." },
+    { "name": "valueDir", "type": "DgaValueDirection ('ltr' | 'rtl' | 'auto') | null", "required": false, "default": "null", "description": "Writing direction of the value; ltr keeps phone numbers and codes readable inside RTL text." },
+    { "name": "size", "type": "DgaInfoFieldSize ('md' | 'lg')", "required": false, "default": "'md'", "description": "Type size of the value." },
+    { "name": "wide", "type": "boolean", "required": false, "default": "false", "description": "Spans the full row of a CSS grid." },
+    { "name": "align", "type": "DgaInfoFieldAlign ('center' | 'start')", "required": false, "default": "'center'", "description": "Vertical alignment of icon and text; start suits multi-line values." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The value, formatted by the caller (with its own empty fallback)." }
+  ],
+  "a11y": "The host is role=group named by its label (aria-labelledby), so the label is read with the value. The icon is decorative. valueDir isolates a left-to-right value inside RTL text.",
+  "since": "1.0.0"
+}

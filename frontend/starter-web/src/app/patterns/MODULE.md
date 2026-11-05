@@ -4,8 +4,10 @@
 
 Reusable page bases that screens are built on, so every admin screen looks and behaves the same and a new screen is
 mostly configuration. A pattern renders state and forwards user intent; the screen owns the data, the API calls
-(through its feature client) and the permission gates. Three of the eight page patterns land here first (P3 needs
-them); the other five, their design doc and the `/showcase` route follow in P4.
+(through its feature client) and the permission gates. All eight page patterns live here (admin list + editor dialog,
+tree editor, work queue, staff detail + decision dialog, multi-step wizard, requester detail + status tracker, portal
+content, landing dashboard; see `docs/design/page-patterns.md`). Each has a design doc in
+`docs/design/patterns/` and a live example on the `/showcase` pages (`config.json` `showcase: true`).
 
 | Pattern / helper | What it gives a screen | Files |
 | --- | --- | --- |
@@ -18,6 +20,14 @@ them); the other five, their design doc and the `/showcase` route follow in P4.
 | `app-tree-editor-pattern` | Checkbox tree from dotted keys or explicit nodes: tri-state parents, filter keeping ancestors, expand/collapse all, select/clear all, read-only, `[(value)]` set of keys, `selectionChange` with added/removed | `tree-editor/` |
 | Tree helpers | `buildKeyTree(keys, labelFor)`, `checkState`, `toggleSubtree`, `filterTree`, `diffSelection`, `TreeCheckState` | `tree-editor/key-tree.ts` |
 | Translation keys | `PatternTranslationKeys` (everything under `patterns.*`) | `pattern-translation-keys.ts` |
+| `app-work-queue-pattern` | Staff inbox on the admin list: queue tabs (`QueueTab`, `[(tab)]`), `[queueFilters]` slot, SLA/due column (`DueColumnDef`, `DueState` against `APP_CLOCK`), optional bulk selection (`[(selected)]`, `[queueBulkActions]`); helpers in `queue-state.ts` | `work-queue/` |
+| `app-staff-detail-pattern` | Record page for staff: back/status/header-action slots, detail cards, history slot, decision panel from server `AllowedAction[]` emitting `decide(action)`, loading/error | `staff-detail/` |
+| `app-decision-dialog` | Reason dialog on the editor dialog: mandatory reason (`DECISION_REASON_MIN_LENGTH`/`MAX_LENGTH`), counter, confirm emits the trimmed reason, server field errors under the field | `decision-dialog/` |
+| `app-portal-content-pattern` + `[portalSection]` | Public page frame: `[portalHeader]` (or `titleKey`), table of contents from `PortalSection[]` with in-page anchors and focus move, sections slot, `[portalLastUpdated]` | `portal-content/` |
+| `app-landing-dashboard-pattern` | Greeting/`[landingHero]`, KPI tiles from `KpiTile[]`, quick actions from `QuickAction[]`, `[landingRecent]` | `landing-dashboard/` |
+| `app-wizard-pattern` | Multi-step form base: navigable dga-stepper trail, one `<ng-template wizardStep="id">` per step, optional review step, Back / Next / Save draft / Submit / Cancel, guards on each step's `valid` signal, server field errors mapped to steps through `fieldSteps` | `wizard/` |
+| `app-status-tracker` | Current-status card plus a read-only timeline of `StatusHistoryEntry`; `toneFor`, `order`, `current` | `status-tracker/` |
+| `app-requester-detail-pattern` | Requester's record page: header, `[detailBanner]`, `[detailSummary]`, `[detailAttachments]`, status tracker and `[detailActions]`, loading and error | `requester-detail/` |
 
 Import from the barrel: `import { AdminListPatternComponent, type ColumnDef } from '../../../patterns';`.
 
@@ -94,8 +104,8 @@ keys below them. `nodes` (explicit `TreeNode[]`) wins over `keys`. Inputs: `labe
 
 - **A new pattern** gets its own folder (`patterns/<name>/`) with the component, its pure helpers in a separate
   `.ts` file, and a spec for each. The component spec renders it inside a host component that uses it the way a
-  screen would; that host is the living documentation until the P4 showcase. Export it from `index.ts` and add a
-  row to the table above.
+  screen would. Add a live example to the `/showcase` patterns page and a design doc in `docs/design/patterns/`,
+  export it from `index.ts` and add a row to the table above.
 - **A new text** the pattern renders on its own goes in `PatternTranslationKeys` and in both `ar.json` and `en.json`
   under `patterns.*` (the spec checks both). Screen-specific text is an input (`titleKey`, `emptyKey`...), never a
   pattern key.
@@ -110,6 +120,8 @@ keys below them. `nodes` (explicit `TreeNode[]`) wins over `keys`. Inputs: `labe
   actions with `*hasPermission` and loads the data.
 - Standalone, OnPush, signal inputs/models/outputs. Native semantic elements (`table`, `dialog`, `fieldset`,
   `button`) styled with `--dga-*` tokens and logical CSS are allowed here; no third-party UI.
+- Text colours on tinted surfaces (the current-status card, the active table-of-contents link) use
+  `--dga-color-text-secondary` or `--dga-color-text-link`, never `-muted` or `-primary`: those fall below 4.5:1 there.
 - Accessibility is part of the contract: captions and `aria-sort` on the table, `aria-current` in the pager,
   `role="alert"` for errors, `aria-expanded`/`aria-controls` on tree toggles, the native mixed state on tri-state
   boxes, and the dialog's focus trap and restore.
@@ -129,3 +141,4 @@ keys below them. `nodes` (explicit `TreeNode[]`) wins over `keys`. Inputs: `labe
 - While the tree filter is active every visible branch is expanded and expand/collapse all is disabled; clearing the
   filter restores the user's own expansion.
 - Select all / clear all act on the VISIBLE keys, so with a filter they select only the matches.
+- Each P4 pattern keeps its texts in `<pattern>-translation-keys.ts` under `patterns.<name>.*`, included in PATTERN_TRANSLATION_KEYS. Full examples: docs/design/patterns/. Only the wizard's current step template is rendered: keep entered values in the screen's form or store.

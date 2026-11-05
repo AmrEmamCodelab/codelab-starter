@@ -2,6 +2,7 @@ import { provideAppInitializer, provideBrowserGlobalErrorListeners, type Applica
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import type { AppConfig } from './core/config/app-config';
 import { APP_CONFIG } from './core/config/app-config.service';
+import { provideAppBranding } from './core/config/branding.providers';
 import { provideStarterHttp } from './core/http/http.providers';
 import { provideStarterSecurity } from './core/security/security.providers';
 import { initializeCore } from './core/session/core-initializer';
@@ -16,6 +17,7 @@ export function createAppConfig(config: AppConfig): ApplicationConfig {
     providers: [
       provideBrowserGlobalErrorListeners(),
       { provide: APP_CONFIG, useValue: config },
+      ...provideAppBranding(config),
       provideRouter(routes, withComponentInputBinding()),
       provideStarterHttp(),
       ...provideStarterSecurity(config),

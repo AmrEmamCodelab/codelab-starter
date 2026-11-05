@@ -1,0 +1,12 @@
+// Lint case (must PASS): the showcase reaches @codelab/ng-dga, patterns, layouts, shared and core.
+import { DgaButton } from '@codelab/ng-dga';
+import { ApiService } from '../../core/api/api.service';
+import { PortalFrame } from '../../layouts/portal-frame/portal-frame';
+import { RecordListPattern } from '../../patterns/record-list/record-list-pattern';
+import { StatusLabel } from '../../shared/status-label/status-label';
+
+export class ShowcaseGalleryComponent {
+  readonly button = DgaButton;
+
+  constructor(readonly api: ApiService, readonly frame: PortalFrame, readonly list: RecordListPattern, readonly label: StatusLabel) {}
+}

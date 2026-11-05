@@ -1,8 +1,10 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
+import { DgaFileRejectionReason } from '@codelab/ng-dga';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TranslationService } from '../../core/i18n/translation.service';
-import { FilePickerComponent, firstPickedFile } from './file-picker.component';
+import { FilePickerTestIds, FilePickerTranslationKeys } from './file-picker-keys';
+import { FilePickerComponent, pickedFile } from './file-picker.component';
 
 const LABEL_KEY = 'admin.import.file.label';
 
@@ -26,12 +28,12 @@ describe('FilePickerComponent', () => {
   let host: HTMLElement;
 
   const byTestId = (id: string) => host.querySelector(`[data-testid="${id}"]`) as HTMLElement;
-  const nativeInput = () => byTestId('file-picker-input') as HTMLInputElement;
-  const chooseButton = () => byTestId('file-picker-choose').querySelector('button') as HTMLButtonElement;
-  const nameText = () => byTestId('file-picker-name').textContent?.trim();
+  const nativeInput = () => byTestId(FilePickerTestIds.Input) as HTMLInputElement;
+  const chooseButton = () => byTestId(FilePickerTestIds.Choose).querySelector('button') as HTMLButtonElement;
+  const nameText = () => byTestId(FilePickerTestIds.Name).textContent?.trim();
 
   function pick(file: File | null): void {
-    Object.defineProperty(nativeInput(), 'files', { value: { item: () => file }, configurable: true });
+    Object.defineProperty(nativeInput(), 'files', { value: { item: (index: number) => (index === 0 ? file : null) }, configurable: true });
     nativeInput().dispatchEvent(new Event('change'));
     fixture.detectChanges();
   }
@@ -47,16 +49,17 @@ describe('FilePickerComponent', () => {
   });
 
   it('shows a translated label, choose button and empty state, with the native control hidden', () => {
-    expect(nativeInput().classList).toContain('file-picker__input');
+    expect(nativeInput().type).toBe('file');
     expect(nativeInput().getAttribute('aria-hidden')).toBe('true');
     expect(nativeInput().tabIndex).toBe(-1);
     expect(nativeInput().accept).toBe('.xlsx');
+    expect(nativeInput().multiple).toBe(false);
     expect(host.querySelector('.file-picker__label')?.textContent?.trim()).toBe(LABEL_KEY);
-    expect(chooseButton().textContent).toContain('shared.file-picker.choose');
-    expect(nameText()).toBe('shared.file-picker.none');
+    expect(chooseButton().textContent).toContain(FilePickerTranslationKeys.Choose);
+    expect(nameText()).toBe(FilePickerTranslationKeys.None);
   });
 
-  it('labels the group with its label', () => {
+  it('labels the upload group with its label', () => {
     const group = host.querySelector('[role="group"]') as HTMLElement;
     const label = host.querySelector('.file-picker__label') as HTMLElement;
     expect(label.id).not.toBe('');
@@ -86,11 +89,17 @@ describe('FilePickerComponent', () => {
     expect(nameText()).toBe('users.xlsx');
   });
 
+  it('still emits a file outside accept, so the screen can name the problem', () => {
+    const file = new File(['x'], 'users.csv', { type: 'text/csv' });
+    pick(file);
+    expect(fixture.componentInstance.files).toEqual([file]);
+  });
+
   it('emits null and shows the empty state when the dialog is left empty', () => {
     pick(new File(['x'], 'users.xlsx'));
     pick(null);
     expect(fixture.componentInstance.files.at(-1)).toBeNull();
-    expect(nameText()).toBe('shared.file-picker.none');
+    expect(nameText()).toBe(FilePickerTranslationKeys.None);
   });
 
   it('clears the picked file without emitting', () => {
@@ -98,18 +107,17 @@ describe('FilePickerComponent', () => {
     fixture.componentInstance.picker().clear();
     fixture.detectChanges();
     expect(nativeInput().value).toBe('');
-    expect(nameText()).toBe('shared.file-picker.none');
+    expect(nameText()).toBe(FilePickerTranslationKeys.None);
     expect(fixture.componentInstance.files).toHaveLength(1);
   });
 });
 
-describe('firstPickedFile', () => {
-  it('reads the first file of a file input, or null', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    const event = new Event('change');
-    input.dispatchEvent(event);
-    expect(firstPickedFile(event)).toBeNull();
-    expect(firstPickedFile(new Event('change'))).toBeNull();
+describe('pickedFile', () => {
+  const file = new File(['x'], 'a.xlsx');
+
+  it('prefers the accepted file, then the refused one, then null', () => {
+    expect(pickedFile({ accepted: [file], rejected: [] })).toBe(file);
+    expect(pickedFile({ accepted: [], rejected: [{ file, reason: DgaFileRejectionReason.Type }] })).toBe(file);
+    expect(pickedFile({ accepted: [], rejected: [] })).toBeNull();
   });
 });

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:codelab:ng-dga:component-catalog-entry",
+  "title": "@codelab/ng-dga component catalog entry",
+  "description": "The metadata of one ng-dga component, kept beside it as src/lib/<name>/<selector>.catalog.json. scripts/generate-catalog.mjs turns every entry into docs/design/component-catalog.md, and tests/catalog.test.mjs keeps entries, components and the document in sync.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["selector", "className", "category", "summary", "inputs", "outputs", "slots", "a11y", "since"],
+  "properties": {
+    "$schema": {
+      "description": "Optional relative path to this schema, for editor support.",
+      "type": "string"
+    },
+    "selector": {
+      "description": "The element selector; also the file name stem (<selector>.catalog.json) and the /showcase anchor.",
+      "type": "string",
+      "pattern": "^dga-[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "className": {
+      "description": "The exported component class.",
+      "type": "string",
+      "pattern": "^Dga[A-Z][A-Za-z0-9]*Component$"
+    },
+    "category": {
+      "description": "The catalog section the component is listed under.",
+      "enum": ["navigation", "content", "form", "feedback", "layout", "data", "media"]
+    },
+    "summary": {
+      "description": "One or two sentences: what the component is and when to use it.",
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs": {
+      "description": "Every signal input and signal model of the component, in declaration order.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/input" }
+    },
+    "outputs": {
+      "description": "Every output, plus the <model>Change events of two-way models when worth listing.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/output" }
+    },
+    "slots": {
+      "description": "Content projection slots; selector \"default\" is the unnamed <ng-content />.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/slot" }
+    },
+    "a11y": {
+      "description": "The accessibility contract: roles, names, keyboard, focus and RTL behaviour.",
+      "type": "string",
+      "minLength": 1
+    },
+    "since": {
+      "description": "The package version that first shipped the component in this shape.",
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.]+)?$"
+    }
+  },
+  "$defs": {
+    "memberName": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9]*$"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "required", "description"],
+      "properties": {
+        "name": { "$ref": "#/$defs/memberName" },
+        "type": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "default": {
+          "description": "The default as source text (\"'primary'\", \"false\", \"null\"); omit for a required input.",
+          "type": "string"
+        },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "description"],
+      "properties": {
+        "name": { "$ref": "#/$defs/memberName" },
+        "type": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selector", "description"],
+      "properties": {
+        "selector": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

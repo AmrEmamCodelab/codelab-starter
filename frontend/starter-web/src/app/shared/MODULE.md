@@ -11,6 +11,8 @@ belong in `core`.
 | `*hasPermission` | Structural directive: renders its template while the user holds a permission key (one key, or several with `PermissionMatchMode.Any` / `All`), its `else` template otherwise, and follows live grants and revokes | `permissions/has-permission.directive.ts` |
 | `app-file-picker` | Translated single-file picker: a `dga-button` opens a visually hidden native `<input type="file">`, the chosen name or `shared.file-picker.none` shows beside it; inputs `labelKey`, `accept`, `disabled`; output `fileChange` (`File` or null); `clear()`. Interim until `@codelab/ng-dga` ships a `dga-file-input` | `file-picker/file-picker.component.ts` |
 | Permission matching | `holdsPermissions(has, required, mode)`, `PermissionMatchMode`, `PermissionRequirement`, re-exported from core (`core/permissions/permission-match.ts`, which `permissionGuard()` also uses) | `permissions/permission-match.ts` |
+| Geo data source | `StaticGeoDataSource` (implements `DgaGeoDataSource`) over the static bilingual seed in `geo-seed-data.ts` (stable slug ids; never store them as lookup ids). Features take `inject(GEO_DATA_SOURCE)`; Phase 5 provides an API-backed source behind the same token | `geo-select/` |
+| `app-file-picker` (P4) | Now composed on ng-dga `dga-file-upload`; same inputs and `fileChange` output; a file outside `accept` is still emitted. Keys and test ids in `file-picker-keys.ts` | `file-picker/` |
 
 ## Use
 

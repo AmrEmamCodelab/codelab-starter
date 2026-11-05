@@ -114,6 +114,76 @@ describe('check-content', () => {
     assert.equal(runScript(root).status, EXIT_VIOLATIONS);
   });
 
+  test('regression: a UI kit pulled in by a stylesheet, package.json or angular.json fails CI with no TS import', () => {
+    const web = 'frontend/starter-web';
+    writeWorkspaceFile(root, `${web}/src/app/shared/zz-probe.component.scss`, [
+      "@use '@angular/material' as mat;",
+      "@import 'primeng/resources/primeng.min.css';",
+      "@import 'bootstrap/scss/bootstrap';",
+    ].join('\n'));
+    writeWorkspaceFile(root, `${web}/package.json`, '{ "dependencies": { "bootstrap": "^5.3.3", "bootstrap-icons": "^1.11.3" } }\n');
+    writeWorkspaceFile(root, `${web}/angular.json`, '{ "styles": ["node_modules/primeng/resources/primeng.min.css", "src/styles.scss"] }\n');
+    const found = checkContent(root).violations.map((item) => `${item.path}:${item.rule.id}`).sort();
+    assert.deepEqual(found, [
+      `${web}/angular.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/src/app/shared/zz-probe.component.scss:base.fe-ui-library-styles-and-deps`,
+    ]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('regression: a UI kit pulled in by Sass meta.load-css, an npm alias or a git/tarball source fails CI', () => {
+    const web = 'frontend/starter-web';
+    writeWorkspaceFile(root, `${web}/src/app/shared/a.component.scss`, "@use 'sass:meta';\n@include meta.load-css('bootstrap/scss/bootstrap');\n");
+    writeWorkspaceFile(root, `${web}/src/app/shared/b.component.scss`, "@use 'sass:meta' as m;\n.x { @include m.load-css(\"primeng/resources/primeng.min.css\"); }\n");
+    writeWorkspaceFile(root, `${web}/package.json`, '{ "dependencies": { "ui-kit": "npm:bootstrap@5.3.3" } }\n');
+    writeWorkspaceFile(root, `${web}/projects/p1/package.json`, '{ "dependencies": { "mat": "npm:@angular/material@20.0.0" } }\n');
+    writeWorkspaceFile(root, `${web}/projects/p2/package.json`, '{ "dependencies": { "kit": "github:twbs/bootstrap#v5.3.3" } }\n');
+    writeWorkspaceFile(root, `${web}/projects/p3/package.json`, '{ "dependencies": { "kit": "git+https://github.com/twbs/bootstrap.git" } }\n');
+    writeWorkspaceFile(root, `${web}/projects/p4/package.json`, '{ "dependencies": { "kit": "https://registry.npmjs.org/primeng/-/primeng-20.0.0.tgz" } }\n');
+    const found = checkContent(root).violations.map((item) => `${item.path}:${item.rule.id}`).sort();
+    assert.deepEqual(found, [
+      `${web}/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/projects/p1/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/projects/p2/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/projects/p3/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/projects/p4/package.json:base.fe-ui-library-styles-and-deps`,
+      `${web}/src/app/shared/a.component.scss:base.fe-ui-library-styles-and-deps`,
+      `${web}/src/app/shared/b.component.scss:base.fe-ui-library-styles-and-deps`,
+    ]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('regression: a stylesheet imported from a remote URL (CDN) fails CI whatever it names', () => {
+    const shared = 'frontend/starter-web/src/app/shared';
+    writeWorkspaceFile(root, `${shared}/a.component.css`, '@import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css");\n');
+    writeWorkspaceFile(root, `${shared}/b.component.scss`, "@import 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css';\n");
+    writeWorkspaceFile(root, `${shared}/c.component.css`, '@import url(//unpkg.com/some-kit/dist/kit.css);\n');
+    const found = checkContent(root).violations
+      .filter((item) => item.rule.id === 'base.fe-no-remote-stylesheet')
+      .map((item) => item.path)
+      .sort();
+    assert.deepEqual(found, [`${shared}/a.component.css`, `${shared}/b.component.scss`, `${shared}/c.component.css`]);
+    assert.equal(runScript(root).status, EXIT_VIOLATIONS);
+  });
+
+  test('local stylesheets, local load-css and non-kit aliases stay allowed', () => {
+    const web = 'frontend/starter-web';
+    writeWorkspaceFile(root, `${web}/src/app/shared/ok.component.scss`, "@use 'sass:meta';\n@use '../tokens' as t;\n@include meta.load-css('theme/dark');\n.x { background: url('/assets/bg.png'); }\n");
+    writeWorkspaceFile(root, `${web}/package.json`, '{ "dependencies": { "icons": "npm:bootstrap-icons@1.11.3", "cdk": "npm:@angular/cdk@22.0.0" }, "scripts": { "build": "ng build" } }\n');
+    writeWorkspaceFile(root, `${web}/angular.json`, '{ "styles": ["node_modules/bootstrap-icons/font/bootstrap-icons.css", "src/styles.scss"] }\n');
+    const found = checkContent(root).violations.map((item) => item.rule.id);
+    assert.deepEqual(found, []);
+  });
+
+  test('bootstrap-icons, @angular/cdk and @codelab/ng-dga in styles and dependencies stay allowed', () => {
+    const web = 'frontend/starter-web';
+    writeWorkspaceFile(root, `${web}/src/styles.scss`, "@use '@codelab/ng-dga/styles' as dga;\n@import 'bootstrap-icons/font/bootstrap-icons.css';\n");
+    writeWorkspaceFile(root, `${web}/package.json`, '{ "dependencies": { "@angular/cdk": "^22.0.0", "@codelab/ng-dga": "0.1.0", "bootstrap-icons": "^1.11.3" } }\n');
+    const found = checkContent(root).violations.map((item) => item.rule.id);
+    assert.deepEqual(found, []);
+  });
+
   test('fails when rules.compiled.json is missing', () => {
     const empty = createWorkspace();
     try {

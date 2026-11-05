@@ -1,0 +1,45 @@
+<dialog
+  #dialog
+  class="dga-error-dialog"
+  role="alertdialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="messageId"
+  (keydown)="onKeydown($event)"
+  (cancel)="onNativeCancel($event)"
+>
+  <div class="dga-error-dialog__head">
+    <span class="dga-error-dialog__icon"><dga-icon name="error" size="md" /></span>
+    <h2 class="dga-error-dialog__title" [id]="titleId">{{ title() }}</h2>
+  </div>
+  <p class="dga-error-dialog__message" [id]="messageId">{{ message() }}</p>
+  @if (hasReference()) {
+    <div class="dga-error-dialog__reference">
+      <div class="dga-error-dialog__reference-text">
+        @if (referenceLabel(); as label) {
+          <span class="dga-error-dialog__reference-label">{{ label }}</span>
+        }
+        <code class="dga-error-dialog__reference-code" dir="ltr" data-fixed-direction>{{ referenceCode() }}</code>
+      </div>
+      @if (canCopy()) {
+        <dga-button
+          class="dga-error-dialog__copy"
+          variant="secondary-outline"
+          size="sm"
+          [leadIcon]="copyIcon()"
+          (click)="copy()"
+        >
+          {{ copyText() }}
+        </dga-button>
+      }
+    </div>
+    <p class="dga-error-dialog__status" aria-live="polite">
+      @if (justCopied()) {
+        {{ copiedLabel() }}
+      }
+    </p>
+  }
+  <div class="dga-error-dialog__actions">
+    <dga-button #closeButton class="dga-error-dialog__close" variant="primary" size="md" (click)="close()">{{ closeLabel() }}</dga-button>
+  </div>
+</dialog>

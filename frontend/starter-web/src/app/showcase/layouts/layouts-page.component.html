@@ -1,0 +1,31 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-section [anchor]="Section.NotificationsMenu" [titleKey]="keys.Layouts.NotificationsMenu" [level]="Level.Section">
+    <div class="layout-bar">
+      <app-notifications-menu [items]="notifications.items()" [viewAllLink]="feedLink" (markRead)="markRead($event)" />
+    </div>
+  </app-showcase-section>
+
+  <app-showcase-section [anchor]="Section.NotificationsFeed" [titleKey]="keys.Layouts.NotificationsFeed" [level]="Level.Section">
+    <div class="layout-frame">
+      <app-notifications-feed
+        [items]="notifications.items()"
+        [hasMore]="notifications.hasMore()"
+        (markRead)="markRead($event)"
+        (loadMore)="loadMore()"
+      />
+    </div>
+  </app-showcase-section>
+
+  <app-showcase-section [anchor]="Section.Footer" [titleKey]="keys.Layouts.Footer" [level]="Level.Section">
+    <div class="layout-frame">
+      <app-footer />
+    </div>
+  </app-showcase-section>
+
+  <app-showcase-section [anchor]="Section.Shells" [titleKey]="keys.Layouts.Shells" [level]="Level.Section">
+    <ul class="layout-links">
+      <li><a [routerLink]="portalShellLink">{{ keys.Layouts.OpenPortalShell | t }}</a></li>
+      <li><a [routerLink]="requesterShellLink">{{ keys.Layouts.OpenRequesterShell | t }}</a></li>
+    </ul>
+  </app-showcase-section>
+</app-showcase-frame>

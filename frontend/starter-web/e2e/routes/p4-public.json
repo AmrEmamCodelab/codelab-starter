@@ -1,0 +1,11 @@
+{
+  "routes": [
+    { "name": "portal-landing", "path": "/portal" },
+    { "name": "portal-service-guide", "path": "/portal/service-guide" },
+    { "name": "portal-faq", "path": "/portal/faq" },
+    { "name": "portal-contact", "path": "/portal/contact" },
+    { "name": "portal-privacy", "path": "/portal/privacy" },
+    { "name": "portal-terms", "path": "/portal/terms" },
+    { "name": "showcase", "path": "/showcase" }
+  ]
+}

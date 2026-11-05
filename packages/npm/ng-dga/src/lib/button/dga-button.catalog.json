@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-button",
+  "className": "DgaButtonComponent",
+  "category": "form",
+  "summary": "The DGA button: a native button with the variant, size, destructive, on-colour, selected, loading and icon matrix. Use it for every action; the label is projected content, already translated.",
+  "inputs": [
+    { "name": "variant", "type": "DgaButtonVariant ('primary' | 'neutral' | 'secondary-solid' | 'secondary-outline' | 'subtle' | 'transparent')", "required": false, "default": "'primary'", "description": "Visual emphasis. One primary button per view." },
+    { "name": "size", "type": "DgaButtonSize ('sm' | 'md' | 'lg')", "required": false, "default": "'lg'", "description": "Control height from the --dga-size-control-* tokens." },
+    { "name": "type", "type": "DgaButtonType ('button' | 'submit' | 'reset')", "required": false, "default": "'button'", "description": "The native button type; use submit inside a form." },
+    { "name": "destructive", "type": "boolean", "required": false, "default": "false", "description": "Error-toned styling for deleting or irreversible actions." },
+    { "name": "onColor", "type": "boolean", "required": false, "default": "false", "description": "Styling for a dark or brand-coloured surface." },
+    { "name": "selected", "type": "boolean", "required": false, "default": "false", "description": "Visual selected state, for the active item of a button group." },
+    { "name": "pressed", "type": "boolean | null", "required": false, "default": "null", "description": "Toggle state rendered as aria-pressed; null is an ordinary button." },
+    { "name": "loading", "type": "boolean", "required": false, "default": "false", "description": "Disables the button, marks it aria-busy and shows a decorative spinner." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the native button; a disabled button emits no click." },
+    { "name": "iconOnly", "type": "boolean", "required": false, "default": "false", "description": "Hides the projected label; requires label as the accessible name." },
+    { "name": "fullWidth", "type": "boolean", "required": false, "default": "false", "description": "Stretches the button to the inline size of its container." },
+    { "name": "leadIcon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative icon before the label (mirrors in RTL when the icon is directional)." },
+    { "name": "trailIcon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative icon after the label." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Accessible name (translated); required with iconOnly, otherwise it overrides the projected label for assistive technology." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The visible label (translated text, optionally with inline markup)." }
+  ],
+  "a11y": "A native button element: Enter and Space activate it, focus shows the token focus ring. loading sets aria-busy and disables it; pressed renders aria-pressed for toggle buttons; label sets aria-label. Listen with (click) on <dga-button>: disabled and loading buttons emit no click. Icons are decorative and mirror in RTL through the icon manifest.",
+  "since": "1.0.0"
+}

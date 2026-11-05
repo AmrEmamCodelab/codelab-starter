@@ -1,0 +1,77 @@
+<app-showcase-section anchor="dga-breadcrumb">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-breadcrumb [items]="breadcrumbs()" [label]="keys.Demo.BreadcrumbLabel | t" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-header">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-header
+      [brandName]="keys.Demo.BrandName | t"
+      [homeLink]="homeLink"
+      [navItems]="navItems()"
+      [navLabel]="keys.Demo.NavLabel | t"
+      [menuLabel]="keys.Demo.MenuLabel | t"
+    >
+      <dga-button dgaHeaderActions variant="subtle" size="sm" leadIcon="user">{{ keys.Demo.NavContact | t }}</dga-button>
+    </dga-header>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-stamp-strip">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-stamp-strip [text]="keys.Demo.StampText | t" [verifyLabel]="keys.Demo.StampVerify | t" [(expanded)]="stampExpanded">
+      <p>{{ keys.Demo.StampDomain | t }}</p>
+      <p>{{ keys.Demo.StampSecure | t }}</p>
+    </dga-stamp-strip>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-stepper">
+  <app-showcase-demo wide [labelKey]="keys.States.Horizontal">
+    <dga-stepper
+      [steps]="steps()"
+      [active]="activeStep()"
+      [label]="keys.Demo.StepperLabel | t"
+      [completedLabel]="keys.Demo.StepCompleted | t"
+      [currentLabel]="keys.Demo.StepCurrent | t"
+      [invalidLabel]="keys.Demo.StepInvalid | t"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Navigable">
+    <dga-stepper
+      navigable
+      [linear]="false"
+      [orientation]="Orientation.Vertical"
+      [steps]="verticalSteps()"
+      [active]="verticalStep()"
+      [label]="keys.Demo.StepperLabel | t"
+      [completedLabel]="keys.Demo.StepCompleted | t"
+      [currentLabel]="keys.Demo.StepCurrent | t"
+      [invalidLabel]="keys.Demo.StepInvalid | t"
+      (stepSelect)="verticalStep.set($event)"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Compact">
+    <dga-stepper
+      compact
+      [steps]="steps()"
+      [active]="activeStep()"
+      [label]="keys.Demo.StepperLabel | t"
+      [completedLabel]="keys.Demo.StepCompleted | t"
+      [currentLabel]="keys.Demo.StepCurrent | t"
+      [invalidLabel]="keys.Demo.StepInvalid | t"
+    />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-tabs">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-tabs [tabs]="tabs()" [(value)]="tab" [label]="keys.Demo.TabsLabel | t" [panelIdPrefix]="panelPrefix" />
+    @for (entry of tabs(); track entry.value) {
+      <div class="demo-panel" role="tabpanel" [id]="panelId(entry.value)" [hidden]="entry.value !== tab()" tabindex="0">
+        <p class="demo-text">{{ keys.Demo.TabPanel | t: { tab: entry.label } }}</p>
+      </div>
+    }
+  </app-showcase-demo>
+</app-showcase-section>

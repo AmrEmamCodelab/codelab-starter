@@ -1,0 +1,65 @@
+<fieldset
+  class="dga-hijri"
+  [attr.aria-label]="label() ? null : ariaLabel()"
+  [attr.aria-describedby]="describedBy()"
+  [disabled]="disabled()"
+  (focusout)="onFocusOut($event)"
+>
+  @if (label(); as text) {
+    <legend class="dga-hijri__label">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-hijri__required" aria-hidden="true">*</span>
+      }
+    </legend>
+  }
+  <div class="dga-hijri__parts" [class.dga-hijri__parts--invalid]="isInvalid()">
+    <select
+      class="dga-hijri__part dga-hijri__part--day"
+      [id]="dayId"
+      [attr.aria-label]="dayLabel()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      (change)="onDay($event)"
+    >
+      <option value="" [selected]="draft().day === null">{{ dayLabel() }}</option>
+      @for (day of dayChoices(); track day) {
+        <option [value]="day" [selected]="draft().day === day">{{ day }}</option>
+      }
+    </select>
+    <select
+      class="dga-hijri__part dga-hijri__part--month"
+      [id]="monthId"
+      [attr.aria-label]="monthLabel()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      (change)="onMonth($event)"
+    >
+      <option value="" [selected]="draft().month === null">{{ monthLabel() }}</option>
+      @for (monthName of monthNames(); track $index) {
+        <option [value]="monthNumber($index)" [selected]="draft().month === monthNumber($index)">{{ monthName }}</option>
+      }
+    </select>
+    <input
+      #yearField
+      class="dga-hijri__part dga-hijri__part--year"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      maxlength="4"
+      [id]="yearId"
+      [attr.aria-label]="yearLabel()"
+      [attr.placeholder]="yearLabel()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      (input)="onYear($event)"
+    />
+  </div>
+  <input type="hidden" [attr.name]="name()" [value]="value()" />
+  @if (hasError()) {
+    <span class="dga-hijri__message dga-hijri__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-hijri__message" [id]="hintId">{{ text }}</span>
+  }
+</fieldset>

@@ -1,0 +1,31 @@
+<app-showcase-frame [pageId]="pageId">
+  @for (group of categories; track group.category) {
+    <section class="category" [attr.aria-labelledby]="'category-' + group.category">
+      <h2 class="category__title" [id]="'category-' + group.category">{{ group.titleKey | t }}</h2>
+      @switch (group.category) {
+        @case (Category.Layout) {
+          <app-showcase-layout-demos />
+        }
+        @case (Category.Navigation) {
+          <app-showcase-navigation-demos />
+        }
+        @case (Category.Content) {
+          <app-showcase-content-demos />
+        }
+        @case (Category.Form) {
+          <app-showcase-form-field-demos />
+          <app-showcase-form-picker-demos />
+        }
+        @case (Category.Data) {
+          <app-showcase-data-demos />
+        }
+        @case (Category.Feedback) {
+          <app-showcase-feedback-demos />
+        }
+        @case (Category.Media) {
+          <app-showcase-media-demos />
+        }
+      }
+    </section>
+  }
+</app-showcase-frame>

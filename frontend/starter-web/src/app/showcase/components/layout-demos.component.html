@@ -1,0 +1,48 @@
+<app-showcase-section anchor="dga-card">
+  <app-showcase-demo [labelKey]="keys.States.Default">
+    <dga-card
+      icon="file"
+      [heading]="keys.Demo.CardHeading | t"
+      [description]="keys.Demo.CardDescription | t"
+      [headingLevel]="4"
+    >
+      <p class="demo-text">{{ keys.Demo.CardBody | t }}</p>
+      <dga-button dgaCardActions variant="secondary-outline" size="sm">{{ keys.Demo.CardAction | t }}</dga-button>
+    </dga-card>
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Shadow">
+    <dga-card effect="shadow" centered icon="check" [heading]="keys.Demo.CardHeading | t" [headingLevel]="4">
+      <p class="demo-text">{{ keys.Demo.CardDescription | t }}</p>
+    </dga-card>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-hero">
+  <app-showcase-demo wide [labelKey]="keys.States.Plain">
+    <dga-hero>
+      <p dgaHeroTitle class="demo-hero-title">{{ keys.Demo.HeroTitle | t }}</p>
+      <p dgaHeroSubtitle>{{ keys.Demo.HeroSubtitle | t }}</p>
+      <dga-button dgaHeroActions>{{ keys.Demo.HeroAction | t }}</dga-button>
+    </dga-hero>
+  </app-showcase-demo>
+  <app-showcase-demo wide [labelKey]="keys.States.Brand">
+    <dga-hero [variant]="HeroVariant.Brand">
+      <p dgaHeroTitle class="demo-hero-title">{{ keys.Demo.HeroTitle | t }}</p>
+      <p dgaHeroSubtitle>{{ keys.Demo.HeroSubtitle | t }}</p>
+      <dga-button dgaHeroActions variant="neutral">{{ keys.Demo.HeroAction | t }}</dga-button>
+    </dga-hero>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-portal-page-header">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-portal-page-header
+      [title]="keys.Demo.PageHeaderTitle | t"
+      [subtitle]="keys.Demo.PageHeaderSubtitle | t"
+      [breadcrumbs]="breadcrumbs()"
+      [breadcrumbLabel]="keys.Demo.BreadcrumbLabel | t"
+    >
+      <dga-button actions variant="secondary-outline" size="sm" leadIcon="download">{{ keys.Demo.CardAction | t }}</dga-button>
+    </dga-portal-page-header>
+  </app-showcase-demo>
+</app-showcase-section>

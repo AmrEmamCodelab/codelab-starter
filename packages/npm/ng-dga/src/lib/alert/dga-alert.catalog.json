@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-alert",
+  "className": "DgaAlertComponent",
+  "category": "feedback",
+  "summary": "The DGA alert: an inline message box in an info, success, warning or error tone, with an optional title and an optional close button.",
+  "inputs": [
+    { "name": "variant", "type": "DgaAlertVariant ('info' | 'success' | 'warning' | 'error')", "required": false, "default": "'info'", "description": "The tone: colours, icon and live role." },
+    { "name": "title", "type": "string | null", "required": false, "default": "null", "description": "Optional bold first line (translated); it also names the alert. A static title=\"...\" adds no tooltip." },
+    { "name": "dismissLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name of the close button (translated); without it the alert has no close button." }
+  ],
+  "outputs": [
+    { "name": "dismissed", "type": "void", "description": "Emitted once when the user closes the alert; the alert then hides itself." }
+  ],
+  "slots": [
+    { "selector": "default", "description": "The message body (translated)." }
+  ],
+  "a11y": "Error and warning render role=alert (announced at once); info and success render role=status (announced politely). Render the alert when the message appears so it is announced. The title, when present, names the alert through aria-labelledby. The variant icon is decorative. The close button is a native button named by dismissLabel. Logical CSS: the accent border sits on the inline start and the close button on the inline end in both RTL and LTR.",
+  "since": "1.0.0"
+}

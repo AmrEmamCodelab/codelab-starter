@@ -24,7 +24,29 @@ export type DgaIconName =
   | 'lock'
   | 'search'
   | 'eye'
-  | 'eye-off';
+  | 'eye-off'
+  | 'plus'
+  | 'minus'
+  | 'calendar'
+  | 'upload'
+  | 'file'
+  | 'trash'
+  | 'bell'
+  | 'warning'
+  | 'success'
+  | 'error'
+  | 'question'
+  | 'phone'
+  | 'email'
+  | 'location'
+  | 'filter'
+  | 'more-vertical'
+  | 'clock'
+  | 'download'
+  | 'external-link'
+  | 'pause'
+  | 'play'
+  | 'shield-check';
 
 /** The Private Use Area character of each icon in the Codelab icon font. */
 export const DGA_ICON_GLYPHS: Readonly<Record<DgaIconName, string>> = {
@@ -50,7 +72,29 @@ export const DGA_ICON_GLYPHS: Readonly<Record<DgaIconName, string>> = {
   'search': '\u{E014}',
   'eye': '\u{E015}',
   'eye-off': '\u{E016}',
+  'plus': '\u{E017}',
+  'minus': '\u{E018}',
+  'calendar': '\u{E019}',
+  'upload': '\u{E01A}',
+  'file': '\u{E01B}',
+  'trash': '\u{E01C}',
+  'bell': '\u{E01D}',
+  'warning': '\u{E01E}',
+  'success': '\u{E01F}',
+  'error': '\u{E020}',
+  'question': '\u{E021}',
+  'phone': '\u{E022}',
+  'email': '\u{E023}',
+  'location': '\u{E024}',
+  'filter': '\u{E025}',
+  'more-vertical': '\u{E026}',
+  'clock': '\u{E027}',
+  'download': '\u{E028}',
+  'external-link': '\u{E029}',
+  'pause': '\u{E02A}',
+  'play': '\u{E02B}',
+  'shield-check': '\u{E02C}',
 };
 
 /** Icons drawn for left-to-right reading that mirror in right-to-left layouts (chevrons, arrows, logout). */
-export const DGA_ICONS_MIRRORED_IN_RTL: ReadonlySet<DgaIconName> = new Set<DgaIconName>(['logout', 'chevron-start', 'chevron-end', 'arrow-start', 'arrow-end']);
+export const DGA_ICONS_MIRRORED_IN_RTL: ReadonlySet<DgaIconName> = new Set<DgaIconName>(['logout', 'chevron-start', 'chevron-end', 'arrow-start', 'arrow-end', 'external-link']);

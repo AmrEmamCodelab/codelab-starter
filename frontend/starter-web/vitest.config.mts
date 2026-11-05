@@ -81,7 +81,10 @@ export default defineConfig({
   oxc: { decorator: { legacy: true } },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.spec.ts', 'tools/**/*.spec.ts', 'tools/**/*.test.mjs'],
+    include: ['src/**/*.spec.ts', 'tools/**/*.spec.ts', 'tools/**/*.test.mjs', 'e2e/**/*.test.mjs'],
+    // The template-inlining transform reads each component's .html, which the module cache does not key on: a cached
+    // module would keep an old template after an .html-only edit, so the file-system module cache stays off.
+    fsModuleCache: false,
     setupFiles: ['src/test-setup.ts'],
     restoreMocks: true,
   },

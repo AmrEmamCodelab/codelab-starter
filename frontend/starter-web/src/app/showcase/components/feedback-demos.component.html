@@ -1,0 +1,73 @@
+<app-showcase-section anchor="dga-alert">
+  <app-showcase-demo wide stack [labelKey]="keys.States.Variants">
+    <dga-alert [variant]="Variant.Info" [title]="keys.Demo.AlertInfoTitle | t">{{ keys.Demo.AlertInfoBody | t }}</dga-alert>
+    <dga-alert [variant]="Variant.Success" [title]="keys.Demo.AlertSuccessTitle | t">{{ keys.Demo.AlertSuccessBody | t }}</dga-alert>
+    <dga-alert [variant]="Variant.Warning" [title]="keys.Demo.AlertWarningTitle | t">{{ keys.Demo.AlertWarningBody | t }}</dga-alert>
+    <dga-alert [variant]="Variant.Error" [title]="keys.Demo.AlertErrorTitle | t">{{ keys.Demo.AlertErrorBody | t }}</dga-alert>
+  </app-showcase-demo>
+  <app-showcase-demo wide [labelKey]="keys.States.Dismissible">
+    @if (!alertDismissed()) {
+      <dga-alert [variant]="Variant.Info" [dismissLabel]="keys.Demo.Dismiss | t" (dismissed)="alertDismissed.set(true)">
+        {{ keys.Demo.AlertInfoBody | t }}
+      </dga-alert>
+    }
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-confirm-dialog">
+  <app-showcase-demo [labelKey]="keys.States.Default">
+    <dga-button variant="secondary-outline" (click)="open(Dialog.Confirm)">{{ keys.Demo.ConfirmOpen | t }}</dga-button>
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Danger">
+    <dga-button variant="secondary-outline" destructive (click)="open(Dialog.Danger)">{{ keys.Demo.DangerOpen | t }}</dga-button>
+  </app-showcase-demo>
+  <dga-confirm-dialog
+    [open]="openDialog() === Dialog.Confirm"
+    [title]="keys.Demo.ConfirmTitle | t"
+    [message]="keys.Demo.ConfirmMessage | t"
+    [confirmLabel]="keys.Demo.ConfirmOk | t"
+    [cancelLabel]="keys.Demo.Cancel | t"
+    (confirmed)="close()"
+    (cancelled)="close()"
+  />
+  <dga-confirm-dialog
+    [open]="openDialog() === Dialog.Danger"
+    [variant]="ConfirmVariant.Danger"
+    [title]="keys.Demo.DangerTitle | t"
+    [message]="keys.Demo.DangerMessage | t"
+    [confirmLabel]="keys.Demo.Delete | t"
+    [cancelLabel]="keys.Demo.Cancel | t"
+    (confirmed)="close()"
+    (cancelled)="close()"
+  />
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-error-dialog">
+  <app-showcase-demo [labelKey]="keys.States.Default">
+    <dga-button variant="secondary-outline" (click)="open(Dialog.Error)">{{ keys.Demo.ErrorOpen | t }}</dga-button>
+  </app-showcase-demo>
+  <dga-error-dialog
+    [open]="openDialog() === Dialog.Error"
+    [title]="keys.Demo.ErrorTitle | t"
+    [message]="keys.Demo.ErrorMessage | t"
+    [referenceLabel]="keys.Demo.ErrorReference | t"
+    [referenceCode]="referenceCode"
+    [copyLabel]="keys.Demo.ErrorCopy | t"
+    [copiedLabel]="keys.Demo.ErrorCopied | t"
+    [closeLabel]="keys.Demo.Close | t"
+    (closed)="close()"
+  />
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-page-feedback">
+  @for (entry of feedbackStates(); track entry.state.kind) {
+    <app-showcase-demo wide [labelKey]="entry.labelKey">
+      <dga-page-feedback
+        [state]="entry.state"
+        [moveFocus]="false"
+        [dismissLabel]="keys.Demo.Dismiss | t"
+        (dismissed)="dismissFeedback(entry.state.kind)"
+      />
+    </app-showcase-demo>
+  }
+</app-showcase-section>

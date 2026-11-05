@@ -139,3 +139,4 @@ inject(AuthClient).modes();  inject(AuthClient).activate({ ticket, password });
   `src/app/public-routes.ts`.
 - `PermissionSyncService` injects `TokenStore` (never `AuthService`, which injects it) and reads `AppConfigService` and
   `Router` lazily, so specs that only need `refresh()` provide nothing extra.
+- Config (P4): `AppConfigService` also exposes `branding` (optional, validated by @codelab/ng-dga `parseDgaBranding`; a bad field is `AppConfigInvalidError` with `branding.<field>`) `showcase` (default false; a development build forces it on through `DEVELOPMENT_BUILD_OVERRIDES` in `config/runtime-config.loader.ts`, a production build never does) and `portalContactForm` (default false: the public contact form shows only once its endpoint is deployed). `provideAppBranding(config)` in `config/branding.providers.ts` applies it; `app.config.ts` spreads it.

@@ -1,0 +1,69 @@
+{
+  "routes": [
+    {
+      "name": "showcase",
+      "path": "/showcase",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-admin-list",
+      "path": "/showcase/patterns/admin-list",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-tree-editor",
+      "path": "/showcase/patterns/tree-editor",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-work-queue",
+      "path": "/showcase/patterns/work-queue",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-staff-detail",
+      "path": "/showcase/patterns/staff-detail",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-wizard",
+      "path": "/showcase/patterns/wizard",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-requester-detail",
+      "path": "/showcase/patterns/requester-detail",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-portal-content",
+      "path": "/showcase/patterns/portal-content",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-landing-dashboard",
+      "path": "/showcase/patterns/landing-dashboard",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-layouts",
+      "path": "/showcase/layouts",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-portal-shell",
+      "path": "/showcase/layouts/portal-shell",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-requester-shell",
+      "path": "/showcase/layouts/requester-shell",
+      "waitFor": ".showcase__title"
+    },
+    {
+      "name": "showcase-branding",
+      "path": "/showcase/branding",
+      "waitFor": ".showcase__title"
+    }
+  ]
+}

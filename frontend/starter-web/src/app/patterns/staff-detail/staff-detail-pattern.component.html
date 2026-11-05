@@ -1,0 +1,70 @@
+<article class="staff-detail" [attr.aria-labelledby]="idPrefix + '-title'" [attr.aria-busy]="loading() ? 'true' : null">
+  <header class="staff-detail__header">
+    <div class="staff-detail__back">
+      <ng-content select="[detailBack]" />
+    </div>
+    <div class="staff-detail__heading">
+      <h1 class="staff-detail__title" [id]="idPrefix + '-title'">{{ titleKey() | t: titleParams() }}</h1>
+      <ng-content select="[detailStatus]" />
+    </div>
+    <div class="staff-detail__header-actions">
+      <ng-content select="[detailHeaderActions]" />
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="staff-detail__state" role="status">{{ keys.Loading | t }}</p>
+  }
+
+  @if (errorMessageKey(); as messageKey) {
+    <div class="staff-detail__error" role="alert">
+      <dga-icon name="alert" size="md" />
+      <div class="staff-detail__error-text">
+        <p class="staff-detail__error-title">{{ keys.Error | t }}</p>
+        <p class="staff-detail__error-message">{{ messageKey | t }}</p>
+        @if (error()?.referenceCode; as code) {
+          <p class="staff-detail__error-reference">{{ commonKeys.ReferenceCode | t: { code: code } }}</p>
+        }
+      </div>
+      <dga-button variant="secondary-outline" size="sm" data-public-action (click)="retry.emit()">
+        {{ keys.Retry | t }}
+      </dga-button>
+    </div>
+  }
+
+  <div class="staff-detail__layout" [hidden]="!showRecord()">
+    <section class="staff-detail__cards" [attr.aria-label]="keys.Details | t">
+      <ng-content />
+    </section>
+
+    @if (historyLabelKey(); as historyKey) {
+      <section class="staff-detail__history" [attr.aria-labelledby]="idPrefix + '-history'">
+        <h2 class="staff-detail__section-title" [id]="idPrefix + '-history'">{{ historyKey | t }}</h2>
+        <ng-content select="[detailHistory]" />
+      </section>
+    }
+
+    <section class="staff-detail__decision" [attr.aria-labelledby]="idPrefix + '-decision'">
+      <h2 class="staff-detail__section-title" [id]="idPrefix + '-decision'">{{ decisionLabelKey() | t }}</h2>
+      @if (buttons().length > 0) {
+        <div class="staff-detail__actions" role="group" [attr.aria-labelledby]="idPrefix + '-decision'">
+          @for (button of buttons(); track button.action.code) {
+            <dga-button
+              size="md"
+              data-public-action
+              [attr.data-action]="button.action.code"
+              [variant]="button.variant"
+              [destructive]="button.destructive"
+              [disabled]="busy()"
+              (click)="onDecide(button.action)"
+            >
+              {{ button.action.labelKey | t }}
+            </dga-button>
+          }
+        </div>
+      } @else {
+        <p class="staff-detail__state">{{ keys.NoActions | t }}</p>
+      }
+    </section>
+  </div>
+</article>

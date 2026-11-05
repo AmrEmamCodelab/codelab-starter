@@ -1,0 +1,95 @@
+<div class="dga-multi-select" (focusout)="onFocusOut($event)">
+  @if (label(); as text) {
+    <span class="dga-multi-select__label" [id]="labelId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-multi-select__required" aria-hidden="true">*</span>
+      }
+    </span>
+  }
+  <div class="dga-multi-select__anchor">
+    <button
+      #trigger
+      type="button"
+      class="dga-multi-select__trigger"
+      aria-haspopup="listbox"
+      [class.dga-multi-select__trigger--invalid]="isInvalid()"
+      [class.dga-multi-select__trigger--open]="open()"
+      [id]="triggerId"
+      [attr.name]="name()"
+      [attr.aria-expanded]="open() ? 'true' : 'false'"
+      [attr.aria-controls]="listboxId"
+      [attr.aria-labelledby]="labelledBy()"
+      [attr.aria-label]="label() ? null : ariaLabel()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [disabled]="disabled()"
+      (click)="toggleOpen()"
+      (keydown)="onTriggerKeydown($event)"
+    >
+      <span class="dga-multi-select__placeholder">{{ placeholder() }}</span>
+      <dga-icon class="dga-multi-select__chevron" [name]="open() ? 'chevron-up' : 'chevron-down'" size="md" />
+    </button>
+    <ul
+      #listbox
+      class="dga-multi-select__listbox"
+      role="listbox"
+      tabindex="-1"
+      aria-multiselectable="true"
+      [id]="listboxId"
+      [hidden]="!open()"
+      [attr.aria-labelledby]="label() ? labelId : null"
+      [attr.aria-label]="label() ? null : ariaLabel()"
+      [attr.aria-activedescendant]="activeDescendant()"
+      [attr.aria-required]="required() ? 'true' : null"
+      (keydown)="onListKeydown($event)"
+    >
+      @for (option of options(); track $index; let index = $index) {
+        <li
+          class="dga-multi-select__option"
+          role="option"
+          [id]="optionId(index)"
+          [class.dga-multi-select__option--active]="index === active()"
+          [class.dga-multi-select__option--disabled]="option.disabled"
+          [attr.aria-selected]="isOptionChosen(option) ? 'true' : 'false'"
+          [attr.aria-disabled]="option.disabled ? 'true' : null"
+          (mousedown)="$event.preventDefault()"
+          (click)="choose(index)"
+        >
+          <span class="dga-multi-select__box" aria-hidden="true" [class.dga-multi-select__box--on]="isOptionChosen(option)">
+            @if (isOptionChosen(option)) {
+              <dga-icon name="check" size="sm" />
+            }
+          </span>
+          <span class="dga-multi-select__option-label">{{ option.label }}</span>
+        </li>
+      } @empty {
+        <li class="dga-multi-select__empty" role="presentation">{{ emptyText() }}</li>
+      }
+    </ul>
+  </div>
+  @if (chips().length > 0) {
+    <ul class="dga-multi-select__chips">
+      @for (chip of chips(); track $index) {
+        <li class="dga-multi-select__chip">
+          <span class="dga-multi-select__chip-label">{{ chip.label }}</span>
+          <button
+            type="button"
+            class="dga-multi-select__chip-remove"
+            [attr.aria-label]="removeName(chip.label)"
+            [disabled]="disabled()"
+            (click)="remove(chip)"
+          >
+            <dga-icon name="close" size="xs" />
+          </button>
+        </li>
+      }
+    </ul>
+  }
+  @if (hasError()) {
+    <span class="dga-multi-select__message dga-multi-select__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-multi-select__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

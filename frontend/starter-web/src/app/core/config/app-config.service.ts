@@ -1,4 +1,5 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
+import type { DgaBranding } from '@codelab/ng-dga';
 import { joinUrl, type AppConfig, type AppConfigOrigins } from './app-config';
 import type { AppLanguage } from '../i18n/language';
 
@@ -33,6 +34,21 @@ export class AppConfigService {
   /** Seconds between background permission syncs; 0 means no interval. */
   get permissionRefreshSeconds(): number {
     return this.config.permissionRefreshSeconds;
+  }
+
+  /** The project branding from `config.json`, or undefined for the DGA default look. */
+  get branding(): DgaBranding | undefined {
+    return this.config.branding;
+  }
+
+  /** True only when `config.json` turns the `/showcase` pages on (staging) or the build is a development build. */
+  get showcase(): boolean {
+    return this.config.showcase === true;
+  }
+
+  /** True only when `config.json` turns the public contact form on (its API endpoint is deployed). */
+  get portalContactForm(): boolean {
+    return this.config.portalContactForm === true;
   }
 
   /** Resolves a path against the API root. */

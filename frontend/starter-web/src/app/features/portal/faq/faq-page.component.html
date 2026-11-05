@@ -1,0 +1,62 @@
+<app-portal-content-pattern [sections]="sections()">
+  <dga-portal-page-header
+    portalHeader
+    [title]="keys.Title | t"
+    [subtitle]="keys.Subtitle | t"
+    [breadcrumbs]="breadcrumbs()"
+    [breadcrumbLabel]="common.BreadcrumbLabel | t"
+  />
+
+  <div class="faq__search" role="search">
+    <dga-text-input
+      class="faq__search-input"
+      type="search"
+      name="faq-search"
+      autocomplete="off"
+      leadIcon="search"
+      [label]="keys.SearchLabel | t"
+      [placeholder]="keys.SearchPlaceholder | t"
+      [(value)]="query"
+    />
+    @if (searching()) {
+      <dga-button
+        class="faq__clear"
+        variant="secondary-outline"
+        size="md"
+        data-public-action
+        data-testid="faq-clear-search"
+        (click)="clearSearch()"
+      >{{ keys.ClearSearch | t }}</dga-button>
+    }
+  </div>
+
+  <p class="faq__result-count" aria-live="polite" data-testid="faq-result-count">
+    @if (searching()) {
+      {{ keys.ResultCount | t: { count: matchCount() } }}
+    }
+  </p>
+
+  @for (category of categories(); track category.id) {
+    <section class="faq__category" [portalSection]="category.id" [attr.aria-labelledby]="'faq-' + category.id">
+      <h2 class="faq__category-title" [id]="'faq-' + category.id">{{ category.titleKey | t }}</h2>
+      <dga-accordion [mode]="accordionMode" [headingLevel]="headingLevel">
+        @for (entry of category.entries; track entry.id) {
+          <dga-accordion-item [label]="entry.questionKey | t" [expanded]="searching()">
+            <p class="faq__answer">{{ entry.answerKey | t }}</p>
+          </dga-accordion-item>
+        }
+      </dga-accordion>
+    </section>
+  } @empty {
+    <p class="faq__empty" data-testid="faq-no-results">{{ keys.NoResults | t }}</p>
+  }
+
+  <aside portalLastUpdated class="faq__help" aria-labelledby="faq-help-title">
+    <dga-icon class="faq__help-icon" name="email" size="lg" />
+    <div class="faq__help-text">
+      <h2 class="faq__help-title" id="faq-help-title">{{ keys.HelpTitle | t }}</h2>
+      <p class="faq__answer">{{ keys.HelpBody | t }}</p>
+      <a class="faq__help-link" [routerLink]="contactLink">{{ keys.HelpLink | t }}</a>
+    </div>
+  </aside>
+</app-portal-content-pattern>

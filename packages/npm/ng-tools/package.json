@@ -1,7 +1,7 @@
 {
   "name": "@codelab/ng-tools",
-  "version": "0.2.0",
-  "description": "Codelab Angular tooling: ESLint boundary preset and wire-id cast rule, Stylelint tokens-and-logical-CSS preset, golden-vector sync, route-table and template permission gates.",
+  "version": "0.5.0",
+  "description": "Codelab Angular tooling: ESLint boundary preset and wire-id cast rule, Stylelint tokens-and-logical-CSS preset, golden-vector sync, route-table and template permission gates, RTL lint, icon subsetting and the i18n check (codelab-ng-tools).",
   "license": "UNLICENSED",
   "author": "Codelab",
   "type": "module",

@@ -1,0 +1,15 @@
+<app-showcase-frame [pageId]="pageId">
+  <div class="pattern-controls">
+    <dga-checkbox name="showcase-tree-read-only" [label]="keys.States.ReadOnly | t" [(checked)]="readOnly" />
+  </div>
+
+  <app-tree-editor-pattern
+    [labelKey]="keys.Patterns.TreeLabel"
+    [keys]="treeKeys"
+    [labelFor]="labelFor"
+    [readOnly]="readOnly()"
+    [(value)]="selected"
+  />
+
+  <p class="pattern-note">{{ keys.Patterns.TreeSelected | t: { count: selected().size } }}</p>
+</app-showcase-frame>

@@ -1,1 +1,14 @@
 @use '@codelab/ng-dga/styles';
+
+// The icon subset (tools/icons-subset.mjs, `npm run icons:subset`): only the glyphs the app and ng-dga's components
+// use, with the same code points. Same family and descriptors as ng-dga's face, declared after it, so this face wins
+// and the browser downloads the subset instead of the full icon font.
+// The subset keeps its own file stem (codelab-icons-subset): the bundler flattens fonts into media/ by basename, and a
+// development build (no output hashing) fails when two different files share ng-dga's name codelab-icons.woff2.
+@font-face {
+  font-family: 'Codelab Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('./generated/icons/codelab-icons-subset.woff2') format('woff2');
+}

@@ -590,6 +590,103 @@ batches:
         target: 'reference/p3/fe-admin-access/user-grants/'
         mode: copy
 
+  # Phase 4: one batch per owner task. Every file is a rewrite reference: consumers rewrite with starter names into
+  # @codelab/ng-dga, the patterns, layouts, portal and showcase, and never copy an external DGA package importer.
+  p4-dga-pickers:
+    description: 'Phase 4 input (owner: dga-pickers): date, Hijri date, geo, multi-select and unit inputs plus the date helpers.'
+    entries:
+      - id: picker-components
+        source: 'frontend/modhs-web/src/app/shared/ui/{date-input,hijri-date-input,geo-select,multi-select}/**'
+        target: 'reference/p4/p4-dga-pickers/ui/'
+        mode: copy
+      - id: unit-input
+        source: 'frontend/modhs-web/src/app/shared/ui/unit-input.directive*.ts'
+        target: 'reference/p4/p4-dga-pickers/ui/'
+        mode: copy
+      # Gregorian/Hijri adapters, the Hijri table and the KSA time helper behind the date inputs.
+      - id: date-helpers
+        source: 'frontend/modhs-web/src/app/shared/date/**'
+        target: 'reference/p4/p4-dga-pickers/date/'
+        mode: copy
+
+  p4-dga-feedback:
+    description: 'Phase 4 input (owner: dga-feedback): confirm and error dialogs, page feedback, portal page header and file upload.'
+    entries:
+      # File upload is ported presentational only; its HTTP calls are dropped by the rewrite.
+      - id: feedback-components
+        source: 'frontend/modhs-web/src/app/shared/ui/{confirm-dialog,error-dialog,page-feedback,portal-page-header,file-upload}/**'
+        target: 'reference/p4/p4-dga-feedback/ui/'
+        mode: copy
+
+  p4-patterns-wizard:
+    description: 'Phase 4 input (owner: patterns-wizard-detail): stepper, request wizard and requester detail behind the wizard, status-tracker and requester-detail patterns.'
+    entries:
+      - id: stepper
+        source: 'frontend/modhs-web/src/app/shared/ui/stepper/**'
+        target: 'reference/p4/p4-patterns-wizard/ui/stepper/'
+        mode: copy
+      - id: dga-stepper
+        source: 'frontend/modhs-web/src/app/shared/ui/dga/dga-stepper.component.ts'
+        target: 'reference/p4/p4-patterns-wizard/ui/dga/dga-stepper.component.ts'
+        mode: copy
+      # Reference only: the pattern is templated; the 2,035-line wizard file is never copied into the starter.
+      # The clinical, patient and transport sections are left behind on rewrite.
+      - id: requester-wizard-detail
+        source: 'frontend/modhs-web/src/app/features/requester/{request-wizard,request-detail}/**'
+        target: 'reference/p4/p4-patterns-wizard/requester/'
+        mode: copy
+
+  p4-patterns-queue-portal:
+    description: 'Phase 4 input (owner: patterns-queue-portal): staff queue and detail, requester landing and portal content pages behind the work-queue, staff-detail, decision-dialog, portal-content and landing-dashboard patterns.'
+    entries:
+      # Pattern extraction only: the domain columns, filters and actions are left behind on rewrite.
+      - id: staff-queue-detail
+        source: 'frontend/modhs-web/src/app/features/coordination/{requests-list,request-detail}/**'
+        target: 'reference/p4/p4-patterns-queue-portal/coordination/'
+        mode: copy
+      - id: requester-landing
+        source: 'frontend/modhs-web/src/app/features/requester/landing/**'
+        target: 'reference/p4/p4-patterns-queue-portal/requester/landing/'
+        mode: copy
+      - id: portal-content-pages
+        source: 'frontend/modhs-web/src/app/shared/portal-pages/{faq,service-guide}.component*'
+        target: 'reference/p4/p4-patterns-queue-portal/portal-pages/'
+        mode: copy
+
+  p4-layouts:
+    description: 'Phase 4 input (owner: layouts): requester shell, footer, notifications menu and feed, navigation model, scroll helper and profile menu.'
+    entries:
+      - id: shell-parts
+        source: 'frontend/modhs-web/src/app/shared/layout/{requester-shell,app-footer,notifications-menu,requester-nav.model,shell-scroll,user-profile-menu}*'
+        target: 'reference/p4/p4-layouts/layout/'
+        mode: copy
+      # The notification source is an empty default in phase 4; the real feed lands in phase 5.
+      - id: notifications-feed
+        source: 'frontend/modhs-web/src/app/shared/notifications-feed/**'
+        target: 'reference/p4/p4-layouts/notifications-feed/'
+        mode: copy
+
+  p4-portal:
+    description: 'Phase 4 input (owner: portal-pages): public portal pages (service guide, FAQ, contact, legal) and their i18n text.'
+    entries:
+      - id: portal-pages
+        source: 'frontend/modhs-web/src/app/shared/portal-pages/**'
+        target: 'reference/p4/p4-portal/portal-pages/'
+        mode: copy
+      # Rewrite reference for the portal.* namespace only; product wording is replaced with neutral starter text.
+      - id: i18n-bundles
+        source: 'frontend/modhs-web/src/assets/i18n/{ar,en}.json'
+        target: 'reference/p4/p4-portal/i18n/'
+        mode: copy
+
+  p4-showcase:
+    description: 'Phase 4 input (owner: showcase): the component showcase page behind the dev-only showcase route.'
+    entries:
+      - id: showcase
+        source: 'frontend/modhs-web/src/app/features/showcase/**'
+        target: 'reference/p4/p4-showcase/showcase/'
+        mode: copy
+
 secretDigests:
   # Values found here are hashed (SHA-256) into tools/extract/secret-digests.json; the values are never stored.
   output: 'tools/extract/secret-digests.json'

@@ -88,6 +88,94 @@
     "eye-off": {
       "codepoint": "E016",
       "mirrorInRtl": false
+    },
+    "plus": {
+      "codepoint": "E017",
+      "mirrorInRtl": false
+    },
+    "minus": {
+      "codepoint": "E018",
+      "mirrorInRtl": false
+    },
+    "calendar": {
+      "codepoint": "E019",
+      "mirrorInRtl": false
+    },
+    "upload": {
+      "codepoint": "E01A",
+      "mirrorInRtl": false
+    },
+    "file": {
+      "codepoint": "E01B",
+      "mirrorInRtl": false
+    },
+    "trash": {
+      "codepoint": "E01C",
+      "mirrorInRtl": false
+    },
+    "bell": {
+      "codepoint": "E01D",
+      "mirrorInRtl": false
+    },
+    "warning": {
+      "codepoint": "E01E",
+      "mirrorInRtl": false
+    },
+    "success": {
+      "codepoint": "E01F",
+      "mirrorInRtl": false
+    },
+    "error": {
+      "codepoint": "E020",
+      "mirrorInRtl": false
+    },
+    "question": {
+      "codepoint": "E021",
+      "mirrorInRtl": false
+    },
+    "phone": {
+      "codepoint": "E022",
+      "mirrorInRtl": false
+    },
+    "email": {
+      "codepoint": "E023",
+      "mirrorInRtl": false
+    },
+    "location": {
+      "codepoint": "E024",
+      "mirrorInRtl": false
+    },
+    "filter": {
+      "codepoint": "E025",
+      "mirrorInRtl": false
+    },
+    "more-vertical": {
+      "codepoint": "E026",
+      "mirrorInRtl": false
+    },
+    "clock": {
+      "codepoint": "E027",
+      "mirrorInRtl": false
+    },
+    "download": {
+      "codepoint": "E028",
+      "mirrorInRtl": false
+    },
+    "external-link": {
+      "codepoint": "E029",
+      "mirrorInRtl": true
+    },
+    "pause": {
+      "codepoint": "E02A",
+      "mirrorInRtl": false
+    },
+    "play": {
+      "codepoint": "E02B",
+      "mirrorInRtl": false
+    },
+    "shield-check": {
+      "codepoint": "E02C",
+      "mirrorInRtl": false
     }
   }
 }

@@ -1,0 +1,42 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [(state)]="state" />
+
+  <app-work-queue-pattern
+    selectable
+    [titleKey]="keys.Patterns.QueueTitle"
+    [emptyKey]="keys.Patterns.QueueEmpty"
+    [tabs]="tabs"
+    [columns]="columns"
+    [dueColumn]="dueColumn"
+    [rowId]="rowId"
+    [rowLabel]="rowLabel"
+    [rows]="view().rows"
+    [total]="view().total"
+    [loading]="view().loading"
+    [error]="view().error"
+    [(tab)]="tab"
+    [(page)]="page"
+    [(search)]="search"
+    [(sort)]="sort"
+    [(selected)]="selected"
+    (retry)="retry()"
+  >
+    <dga-select
+      queueFilters
+      name="showcase-queue-status"
+      [label]="keys.Patterns.StatusFilter | t"
+      [placeholder]="keys.Patterns.AnyStatus | t"
+      [options]="statusOptions()"
+      [(value)]="status"
+    />
+    <dga-button queueBulkActions size="sm" leadIcon="user" (click)="clearSelection()">{{ keys.Patterns.Assign | t }}</dga-button>
+    <ng-template [listCell]="Column.Reference" let-row><span dir="ltr" data-fixed-direction>{{ row.reference }}</span></ng-template>
+    <ng-template [listCell]="Column.Applicant" let-row>{{ row.applicantKey | t }}</ng-template>
+    <ng-template [listCell]="Column.Status" let-row>
+      <dga-status-tag [tone]="display(row.status).tone">{{ display(row.status).labelKey | t }}</dga-status-tag>
+    </ng-template>
+    <ng-template listRowActions let-row>
+      <dga-button variant="subtle" size="sm" trailIcon="arrow-end" (click)="open()">{{ keys.Patterns.Open | t }}</dga-button>
+    </ng-template>
+  </app-work-queue-pattern>
+</app-showcase-frame>

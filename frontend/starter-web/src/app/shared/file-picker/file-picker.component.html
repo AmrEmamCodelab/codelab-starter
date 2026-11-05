@@ -1,33 +1,19 @@
-<div class="file-picker" role="group" [attr.aria-labelledby]="labelId">
+<div class="file-picker">
   <span class="file-picker__label" [id]="labelId">{{ labelKey() | t }}</span>
-  <div class="file-picker__row">
-    <input
-      #fileInput
-      class="file-picker__input"
-      type="file"
-      tabindex="-1"
-      aria-hidden="true"
-      data-testid="file-picker-input"
-      [accept]="accept()"
-      [disabled]="disabled()"
-      (change)="picked($event)"
-    />
-    <dga-button
-      variant="secondary-outline"
-      size="md"
-      leadIcon="arrow-up"
-      data-testid="file-picker-choose"
-      [disabled]="disabled()"
-      (click)="choose()"
-    >
-      {{ 'shared.file-picker.choose' | t }}
-    </dga-button>
-    <span class="file-picker__name" data-testid="file-picker-name" aria-live="polite">
+  <dga-file-upload
+    [attr.data-testid]="testIds.Choose"
+    [ariaLabelledBy]="labelId"
+    [browseLabel]="keys.Choose | t"
+    [accept]="accept()"
+    [disabled]="disabled()"
+    (filesSelected)="picked($event)"
+  >
+    <span class="file-picker__name" aria-live="polite" [attr.data-testid]="testIds.Name">
       @if (fileName(); as name) {
         <bdi>{{ name }}</bdi>
       } @else {
-        {{ 'shared.file-picker.none' | t }}
+        {{ keys.None | t }}
       }
     </span>
-  </div>
+  </dga-file-upload>
 </div>

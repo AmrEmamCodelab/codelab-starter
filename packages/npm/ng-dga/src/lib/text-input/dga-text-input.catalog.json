@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-text-input",
+  "className": "DgaTextInputComponent",
+  "category": "form",
+  "summary": "The DGA text input: a native input with a visible label, hint, error message and optional decorative icons. A signal-model control: bind [(value)] or a signal-forms field.",
+  "inputs": [
+    { "name": "value", "type": "string, model", "required": false, "default": "''", "description": "The text; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true on blur; two-way [(touched)]." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when the surrounding UI already labels the input (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "Placeholder (translated); never a replacement for the label." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text under the input (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the input invalid." },
+    { "name": "type", "type": "DgaTextInputType ('text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number')", "required": false, "default": "'text'", "description": "The native input type." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native name attribute." },
+    { "name": "autocomplete", "type": "string | null", "required": false, "default": "null", "description": "The native autocomplete token (username, email, ...)." },
+    { "name": "inputMode", "type": "DgaInputMode | null", "required": false, "default": "null", "description": "The inputmode hint for virtual keyboards." },
+    { "name": "maxLength", "type": "number | null", "required": false, "default": "null", "description": "The native maxlength; null or NaN means not set." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required plus a decorative asterisk on the label." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the input." },
+    { "name": "readonly", "type": "boolean", "required": false, "default": "false", "description": "Read-only value that stays focusable." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the input invalid without a message (a form field may set it)." },
+    { "name": "leadIcon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative icon at the start of the control." },
+    { "name": "trailIcon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative icon at the end of the control." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "string", "description": "The new text on every input event (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true on the first blur." }
+  ],
+  "slots": [],
+  "a11y": "The label is linked with for/id; hint and error are linked with aria-describedby, and an error or invalid sets aria-invalid. Without a visible label give ariaLabel. The required asterisk is aria-hidden (the native required attribute carries the state). Icons are decorative. Logical CSS mirrors the icons in RTL.",
+  "since": "1.0.0"
+}

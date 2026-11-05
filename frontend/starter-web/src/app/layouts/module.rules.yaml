@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebLayouts
 kind: angular
-description: "Starter web layouts: the staff app-shell (header, permission-gated navigation, page outlet), the language switcher, the user profile menu with logout and the app-wide error dialog."
+description: "Starter web layouts: the staff app-shell (header, permission-gated navigation, page outlet), the public portal-shell and the signed-in requester-shell (digital stamp strip, DGA header, footer), the notifications menu and feed (presentational, fed by a NotificationsSource), the language switcher, the user profile menu and the app-wide error dialog. Layouts import only core, shared and @codelab/ng-dga; they hold no API calls and no feature policy."
 mayDependOn: []
 mustNotDependOn: []

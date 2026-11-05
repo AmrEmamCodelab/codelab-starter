@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-breadcrumb",
+  "className": "DgaBreadcrumbComponent",
+  "category": "navigation",
+  "summary": "The DGA breadcrumb: a where-am-I trail at the top of a page below the header. Earlier crumbs with a link are router links; the current page is plain text.",
+  "inputs": [
+    { "name": "items", "type": "readonly DgaBreadcrumbItem[] ({ label, link?, icon?, current? })", "required": true, "description": "The crumbs in order; labels are translated. Without a crumb marked current, the last one is the current page." },
+    { "name": "label", "type": "string", "required": true, "description": "Accessible name of the navigation landmark (translated)." }
+  ],
+  "outputs": [],
+  "slots": [],
+  "a11y": "WAI-ARIA breadcrumb pattern: a nav landmark named by label holding an ordered list; the current crumb has aria-current=page. Separators are decorative chevrons that point along the reading direction and mirror in RTL. Needs the Angular router (RouterLink).",
+  "since": "1.0.0"
+}

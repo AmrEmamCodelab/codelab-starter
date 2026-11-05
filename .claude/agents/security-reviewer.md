@@ -96,7 +96,7 @@ Work through every item that the change can affect. Cite the rule id shown in br
     [`base.fe-http-via-api-service`]
 23. No `bypassSecurityTrust*`, no `innerHTML` with server or user text, no token in `localStorage` outside `TokenStore`,
     no secret in `public/config.json` or an environment file. Trusted origins come from runtime config `origins`.
-24. No third-party UI library and no external DGA package. [`base.fe-ui-library-only`]
+24. No third-party UI library and no external DGA package. [`base.fe-ui-library-only`, `base.fe-ui-library-styles-and-deps`, `base.fe-no-remote-stylesheet`]
 
 ### Out of scope for v1
 

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../../rules/rules.schema.json
+# Rules for the starter web app's features/portal (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebPortal
+kind: angular
+description: "Starter web public portal (module 15 UI): landing, service guide, FAQ with search, contact form and the privacy and terms pages, all public and bilingual. Content is typed translation-key lists (static i18n in P4, settings data from P5); the contact form posts through ApiService to api/portal/contact-messages and shows problem+json field errors inline."
+mayDependOn: []
+mustNotDependOn: []

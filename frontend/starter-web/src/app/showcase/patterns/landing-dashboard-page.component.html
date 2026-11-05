@@ -1,0 +1,21 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [states]="states" [(state)]="state" />
+
+  <app-landing-dashboard-pattern
+    [greetingKey]="keys.Patterns.Greeting"
+    [greetingParams]="greetingParams()"
+    [tiles]="tiles()"
+    [quickActions]="quickActions"
+    [loading]="loading()"
+  >
+    <p landingHero class="pattern-text">{{ keys.Demo.HeroSubtitle | t }}</p>
+    <ul landingRecent class="pattern-list">
+      @for (item of recent; track item.reference) {
+        <li class="pattern-list__item">
+          <bdi dir="ltr" data-fixed-direction>{{ item.reference }}</bdi>
+          <dga-status-tag tone="info">{{ item.labelKey | t }}</dga-status-tag>
+        </li>
+      }
+    </ul>
+  </app-landing-dashboard-pattern>
+</app-showcase-frame>

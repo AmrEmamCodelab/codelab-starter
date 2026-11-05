@@ -1,0 +1,45 @@
+<div class="dga-field">
+  @if (label(); as text) {
+    <label class="dga-field__label" [attr.for]="textareaId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-field__required" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+  <textarea
+    #textarea
+    class="dga-field__textarea"
+    [class.dga-field__textarea--invalid]="isInvalid()"
+    [class.dga-field__textarea--auto]="autoResize()"
+    [id]="textareaId"
+    [value]="value()"
+    [rows]="rows()"
+    [attr.name]="name()"
+    [attr.placeholder]="placeholder()"
+    [attr.maxlength]="maxLength()"
+    [attr.aria-label]="label() ? null : ariaLabel()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="isInvalid() ? 'true' : null"
+    [required]="required()"
+    [disabled]="disabled()"
+    [readOnly]="readonly()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  ></textarea>
+  @if (hasError() || hint() || counterText() !== null) {
+    <div class="dga-field__footer">
+      <div class="dga-field__messages">
+        @if (hasError()) {
+          <span class="dga-field__message dga-field__message--error" [id]="errorId">{{ error() }}</span>
+        }
+        @if (hint(); as text) {
+          <span class="dga-field__message" [id]="hintId">{{ text }}</span>
+        }
+      </div>
+      @if (counterText(); as text) {
+        <span class="dga-field__message dga-field__counter" [id]="counterId">{{ text }}</span>
+      }
+    </div>
+  }
+</div>

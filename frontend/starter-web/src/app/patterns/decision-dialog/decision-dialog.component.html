@@ -1,0 +1,42 @@
+<app-editor-dialog-pattern
+  [open]="open()"
+  [titleKey]="titleKey()"
+  [confirmKey]="confirmKey()"
+  [cancelKey]="cancelKey()"
+  [busy]="busy()"
+  [destructive]="destructive()"
+  [error]="error()"
+  [translatedCodes]="translatedCodes()"
+  [fieldErrors]="fieldErrors()"
+  (confirm)="onConfirm()"
+  (cancel)="cancel.emit()"
+>
+  @if (messageKey(); as key) {
+    <p class="decision-dialog__message">{{ key | t: messageParams() }}</p>
+  }
+
+  <div class="decision-dialog__field" [class.decision-dialog__field--invalid]="fieldMessage() !== null">
+    <label class="decision-dialog__label" [for]="fieldId">{{ reasonLabelKey() | t }}</label>
+    <textarea
+      #reasonInput
+      class="decision-dialog__input"
+      rows="4"
+      required
+      autofocus
+      [id]="fieldId"
+      [value]="reason()"
+      [disabled]="busy()"
+      [attr.maxlength]="maxLength()"
+      [attr.aria-invalid]="fieldMessage() ? 'true' : null"
+      [attr.aria-describedby]="describedBy()"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    ></textarea>
+    <div class="decision-dialog__meta">
+      @if (fieldMessage(); as message) {
+        <p class="decision-dialog__error" [id]="errorId">{{ message.key | t: message.params }}</p>
+      }
+      <p class="decision-dialog__counter" [id]="counterId">{{ keys.Counter | t: { count: reason().length, max: maxLength() } }}</p>
+    </div>
+  </div>
+</app-editor-dialog-pattern>

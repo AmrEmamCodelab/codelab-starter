@@ -1,0 +1,67 @@
+<div class="landing">
+  <div class="landing__hero">
+    @if (greetingKey(); as greeting) {
+      <h1 class="landing__greeting">{{ greeting | t: greetingParams() }}</h1>
+    }
+    <ng-content select="[landingHero]" />
+  </div>
+
+  @if (shownTiles().length > 0) {
+    <section class="landing__section" [attr.aria-labelledby]="idPrefix + '-kpis'" [attr.aria-busy]="loading() ? 'true' : null">
+      <h2 class="landing__section-title" [id]="idPrefix + '-kpis'">{{ kpisLabelKey() | t }}</h2>
+      <ul class="landing__tiles">
+        @for (tile of shownTiles(); track tile.labelKey) {
+          <li class="landing__tile-item">
+            @if (tile.link) {
+              <a class="landing__tile landing__tile--link" [routerLink]="tile.link">
+                <ng-container [ngTemplateOutlet]="tileBody" [ngTemplateOutletContext]="{ $implicit: tile }" />
+              </a>
+            } @else {
+              <div class="landing__tile">
+                <ng-container [ngTemplateOutlet]="tileBody" [ngTemplateOutletContext]="{ $implicit: tile }" />
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @if (quickActions().length > 0) {
+    <section class="landing__section" [attr.aria-labelledby]="idPrefix + '-actions'">
+      <h2 class="landing__section-title" [id]="idPrefix + '-actions'">{{ quickActionsLabelKey() | t }}</h2>
+      <ul class="landing__actions">
+        @for (action of quickActions(); track action.labelKey) {
+          <li>
+            <a class="landing__action" [routerLink]="action.link">
+              @if (action.icon; as icon) {
+                <dga-icon class="landing__action-icon" [name]="icon" size="md" />
+              }
+              <span class="landing__action-label">{{ action.labelKey | t }}</span>
+              <dga-icon class="landing__action-arrow" name="chevron-end" size="sm" />
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @if (recentLabelKey(); as recentKey) {
+    <section class="landing__section" [attr.aria-labelledby]="idPrefix + '-recent'">
+      <h2 class="landing__section-title" [id]="idPrefix + '-recent'">{{ recentKey | t }}</h2>
+      <ng-content select="[landingRecent]" />
+    </section>
+  }
+</div>
+
+<ng-template #tileBody let-tile>
+  @if (tile.icon) {
+    <span class="landing__tile-icon"><dga-icon [name]="tile.icon" size="lg" /></span>
+  }
+  @if (valueOf(tile); as value) {
+    <strong class="landing__tile-value">{{ value }}</strong>
+  } @else {
+    <strong class="landing__tile-value landing__tile-value--pending">{{ keys.ValueLoading | t }}</strong>
+  }
+  <span class="landing__tile-label">{{ tile.labelKey | t }}</span>
+</ng-template>

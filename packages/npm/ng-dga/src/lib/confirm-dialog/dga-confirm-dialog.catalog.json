@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-confirm-dialog",
+  "className": "DgaConfirmDialogComponent",
+  "category": "feedback",
+  "summary": "A modal confirm-or-cancel question before an action (delete, submit, reject). It only asks: the caller performs the action on confirmed. Controlled by the open input.",
+  "inputs": [
+    { "name": "open", "type": "boolean", "required": false, "default": "false", "description": "Shows the dialog as a native modal <dialog>; the caller sets it back to false after confirmed or cancelled." },
+    { "name": "title", "type": "string", "required": true, "description": "The question (translated); names the dialog." },
+    { "name": "message", "type": "string | null", "required": false, "default": "null", "description": "The explanation under the title (translated); describes the dialog." },
+    { "name": "confirmLabel", "type": "string", "required": true, "description": "The confirm button's label (translated)." },
+    { "name": "cancelLabel", "type": "string", "required": true, "description": "The cancel button's label (translated)." },
+    { "name": "variant", "type": "DgaConfirmDialogVariant ('default' | 'danger')", "required": false, "default": "'default'", "description": "danger: warning icon, destructive confirm button, and Cancel focused first." },
+    { "name": "busy", "type": "boolean", "required": false, "default": "false", "description": "The action is running: Confirm shows a spinner and neither the buttons nor Escape emit." }
+  ],
+  "outputs": [
+    { "name": "confirmed", "type": "void", "description": "The confirm button was pressed." },
+    { "name": "cancelled", "type": "void", "description": "The cancel button or Escape was pressed." }
+  ],
+  "slots": [
+    { "selector": "default", "description": "Extra body content under the message (a list, a reason field)." }
+  ],
+  "a11y": "Native modal <dialog> with role=alertdialog and aria-modal, named by the title and described by the message; the page behind is inert. Focus moves to Confirm on open (Cancel for danger), Tab and Shift+Tab cycle inside, Escape cancels, and focus returns to the opener on close. Logical CSS, mirrors in RTL.",
+  "since": "1.0.0"
+}

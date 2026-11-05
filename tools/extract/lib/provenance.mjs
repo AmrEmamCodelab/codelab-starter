@@ -122,6 +122,9 @@ function manifestCheckSection(comparison) {
   ];
 }
 
+/** The starter-path cell of an entry left in staging: it has no repository target. */
+const STAGED_TARGET = '(left in staging)';
+
 function originSection(origins) {
   const header = ['## Per-file origin map', ''];
   if (origins.length === 0) {
@@ -129,8 +132,8 @@ function originSection(origins) {
       '`provenance/origins/<batch>.json` (written by `tools/extract/extract.ps1`); rerun the generator to list it here.'];
   }
   const rows = [...origins]
-    .sort((left, right) => left.target.localeCompare(right.target))
-    .map((origin) => `| \`${origin.target}\` | \`${origin.source}\` | ${origin.batch} / ${origin.entryId} | ${origin.mode} `
+    .sort((left, right) => (left.target ?? left.source).localeCompare(right.target ?? right.source))
+    .map((origin) => `| ${origin.target === undefined ? STAGED_TARGET : `\`${origin.target}\``} | \`${origin.source}\` | ${origin.batch} / ${origin.entryId} | ${origin.mode} `
       + `| ${origin.promotion ?? DEFAULT_PROMOTION} | \`${origin.sourceGitBlob}\` |`);
   return [
     ...header,

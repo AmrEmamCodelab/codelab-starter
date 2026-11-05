@@ -1,0 +1,63 @@
+<section class="feed" [attr.aria-label]="keys.Title | t">
+  <div class="feed__filters" role="group" [attr.aria-label]="keys.FilterLabel | t">
+    @for (option of filters; track option.filter) {
+      <dga-button
+        variant="secondary-outline"
+        size="sm"
+        [pressed]="filter() === option.filter"
+        (click)="select(option.filter)"
+      >
+        {{ option.labelKey | t }}
+      </dga-button>
+    }
+  </div>
+
+  <p class="dga-visually-hidden" aria-live="polite" aria-atomic="true">
+    {{ keys.Showing | t: { count: visible().length } }}
+  </p>
+
+  @if (visible().length > 0) {
+    <ul class="feed__list">
+      @for (item of visible(); track item.id) {
+        <li class="feed__item" [class.feed__item--unread]="!item.read">
+          <div class="feed__item-head">
+            @if (item.link; as link) {
+              <a class="feed__item-title" [routerLink]="link">{{ item.titleText }}</a>
+            } @else {
+              <span class="feed__item-title">{{ item.titleText }}</span>
+            }
+            @if (!item.read) {
+              <span class="feed__dot" aria-hidden="true"></span>
+              <span class="dga-visually-hidden">{{ keys.Unread | t }}</span>
+            }
+          </div>
+          <p class="feed__item-body">{{ item.bodyText }}</p>
+          <div class="feed__item-foot">
+            <time class="feed__item-time" [attr.datetime]="item.at">
+              <dga-icon name="clock" size="xs" />
+              {{ time(item.at) }}
+            </time>
+            @if (!item.read) {
+              <dga-button variant="subtle" size="sm" leadIcon="check" (click)="markRead.emit(item.id)">
+                {{ keys.MarkRead | t }}
+              </dga-button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="feed__empty">
+      <dga-icon name="bell" size="lg" />
+      <span class="feed__empty-text">{{ emptyKey() | t }}</span>
+    </p>
+  }
+
+  @if (hasMore()) {
+    <div class="feed__more">
+      <dga-button variant="secondary-outline" [loading]="loading()" (click)="loadMore.emit()">
+        {{ keys.LoadMore | t }}
+      </dga-button>
+    </div>
+  }
+</section>

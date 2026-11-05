@@ -1,7 +1,9 @@
 import type { Route, Routes } from '@angular/router';
-import { NOT_FOUND_PATH, SHELL_ROUTE } from './app.routes';
+import { NOT_FOUND_PATH, PORTAL_ROUTE, SHELL_ROUTE } from './app.routes';
 import { authGuard } from './core/auth/auth.guard';
 import { RoutePaths } from './core/routing/route-paths';
+import { PORTAL_PUBLIC_PATHS } from './features/portal/portal.routes';
+import { SHOWCASE_PUBLIC_PATHS } from './showcase/showcase.routes';
 
 /**
  * The full paths (no leading slash) of the routes that render without a permission key: the route-table gate
@@ -19,7 +21,16 @@ export const PUBLIC_ROUTE_PATHS: readonly string[] = [
   RoutePaths.SsoCallback,
   RoutePaths.Activate,
   NOT_FOUND_PATH,
+  ...PORTAL_PUBLIC_PATHS,
+  ...SHOWCASE_PUBLIC_PATHS,
 ];
+
+/**
+ * The public layout routes, matched by object identity at the top level: each renders a public frame (no session)
+ * around public pages. The gate replaces the frame with its children, hoisted to the top level at their full paths, so
+ * an empty child (the frame's landing page) is exempted by its own full path and a child without a public path fails.
+ */
+export const PUBLIC_LAYOUT_ROUTES: readonly Route[] = [PORTAL_ROUTE];
 
 /**
  * The layout routes, matched by object identity: each renders a frame behind `authGuard` and holds its pages as
@@ -35,8 +46,12 @@ export const LAYOUT_ROUTES: readonly Route[] = [SHELL_ROUTE];
  * @throws TypeError when a layout route has no children or is not behind `authGuard`: it would then be a page that
  *   renders without a key.
  */
-export function routesForGate(table: Routes, layouts: readonly Route[] = LAYOUT_ROUTES): Routes {
-  return table.map(route => {
+export function routesForGate(
+  table: Routes,
+  layouts: readonly Route[] = LAYOUT_ROUTES,
+  publicLayouts: readonly Route[] = PUBLIC_LAYOUT_ROUTES,
+): Routes {
+  return hoistPublicLayouts(table, publicLayouts).map(route => {
     const children = route.children === undefined ? undefined : routesForGate(route.children, layouts);
     if (!layouts.includes(route)) {
       return children === undefined ? route : { ...route, children };
@@ -44,6 +59,14 @@ export function routesForGate(table: Routes, layouts: readonly Route[] = LAYOUT_
     assertLayout(route);
     return { ...route, component: undefined, loadComponent: undefined, children };
   });
+}
+
+function hoistPublicLayouts(table: Routes, publicLayouts: readonly Route[]): Routes {
+  return table.flatMap(route =>
+    publicLayouts.includes(route)
+      ? (route.children ?? []).map(child => ({ ...child, path: [route.path, child.path].filter(Boolean).join('/') }))
+      : [route],
+  );
 }
 
 function assertLayout(route: Route): void {

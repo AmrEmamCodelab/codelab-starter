@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: NgTools
 kind: angular
-description: "Frontend tooling: ESLint boundary preset, codelab/wire-id-cast, Stylelint preset, codelab-vectors-sync."
+description: "Frontend tooling: ESLint boundary preset, codelab/wire-id-cast, Stylelint preset, codelab-vectors-sync, route and template permission gates, RTL lint, icon subsetting, i18n check (codelab-ng-tools)."
 mayDependOn: []
 mustNotDependOn: [NgSecurity]

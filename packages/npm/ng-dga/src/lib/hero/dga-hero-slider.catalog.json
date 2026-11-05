@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-hero-slider",
+  "className": "DgaHeroSliderComponent",
+  "category": "media",
+  "summary": "Carousel of hero slides (title, subtitle, decorative image, optional call-to-action link) with previous/next buttons, picker dots and an optional autoplay with pause control.",
+  "inputs": [
+    {
+      "name": "slides",
+      "type": "readonly DgaHeroSlide[]",
+      "required": true,
+      "description": "Slides {id, title, subtitle?, imageSrc?, link?, linkLabel?}, already translated."
+    },
+    {
+      "name": "index",
+      "type": "number (model)",
+      "required": false,
+      "default": "0",
+      "description": "The shown slide; two-way bindable with [(index)]."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Accessible name of the slider region."
+    },
+    {
+      "name": "previousLabel",
+      "type": "string",
+      "required": true,
+      "description": "Label of the previous button."
+    },
+    {
+      "name": "nextLabel",
+      "type": "string",
+      "required": true,
+      "description": "Label of the next button."
+    },
+    {
+      "name": "pauseLabel",
+      "type": "string",
+      "required": true,
+      "description": "Label of the rotation button while slides rotate."
+    },
+    {
+      "name": "playLabel",
+      "type": "string",
+      "required": true,
+      "description": "Label of the rotation button while paused."
+    },
+    {
+      "name": "roleDescription",
+      "type": "string | null",
+      "required": false,
+      "default": "null",
+      "description": "Translated aria-roledescription of the region (carousel)."
+    },
+    {
+      "name": "slideRoleDescription",
+      "type": "string | null",
+      "required": false,
+      "default": "null",
+      "description": "Translated aria-roledescription of each slide (slide)."
+    },
+    {
+      "name": "autoplay",
+      "type": "boolean",
+      "required": false,
+      "default": "false",
+      "description": "Advance on a timer; never under prefers-reduced-motion."
+    },
+    {
+      "name": "intervalMs",
+      "type": "number",
+      "required": false,
+      "default": "DGA_HERO_SLIDER_DEFAULT_INTERVAL_MS (6000)",
+      "description": "Autoplay interval in milliseconds; raised to at least 3000."
+    }
+  ],
+  "outputs": [
+    {
+      "name": "indexChange",
+      "type": "number",
+      "description": "The shown slide changed (model output of index)."
+    }
+  ],
+  "slots": [],
+  "a11y": "WAI-ARIA carousel: a named region, each slide a labelled group, aria-live off while rotating and polite otherwise. Rotation holds while pointer or focus is inside, stops when paused, and never runs under prefers-reduced-motion. Dots carry aria-current; ArrowLeft/ArrowRight on the dots move along the visual order (mirrored in RTL).",
+  "since": "1.0.0"
+}

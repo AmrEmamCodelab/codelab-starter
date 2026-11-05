@@ -1,0 +1,81 @@
+<article class="requester-detail" [attr.aria-labelledby]="titleId" [attr.aria-busy]="viewState() === states.Loading ? 'true' : null">
+  <header class="requester-detail__header">
+    <div class="requester-detail__heading">
+      <h1 class="requester-detail__title" [id]="titleId">{{ titleKey() | t }}</h1>
+      @if (viewState() === states.Ready) {
+        <dl class="requester-detail__meta">
+          @if (recordNumber(); as number) {
+            <div class="requester-detail__meta-item">
+              <dt>{{ keys.RecordNumber | t }}</dt>
+              <dd class="requester-detail__record-number">{{ number }}</dd>
+            </div>
+          }
+          @if (createdOnText(); as createdOn) {
+            <div class="requester-detail__meta-item">
+              <dt>{{ keys.CreatedOn | t }}</dt>
+              <dd><time [attr.datetime]="createdAt()">{{ createdOn }}</time></dd>
+            </div>
+          }
+        </dl>
+      }
+    </div>
+    @if (viewState() === states.Ready && statusKey(); as status) {
+      <div class="requester-detail__status">
+        <span class="dga-visually-hidden">{{ keys.Status | t }}</span>
+        <dga-status-tag [tone]="statusTone()">{{ status | t }}</dga-status-tag>
+      </div>
+    }
+  </header>
+
+  @switch (viewState()) {
+    @case (states.Loading) {
+      <p class="requester-detail__loading" role="status">{{ keys.Loading | t }}</p>
+    }
+    @case (states.Error) {
+      <div class="requester-detail__error" role="alert">
+        <dga-icon name="alert" size="md" />
+        <div class="requester-detail__error-text">
+          <p class="requester-detail__error-title">{{ keys.Error | t }}</p>
+          @if (errorMessageKey(); as messageKey) {
+            <p class="requester-detail__error-message">{{ messageKey | t }}</p>
+          }
+          @if (error()?.referenceCode; as code) {
+            <p class="requester-detail__error-reference">{{ commonKeys.ReferenceCode | t: { code: code } }}</p>
+          }
+        </div>
+        <dga-button variant="secondary-outline" size="sm" data-public-action class="requester-detail__retry" (click)="retry.emit()">
+          {{ keys.Retry | t }}
+        </dga-button>
+      </div>
+    }
+    @default {
+      <ng-content select="[detailBanner]" />
+      <div class="requester-detail__layout">
+        <div class="requester-detail__main">
+          <section class="requester-detail__summary" [attr.aria-label]="keys.Summary | t">
+            <ng-content select="[detailSummary]" />
+          </section>
+          @if (hasAttachments()) {
+            <section class="requester-detail__attachments" [attr.aria-labelledby]="titleId + '-attachments'">
+              <h2 class="requester-detail__section-title" [id]="titleId + '-attachments'">{{ keys.Attachments | t }}</h2>
+              <ng-content select="[detailAttachments]" />
+            </section>
+          }
+        </div>
+        <aside class="requester-detail__aside">
+          <app-status-tracker
+            [entries]="history()"
+            [toneFor]="toneFor()"
+            [titleKey]="trackerTitleKey()"
+            [headingLevel]="trackerHeadingLevel"
+          />
+          @if (hasActions()) {
+            <div class="requester-detail__actions" role="group" [attr.aria-label]="keys.Actions | t">
+              <ng-content select="[detailActions]" />
+            </div>
+          }
+        </aside>
+      </div>
+    }
+  }
+</article>

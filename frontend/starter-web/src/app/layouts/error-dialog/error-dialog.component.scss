@@ -1,43 +1,4 @@
-.error-dialog__backdrop {
-  position: fixed;
-  z-index: 100;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding-inline: var(--dga-space-4);
-  background-color: var(--dga-color-surface-muted);
-}
-
-.error-dialog {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--dga-space-3);
-  max-inline-size: 28rem;
-  padding-block: var(--dga-space-6);
-  padding-inline: var(--dga-space-6);
-  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
-  border-radius: var(--dga-radius-lg);
-  background-color: var(--dga-color-surface-default);
-  box-shadow: var(--dga-shadow-md);
-}
-
-.error-dialog__title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dga-space-2);
-  margin: 0;
-  color: var(--dga-color-text-error);
-  font-size: var(--dga-font-size-lg);
-}
-
-.error-dialog__message,
-.error-dialog__reference {
-  margin: 0;
-  color: var(--dga-color-text-paragraph);
-}
-
-.error-dialog__reference {
-  color: var(--dga-color-text-muted);
-  font-size: var(--dga-font-size-sm);
+// The dialog draws itself (dga-error-dialog, a native modal <dialog> in the top layer); this host adds no box.
+:host {
+  display: contents;
 }

@@ -1,89 +1,62 @@
 // @vitest-environment node
+//
+// The app wrapper around `codelab-ng-tools i18n-check`: its folders, its Latin allow list and its exit codes. The
+// check itself is tested in @codelab/ng-tools (tests/i18n-check.test.mjs).
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ExitCodes, checkI18nParity, compareKeySets, flattenTranslations, parseArguments, run } from './i18n-parity.mjs';
+import {
+  DEFAULT_I18N_DIR,
+  DEFAULT_SOURCE_DIR,
+  ExitCodes,
+  LATIN_ALLOWED_KEYS,
+  checkArguments,
+  parseArguments,
+  run,
+} from './i18n-parity.mjs';
 
-describe('flattenTranslations', () => {
-  it('flattens nested groups into dotted keys', () => {
-    const leaves = flattenTranslations({ auth: { login: { title: 'x', submit: 'y' } }, app: { name: 'z' } });
-    expect([...leaves.keys()]).toEqual(['auth.login.title', 'auth.login.submit', 'app.name']);
-  });
-
-  it('reports arrays, numbers, empty text and empty groups', () => {
-    const problems = [];
-    flattenTranslations({ a: [], b: 1, c: ' ', d: {}, e: null }, problems);
-    expect(problems).toEqual([
-      'a: expected text or a group, found an array',
-      'b: expected text or a group, found number',
-      'c: empty text',
-      'd: empty group',
-      'e: expected text or a group, found object',
-    ]);
-  });
-
-  it('reports a root that is not an object', () => {
-    const problems = [];
-    flattenTranslations('text', problems);
-    expect(problems).toEqual([]);
-    flattenTranslations([], problems);
-    expect(problems).toEqual(['(root): expected text or a group, found an array']);
-  });
-});
-
-describe('compareKeySets', () => {
-  it('lists each key missing from each language', () => {
-    expect(compareKeySets([
-      { language: 'ar', keys: new Set(['a', 'b']) },
-      { language: 'en', keys: new Set(['a', 'c']) },
-    ])).toEqual(['ar: missing key c', 'en: missing key b']);
-  });
-});
-
-describe('checkI18nParity and run', () => {
+describe('the i18n-check wrapper', () => {
   let dir;
-  const write = (name, value) => fs.writeFileSync(path.join(dir, name), typeof value === 'string' ? value : JSON.stringify(value));
-  const quiet = { log: () => {}, error: () => {} };
+  const sink = () => {
+    const lines = { logs: [], errors: [] };
+    return { lines, io: { log: (line) => lines.logs.push(line), error: (line) => lines.errors.push(line) } };
+  };
+  const write = (relative, value) => {
+    const file = path.join(dir, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value));
+  };
 
-  beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'starter-i18n-parity-')); });
+  beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'starter-i18n-check-')); });
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
 
-  it('passes when ar and en have the same nested keys', () => {
-    write('ar.json', { app: { title: 'عنوان' } });
-    write('en.json', { app: { title: 'Title' } });
-    expect(checkI18nParity(dir)).toEqual({ problems: [], languages: ['ar', 'en'] });
-    expect(run(['--dir', dir], { appDir: dir, ...quiet })).toBe(ExitCodes.ok);
+  it('defaults to the app translations and sources, and accepts --dir and --src', () => {
+    expect(parseArguments([], dir)).toEqual({ dir: path.resolve(dir, DEFAULT_I18N_DIR), src: path.resolve(dir, DEFAULT_SOURCE_DIR) });
+    expect(parseArguments(['--src', 's', '--dir', 'd'], dir)).toEqual({ dir: path.resolve(dir, 'd'), src: path.resolve(dir, 's') });
   });
 
-  it('fails on a key present in one language only', () => {
-    write('ar.json', { app: { title: 'عنوان', extra: 'إضافي' } });
-    write('en.json', { app: { title: 'Title' } });
-    expect(checkI18nParity(dir).problems).toEqual(['en: missing key app.extra']);
-    expect(run(['--dir', dir], { appDir: dir, ...quiet })).toBe(ExitCodes.failure);
+  it('refuses unknown flags and a flag without a value', () => {
+    expect(parseArguments(['--x', 'y'], dir).error).toMatch(/Usage/);
+    expect(parseArguments(['--dir'], dir).error).toMatch(/Usage/);
+    expect(run(['--x'], { appDir: dir, ...sink().io })).toBe(ExitCodes.usage);
   });
 
-  it('fails when a required language is missing', () => {
-    write('en.json', { a: 'A' });
-    expect(checkI18nParity(dir).problems).toEqual(['ar: ar.json is missing']);
+  it('passes the Latin allow list to the check', () => {
+    const args = checkArguments({ dir: 'd', src: 's' });
+    expect(args.slice(0, 4)).toEqual(['--dir', 'd', '--src', 's']);
+    for (const key of LATIN_ALLOWED_KEYS) expect(args).toContain(key);
   });
 
-  it('fails on invalid JSON without stopping the other checks', () => {
-    write('ar.json', '{ broken');
-    write('en.json', { a: 'A' });
-    const { problems } = checkI18nParity(dir);
-    expect(problems[0]).toMatch(/^ar\.json: not valid JSON/);
-    expect(problems).toHaveLength(1);
-  });
+  it('passes a consistent app and fails a key the code uses but the files lack', () => {
+    write('src/assets/i18n/ar.json', { app: { title: 'عنوان' }, layout: { 'language-switcher': { en: 'English' } } });
+    write('src/assets/i18n/en.json', { app: { title: 'Title' }, layout: { 'language-switcher': { en: 'English' } } });
+    write('src/app/a.component.html', "<h1>{{ 'app.title' | t }}</h1>");
+    expect(run([], { appDir: dir, ...sink().io })).toBe(ExitCodes.ok);
 
-  it('fails when the folder does not exist', () => {
-    expect(checkI18nParity(path.join(dir, 'missing')).problems[0]).toMatch(/translation folder not found/);
-  });
-
-  it('parses arguments', () => {
-    expect(parseArguments([], dir)).toEqual({ dir: path.resolve(dir, 'src/assets/i18n') });
-    expect(parseArguments(['--dir', 'x'], dir)).toEqual({ dir: path.resolve(dir, 'x') });
-    expect(parseArguments(['--x'], dir).error).toMatch(/Usage/);
-    expect(run(['--x'], { appDir: dir, ...quiet })).toBe(ExitCodes.usage);
+    write('src/app/b.component.html', "<p>{{ 'app.missing' | t }}</p>");
+    const { lines, io } = sink();
+    expect(run([], { appDir: dir, ...io })).toBe(ExitCodes.failure);
+    expect(lines.errors.join('\n')).toMatch(/app\.missing is used in .*b\.component\.html:1 but missing from ar, en/);
   });
 });

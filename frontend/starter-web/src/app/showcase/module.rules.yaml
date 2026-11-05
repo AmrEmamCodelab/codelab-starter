@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../rules/rules.schema.json
+# Rules for the starter web app's component showcase (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebShowcase
+kind: angular
+description: "Starter web component showcase (/showcase, dev and staging only, behind config.json showcase: true): every @codelab/ng-dga component in its main states, the 8 page patterns with fixture data, the layouts in a frame and a branding preview, in ar and en. It may import core, shared, layouts and patterns (ESLint boundaries) but no feature; it calls no API, runs on a pinned clock and is the source of the P4 visual baselines."
+mayDependOn: []
+mustNotDependOn: []

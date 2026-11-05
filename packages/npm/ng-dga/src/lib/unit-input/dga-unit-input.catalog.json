@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-unit-input",
+  "className": "DgaUnitInputComponent",
+  "category": "form",
+  "summary": "A number field with its unit (kg, %, km) as a suffix at the inline end of the box; accepts Arabic-Indic digits. A signal-model control of number | null: bind [(value)] or a signal-forms field.",
+  "inputs": [
+    { "name": "value", "type": "number | null, model", "required": false, "default": "null", "description": "The number; null when empty or unreadable; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true on blur; two-way [(touched)]." },
+    { "name": "unit", "type": "string", "required": true, "description": "The unit text shown after the number (translated)." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when there is no visible label (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "Placeholder (translated)." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the input invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native name attribute." },
+    { "name": "min", "type": "number | null", "required": false, "default": "null", "description": "Inclusive minimum." },
+    { "name": "max", "type": "number | null", "required": false, "default": "null", "description": "Inclusive maximum." },
+    { "name": "integer", "type": "boolean", "required": false, "default": "false", "description": "Whole numbers only (numeric keyboard)." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required plus a decorative asterisk." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the input." },
+    { "name": "readonly", "type": "boolean", "required": false, "default": "false", "description": "Read-only value that stays focusable." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the input invalid without a message." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "number | null", "description": "The new number on every input (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true on the first blur." },
+    { "name": "issueChange", "type": "DgaNumberIssue | null", "description": "The field's own problem when it changes: 'unreadable', 'below-min', 'above-max', or null." }
+  ],
+  "slots": [],
+  "a11y": "A text input with inputmode decimal or numeric. The label is linked with for/id; the unit, hint and error are linked with aria-describedby (the unit first, so it is read with the value); an error, invalid or an own issue sets aria-invalid. The unit is the last flex item, so it sits on the inline end: right in LTR, left in RTL.",
+  "since": "1.0.0"
+}

@@ -1,0 +1,16 @@
+@if (imageSrc()) {
+  <img class="dga-hero__image" [src]="imageSrc()" alt="" />
+  <div class="dga-hero__overlay" aria-hidden="true"></div>
+}
+<div class="dga-hero__content">
+  <div class="dga-hero__title">
+    <ng-content select="[dgaHeroTitle]" />
+  </div>
+  <div class="dga-hero__subtitle">
+    <ng-content select="[dgaHeroSubtitle]" />
+  </div>
+  <ng-content />
+  <div class="dga-hero__actions">
+    <ng-content select="[dgaHeroActions]" />
+  </div>
+</div>

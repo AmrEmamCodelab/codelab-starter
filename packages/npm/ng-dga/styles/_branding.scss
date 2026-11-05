@@ -1,0 +1,24 @@
+// The branding layer: maps the --dga-brand-* custom properties onto the semantic primary tokens. A project sets the
+// brand properties at run time with applyDgaBranding() / provideDgaBranding() (from its config.json branding block),
+// or statically in its own styles:
+//
+//   :root { --dga-brand-primary: <your hex colour>; }   // the derived shades still come from applyDgaBranding()
+//
+// Without branding every fallback is the package's own DGA green, so nothing changes. Components keep reading the
+// semantic tokens (--dga-color-primary, --dga-color-border-primary, --dga-color-focus-ring, ...), never --dga-brand-*.
+
+@mixin brand-tokens {
+  --dga-color-primary: var(--dga-brand-primary, var(--dga-palette-primary-600));
+  --dga-color-primary-hover: var(--dga-brand-primary-hover, var(--dga-palette-primary-700));
+  --dga-color-primary-active: var(--dga-brand-primary-active, var(--dga-palette-primary-800));
+  --dga-color-primary-subtle: var(--dga-brand-primary-subtle, var(--dga-palette-primary-50));
+  --dga-color-primary-muted: var(--dga-brand-primary-muted, var(--dga-palette-primary-100));
+  --dga-color-text-primary: var(--dga-brand-primary, var(--dga-palette-primary-600));
+  --dga-color-text-link: var(--dga-brand-primary-hover, var(--dga-palette-primary-700));
+  --dga-color-text-link-hover: var(--dga-brand-primary-active, var(--dga-palette-primary-800));
+  --dga-color-border-primary: var(--dga-brand-primary, var(--dga-palette-primary-600));
+  --dga-color-focus-ring: var(--dga-brand-primary, var(--dga-palette-primary-600));
+  --dga-color-focus-halo: var(--dga-brand-primary-muted, var(--dga-palette-primary-100));
+  --dga-color-progress-surface: var(--dga-brand-primary-subtle, var(--dga-palette-primary-50));
+  --dga-color-progress-solid: var(--dga-brand-primary, var(--dga-palette-primary-600));
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-tag",
+  "className": "DgaTagComponent",
+  "category": "data",
+  "summary": "The DGA tag: a light semantic chip for a category, a flag or a short attribute. For a record's workflow status use dga-status-tag instead.",
+  "inputs": [
+    { "name": "tone", "type": "DgaTagTone ('neutral' | 'success' | 'info' | 'warning' | 'error')", "required": false, "default": "'neutral'", "description": "Semantic colour from the tone tokens." },
+    { "name": "icon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative leading icon." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The tag text (translated)." }
+  ],
+  "a11y": "Plain inline text: the colour and icon are decorative, so the projected text alone must carry the meaning. Not interactive and not focusable.",
+  "since": "1.0.0"
+}

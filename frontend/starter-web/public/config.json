@@ -1,12 +1,23 @@
 {
   "apiBaseUrl": "http://localhost:5180",
   "origins": {
-    "api": ["http://localhost:5180"],
+    "api": [
+      "http://localhost:5180"
+    ],
     "attachment": []
   },
   "security": {
     "protocolPrefix": "STARTER"
   },
   "defaultLanguage": "ar",
-  "permissionRefreshSeconds": 30
+  "permissionRefreshSeconds": 30,
+  "branding": {
+    "primaryColor": "#1b8354",
+    "logoSrc": "",
+    "appName": {
+      "ar": "قالب كودلاب",
+      "en": "Codelab Starter"
+    }
+  },
+  "showcase": false
 }

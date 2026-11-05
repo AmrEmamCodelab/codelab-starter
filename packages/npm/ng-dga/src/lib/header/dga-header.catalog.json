@@ -1,0 +1,61 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-header",
+  "className": "DgaHeaderComponent",
+  "category": "navigation",
+  "summary": "Site header: brand (logo and name linking home), main navigation with one submenu level, start and actions slots; collapses behind a menu button below the md breakpoint.",
+  "inputs": [
+    {
+      "name": "brandName",
+      "type": "string",
+      "required": true,
+      "description": "Product name (translated); the accessible name of the home link."
+    },
+    {
+      "name": "logoSrc",
+      "type": "string | null",
+      "required": false,
+      "default": "null",
+      "description": "Decorative logo image served by the app; null or empty shows the name only."
+    },
+    {
+      "name": "homeLink",
+      "type": "string",
+      "required": false,
+      "default": "'/'",
+      "description": "Router link of the brand."
+    },
+    {
+      "name": "navItems",
+      "type": "readonly DgaNavItem[]",
+      "required": false,
+      "default": "[]",
+      "description": "Navigation entries {id, label, link?, children?, icon?, exact?}; entries with children open a submenu; exact (default: true when another entry links below this one) makes a link current only on its own URL."
+    },
+    {
+      "name": "navLabel",
+      "type": "string",
+      "required": true,
+      "description": "Accessible name of the navigation landmark (translated)."
+    },
+    {
+      "name": "menuLabel",
+      "type": "string",
+      "required": true,
+      "description": "Accessible name of the mobile menu button (translated)."
+    }
+  ],
+  "outputs": [],
+  "slots": [
+    {
+      "selector": "[dgaHeaderStart]",
+      "description": "Before the brand, e.g. a skip link."
+    },
+    {
+      "selector": "[dgaHeaderActions]",
+      "description": "After the navigation: language switcher, notifications, user menu."
+    }
+  ],
+  "a11y": "Header with a named nav landmark (WAI-ARIA disclosure navigation). Submenu buttons carry aria-expanded and aria-controls; click toggles, Enter/Space/ArrowDown open and focus the first link, ArrowDown/ArrowUp/Home/End move between links, Escape closes and returns focus, focus leaving or an outside click closes. Leaf links get aria-current=page; a link another entry links below (a portal home next to its pages) is current only on its own URL, so one page never marks two entries (DgaNavItem.exact overrides). The mobile menu button has aria-expanded and aria-controls; Escape, on the button or inside the panel, closes the panel and returns focus to it.",
+  "since": "1.0.0"
+}

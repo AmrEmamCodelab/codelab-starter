@@ -1,0 +1,39 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-portal-content-pattern [sections]="sections">
+    <dga-portal-page-header
+      portalHeader
+      [title]="keys.Patterns.PortalTitle | t"
+      [subtitle]="keys.Patterns.PortalSubtitle | t"
+      [breadcrumbs]="breadcrumbs()"
+      [breadcrumbLabel]="keys.Demo.BreadcrumbLabel | t"
+    />
+
+    <section class="portal-demo-section" [portalSection]="Section.About">
+      <h2>{{ keys.Patterns.PortalAbout | t }}</h2>
+      <p class="pattern-text">{{ keys.Patterns.PortalAboutBody | t }}</p>
+    </section>
+    <section class="portal-demo-section" [portalSection]="Section.Steps">
+      <h2>{{ keys.Patterns.PortalSteps | t }}</h2>
+      <p class="pattern-text">{{ keys.Patterns.PortalStepsBody | t }}</p>
+      <section class="portal-demo-section" [portalSection]="Section.StepsOnline">
+        <h3>{{ keys.Patterns.PortalStepsOnline | t }}</h3>
+        <p class="pattern-text">{{ keys.Patterns.PortalStepsOnlineBody | t }}</p>
+      </section>
+    </section>
+    <section class="portal-demo-section" [portalSection]="Section.Documents">
+      <h2>{{ keys.Patterns.PortalDocuments | t }}</h2>
+      <dga-accordion [headingLevel]="HeadingLevel.H3">
+        <dga-accordion-item [label]="keys.Demo.FaqWho | t">
+          <p class="pattern-text">{{ keys.Demo.FaqWhoAnswer | t }}</p>
+        </dga-accordion-item>
+        <dga-accordion-item [label]="keys.Demo.FaqDocuments | t">
+          <p class="pattern-text">{{ keys.Demo.FaqDocumentsAnswer | t }}</p>
+        </dga-accordion-item>
+      </dga-accordion>
+    </section>
+
+    <p portalLastUpdated class="pattern-note" data-visual-mask>
+      {{ keys.Patterns.PortalLastUpdated | t: { date: lastUpdated() } }}
+    </p>
+  </app-portal-content-pattern>
+</app-showcase-frame>

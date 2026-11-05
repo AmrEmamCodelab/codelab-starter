@@ -1,0 +1,70 @@
+/* Tokens and logical CSS only. Projected headings and paragraphs take their colour from the text tokens, so the
+   coloured variants re-point those tokens on the host instead of styling projected content. */
+
+:host {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  min-block-size: var(--dga-size-hero-min);
+  color: var(--dga-color-text-display);
+  background-color: var(--dga-color-surface-muted);
+}
+
+:host([data-variant='brand']),
+:host(.dga-hero--image) {
+  --dga-color-text-display: var(--dga-color-text-on-color);
+  --dga-color-text-paragraph: var(--dga-color-text-on-color);
+
+  color: var(--dga-color-text-on-color);
+  background-color: var(--dga-color-primary);
+}
+
+.dga-hero__image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.dga-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--dga-color-hero-overlay);
+}
+
+.dga-hero__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+  inline-size: 100%;
+  max-inline-size: var(--dga-size-container);
+  margin-inline: auto;
+  padding-block: var(--dga-space-12);
+  padding-inline: var(--dga-space-4);
+}
+
+.dga-hero__title,
+.dga-hero__subtitle {
+  max-inline-size: var(--dga-size-hero-text);
+}
+
+.dga-hero__title:empty,
+.dga-hero__subtitle:empty,
+.dga-hero__actions:empty {
+  display: none;
+}
+
+.dga-hero__subtitle {
+  font-size: var(--dga-font-size-lg);
+  line-height: var(--dga-line-height-lg);
+}
+
+.dga-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-3);
+  margin-block-start: var(--dga-space-2);
+}

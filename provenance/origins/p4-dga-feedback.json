@@ -1,0 +1,112 @@
+{
+  "batch": "p4-dga-feedback",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p4-dga-feedback -Clean (staging %TEMP%/codelab-extract/p4-dga-feedback, outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Each staged file was read as a reference and rebuilt in @codelab/ng-dga with starter names, signal inputs, tokens and logical CSS; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. A \"staged\" entry stays in staging with its reason.",
+  "origins": [
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/confirm-dialog/confirm-dialog.component.ts",
+      "target": "packages/npm/ng-dga/src/lib/confirm-dialog/dga-confirm-dialog.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "3ffea81325100833a806bd4bd06c96ce60f31fd1",
+      "sourceSha256": "dd231f8d647ae5924c2e3014fb8a0f43846bc89a7b40f4bf5542b2e6da5cb8b3",
+      "stagedSha256": "dd231f8d647ae5924c2e3014fb8a0f43846bc89a7b40f4bf5542b2e6da5cb8b3",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/confirm-dialog/confirm-dialog.component.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as dga-confirm-dialog: a controlled native modal <dialog> (role alertdialog) with translated title/message/confirm/cancel inputs, a danger variant (Cancel focused first), focus trap and restore (modal-dialog.ts), Escape = cancelled, busy state; no dialog library, no own text."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/confirm-dialog/confirm-unfit.spec.ts",
+      "target": "reference/p4/p4-dga-feedback/ui/confirm-dialog/confirm-unfit.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "ca38f8d012f138a43d9937cc10728fce6eadc505",
+      "sourceSha256": "a0b663c2624bf9f03ebf4b81e95b58fdba0ba351742a137b0e3542a2702d23d2",
+      "stagedSha256": "a0b663c2624bf9f03ebf4b81e95b58fdba0ba351742a137b0e3542a2702d23d2",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/confirm-dialog/confirm-unfit.spec.ts",
+      "promotion": "staged",
+      "note": "Left behind with the domain-specific helper it tests."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/confirm-dialog/confirm-unfit.ts",
+      "target": "reference/p4/p4-dga-feedback/ui/confirm-dialog/confirm-unfit.ts",
+      "mode": "copy",
+      "sourceGitBlob": "805b9f2382d63d91754c7b525a12cd9a5409de38",
+      "sourceSha256": "10042a4624c0e116cd122c875550730da3e3b634a32e8e9f25e7c0d8ec17a247",
+      "stagedSha256": "10042a4624c0e116cd122c875550730da3e3b634a32e8e9f25e7c0d8ec17a247",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/confirm-dialog/confirm-unfit.ts",
+      "promotion": "staged",
+      "note": "Left behind: a domain-specific decision-confirmation helper with no place in the generic library; callers compose dga-confirm-dialog with their own texts."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/error-dialog/error-dialog.component.spec.ts",
+      "target": "packages/npm/ng-dga/src/lib/error-dialog/dga-error-dialog.component.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "dffb191a3b066c1bc63504c066fb799d7ac764a8",
+      "sourceSha256": "3c93b16fe594ea751db4cd8a485ee70bd63a8a01ef127263943c487b736f19c9",
+      "stagedSha256": "3c93b16fe594ea751db4cd8a485ee70bd63a8a01ef127263943c487b736f19c9",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/error-dialog/error-dialog.component.spec.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten for the new component (keyboard, focus, aria, RTL/LTR, copy feedback). Fixture values are new; none of the source fixture values was carried."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/error-dialog/error-dialog.component.ts",
+      "target": "packages/npm/ng-dga/src/lib/error-dialog/dga-error-dialog.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "e1a46eb243496d4f550b3d8e5bfa03f569094afa",
+      "sourceSha256": "e8c6295234ba39a4be1b33dd74db6e84bdb7abbc5cee2a70bfd7a250a8276a02",
+      "stagedSha256": "e8c6295234ba39a4be1b33dd74db6e84bdb7abbc5cee2a70bfd7a250a8276a02",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/error-dialog/error-dialog.component.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as the presentational dga-error-dialog (texts and reference code as inputs, never parses an error), with an LTR reference code, a copy button over the DGA_CLIPBOARD token and a polite announcement; the app layouts/error-dialog renders it from ErrorDialogStore."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/file-upload/file-upload.component.ts",
+      "target": "packages/npm/ng-dga/src/lib/file-upload/dga-file-upload.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "ba8fbb68bb39061629c1553f34a6a347e28b5619",
+      "sourceSha256": "b682cc257abe473240ce0a399d347ee4c7f5d31e538fca5f5aa2c657467324c8",
+      "stagedSha256": "b682cc257abe473240ce0a399d347ee4c7f5d31e538fca5f5aa2c657467324c8",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/file-upload/file-upload.component.ts",
+      "promotion": "rewritten",
+      "note": "Rebuilt on @codelab/ng-dga, not copied (the source imported the external DGA package): presentational drop zone + browse button, validation union in file-validation.ts (type/size/empty/count), items list with progress and remove; the simulated upload timer is gone (the attachment-service adapter is P6). shared/file-picker composes it."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/page-feedback/page-feedback.component.ts",
+      "target": "packages/npm/ng-dga/src/lib/page-feedback/dga-page-feedback.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "4ed8b733dcdef12e2ea306deef75d409526d8d60",
+      "sourceSha256": "1b9b82fc1edc84cca3655a65efc7febb8969af97e4faed974ea1cf7f25741a0d",
+      "stagedSha256": "1b9b82fc1edc84cca3655a65efc7febb8969af97e4faed974ea1cf7f25741a0d",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/page-feedback/page-feedback.component.ts",
+      "promotion": "rewritten",
+      "note": "Rebuilt on @codelab/ng-dga, not copied (the source imported the external DGA package). The source was a local-only page-usefulness vote strip; the library component is the page-level outcome banner of the P4 contract (state input, role alert/status, focus on change). The vote strip was left behind (no backend for it)."
+    },
+    {
+      "batch": "p4-dga-feedback",
+      "entryId": "feedback-components",
+      "source": "frontend/modhs-web/src/app/shared/ui/portal-page-header/portal-page-header.component.ts",
+      "target": "packages/npm/ng-dga/src/lib/portal-page-header/dga-portal-page-header.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "68b5d83a8715bbf497cc3c3502c69c5d685d9ec7",
+      "sourceSha256": "10d164a657fc972ea0c5ce9c3b33e488e5361cb558982cbebab69bface1de961",
+      "stagedSha256": "10d164a657fc972ea0c5ce9c3b33e488e5361cb558982cbebab69bface1de961",
+      "stagedTarget": "reference/p4/p4-dga-feedback/ui/portal-page-header/portal-page-header.component.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as dga-portal-page-header on dga-breadcrumb: translated title/subtitle/breadcrumb inputs instead of i18n keys and an injected translate service, illustration and actions slots, tokens and logical CSS (no viewport bleed hack)."
+    }
+  ]
+}

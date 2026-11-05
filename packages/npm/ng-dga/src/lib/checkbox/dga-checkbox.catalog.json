@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-checkbox",
+  "className": "DgaCheckboxComponent",
+  "category": "form",
+  "summary": "The DGA checkbox: a native checkbox, visually replaced by a token-styled box, with its label, hint and error. A signal-model control: bind [(checked)] or a signal-forms field.",
+  "inputs": [
+    { "name": "checked", "type": "boolean, model", "required": false, "default": "false", "description": "The state; two-way [(checked)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true on blur; two-way [(touched)]." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated); projected content follows it." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the checkbox invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native name attribute." },
+    { "name": "indeterminate", "type": "boolean", "required": false, "default": "false", "description": "Mixed state (a dash) until the user toggles." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required plus a decorative asterisk." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the checkbox." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the checkbox invalid without a message." }
+  ],
+  "outputs": [
+    { "name": "checkedChange", "type": "boolean", "description": "The new state when the user toggles (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true on the first blur." }
+  ],
+  "slots": [
+    { "selector": "default", "description": "Extra label content after label, for example a link to terms." }
+  ],
+  "a11y": "A native input type=checkbox inside its label, so clicking the text toggles it and Space toggles from the keyboard. indeterminate uses the native mixed state. Hint and error are linked with aria-describedby; an error sets aria-invalid. The drawn box and asterisk are aria-hidden.",
+  "since": "1.0.0"
+}

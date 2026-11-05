@@ -1,0 +1,126 @@
+<header class="dga-header__bar">
+  <div class="dga-header__start">
+    <ng-content select="[dgaHeaderStart]" />
+  </div>
+
+  <a class="dga-header__brand" [routerLink]="homeLink()">
+    @if (logoSrc()) {
+      <img class="dga-header__logo" [src]="logoSrc()" alt="" />
+    }
+    <span class="dga-header__brand-name">{{ brandName() }}</span>
+  </a>
+
+  @if (navItems().length > 0) {
+    <button
+      #menuButton
+      type="button"
+      class="dga-header__menu-button"
+      [attr.aria-expanded]="menuOpen()"
+      [attr.aria-controls]="navId"
+      [attr.aria-label]="menuLabel()"
+      (click)="toggleMenu()"
+      (keydown)="onMenuButtonKeydown($event)"
+    >
+      <dga-icon [name]="menuOpen() ? 'close' : 'menu'" size="md" />
+    </button>
+
+    <nav
+      class="dga-header__nav"
+      [id]="navId"
+      [class.dga-header__nav--open]="menuOpen()"
+      [attr.aria-label]="navLabel()"
+      (keydown)="onNavKeydown($event)"
+    >
+      <ul class="dga-header__list">
+        @for (item of navItems(); track item.id) {
+          <li class="dga-header__item" (focusout)="onItemFocusout($event, item)">
+            @if (hasChildren(item)) {
+              <button
+                type="button"
+                class="dga-header__link dga-header__trigger"
+                [id]="triggerId(item.id)"
+                [class.dga-header__trigger--open]="isOpen(item)"
+                [attr.aria-expanded]="isOpen(item)"
+                [attr.aria-controls]="submenuId(item.id)"
+                (click)="toggleSubmenu(item)"
+                (keydown)="onTriggerKeydown($event, item)"
+              >
+                @if (item.icon; as icon) {
+                  <dga-icon [name]="icon" size="sm" />
+                }
+                <span>{{ item.label }}</span>
+                <dga-icon class="dga-header__caret" name="chevron-down" size="xs" />
+              </button>
+              <ul
+                class="dga-header__submenu"
+                [id]="submenuId(item.id)"
+                [hidden]="!isOpen(item)"
+                (keydown)="onSubmenuKeydown($event, item)"
+              >
+                @for (child of item.children; track child.id) {
+                  <li class="dga-header__subitem">
+                    @if (child.link; as childLink) {
+                      <a
+                        class="dga-header__sublink"
+                        [routerLink]="childLink"
+                        routerLinkActive="dga-header__sublink--active"
+                        [routerLinkActiveOptions]="activeOptions(childLink)"
+                        ariaCurrentWhenActive="page"
+                        (click)="closeAll()"
+                      >
+                        @if (child.icon; as icon) {
+                          <dga-icon [name]="icon" size="sm" />
+                        }
+                        <span>{{ child.label }}</span>
+                      </a>
+                    } @else {
+                      <span class="dga-header__group">{{ child.label }}</span>
+                    }
+                    @if (hasChildren(child)) {
+                      <ul class="dga-header__group-list">
+                        @for (grandchild of child.children; track grandchild.id) {
+                          @if (grandchild.link; as grandchildLink) {
+                            <li class="dga-header__subitem">
+                              <a
+                                class="dga-header__sublink dga-header__sublink--nested"
+                                [routerLink]="grandchildLink"
+                                routerLinkActive="dga-header__sublink--active"
+                                [routerLinkActiveOptions]="activeOptions(grandchildLink)"
+                                ariaCurrentWhenActive="page"
+                                (click)="closeAll()"
+                              >
+                                <span>{{ grandchild.label }}</span>
+                              </a>
+                            </li>
+                          }
+                        }
+                      </ul>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else if (item.link; as itemLink) {
+              <a
+                class="dga-header__link"
+                [routerLink]="itemLink"
+                routerLinkActive="dga-header__link--active"
+                [routerLinkActiveOptions]="activeOptions(itemLink)"
+                ariaCurrentWhenActive="page"
+                (click)="closeAll()"
+              >
+                @if (item.icon; as icon) {
+                  <dga-icon [name]="icon" size="sm" />
+                }
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+
+  <div class="dga-header__actions">
+    <ng-content select="[dgaHeaderActions]" />
+  </div>
+</header>

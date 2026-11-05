@@ -1,0 +1,47 @@
+{
+ "batch": "p4-showcase",
+ "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+ "extractedWith": "tools/extract/extract.ps1 -Batch p4-showcase -Clean (staging %TEMP%/codelab-extract/p4-showcase, outside the repo; scrub findings are expected before the rewrite)",
+ "promotion": "The staged showcase was read as a structure reference only and rebuilt in src/app/showcase on @codelab/ng-dga and the page patterns with starter names (\"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder). Content is a rewrite, so the repo file hash differs from stagedSha256.",
+ "origins": [
+  {
+   "batch": "p4-showcase",
+   "entryId": "showcase",
+   "source": "frontend/modhs-web/src/app/features/showcase/showcase.component.html",
+   "target": "frontend/starter-web/src/app/showcase/components/components-page.component.html",
+   "mode": "copy",
+   "sourceGitBlob": "c3cbda5a976317d63f804dd5f0e13091a8dbacc1",
+   "sourceSha256": "296bd6d82a2945d1bff246f09155671dabbdf7def471799af4c719f0211d2a9d",
+   "stagedSha256": "296bd6d82a2945d1bff246f09155671dabbdf7def471799af4c719f0211d2a9d",
+   "stagedTarget": "reference/p4/p4-showcase/showcase/showcase.component.html",
+   "note": "Rewritten as the category-grouped gallery: every ng-dga component in an anchored section (selector id, as the catalog links), with default/disabled/error/loading demos; texts from showcase.* keys; the source tabs, domain demo rows and literal bilingual labels were left behind.",
+   "promotion": "rewritten"
+  },
+  {
+   "batch": "p4-showcase",
+   "entryId": "showcase",
+   "source": "frontend/modhs-web/src/app/features/showcase/showcase.component.scss",
+   "target": "frontend/starter-web/src/app/showcase/frame/showcase-frame.component.scss",
+   "mode": "copy",
+   "sourceGitBlob": "663f245afd3a7722327d225015de19e88fc008b4",
+   "sourceSha256": "b5706b2064735ab81134eedeb2dcdd18bd77d88ac6d1f62d7d7ec20f26d78c22",
+   "stagedSha256": "b5706b2064735ab81134eedeb2dcdd18bd77d88ac6d1f62d7d7ec20f26d78c22",
+   "stagedTarget": "reference/p4/p4-showcase/showcase/showcase.component.scss",
+   "note": "Rewritten on @codelab/ng-dga tokens with logical properties for the showcase frame, sections and demos; no third-party UI styles.",
+   "promotion": "rewritten"
+  },
+  {
+   "batch": "p4-showcase",
+   "entryId": "showcase",
+   "source": "frontend/modhs-web/src/app/features/showcase/showcase.component.ts",
+   "target": "frontend/starter-web/src/app/showcase/components/components-page.component.ts",
+   "mode": "copy",
+   "sourceGitBlob": "561dc0283791c012261caa5be76993c5cfb9f46e",
+   "sourceSha256": "d8f8f4cd1fa1f9f997b8bbc154ecdede38d02f41867625ef960e3264bd320c99",
+   "stagedSha256": "d8f8f4cd1fa1f9f997b8bbc154ecdede38d02f41867625ef960e3264bd320c99",
+   "stagedTarget": "reference/p4/p4-showcase/showcase/showcase.component.ts",
+   "note": "Rebuilt: no Material tabs or icons, no document.body attribute toggling, no domain fixtures; lazy page per section group behind showcaseEnabledGuard, fixtures as translation keys, pinned clock.",
+   "promotion": "rewritten"
+  }
+ ]
+}

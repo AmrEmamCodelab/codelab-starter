@@ -1,0 +1,160 @@
+:host {
+  position: relative;
+  display: inline-block;
+}
+
+.notifications__bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--dga-size-control-md);
+  min-block-size: var(--dga-size-control-md);
+  padding: var(--dga-space-2);
+  border: 0;
+  border-radius: var(--dga-radius-sm);
+  background-color: transparent;
+  color: var(--dga-color-text-default);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--dga-color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  }
+}
+
+.notifications__badge {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  min-inline-size: var(--dga-size-icon-sm);
+  padding-inline: var(--dga-space-1);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-error-solid);
+  color: var(--dga-color-text-on-color);
+  font-size: var(--dga-font-size-xs);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-xs);
+  text-align: center;
+}
+
+.notifications__panel {
+  position: absolute;
+  z-index: var(--dga-z-index-dropdown);
+  inset-block-start: calc(100% + var(--dga-space-1));
+  inset-inline-end: 0;
+  inline-size: min(22rem, calc(100vw - var(--dga-space-8)));
+  padding: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+  box-shadow: var(--dga-shadow-lg);
+}
+
+.notifications__title {
+  margin: 0;
+  margin-block-end: var(--dga-space-2);
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-md);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.notifications__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notifications__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  padding: var(--dga-space-2);
+  border-radius: var(--dga-radius-sm);
+  border-inline-start: var(--dga-border-width-thick) solid transparent;
+}
+
+.notifications__item--unread {
+  border-inline-start-color: var(--dga-color-primary);
+  background-color: var(--dga-color-primary-subtle);
+}
+
+.notifications__item-title {
+  color: var(--dga-color-text-default);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+a.notifications__item-title {
+  color: var(--dga-color-text-link);
+
+  &:hover {
+    color: var(--dga-color-text-link-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  }
+}
+
+.notifications__item-body {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+}
+
+.notifications__item-time {
+  // Secondary, not muted: unread items have a tinted background where muted text falls below 4.5:1.
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+}
+
+.notifications__mark {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--dga-space-1);
+  padding-block: var(--dga-space-1);
+  padding-inline: var(--dga-space-2);
+  border: 0;
+  border-radius: var(--dga-radius-sm);
+  background-color: transparent;
+  color: var(--dga-color-text-primary);
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--dga-color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  }
+}
+
+.notifications__empty {
+  margin: 0;
+  padding-block: var(--dga-space-4);
+  color: var(--dga-color-text-muted);
+  text-align: center;
+}
+
+.notifications__view-all {
+  display: block;
+  margin-block-start: var(--dga-space-3);
+  padding-block-start: var(--dga-space-2);
+  border-block-start: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  color: var(--dga-color-text-link);
+  font-weight: var(--dga-font-weight-medium);
+  text-align: center;
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  }
+}

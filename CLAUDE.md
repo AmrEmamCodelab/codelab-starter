@@ -15,7 +15,7 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 | Any business scenario ("we need...", a BRD, use-case workbook, DGA screenshot or Figma frame) | `build-feature` | planned (phase 9) |
 | A new business area, record type or module | `new-module` | ready |
 | A new action or API operation | `new-endpoint` | ready |
-| A new page | `new-screen` (+ the 8 page patterns) | planned (phase 4) |
+| A new page (description, DGA screenshot or Figma frame) | `new-screen` (+ the 8 page patterns, [docs/design/](docs/design/README.md)) | ready |
 | A new permission | `new-permission` | ready |
 | A new status or status flow | `new-transition` | planned (phase 7) |
 | A new reference-data list | `new-lookup` | planned (phase 5) |

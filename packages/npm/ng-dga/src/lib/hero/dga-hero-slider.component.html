@@ -1,0 +1,77 @@
+<section class="dga-hero-slider__region" [attr.aria-label]="label()" [attr.aria-roledescription]="roleDescription()">
+  <div class="dga-hero-slider__slides" [id]="viewportId" [attr.aria-live]="rotating() ? 'off' : 'polite'">
+    @for (slide of slides(); track slide.id; let position = $index) {
+      <div
+        class="dga-hero-slider__slide"
+        role="group"
+        [id]="slideId(position)"
+        [class.dga-hero-slider__slide--image]="!!slide.imageSrc"
+        [attr.aria-label]="slide.title"
+        [attr.aria-roledescription]="slideRoleDescription()"
+        [hidden]="position !== current()"
+      >
+        @if (slide.imageSrc; as imageSrc) {
+          <img class="dga-hero-slider__image" [src]="imageSrc" alt="" />
+          <div class="dga-hero-slider__overlay" aria-hidden="true"></div>
+        }
+        <div class="dga-hero-slider__content">
+          <h2 class="dga-hero-slider__title">{{ slide.title }}</h2>
+          @if (slide.subtitle; as subtitle) {
+            <p class="dga-hero-slider__subtitle">{{ subtitle }}</p>
+          }
+          @if (slide.link && slide.linkLabel) {
+            <a class="dga-hero-slider__cta" [routerLink]="slide.link">{{ slide.linkLabel }}</a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (slides().length > 1) {
+    <div class="dga-hero-slider__controls">
+      @if (autoplay()) {
+        <button
+          type="button"
+          class="dga-hero-slider__control dga-hero-slider__rotation"
+          [attr.aria-label]="pausedByUser() ? playLabel() : pauseLabel()"
+          (click)="togglePause()"
+        >
+          <dga-icon [name]="pausedByUser() ? 'play' : 'pause'" size="sm" />
+        </button>
+      }
+      <button
+        type="button"
+        class="dga-hero-slider__control dga-hero-slider__previous"
+        [attr.aria-label]="previousLabel()"
+        [attr.aria-controls]="viewportId"
+        (click)="previous()"
+      >
+        <dga-icon name="chevron-start" size="sm" />
+      </button>
+      <div class="dga-hero-slider__dots">
+        @for (slide of slides(); track slide.id; let position = $index) {
+          <button
+            #dot
+            type="button"
+            class="dga-hero-slider__dot"
+            [class.dga-hero-slider__dot--current]="position === current()"
+            [attr.aria-label]="slide.title"
+            [attr.aria-controls]="slideId(position)"
+            [attr.aria-current]="position === current() ? 'true' : null"
+            (click)="show(position)"
+            (keydown)="onDotKeydown($event)"
+          ></button>
+        }
+      </div>
+      <button
+        type="button"
+        class="dga-hero-slider__control dga-hero-slider__next"
+        [attr.aria-label]="nextLabel()"
+        [attr.aria-controls]="viewportId"
+        (click)="next()"
+      >
+        <dga-icon name="chevron-end" size="sm" />
+      </button>
+    </div>
+  }
+</section>

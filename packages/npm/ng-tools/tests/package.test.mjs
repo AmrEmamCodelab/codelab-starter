@@ -17,6 +17,14 @@ describe('the package', () => {
     }
   });
 
+  it('exports the 0.5 tools (RTL lint, icon subset, i18n check) and the CLI dispatcher from its root', () => {
+    const names = ['checkRtl', 'runRtlLint', 'RtlFindingKinds', 'collectIconUsage', 'subsetOutputs', 'runIconsSubset', 'readIconMap',
+      'checkI18n', 'runI18nCheck', 'I18nProblemKinds', 'runCodelabNgTools', 'Subcommands', 'ExitCodes'];
+    for (const name of names) {
+      expect(tools[name], name).toBeDefined();
+    }
+  });
+
   it('names the plugin after the package', () => {
     expect(codelabPlugin.meta).toEqual({ name: '@codelab/ng-tools', version: manifest.version });
     expect(Object.keys(codelabPlugin.rules)).toEqual(['wire-id-cast']);

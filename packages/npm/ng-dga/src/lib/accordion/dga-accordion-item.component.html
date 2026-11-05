@@ -1,0 +1,19 @@
+<div class="dga-accordion-item__heading" role="heading" [attr.aria-level]="headingLevel()">
+  <button
+    #headerButton
+    type="button"
+    class="dga-accordion-item__header"
+    [id]="headerId"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="panelId"
+    [disabled]="disabled()"
+    (click)="toggle()"
+    (keydown)="onHeaderKeydown($event)"
+  >
+    <span class="dga-accordion-item__label">{{ label() }}</span>
+    <dga-icon class="dga-accordion-item__chevron" name="chevron-down" size="md" />
+  </button>
+</div>
+<div class="dga-accordion-item__panel" role="region" [id]="panelId" [attr.aria-labelledby]="headerId" [hidden]="!expanded()">
+  <ng-content />
+</div>

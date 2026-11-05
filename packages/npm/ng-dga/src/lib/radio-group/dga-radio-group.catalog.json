@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-radio-group",
+  "className": "DgaRadioGroupComponent",
+  "category": "form",
+  "summary": "The DGA radio group: native radio buttons sharing one name for choosing exactly one of a few visible options. A signal-model control: bind [(value)] or a signal-forms field; null means nothing selected.",
+  "inputs": [
+    { "name": "value", "type": "DgaRadioValue (string | number) | null, model", "required": false, "default": "null", "description": "The selected option value; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true when focus leaves an option." },
+    { "name": "options", "type": "readonly DgaRadioOption[] ({ value, label, hint?, disabled? })", "required": true, "description": "The options in order; label and hint are translated." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible group label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when there is no visible label (translated)." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the group invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native radio name; a unique one is generated when omitted." },
+    { "name": "orientation", "type": "DgaRadioOrientation ('vertical' | 'horizontal')", "required": false, "default": "'vertical'", "description": "Stacks the options or lays them out in a row." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Sets aria-required plus a decorative asterisk." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables every option." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the group invalid without a message." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "DgaRadioValue | null", "description": "The newly selected value (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true when focus first leaves an option." }
+  ],
+  "slots": [],
+  "a11y": "role=radiogroup named by the visible label (aria-labelledby) or ariaLabel, with aria-describedby, aria-required, aria-invalid and aria-disabled. Native radios give the standard keyboard: Tab enters the group, arrow keys move and select following the reading direction (RTL aware).",
+  "since": "1.0.0"
+}

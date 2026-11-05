@@ -1,0 +1,85 @@
+<app-admin-list-pattern
+  class="work-queue"
+  [titleKey]="titleKey()"
+  [columns]="listColumns()"
+  [rows]="rows()"
+  [rowId]="rowId()"
+  [total]="total()"
+  [pageSize]="pageSize()"
+  [loading]="loading()"
+  [error]="error()"
+  [translatedCodes]="translatedCodes()"
+  [searchable]="searchable()"
+  [searchLabelKey]="searchLabelKey()"
+  [emptyKey]="emptyKey()"
+  [(page)]="page"
+  [(search)]="search"
+  [(sort)]="sort"
+  (retry)="retry.emit()"
+>
+  <div listToolbar class="work-queue__toolbar">
+    <ng-content select="[queueToolbar]" />
+  </div>
+
+  <div listFilters class="work-queue__filters">
+    <ng-content select="[queueFilters]" />
+  </div>
+
+  @if (dgaTabs().length > 0) {
+    <div listFilters class="work-queue__tabs">
+      <dga-tabs [tabs]="dgaTabs()" [value]="tab()" [label]="keys.Tabs | t" (valueChange)="onTabChange($event)" />
+    </div>
+  }
+
+  @if (showSelectPage()) {
+    <div listFilters class="work-queue__bulk">
+      <dga-checkbox
+        class="work-queue__select-page"
+        [label]="keys.SelectPage | t"
+        [checked]="pageState() === checked"
+        [indeterminate]="pageState() === mixed"
+        (checkedChange)="onSelectPage($event)"
+      />
+      @if (selectedCount() > 0) {
+        <p class="work-queue__selected-count" role="status">{{ keys.SelectedCount | t: { count: selectedCount() } }}</p>
+        <div class="work-queue__bulk-actions">
+          <ng-content select="[queueBulkActions]" />
+        </div>
+        <dga-button variant="transparent" size="sm" data-public-action class="work-queue__clear" (click)="clearSelection()">
+          {{ keys.ClearSelection | t }}
+        </dga-button>
+      }
+    </div>
+  }
+
+  @if (actionsTemplate(); as actions) {
+    <ng-template listRowActions let-row>
+      <ng-container *ngTemplateOutlet="actions; context: { $implicit: row }" />
+    </ng-template>
+  }
+</app-admin-list-pattern>
+
+<ng-template #selectCell let-row>
+  <input
+    type="checkbox"
+    class="work-queue__select"
+    data-public-action
+    [checked]="isSelected(row)"
+    [attr.aria-label]="keys.SelectRow | t: { label: rowLabelOf(row) }"
+    (change)="toggleRow(row)"
+  />
+</ng-template>
+
+<ng-template #dueCell let-value="value">
+  @if (dueStateOf(value); as state) {
+    <span class="work-queue__due">
+      <time class="work-queue__due-time" [attr.datetime]="value">{{ dueTextOf(value) }}</time>
+      <dga-status-tag [tone]="state.tone">{{ state.labelKey | t }}</dga-status-tag>
+    </span>
+  } @else {
+    <span class="work-queue__due work-queue__due--none">
+      <dga-icon name="minus" size="xs" />
+      <span class="work-queue__due-text">{{ keys.NoDueDate | t }}</span>
+    </span>
+  }
+</ng-template>

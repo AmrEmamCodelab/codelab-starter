@@ -9,12 +9,16 @@
     "node": ">=24"
   },
   "scripts": {
+    "prestart": "npm run icons:subset",
     "start": "ng serve --port 4280",
+    "prebuild": "npm run icons:subset",
     "build": "ng build",
     "test": "vitest run",
-    "lint": "eslint . && stylelint \"src/**/*.{css,scss}\" && node tools/i18n-parity.mjs && node tools/no-inline-styles.mjs && node tools/permission-gates.mjs",
+    "lint": "eslint . && stylelint \"src/**/*.{css,scss}\" && node tools/i18n-parity.mjs && node tools/no-inline-styles.mjs && node tools/permission-gates.mjs && node tools/rtl-lint.mjs && node tools/icons-subset.mjs --out src/generated/icons --check",
+    "icons:subset": "node tools/icons-subset.mjs --out src/generated/icons",
     "api:gen": "node tools/api-gen/generate.mjs",
-    "api:gen:check": "node tools/api-gen/generate.mjs --check"
+    "api:gen:check": "node tools/api-gen/generate.mjs --check",
+    "visual": "node e2e/visual.mjs"
   },
   "dependencies": {
     "@angular/common": "22.2.4",
@@ -32,7 +36,7 @@
     "@angular/build": "22.2.4",
     "@angular/cli": "22.2.4",
     "@angular/compiler-cli": "22.2.4",
-    "@codelab/ng-tools": "0.2.0",
+    "@codelab/ng-tools": "0.5.0",
     "jsdom": "30.1.3",
     "openapi-typescript": "7.13.0",
     "postcss-scss": "4.0.9",

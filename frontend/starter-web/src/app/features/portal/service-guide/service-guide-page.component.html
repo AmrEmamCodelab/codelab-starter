@@ -1,0 +1,79 @@
+<app-portal-content-pattern [sections]="sections">
+  <dga-portal-page-header
+    portalHeader
+    [title]="keys.Title | t"
+    [subtitle]="keys.Subtitle | t"
+    [breadcrumbs]="breadcrumbs()"
+    [breadcrumbLabel]="common.BreadcrumbLabel | t"
+  />
+
+  <section class="guide__section" [portalSection]="ids.Overview" aria-labelledby="guide-overview">
+    <h2 class="guide__heading" id="guide-overview">{{ keys.OverviewTitle | t }}</h2>
+    @for (paragraph of overview; track paragraph) {
+      <p class="guide__paragraph">{{ paragraph | t }}</p>
+    }
+  </section>
+
+  <section class="guide__section" [portalSection]="ids.Eligibility" aria-labelledby="guide-eligibility">
+    <h2 class="guide__heading" id="guide-eligibility">{{ keys.EligibilityTitle | t }}</h2>
+    <p class="guide__paragraph">{{ keys.EligibilityIntro | t }}</p>
+    <ul class="guide__checklist">
+      @for (item of eligibility; track item) {
+        <li class="guide__check">
+          <dga-icon class="guide__check-icon" name="check" size="sm" />
+          <span>{{ item | t }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="guide__section" [portalSection]="ids.Documents" aria-labelledby="guide-documents">
+    <h2 class="guide__heading" id="guide-documents">{{ keys.DocumentsTitle | t }}</h2>
+    <p class="guide__paragraph">{{ keys.DocumentsIntro | t }}</p>
+    <ul class="guide__checklist">
+      @for (item of documents; track item) {
+        <li class="guide__check">
+          <dga-icon class="guide__check-icon" name="file" size="sm" />
+          <span>{{ item | t }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="guide__section" [portalSection]="ids.Steps" aria-labelledby="guide-steps">
+    <h2 class="guide__heading" id="guide-steps">{{ keys.StepsTitle | t }}</h2>
+    <p class="guide__paragraph">{{ keys.StepsIntro | t }}</p>
+    <ol class="guide__steps">
+      @for (step of steps; track step.titleKey; let index = $index) {
+        <li class="guide__step">
+          <span class="guide__step-number" aria-hidden="true">{{ numberOf(index) }}</span>
+          <div class="guide__step-text">
+            <h3 class="guide__step-title">
+              <span class="guide__visually-hidden">{{ keys.StepNumber | t: { number: numberOf(index) } }}</span>
+              {{ step.titleKey | t }}
+            </h3>
+            <p class="guide__paragraph">{{ step.bodyKey | t }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+    <dga-alert class="guide__note" [variant]="alertVariant" [title]="keys.NoteTitle | t">
+      {{ keys.NoteBody | t }}
+    </dga-alert>
+  </section>
+
+  <section class="guide__section guide__help" [portalSection]="ids.Help" aria-labelledby="guide-help">
+    <h2 class="guide__heading" id="guide-help">{{ keys.HelpTitle | t }}</h2>
+    <p class="guide__paragraph">{{ keys.HelpBody | t }}</p>
+    <div class="guide__help-links">
+      <a class="guide__help-link" [routerLink]="links.Faq">
+        <dga-icon name="question" size="sm" />
+        <span>{{ keys.HelpFaq | t }}</span>
+      </a>
+      <a class="guide__help-link" [routerLink]="links.Contact">
+        <dga-icon name="email" size="sm" />
+        <span>{{ keys.HelpContact | t }}</span>
+      </a>
+    </div>
+  </section>
+</app-portal-content-pattern>

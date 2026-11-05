@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-multi-select",
+  "className": "DgaMultiSelectComponent",
+  "category": "form",
+  "summary": "Choose several values: a trigger opens a listbox with check marks, and the chosen options show as removable chips. A signal-model control of T[]: bind [(value)] or a signal-forms field.",
+  "inputs": [
+    { "name": "value", "type": "readonly T[], model", "required": false, "default": "[]", "description": "The chosen values; new choices are appended; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true when focus leaves the component; two-way [(touched)]." },
+    { "name": "options", "type": "readonly DgaSelectOption<T>[]", "required": true, "description": "The choices { value, label, disabled? } with translated labels." },
+    { "name": "compareWith", "type": "DgaSelectCompareWith<T>", "required": false, "default": "Object.is", "description": "Matches a value to an option, e.g. (a, b) => a.id === b.id for recreated objects." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when there is no visible label (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "The trigger text (translated)." },
+    { "name": "removeLabel", "type": "string | null", "required": false, "default": "null", "description": "First word of each chip's remove-button name (translated); the option label follows it." },
+    { "name": "emptyText", "type": "string | null", "required": false, "default": "null", "description": "Shown in the open list when there are no options (translated)." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the control invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The trigger's name attribute." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "aria-required on the listbox plus a decorative asterisk." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the trigger and the chip remove buttons." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the control invalid without a message." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "readonly T[]", "description": "The new chosen values on every toggle or removal (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true when focus first leaves the component." }
+  ],
+  "slots": [],
+  "a11y": "WAI-ARIA listbox with aria-multiselectable and aria-activedescendant. The trigger is a button with aria-haspopup, aria-expanded and aria-controls, named by label plus placeholder. Arrow Down/Up on the trigger opens the list; in it Arrow Down/Up, Home and End move (disabled options skipped, no wrap), Space/Enter toggle, Escape closes and returns focus to the trigger (without closing an enclosing dialog), Tab closes. Each chip has a named remove button. Logical CSS mirrors the layout in RTL.",
+  "since": "1.0.0"
+}

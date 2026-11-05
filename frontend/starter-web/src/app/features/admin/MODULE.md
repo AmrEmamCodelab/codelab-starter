@@ -87,3 +87,4 @@ Each screen has a store provided per page (state, rules, API calls) and a compon
 - `ApiService` posts the workbook as `FormData`; ng-security leaves a multipart body's hash unsigned by design.
 - Specs share fixtures and helpers in `organizations/admin.testing.ts` (spec-only); `settle()` runs a few
   tick / whenStable rounds so click -> async store call -> render chains complete.
+- The activation link field shows a URL, so it keeps `dir="ltr"` marked with `data-fixed-direction` (the RTL lint allows a fixed direction only with that marker).

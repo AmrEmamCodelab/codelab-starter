@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-page-feedback",
+  "className": "DgaPageFeedbackComponent",
+  "category": "feedback",
+  "summary": "An inline page-level banner for the outcome of a page action (saved, sent, failed), bound to a state object; renders nothing for null.",
+  "inputs": [
+    { "name": "state", "type": "DgaPageFeedbackState | null ({ kind: 'success' | 'error' | 'info', message, title? })", "required": false, "default": "null", "description": "The outcome to show (texts translated). Each new object is a new message and takes focus." },
+    { "name": "dismissLabel", "type": "string | null", "required": false, "default": "null", "description": "The close button's accessible name (translated); without it there is no close button." },
+    { "name": "moveFocus", "type": "boolean", "required": false, "default": "true", "description": "Move focus to the banner whenever a new state arrives." }
+  ],
+  "outputs": [
+    { "name": "dismissed", "type": "void", "description": "The close button was pressed; the caller sets state to null." }
+  ],
+  "slots": [],
+  "a11y": "role=alert for an error and role=status for success and info; labelled by its title when it has one. The banner is focusable (tabindex=-1) and receives focus on each new state so keyboard and screen-reader users land on the outcome. Icons are decorative; logical CSS mirrors in RTL.",
+  "since": "1.0.0"
+}

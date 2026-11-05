@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-select",
+  "className": "DgaSelectComponent",
+  "category": "form",
+  "summary": "The DGA select: a token-styled native select for choosing one value of any type from a short list of options. A signal-model control: bind [(value)] or a signal-forms field.",
+  "inputs": [
+    { "name": "value", "type": "T | null, model", "required": false, "default": "null", "description": "The chosen option value; null means nothing is chosen. Two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true on blur; two-way [(touched)]." },
+    { "name": "options", "type": "readonly DgaSelectOption<T>[] ({ value: T; label: string; disabled?: boolean })", "required": true, "description": "The choices, with translated labels, in display order." },
+    { "name": "compareWith", "type": "DgaSelectCompareWith<T> ((a: T, b: T) => boolean)", "required": false, "default": "Object.is", "description": "Matches the model to an option; give one when values are recreated objects, for example (a, b) => a.id === b.id." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when the surrounding UI already labels the select (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "The empty first choice (translated). An empty choice is always shown while nothing is chosen." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text under the select (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the select invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native name attribute." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required plus a decorative asterisk; the placeholder cannot be chosen again once a value is set." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the select." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the select invalid without a message (a form field may set it)." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "T | null", "description": "The chosen value when the user picks an option, null for the empty choice (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true on the first blur." }
+  ],
+  "slots": [],
+  "a11y": "A native select, so the browser provides the keyboard model (arrows, type-ahead, Home/End, Alt+Down), the phone picker and screen-reader support in Arabic and English. The label is linked with for/id; hint and error are linked with aria-describedby, and an error or invalid sets aria-invalid. The chevron is decorative and sits at the inline end (left in RTL, right in LTR) through logical CSS.",
+  "since": "1.0.0"
+}

@@ -75,8 +75,11 @@ $dga-spacing-steps: (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16) !default;
   --dga-color-text-display: var(--dga-palette-neutral-900);
   --dga-color-text-paragraph: var(--dga-palette-neutral-700);
   --dga-color-text-secondary: var(--dga-palette-neutral-600);
-  --dga-color-text-muted: var(--dga-palette-neutral-500);
-  --dga-color-text-placeholder: var(--dga-palette-neutral-400);
+  // Muted and placeholder text must still reach WCAG AA (4.5:1): neutral-400 is 2.5:1 on white and neutral-500 drops
+  // to 4.3:1 on the subtle surface, so muted text takes neutral-600 and placeholders neutral-500 (form controls sit on
+  // the default or muted surface). tests/contrast.test.mjs guards every text and surface pair.
+  --dga-color-text-muted: var(--dga-palette-neutral-600);
+  --dga-color-text-placeholder: var(--dga-palette-neutral-500);
   --dga-color-text-disabled: var(--dga-palette-neutral-400);
   --dga-color-text-on-primary: var(--dga-palette-neutral-0);
   --dga-color-text-on-color: var(--dga-palette-neutral-0);
@@ -201,6 +204,7 @@ $dga-spacing-steps: (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16) !default;
   --dga-focus-halo-width: 3px;
   --dga-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
   --dga-shadow-md: 0 2px 4px rgba(16, 24, 40, 0.06), 0 4px 8px rgba(16, 24, 40, 0.1);
+  --dga-shadow-lg: 0 4px 6px rgba(16, 24, 40, 0.05), 0 12px 16px rgba(16, 24, 40, 0.1);
   --dga-size-control-sm: 1.5rem;
   --dga-size-control-md: 2rem;
   --dga-size-control-lg: 2.5rem;
@@ -213,8 +217,18 @@ $dga-spacing-steps: (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16) !default;
   --dga-size-bullet: 2rem;
   --dga-size-avatar: 3rem;
   --dga-size-container: 80rem;
+  --dga-size-header: 4.5rem;
+  --dga-size-logo: 2.5rem;
+  --dga-size-menu-min: 14rem;
+  --dga-size-hero-min: 22rem;
+  --dga-size-hero-text: 40rem;
+  --dga-size-stamp-strip: 2rem;
+  --dga-color-hero-overlay: rgba(13, 18, 28, 0.55);
+  --dga-z-index-header: 100;
+  --dga-z-index-dropdown: 200;
   --dga-duration-fast: 150ms;
   --dga-duration-spin: 700ms;
+  --dga-duration-slow: 300ms;
   --dga-easing-standard: ease;
   --dga-opacity-disabled: 0.6;
 }

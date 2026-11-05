@@ -60,10 +60,13 @@ export const ModuleScaffoldFiles = Object.freeze({
   Agent: 'CLAUDE.md',
 });
 
+/** The kind of a module root: backend modules or frontend feature areas. */
+export const ModuleRootKinds = Object.freeze({ Backend: 'backend', Frontend: 'frontend' });
+
 /** Used when rules.compiled.json is missing or does not declare moduleRoots (plan section 2 layout). */
 export const DefaultModuleRoots = Object.freeze([
-  Object.freeze({ kind: 'backend', path: 'backend/src/Modules' }),
-  Object.freeze({ kind: 'frontend', path: 'frontend/starter-web/src/app/features' }),
+  Object.freeze({ kind: ModuleRootKinds.Backend, path: 'backend/src/Modules' }),
+  Object.freeze({ kind: ModuleRootKinds.Frontend, path: 'frontend/starter-web/src/app/features' }),
 ]);
 
 /**
@@ -133,8 +136,14 @@ export const EvaluationBudgets = Object.freeze({ PreToolUseMs: 10_000 });
 /** Shell redirect targets that are never files. */
 export const NullDevices = Object.freeze(['/dev/null', 'nul', '$null', '/dev/stdout', '/dev/stderr']);
 
-/** The skill a refusal points to when a new module folder has no rules file. */
+/** The skill a refusal points to when a new backend module folder has no rules file. */
 export const NewModuleSkill = 'new-module';
+
+/** The skill a refusal points to when a new frontend feature area has no rules file (its step 2 shapes the area). */
+export const NewScreenSkill = 'new-screen';
+
+/** The feature area a new frontend area copies the shape of (module.rules.yaml, MODULE.md, generated CLAUDE.md). */
+export const ReferenceFeatureArea = 'features/dashboard/';
 
 /** Size limits for injected context, so module docs never flood the conversation. */
 export const ContextLimits = Object.freeze({

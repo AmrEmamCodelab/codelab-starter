@@ -1,0 +1,225 @@
+/* Tokens only, logical CSS only. The list opens under the trigger across its full inline size, in both directions. */
+:host {
+  display: block;
+}
+
+.dga-multi-select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-multi-select__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-multi-select__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-multi-select__anchor {
+  position: relative;
+}
+
+.dga-multi-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  inline-size: 100%;
+  block-size: var(--dga-size-control-md);
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-default);
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--dga-duration-fast) var(--dga-easing-standard),
+    box-shadow var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-multi-select__trigger:focus-visible,
+.dga-multi-select__trigger--open {
+  border-color: var(--dga-color-border-primary);
+  outline: 0;
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-multi-select__trigger--invalid,
+.dga-multi-select__trigger--invalid:focus-visible {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-multi-select__trigger--invalid:focus-visible {
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo-error);
+}
+
+.dga-multi-select__trigger:disabled {
+  border-color: var(--dga-color-border-disabled);
+  color: var(--dga-color-text-disabled);
+  background-color: var(--dga-color-surface-disabled);
+  cursor: not-allowed;
+}
+
+.dga-multi-select__placeholder {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  color: var(--dga-color-text-placeholder);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dga-multi-select__chevron {
+  flex: none;
+  color: var(--dga-color-text-secondary);
+}
+
+.dga-multi-select__listbox {
+  position: absolute;
+  inset-block-start: calc(100% + var(--dga-space-1));
+  inset-inline: 0;
+  z-index: var(--dga-z-index-dropdown);
+  max-block-size: calc(var(--dga-size-control-lg) * 6);
+  margin: 0;
+  padding: var(--dga-space-1);
+  overflow-y: auto;
+  list-style: none;
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-lg);
+  background-color: var(--dga-color-surface-default);
+  box-shadow: var(--dga-shadow-lg);
+}
+
+.dga-multi-select__listbox:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+}
+
+.dga-multi-select__listbox[hidden] {
+  display: none;
+}
+
+.dga-multi-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-2);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-default);
+  font-size: var(--dga-font-size-sm);
+  cursor: pointer;
+}
+
+.dga-multi-select__option:hover,
+.dga-multi-select__option--active {
+  background-color: var(--dga-color-surface-muted);
+}
+
+.dga-multi-select__option--active {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: calc(var(--dga-focus-ring-width) * -1);
+}
+
+.dga-multi-select__option--disabled {
+  color: var(--dga-color-text-disabled);
+  cursor: not-allowed;
+  opacity: var(--dga-opacity-disabled);
+}
+
+.dga-multi-select__box {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-toggle);
+  block-size: var(--dga-size-toggle);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-strong);
+  border-radius: var(--dga-radius-xs);
+  color: var(--dga-color-text-on-primary);
+  background-color: var(--dga-color-surface-default);
+}
+
+.dga-multi-select__box--on {
+  border-color: var(--dga-color-primary);
+  background-color: var(--dga-color-primary);
+}
+
+.dga-multi-select__option-label {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.dga-multi-select__empty {
+  padding: var(--dga-space-2);
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.dga-multi-select__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dga-multi-select__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-1);
+  padding-block: var(--dga-space-half);
+  padding-inline: var(--dga-space-3) var(--dga-space-1);
+  border: var(--dga-border-width-thin) solid var(--dga-color-progress-border);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-primary-subtle);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-multi-select__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-icon-md);
+  block-size: var(--dga-size-icon-md);
+  padding: 0;
+  border: 0;
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dga-multi-select__chip-remove:hover {
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-primary-muted);
+}
+
+.dga-multi-select__chip-remove:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+}
+
+.dga-multi-select__chip-remove:disabled {
+  cursor: not-allowed;
+  opacity: var(--dga-opacity-disabled);
+}
+
+.dga-multi-select__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-multi-select__message--error {
+  color: var(--dga-color-text-error);
+}

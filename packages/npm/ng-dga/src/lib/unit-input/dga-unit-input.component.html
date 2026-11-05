@@ -1,0 +1,42 @@
+<div class="dga-field">
+  @if (label(); as text) {
+    <label class="dga-field__label" [attr.for]="inputId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-field__required" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+  <div
+    class="dga-field__control"
+    [class.dga-field__control--invalid]="isInvalid()"
+    [class.dga-field__control--disabled]="disabled()"
+    [class.dga-field__control--readonly]="readonly()"
+  >
+    <input
+      #field
+      class="dga-field__input"
+      type="text"
+      autocomplete="off"
+      [id]="inputId"
+      [attr.inputmode]="inputMode()"
+      [attr.name]="name()"
+      [attr.placeholder]="placeholder()"
+      [attr.aria-label]="label() ? null : ariaLabel()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      [disabled]="disabled()"
+      [readOnly]="readonly()"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    />
+    <span class="dga-unit-input__unit" [id]="unitId">{{ unit() }}</span>
+  </div>
+  @if (hasError()) {
+    <span class="dga-field__message dga-field__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-field__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

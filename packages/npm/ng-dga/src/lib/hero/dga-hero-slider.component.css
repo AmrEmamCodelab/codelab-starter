@@ -1,0 +1,142 @@
+/* Tokens and logical CSS only. Slide headings and paragraphs take their colour from the text tokens, which the
+   coloured slides re-point (instead of styling the typography of another layer). */
+
+:host {
+  display: block;
+}
+
+.dga-hero-slider__region {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--dga-color-primary);
+}
+
+.dga-hero-slider__slide {
+  --dga-color-text-display: var(--dga-color-text-on-color);
+  --dga-color-text-paragraph: var(--dga-color-text-on-color);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-block-size: var(--dga-size-hero-min);
+  color: var(--dga-color-text-on-color);
+}
+
+.dga-hero-slider__slide[hidden] {
+  display: none;
+}
+
+.dga-hero-slider__image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.dga-hero-slider__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--dga-color-hero-overlay);
+}
+
+.dga-hero-slider__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--dga-space-4);
+  inline-size: 100%;
+  max-inline-size: var(--dga-size-container);
+  margin-inline: auto;
+  padding-block: var(--dga-space-12) var(--dga-space-16);
+  padding-inline: var(--dga-space-4);
+}
+
+.dga-hero-slider__title {
+  max-inline-size: var(--dga-size-hero-text);
+  margin: 0;
+  font-size: var(--dga-font-size-4xl);
+  line-height: var(--dga-line-height-4xl);
+}
+
+.dga-hero-slider__subtitle {
+  max-inline-size: var(--dga-size-hero-text);
+  margin: 0;
+  font-size: var(--dga-font-size-lg);
+  line-height: var(--dga-line-height-lg);
+}
+
+.dga-hero-slider__cta {
+  display: inline-flex;
+  align-items: center;
+  block-size: var(--dga-size-control-lg);
+  padding-inline: var(--dga-space-4);
+  border-radius: var(--dga-radius-sm);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-default);
+  font-weight: var(--dga-font-weight-semibold);
+  text-decoration: none;
+}
+
+.dga-hero-slider__controls {
+  position: absolute;
+  inset-block-end: var(--dga-space-4);
+  inset-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dga-space-2);
+}
+
+.dga-hero-slider__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-control-md);
+  block-size: var(--dga-size-control-md);
+  padding: 0;
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-on-color);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-text-on-color);
+  background-color: var(--dga-color-surface-on-color);
+  cursor: pointer;
+}
+
+.dga-hero-slider__dots {
+  display: flex;
+  gap: var(--dga-space-1);
+}
+
+.dga-hero-slider__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-control-sm);
+  block-size: var(--dga-size-control-sm);
+  padding: 0;
+  border: 0;
+  border-radius: var(--dga-radius-full);
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.dga-hero-slider__dot::before {
+  content: '';
+  inline-size: var(--dga-size-dot);
+  block-size: var(--dga-size-dot);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-border-on-color);
+}
+
+.dga-hero-slider__dot--current::before {
+  inline-size: var(--dga-space-6);
+  background-color: var(--dga-color-text-on-color);
+}
+
+.dga-hero-slider__control:focus-visible,
+.dga-hero-slider__dot:focus-visible,
+.dga-hero-slider__cta:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-text-on-color);
+  outline-offset: var(--dga-focus-ring-width);
+}

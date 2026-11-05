@@ -1,0 +1,48 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [states]="states" [(state)]="state" />
+
+  <app-requester-detail-pattern
+    [titleKey]="keys.Patterns.RequesterTitle"
+    [recordNumber]="recordNumber"
+    [statusKey]="statusKey"
+    [statusTone]="statusTone"
+    [createdAt]="createdAt"
+    [history]="history()"
+    [toneFor]="toneFor"
+    [loading]="loading()"
+    [error]="error()"
+    (retry)="retry()"
+  >
+    <dga-alert detailBanner [variant]="AlertVariant.Warning" [title]="keys.Demo.StatusReturned | t">
+      {{ keys.Patterns.ReturnedBanner | t }}
+    </dga-alert>
+
+    <div detailSummary class="pattern-grid">
+      <dga-card icon="user" [heading]="keys.Patterns.Applicant | t" [headingLevel]="3">
+        <div class="pattern-stack">
+          <dga-info-field align="start" [label]="keys.Demo.FieldName | t">{{ keys.Patterns.ApplicantOne | t }}</dga-info-field>
+          <dga-info-field align="start" valueDir="ltr" [label]="keys.Demo.InfoPhone | t">{{ phone }}</dga-info-field>
+        </div>
+      </dga-card>
+      <dga-card icon="file" [heading]="keys.Patterns.RequestDetails | t" [headingLevel]="3">
+        <div class="pattern-stack">
+          <dga-info-field align="start" [label]="keys.Patterns.ServiceType | t">{{ keys.Patterns.ServicePermit | t }}</dga-info-field>
+          <dga-info-field align="start" [label]="keys.Demo.InfoCity | t">{{ keys.Demo.CityRiyadh | t }}</dga-info-field>
+        </div>
+      </dga-card>
+    </div>
+
+    <ul detailAttachments class="pattern-list">
+      @for (file of attachments; track file.id) {
+        <li class="pattern-list__item">
+          <span><dga-icon name="file" /> <bdi dir="ltr" data-fixed-direction>{{ file.name }}</bdi></span>
+        </li>
+      }
+    </ul>
+
+    <div detailActions class="pattern-actions">
+      <dga-button leadIcon="upload">{{ keys.Patterns.Resubmit | t }}</dga-button>
+      <dga-button variant="secondary-outline" destructive>{{ keys.Patterns.CancelRequest | t }}</dga-button>
+    </div>
+  </app-requester-detail-pattern>
+</app-showcase-frame>

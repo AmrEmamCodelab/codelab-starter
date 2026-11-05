@@ -1,0 +1,48 @@
+<app-landing-dashboard-pattern
+  [tiles]="tiles"
+  [quickActions]="quickActions"
+  [kpisLabelKey]="keys.KpisTitle"
+  [quickActionsLabelKey]="keys.QuickLinksTitle"
+  [recentLabelKey]="null"
+>
+  <div landingHero class="landing-page">
+    <dga-hero [variant]="heroVariant">
+      <h1 dgaHeroTitle class="landing-page__title">{{ keys.HeroTitle | t }}</h1>
+      <p dgaHeroSubtitle class="landing-page__subtitle">{{ keys.HeroSubtitle | t }}</p>
+      <div dgaHeroActions class="landing-page__actions">
+        <a class="landing-page__action landing-page__action--primary" [routerLink]="links.ServiceGuide">{{ keys.HeroPrimary | t }}</a>
+        <a class="landing-page__action landing-page__action--secondary" [routerLink]="links.Contact">{{ keys.HeroSecondary | t }}</a>
+      </div>
+    </dga-hero>
+
+    <dga-hero-slider
+      [slides]="slides()"
+      [label]="keys.SliderLabel | t"
+      [previousLabel]="keys.SliderPrevious | t"
+      [nextLabel]="keys.SliderNext | t"
+      [pauseLabel]="keys.SliderPause | t"
+      [playLabel]="keys.SliderPlay | t"
+      [roleDescription]="keys.SliderRoleDescription | t"
+      [slideRoleDescription]="keys.SlideRoleDescription | t"
+    />
+
+    <section class="landing-page__services" aria-labelledby="landing-services-title">
+      <div class="landing-page__services-head">
+        <h2 class="landing-page__services-title" id="landing-services-title">{{ keys.ServicesTitle | t }}</h2>
+        <p class="landing-page__services-intro">{{ keys.ServicesIntro | t }}</p>
+      </div>
+      <ul class="landing-page__cards">
+        @for (service of services; track service.id) {
+          <li class="landing-page__card-item">
+            <dga-card [icon]="service.icon" [heading]="service.titleKey | t" [description]="service.bodyKey | t">
+              <a dgaCardActions class="landing-page__card-link" [routerLink]="service.link">
+                <span>{{ service.linkLabelKey | t }}</span>
+                <dga-icon name="arrow-end" size="sm" />
+              </a>
+            </dga-card>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+</app-landing-dashboard-pattern>

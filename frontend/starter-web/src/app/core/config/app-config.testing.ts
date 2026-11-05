@@ -12,6 +12,8 @@ export const TEST_APP_CONFIG: AppConfig = {
   security: { protocolPrefix: 'STARTER' },
   defaultLanguage: AppLanguages.Arabic,
   permissionRefreshSeconds: DEFAULT_PERMISSION_REFRESH_SECONDS,
+  showcase: false,
+  portalContactForm: false,
 };
 
 export function provideTestAppConfig(config: AppConfig = TEST_APP_CONFIG): Provider {

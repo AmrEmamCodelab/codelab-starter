@@ -1,0 +1,244 @@
+/* Tokens and logical CSS only. 48rem is the md breakpoint of $dga-breakpoints (custom properties cannot be used in
+   media queries): below it the navigation collapses behind the menu button. */
+
+:host {
+  position: relative;
+  z-index: var(--dga-z-index-header);
+  display: block;
+  border-block-end: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  background-color: var(--dga-color-surface-default);
+}
+
+.dga-header__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-4);
+  max-inline-size: var(--dga-size-container);
+  min-block-size: var(--dga-size-header);
+  margin-inline: auto;
+  padding-inline: var(--dga-space-4);
+}
+
+.dga-header__start:empty,
+.dga-header__actions:empty {
+  display: none;
+}
+
+.dga-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-3);
+  min-inline-size: 0;
+  margin-inline-end: auto;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-lg);
+  text-decoration: none;
+}
+
+.dga-header__logo {
+  display: block;
+  block-size: var(--dga-size-logo);
+  inline-size: auto;
+}
+
+.dga-header__brand:focus-visible,
+.dga-header__link:focus-visible,
+.dga-header__sublink:focus-visible,
+.dga-header__menu-button:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-ring-width);
+}
+
+.dga-header__menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dga-size-control-lg);
+  block-size: var(--dga-size-control-lg);
+  order: 1;
+  padding: 0;
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-sm);
+  color: var(--dga-color-text-default);
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.dga-header__nav {
+  display: none;
+  flex-basis: 100%;
+  order: 2;
+  padding-block-end: var(--dga-space-4);
+}
+
+.dga-header__nav--open {
+  display: block;
+}
+
+.dga-header__list,
+.dga-header__submenu,
+.dga-header__group-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dga-header__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-header__item {
+  position: relative;
+}
+
+.dga-header__link {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  inline-size: 100%;
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-3);
+  border: 0;
+  border-radius: var(--dga-radius-sm);
+  color: var(--dga-color-text-paragraph);
+  background-color: transparent;
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dga-header__link:hover,
+.dga-header__trigger--open {
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-subtle);
+}
+
+.dga-header__link--active {
+  color: var(--dga-color-text-primary);
+  box-shadow: inset 0 calc(var(--dga-border-width-thick) * -1) 0 var(--dga-color-border-primary);
+}
+
+.dga-header__caret {
+  margin-inline-start: auto;
+  transition: transform var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-header__trigger--open .dga-header__caret {
+  transform: rotate(180deg);
+}
+
+.dga-header__submenu {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--dga-space-1);
+  padding-inline-start: var(--dga-space-4);
+}
+
+.dga-header__submenu[hidden] {
+  display: none;
+}
+
+.dga-header__sublink {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-3);
+  border-radius: var(--dga-radius-sm);
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  text-decoration: none;
+}
+
+.dga-header__sublink--nested {
+  padding-inline-start: var(--dga-space-6);
+}
+
+.dga-header__sublink:hover {
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-subtle);
+}
+
+.dga-header__sublink--active {
+  color: var(--dga-color-text-primary);
+  background-color: var(--dga-color-primary-subtle);
+}
+
+.dga-header__group {
+  display: block;
+  padding-block: var(--dga-space-2) var(--dga-space-1);
+  padding-inline: var(--dga-space-3);
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-xs);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.dga-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+}
+
+@media (min-width: 48rem) {
+  .dga-header__bar {
+    flex-wrap: nowrap;
+    gap: var(--dga-space-6);
+  }
+
+  .dga-header__brand {
+    margin-inline-end: 0;
+  }
+
+  .dga-header__menu-button {
+    display: none;
+  }
+
+  .dga-header__nav {
+    display: block;
+    flex: 1 1 auto;
+    flex-basis: auto;
+    order: 0;
+    padding-block-end: 0;
+  }
+
+  .dga-header__list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .dga-header__link {
+    inline-size: auto;
+  }
+
+  .dga-header__submenu {
+    position: absolute;
+    z-index: var(--dga-z-index-dropdown);
+    inset-inline-start: 0;
+    min-inline-size: var(--dga-size-menu-min);
+    margin-block-start: var(--dga-space-1);
+    padding: var(--dga-space-2);
+    border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+    border-radius: var(--dga-radius-md);
+    background-color: var(--dga-color-surface-default);
+    box-shadow: var(--dga-shadow-lg);
+  }
+
+  .dga-header__actions {
+    margin-inline-start: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dga-header__caret {
+    transition: none;
+  }
+}

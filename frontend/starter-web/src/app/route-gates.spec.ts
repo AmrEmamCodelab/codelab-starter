@@ -6,7 +6,7 @@
 import type { Route, Routes } from '@angular/router';
 import { ROUTE_GATE_FIX, RouteFindingKinds, assertRoutesGated, findUngatedRoutes } from '@codelab/ng-tools/routes';
 import { describe, expect, it } from 'vitest';
-import { SHELL_ROUTE, routes } from './app.routes';
+import { PORTAL_ROUTE, SHELL_ROUTE, routes } from './app.routes';
 import { ACCESS_ROUTES } from './features/admin/access/access.routes';
 import { AdminRouteSegments } from './features/admin/admin.paths';
 import { ADMIN_ROUTES } from './features/admin/admin.routes';
@@ -43,6 +43,14 @@ describe('the route-table permission gate', () => {
     expect(PUBLIC_ROUTE_PATHS).not.toContain('');
   });
 
+  it('checks the public portal frame pages at their full paths and fails a portal page without a public path', () => {
+    const portal: Route = { ...PORTAL_ROUTE, children: [...(PORTAL_ROUTE.children ?? []), { path: UNGATED_PATH, loadComponent: page }] };
+    const withUngated = routesForGate(routes.map(route => (route === PORTAL_ROUTE ? portal : route)), undefined, [portal]);
+    expect(findUngatedRoutes(withUngated, GATE_OPTIONS)).toEqual([
+      { path: `/${RoutePaths.Portal}/${UNGATED_PATH}`, kind: RouteFindingKinds.missingPermission },
+    ]);
+  });
+
   it('fails a page added to the shell without a key, naming its path and the recipe', () => {
     const shell: Route = { ...SHELL_ROUTE, children: [...(SHELL_ROUTE.children ?? []), { path: UNGATED_PATH, loadComponent: page }] };
     const withUngated = routesForGate(routes.map(route => (route === SHELL_ROUTE ? shell : route)), [shell]);
@@ -70,7 +78,7 @@ describe('the route-table permission gate', () => {
   });
 
   it('checks the shell as a page when it is not exempted as a layout', () => {
-    expect(findUngatedRoutes(routes, GATE_OPTIONS)).toEqual([{ path: '/', kind: RouteFindingKinds.missingPermission }]);
+    expect(findUngatedRoutes(routesForGate(routes, []), GATE_OPTIONS)).toEqual([{ path: '/', kind: RouteFindingKinds.missingPermission }]);
   });
 
   it('refuses a layout route that holds no pages or is not behind authGuard', () => {

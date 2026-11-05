@@ -1,0 +1,23 @@
+<app-showcase-section anchor="dga-accordion">
+  <app-showcase-demo wide [labelKey]="keys.States.Single">
+    <dga-accordion [mode]="Mode.Single" [headingLevel]="HeadingLevel.H4">
+      <dga-accordion-item [label]="keys.Demo.FaqWho | t" [(expanded)]="firstOpen">
+        <p class="demo-text">{{ keys.Demo.FaqWhoAnswer | t }}</p>
+      </dga-accordion-item>
+      <dga-accordion-item [label]="keys.Demo.FaqDocuments | t">
+        <p class="demo-text">{{ keys.Demo.FaqDocumentsAnswer | t }}</p>
+      </dga-accordion-item>
+      <dga-accordion-item disabled [label]="keys.Demo.FaqDuration | t">
+        <p class="demo-text">{{ keys.Demo.FaqDurationAnswer | t }}</p>
+      </dga-accordion-item>
+    </dga-accordion>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-accordion-item">
+  <app-showcase-demo wide [labelKey]="keys.States.Standalone">
+    <dga-accordion-item [label]="keys.Demo.FaqDuration | t" [(expanded)]="standaloneOpen">
+      <p class="demo-text">{{ keys.Demo.FaqDurationAnswer | t }}</p>
+    </dga-accordion-item>
+  </app-showcase-demo>
+</app-showcase-section>

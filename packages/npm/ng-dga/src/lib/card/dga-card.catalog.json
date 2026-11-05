@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-card",
+  "className": "DgaCardComponent",
+  "category": "layout",
+  "summary": "The DGA card: a surface with an optional featured icon, heading and description, the projected body and an actions slot. Use it to group one topic on a dashboard, landing or detail page.",
+  "inputs": [
+    { "name": "heading", "type": "string | null", "required": false, "default": "null", "description": "The card heading (translated). Named heading, not title, so no native tooltip appears." },
+    { "name": "description", "type": "string | null", "required": false, "default": "null", "description": "A short paragraph under the heading (translated)." },
+    { "name": "icon", "type": "DgaIconName | null", "required": false, "default": "null", "description": "Decorative featured icon above the heading." },
+    { "name": "effect", "type": "DgaCardEffect ('stroke' | 'shadow' | 'none')", "required": false, "default": "'stroke'", "description": "Border, elevation or a flat surface." },
+    { "name": "centered", "type": "boolean", "required": false, "default": "false", "description": "Centres the icon, heading and description." },
+    { "name": "headingLevel", "type": "number (1-6)", "required": false, "default": "3", "description": "aria-level of the heading in the page outline; other values are clamped, NaN uses 3." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The card body." },
+    { "selector": "[dgaCardActions]", "description": "Actions at the end of the card, usually dga-button elements." }
+  ],
+  "a11y": "Renders a section named by its heading (aria-labelledby), and the heading is exposed with role=heading and aria-level, so screen-reader users can jump to the card. The icon is decorative. Layout uses logical CSS and mirrors in RTL.",
+  "since": "1.0.0"
+}

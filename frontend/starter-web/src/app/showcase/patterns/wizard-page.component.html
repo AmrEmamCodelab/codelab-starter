@@ -1,0 +1,61 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [states]="states" [(state)]="state" />
+
+  @if (outcomeKey(); as key) {
+    <dga-alert class="pattern-note" [variant]="AlertVariant.Success">{{ key | t }}</dga-alert>
+  }
+
+  <app-wizard-pattern
+    draftEnabled
+    cancellable
+    [steps]="steps"
+    [fieldSteps]="fieldSteps"
+    [busy]="busy()"
+    [error]="error()"
+    [(step)]="step"
+    (submit)="record(Outcome.Submitted)"
+    (saveDraft)="record(Outcome.DraftSaved)"
+    (cancel)="restart()"
+  >
+    <ng-template [wizardStep]="Step.Applicant">
+      <div class="pattern-stack">
+        <dga-text-input
+          name="showcase-wizard-name"
+          required
+          [label]="keys.Demo.FieldName | t"
+          [hint]="keys.Demo.FieldNameHint | t"
+          [(value)]="name"
+        />
+        <dga-text-input name="showcase-wizard-email" type="email" [label]="keys.Demo.FieldEmail | t" [(value)]="email" />
+      </div>
+    </ng-template>
+    <ng-template [wizardStep]="Step.Request">
+      <dga-select
+        name="showcase-wizard-city"
+        required
+        [label]="keys.Demo.City | t"
+        [placeholder]="keys.Demo.CityPlaceholder | t"
+        [options]="cities()"
+        [(value)]="city"
+      />
+    </ng-template>
+    <ng-template [wizardStep]="Step.Notes">
+      <dga-textarea
+        name="showcase-wizard-notes"
+        [label]="keys.Demo.FieldNotes | t"
+        [maxLength]="notesMax"
+        [counterLabel]="keys.Demo.Counter | t"
+        [(value)]="notes"
+      />
+    </ng-template>
+    <ng-template wizardReview>
+      <p class="pattern-text">{{ keys.Patterns.WizardReviewIntro | t }}</p>
+      <div class="pattern-grid">
+        <dga-info-field align="start" [label]="keys.Demo.FieldName | t">{{ name() }}</dga-info-field>
+        <dga-info-field align="start" valueDir="ltr" [label]="keys.Demo.FieldEmail | t">{{ email() }}</dga-info-field>
+        <dga-info-field align="start" [label]="keys.Demo.City | t">{{ cityLabel() }}</dga-info-field>
+        <dga-info-field align="start" [label]="keys.Demo.FieldNotes | t">{{ notes() }}</dga-info-field>
+      </div>
+    </ng-template>
+  </app-wizard-pattern>
+</app-showcase-frame>

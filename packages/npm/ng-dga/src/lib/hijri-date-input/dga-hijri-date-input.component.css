@@ -1,0 +1,92 @@
+/* Tokens only, logical CSS only. The parts follow the reading order (day, month, year), so RTL mirrors them. */
+:host {
+  display: block;
+}
+
+.dga-hijri {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dga-hijri__label {
+  padding: 0;
+  margin-block-end: var(--dga-space-1);
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-hijri__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+/*
+ * A grid whose tracks may shrink to zero: a flex row would report the longest month name as its minimum width and push
+ * the card (and the page) wider than a 390px phone. Day, month and year take 1 : 2 : 1 of the row.
+ */
+.dga-hijri__parts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--dga-space-2);
+  min-inline-size: 0;
+}
+
+.dga-hijri__part {
+  box-sizing: border-box;
+  inline-size: 100%;
+  block-size: var(--dga-size-control-md);
+  min-inline-size: 0;
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-default);
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  text-align: start;
+  transition:
+    border-color var(--dga-duration-fast) var(--dga-easing-standard),
+    box-shadow var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-hijri__part::placeholder {
+  color: var(--dga-color-text-placeholder);
+}
+
+.dga-hijri__part:focus-visible {
+  border-color: var(--dga-color-border-primary);
+  outline: 0;
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-hijri__parts--invalid .dga-hijri__part {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-hijri__parts--invalid .dga-hijri__part:focus-visible {
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo-error);
+}
+
+.dga-hijri__part:disabled {
+  border-color: var(--dga-color-border-disabled);
+  color: var(--dga-color-text-disabled);
+  background-color: var(--dga-color-surface-disabled);
+  cursor: not-allowed;
+}
+
+.dga-hijri__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-hijri__message--error {
+  color: var(--dga-color-text-error);
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-accordion-item",
+  "className": "DgaAccordionItemComponent",
+  "category": "content",
+  "summary": "One section of a dga-accordion: a heading with a toggle button and a labelled region holding the projected content.",
+  "inputs": [
+    { "name": "expanded", "type": "boolean, model", "required": false, "default": "false", "description": "Whether the section is open; two-way [(expanded)] to open it from code or follow it." },
+    { "name": "label", "type": "string", "required": true, "description": "The header text (translated)." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the header button; the section cannot be toggled or focused." }
+  ],
+  "outputs": [
+    { "name": "expandedChange", "type": "boolean", "description": "The new state when the user toggles the section or single mode closes it." }
+  ],
+  "slots": [
+    { "selector": "default", "description": "The section body (translated content), hidden while collapsed." }
+  ],
+  "a11y": "The header is a native button inside role=heading (aria-level from the accordion, 3 alone), with aria-expanded and aria-controls pointing at the panel. The panel is role=region labelled by the header and hidden while collapsed. The chevron is decorative and turns over when open; it needs no mirroring in RTL.",
+  "since": "1.0.0"
+}

@@ -1,0 +1,22 @@
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      @if (brand.logoSrc; as logo) {
+        <img class="footer__logo" [src]="logo" alt="" />
+      }
+      <span class="footer__name">{{ brand.name() }}</span>
+    </div>
+
+    <nav class="footer__nav" [attr.aria-label]="keys.LinksLabel | t">
+      <ul class="footer__links">
+        @for (link of links; track link.id) {
+          <li>
+            <a class="footer__link" [routerLink]="link.link">{{ link.labelKey | t }}</a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <p class="footer__rights">{{ keys.Rights | t: { year: year, name: brand.name() } }}</p>
+  </div>
+</footer>

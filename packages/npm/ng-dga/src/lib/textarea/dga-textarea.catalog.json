@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-textarea",
+  "className": "DgaTextareaComponent",
+  "category": "form",
+  "summary": "The DGA textarea: a native multi-line input with a visible label, hint, error message, an optional live character counter and opt-in auto-resize. A signal-model control: bind [(value)] or a signal-forms field.",
+  "inputs": [
+    { "name": "value", "type": "string, model", "required": false, "default": "''", "description": "The text; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true on blur; two-way [(touched)]." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible name when the surrounding UI already labels the textarea (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "Placeholder (translated); never a replacement for the label." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text under the textarea (translated), linked by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the textarea invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "The native name attribute." },
+    { "name": "rows", "type": "number", "required": false, "default": "4", "description": "Visible text lines; the starting height when autoResize is on." },
+    { "name": "maxLength", "type": "number | null", "required": false, "default": "null", "description": "The native maxlength; also shows the counter. null or NaN means not set." },
+    { "name": "counterLabel", "type": "string | null", "required": false, "default": "null", "description": "Counter template (translated) with the placeholders {count}, {max} and {remaining}; the default shows digits only ('12 / 500')." },
+    { "name": "autoResize", "type": "boolean", "required": false, "default": "false", "description": "Grows the textarea with its content instead of scrolling." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required plus a decorative asterisk on the label." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the textarea." },
+    { "name": "readonly", "type": "boolean", "required": false, "default": "false", "description": "Read-only text that stays focusable." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the textarea invalid without a message (a form field may set it)." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "string", "description": "The new text on every input event (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true on the first blur." }
+  ],
+  "slots": [],
+  "a11y": "The label is linked with for/id; error, hint and counter are linked with aria-describedby (in that order), and an error or invalid sets aria-invalid. Without a visible label give ariaLabel. The counter is not a live region, so it is read on focus rather than on every keystroke. The required asterisk is aria-hidden. Logical CSS: the counter sits at the inline end in RTL and LTR.",
+  "since": "1.0.0"
+}

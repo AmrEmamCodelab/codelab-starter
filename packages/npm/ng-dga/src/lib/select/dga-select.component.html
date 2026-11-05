@@ -1,0 +1,39 @@
+<div class="dga-field">
+  @if (label(); as text) {
+    <label class="dga-field__label" [attr.for]="selectId">
+      {{ text }}
+      @if (required()) {
+        <span class="dga-field__required" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+  <div class="dga-field__control" [class.dga-field__control--invalid]="isInvalid()" [class.dga-field__control--disabled]="disabled()">
+    <select
+      class="dga-field__select"
+      [class.dga-field__select--empty]="!hasSelection()"
+      [id]="selectId"
+      [attr.name]="name()"
+      [attr.aria-label]="label() ? null : ariaLabel()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="isInvalid() ? 'true' : null"
+      [required]="required()"
+      [disabled]="disabled()"
+      (change)="onChange($event)"
+      (blur)="onBlur()"
+    >
+      @if (showEmptyOption()) {
+        <option [value]="emptyValue" [selected]="!hasSelection()" [disabled]="emptyOptionDisabled()">{{ placeholder() ?? '' }}</option>
+      }
+      @for (option of options(); track $index; let index = $index) {
+        <option [value]="nativeValue(index)" [selected]="index === selectedIndex()" [disabled]="option.disabled ?? false">{{ option.label }}</option>
+      }
+    </select>
+    <dga-icon class="dga-field__chevron" name="chevron-down" size="md" />
+  </div>
+  @if (hasError()) {
+    <span class="dga-field__message dga-field__message--error" [id]="errorId">{{ error() }}</span>
+  }
+  @if (hint(); as text) {
+    <span class="dga-field__message" [id]="hintId">{{ text }}</span>
+  }
+</div>

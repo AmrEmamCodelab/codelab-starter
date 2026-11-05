@@ -1,0 +1,42 @@
+<div class="portal-content">
+  <div class="portal-content__header">
+    <ng-content select="[portalHeader]" />
+    @if (titleKey(); as title) {
+      <header class="portal-content__title-block">
+        <h1 class="portal-content__title">{{ title | t }}</h1>
+        @if (subtitleKey(); as subtitle) {
+          <p class="portal-content__subtitle">{{ subtitle | t }}</p>
+        }
+      </header>
+    }
+  </div>
+
+  <div class="portal-content__layout" [class.portal-content__layout--with-toc]="showToc()">
+    @if (showToc()) {
+      <nav class="portal-content__toc" [attr.aria-labelledby]="tocHeadingId">
+        <h2 class="portal-content__toc-title" [id]="tocHeadingId">{{ tocLabelKey() | t }}</h2>
+        <ol class="portal-content__toc-list">
+          @for (entry of toc(); track entry.anchorId) {
+            <li class="portal-content__toc-item" [attr.data-depth]="entry.depth">
+              <a
+                class="portal-content__toc-link"
+                [href]="hrefOf(entry)"
+                [attr.aria-current]="active() === entry.anchorId ? 'location' : null"
+                (click)="follow($event, entry)"
+              >{{ entry.titleKey | t }}</a>
+            </li>
+          }
+        </ol>
+      </nav>
+    }
+
+    <div class="portal-content__body">
+      <div class="portal-content__sections">
+        <ng-content />
+      </div>
+      <footer class="portal-content__footer">
+        <ng-content select="[portalLastUpdated]" />
+      </footer>
+    </div>
+  </div>
+</div>

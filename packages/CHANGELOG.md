@@ -242,9 +242,26 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## @codelab/ng-tools
 
-### [Unreleased] - 0.2.0
+### [Unreleased] - 0.5.0
 
 #### Added
+
+- `codelab-ng-tools rtl-lint <folder> [--icons <map>] [--direction-file <glob>]...`: physical-side style bindings, inline
+  styles, text-align/float/clear left/right, hard-coded dir and physically named or unmirrored icons in templates and
+  TypeScript (base.fe-tokens-logical-css).
+- `codelab-ng-tools icons-subset`: the icons an app uses (unknown literal names fail), and the subset code point map and
+  WOFF2 through the ng-dga generator contract.
+- `codelab-ng-tools i18n-check`: translation parity, Arabic text in ar and every key used in code present (moved from
+  the app's i18n-parity script).
+- One dispatcher for every codelab-ng-tools subcommand; root exports `checkRtl`, `collectIconUsage`, `subsetOutputs`,
+  `checkI18n`, `runCodelabNgTools`, `ExitCodes`.
+
+#### Changed
+
+- The boundary preset no longer passes the deprecated `mode: 'folder'` to eslint-plugin-boundaries (behaviour
+  unchanged).
+
+#### Added (0.2.0)
 
 - `@codelab/ng-tools/routes`: `assertRoutesGated` / `findUngatedRoutes` / `formatRouteFindings`, the route-table
   permission gate for a Vitest spec. Every route rendering a page carries a permission key in route data on itself or
@@ -289,7 +306,43 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## @codelab/ng-dga
 
-### [Unreleased] - 0.1.0
+### [Unreleased] - 1.0.0
+
+The 1.0 release candidate (Phase 4). `-Pack` publishes it as `1.0.0-ci.<n>` prereleases; the catalog's `since`
+values name this line. 1.0.0 itself is released in Phase 10.
+
+#### Added
+
+- Components: `dga-accordion` and `dga-accordion-item` (single or multiple open sections), `dga-alert` (info,
+  success, warning and error tones, optional close), `dga-header` (brand, one-level submenu navigation, start and
+  actions slots, collapses below the md breakpoint), `dga-hero` and `dga-hero-slider` (slides with previous/next,
+  picker dots and an optional autoplay with pause), `dga-stamp-strip` (the official-government-website statement with
+  its verification disclosure), `dga-select` and `dga-textarea` (live character counter, opt-in auto-resize).
+- Generic widgets moved into the library from the app: `dga-confirm-dialog`, `dga-error-dialog` (reference code with
+  copy), `dga-page-feedback`, `dga-portal-page-header`, `dga-file-upload` (client-side type, size, empty and count
+  checks; it sends nothing), `dga-date-input` (ISO Gregorian), `dga-hijri-date-input` (Umm al-Qura, with
+  `hijriIsoToGregorianIso` / `gregorianIsoToHijriIso`), `dga-unit-input` (Arabic-Indic digits), `dga-multi-select`
+  and `dga-geo-select` (region, city and district from a `DgaGeoDataSource`; no HTTP).
+- The branding layer: `DgaBranding`, `parseDgaBranding`, `applyDgaBranding`, `provideDgaBranding` and `DGA_BRANDING`
+  set the `--dga-brand-*` custom properties, which `styles/_branding.scss` maps onto the semantic primary tokens.
+  Without branding every fallback is the package's own DGA green.
+- Tokens: `--dga-shadow-lg`, `--dga-duration-slow`, `--dga-color-hero-overlay`, the header, logo, menu, hero and
+  stamp-strip sizes, and the header and dropdown z-indexes.
+- 22 icons in the owned icon font (bell, calendar, clock, download, email, error, external-link, file, filter,
+  location, minus, more-vertical, pause, phone, play, plus, question, shield-check, success, trash, upload, warning).
+- The component catalog: a `<selector>.catalog.json` beside every component (schema `catalog.schema.json`), turned
+  into `docs/design/component-catalog.md` by `catalog:generate` and checked by `catalog:check`. The token reference
+  `docs/design/tokens.md` is generated from the token sources by `tokens:generate` / `tokens:check`. Both checks run
+  in the package `test` script.
+
+#### Changed
+
+- `dga-stepper` merges the former library and app steppers: `orientation` (horizontal or vertical), `navigable`
+  steps that emit `stepSelect` with a roving tabindex, `linear`, `compact`, and per-step `completed`, `invalid` and
+  `disabled` with an `invalidLabel`. `DgaStepState` is now a constant object plus its type, with an `invalid` state.
+  **Migration:** none for a progress-only stepper; string values `'completed' | 'current' | 'upcoming'` still match.
+
+### [0.1.0] - prerelease only (Phase 2)
 
 #### Added
 

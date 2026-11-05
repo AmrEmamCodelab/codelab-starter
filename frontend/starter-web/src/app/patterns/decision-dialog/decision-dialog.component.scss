@@ -1,0 +1,78 @@
+:host {
+  display: contents;
+}
+
+.decision-dialog__message {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.decision-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+}
+
+.decision-dialog__label {
+  color: var(--dga-color-text-default);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+
+  // The required marker is decorative: the textarea carries `required`, which screen readers announce.
+  &::after {
+    margin-inline-start: var(--dga-space-1);
+    color: var(--dga-color-text-error);
+    content: '*';
+  }
+}
+
+.decision-dialog__input {
+  inline-size: 100%;
+  min-block-size: calc(var(--dga-space-16) + var(--dga-space-8));
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+  color: var(--dga-color-text-default);
+  font: inherit;
+  resize: vertical;
+
+  &:focus-visible {
+    border-color: var(--dga-color-border-primary);
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-space-half);
+  }
+
+  &:disabled {
+    border-color: var(--dga-color-border-disabled);
+    background-color: var(--dga-color-surface-disabled);
+    color: var(--dga-color-text-disabled);
+  }
+}
+
+.decision-dialog__field--invalid .decision-dialog__input {
+  border-color: var(--dga-color-border-error);
+}
+
+.decision-dialog__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dga-space-3);
+
+  p {
+    margin: 0;
+    font-size: var(--dga-font-size-sm);
+  }
+}
+
+.decision-dialog__error {
+  color: var(--dga-color-text-error);
+}
+
+.decision-dialog__counter {
+  margin-inline-start: auto;
+  color: var(--dga-color-text-muted);
+  white-space: nowrap;
+}

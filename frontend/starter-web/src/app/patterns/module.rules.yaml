@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebPatterns
 kind: angular
-description: "Starter web page patterns: reusable page bases screens are built on (admin list + pager, editor dialog over native <dialog>, permission tree editor) and their pure helpers. Patterns import only core and @codelab/ng-dga (ESLint boundaries), hold no API calls and no feature policy."
+description: "Starter web page patterns: the 8 page bases screens are built on (admin list + pager with the editor dialog over native <dialog>, tree editor, work queue, staff detail with the decision dialog, multi-step wizard, requester detail with the status tracker, portal content, landing dashboard) and their pure helpers. Live examples at /showcase, docs in docs/design/patterns/. Patterns import only core and @codelab/ng-dga (ESLint boundaries), hold no API calls and no feature policy."
 mayDependOn: []
 mustNotDependOn: []

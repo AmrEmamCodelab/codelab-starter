@@ -1,0 +1,126 @@
+<section class="wizard" [attr.aria-busy]="busy() ? 'true' : null">
+  <div class="wizard__layout">
+    <dga-stepper
+      class="wizard__trail"
+      navigable
+      [steps]="stepperSteps()"
+      [active]="current()"
+      [linear]="linear()"
+      [orientation]="orientation()"
+      [label]="labelKey() | t"
+      [completedLabel]="keys.Completed | t"
+      [currentLabel]="keys.Current | t"
+      [invalidLabel]="keys.Invalid | t"
+      (stepSelect)="goTo($event)"
+    />
+
+    <div class="wizard__content">
+      @if (showSummary()) {
+        <div class="wizard__errors" role="alert">
+          <dga-icon name="alert" size="md" />
+          <div class="wizard__errors-text">
+            @if (errorMessageKey(); as messageKey) {
+              <p class="wizard__error-message">{{ messageKey | t }}</p>
+            }
+            @if (currentFieldErrors().length > 0 || unmappedFieldErrors().length > 0) {
+              <p class="wizard__errors-title">{{ keys.ErrorsTitle | t }}</p>
+              <ul class="wizard__error-list">
+                @for (item of currentFieldErrors(); track item.field + item.key) {
+                  <li [attr.data-field]="item.field">{{ item.key | t }}</li>
+                }
+                @for (item of unmappedFieldErrors(); track item.field + item.key) {
+                  <li [attr.data-field]="item.field">{{ item.key | t }}</li>
+                }
+              </ul>
+            }
+            @if (otherStepsWithErrors().length > 0) {
+              <div class="wizard__error-steps">
+                @for (entry of otherStepsWithErrors(); track entry.definition.id) {
+                  <dga-button
+                    variant="secondary-outline"
+                    size="sm"
+                    data-public-action
+                    [attr.data-step]="entry.definition.id"
+                    [disabled]="busy()"
+                    (click)="goTo(entry.index)"
+                  >
+                    {{ keys.GoToStep | t: { step: (entry.definition.titleKey | t) } }}
+                  </dga-button>
+                }
+              </div>
+            }
+            @if (error()?.referenceCode; as code) {
+              <p class="wizard__error-reference">{{ commonKeys.ReferenceCode | t: { code: code } }}</p>
+            }
+          </div>
+        </div>
+      }
+
+      <header class="wizard__step-header">
+        <p class="wizard__step-count">{{ keys.StepOf | t: stepNumber() }}</p>
+        <h2 #stepHeading class="wizard__step-title" tabindex="-1">{{ currentDef().titleKey | t }}</h2>
+        @if (currentDef().descriptionKey; as descriptionKey) {
+          <p class="wizard__step-description">{{ descriptionKey | t }}</p>
+        }
+      </header>
+
+      @if (showStepRefusal()) {
+        <p class="wizard__refusal" role="alert">
+          <dga-icon name="alert" size="sm" />
+          <span>{{ keys.FixStep | t }}</span>
+        </p>
+      }
+
+      <div class="wizard__body" [attr.data-step]="currentDef().id">
+        @if (currentTemplate(); as template) {
+          <ng-container *ngTemplateOutlet="template; context: currentContext()" />
+        }
+      </div>
+    </div>
+  </div>
+
+  <footer class="wizard__actions">
+    <div class="wizard__actions-start">
+      @if (cancellable()) {
+        <dga-button variant="transparent" size="md" data-public-action class="wizard__cancel" [disabled]="busy()" (click)="requestCancel()">
+          {{ keys.Cancel | t }}
+        </dga-button>
+      }
+      <dga-button
+        variant="secondary-outline"
+        size="md"
+        leadIcon="chevron-start"
+        data-public-action
+        class="wizard__back"
+        [disabled]="busy() || isFirst()"
+        (click)="goBack()"
+      >
+        {{ keys.Back | t }}
+      </dga-button>
+    </div>
+    <div class="wizard__actions-end">
+      @if (draftEnabled()) {
+        <dga-button variant="subtle" size="md" data-public-action class="wizard__draft" [disabled]="busy()" (click)="requestSaveDraft()">
+          {{ keys.SaveDraft | t }}
+        </dga-button>
+      }
+      @if (isLast()) {
+        <dga-button variant="primary" size="md" data-public-action class="wizard__submit" [loading]="busy()" (click)="requestSubmit()">
+          {{ submitKey() | t }}
+        </dga-button>
+      } @else {
+        <dga-button
+          variant="primary"
+          size="md"
+          trailIcon="chevron-end"
+          data-public-action
+          class="wizard__next"
+          [disabled]="busy()"
+          (click)="goNext()"
+        >
+          {{ keys.Next | t }}
+        </dga-button>
+      }
+    </div>
+  </footer>
+</section>

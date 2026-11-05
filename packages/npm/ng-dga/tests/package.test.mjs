@@ -11,18 +11,37 @@ const INTERNAL_FOLDER = 'internal';
 const COMPONENT_SUFFIX = '.component.ts';
 const TEMPLATE_SUFFIX = '.component.html';
 const EXPECTED_SELECTORS = [
+  'dga-accordion',
+  'dga-accordion-item',
+  'dga-alert',
   'dga-breadcrumb',
   'dga-button',
   'dga-card',
   'dga-checkbox',
+  'dga-confirm-dialog',
+  'dga-date-input',
+  'dga-error-dialog',
+  'dga-file-upload',
+  'dga-geo-select',
+  'dga-header',
+  'dga-hero',
+  'dga-hero-slider',
+  'dga-hijri-date-input',
   'dga-icon',
   'dga-info-field',
+  'dga-multi-select',
+  'dga-page-feedback',
+  'dga-portal-page-header',
   'dga-radio-group',
+  'dga-select',
+  'dga-stamp-strip',
   'dga-status-tag',
   'dga-stepper',
   'dga-tabs',
   'dga-tag',
   'dga-text-input',
+  'dga-textarea',
+  'dga-unit-input',
 ];
 /** Text between tags that is not whitespace, an interpolation, a control-flow brace or a lone required marker. */
 const RAW_TEXT = />([^<>{}@]*[A-Za-z؀-ۿ][^<>{}@]*)</g;
@@ -53,7 +72,7 @@ describe('components', () => {
   const files = componentFiles();
   const publicApi = readFileSync(path.join(SOURCE_DIR, 'public-api.ts'), 'utf8');
 
-  it('cover exactly the 0.1 component set', () => {
+  it('cover exactly the 1.0 component set', () => {
     const selectors = files.map((file) => /selector: '([a-z-]+)'/.exec(readFileSync(file, 'utf8'))?.[1]).sort();
     expect(selectors).toEqual(EXPECTED_SELECTORS);
   });

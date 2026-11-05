@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-hijri-date-input",
+  "className": "DgaHijriDateInputComponent",
+  "category": "form",
+  "summary": "The Umm al-Qura (Hijri) date field: day and month choosers and a year box in one labelled group, whose value is Hijri ISO text (yyyy-mm-dd, or '' until the parts make a real date). Convert with hijriIsoToGregorianIso / gregorianIsoToHijriIso. A signal-model control.",
+  "inputs": [
+    { "name": "value", "type": "string, model", "required": false, "default": "''", "description": "The Hijri date as yyyy-mm-dd, or ''; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true when focus leaves the whole group; two-way [(touched)]." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible group label, the legend (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible group name when there is no visible label (translated)." },
+    { "name": "dayLabel", "type": "string | null", "required": false, "default": "null", "description": "Name of the day chooser and its empty choice (translated)." },
+    { "name": "monthLabel", "type": "string | null", "required": false, "default": "null", "description": "Name of the month chooser and its empty choice (translated)." },
+    { "name": "yearLabel", "type": "string | null", "required": false, "default": "null", "description": "Name and placeholder of the year box (translated)." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text (translated), linked to the group by aria-describedby." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated); a non-empty error marks the parts invalid." },
+    { "name": "name", "type": "string | null", "required": false, "default": "null", "description": "Name of a hidden input carrying the value for native form posts." },
+    { "name": "locale", "type": "string", "required": false, "default": "'ar'", "description": "Locale of the month names (the app language); names come from the browser's islamic-umalqura calendar." },
+    { "name": "min", "type": "string | null", "required": false, "default": "null", "description": "Earliest allowed Hijri date, yyyy-mm-dd." },
+    { "name": "max", "type": "string | null", "required": false, "default": "null", "description": "Latest allowed Hijri date, yyyy-mm-dd." },
+    { "name": "today", "type": "string | null", "required": false, "default": "null", "description": "Today as a Gregorian yyyy-mm-dd from the caller's clock (dgaTodayIso); converted for the today rules." },
+    { "name": "notAfterToday", "type": "boolean", "required": false, "default": "false", "description": "Caps the max at today (needs today)." },
+    { "name": "notBeforeToday", "type": "boolean", "required": false, "default": "false", "description": "Raises the min to today (needs today)." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Native required on every part plus a decorative asterisk." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables the group (fieldset disabled)." },
+    { "name": "invalid", "type": "boolean", "required": false, "default": "false", "description": "Marks the parts invalid without a message." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "string", "description": "The new Hijri ISO date, or '' while incomplete (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true when focus first leaves the group." },
+    { "name": "issueChange", "type": "DgaDateIssue | null", "description": "The field's own problem when it changes: 'incomplete', 'not-a-date', 'before-min', 'after-max', or null." }
+  ],
+  "slots": [],
+  "a11y": "A fieldset whose legend is the label (or aria-label), described by hint and error. Day and month are native selects and the year a numeric text box, each with its own accessible name, so the browser supplies the keyboard model. Arabic-Indic year digits are accepted. Parts follow reading order (day, month, year), so RTL mirrors them; an error, invalid or an own issue sets aria-invalid on every part.",
+  "since": "1.0.0"
+}

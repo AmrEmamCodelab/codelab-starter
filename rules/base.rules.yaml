@@ -283,11 +283,40 @@ forbidden:
     appliesTo: ["**/*.ts"]
     excludes: ["**/core/api/generated/**", "**/*.spec.ts"]
     fix: Use the typed route constants (AppRoutes) and the generated API client instead of path literals.
+  # Same families as RESTRICTED_UI_LIBRARY_PATTERNS in @codelab/ng-tools (ESLint, CI); this twin lets the hook refuse
+  # the edit early. Static imports, re-exports, side-effect imports and dynamic import() are all covered.
   - id: base.fe-ui-library-only
     description: Third-party UI kits and external DGA packages are not allowed (D5).
-    pattern: 'from\s+[''"](?:@angular/material|primeng|ngx-bootstrap|@ng-bootstrap|@(?:dev-)?dga[/@])'
+    pattern: '(?:\bfrom|\bimport)\s*\(?\s*[''"](?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@''"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:/|[''"]))'
     appliesTo: ["**/*.ts"]
     fix: Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.
+  # The non-TypeScript half of D5: a UI kit's stylesheet pulled in by @use/@import/@forward (with or without url(),
+  # ~ or node_modules/), declared as a dependency in package.json, or listed in angular.json styles/scripts would
+  # let its classes reach templates with no TS import. Same families as base.fe-ui-library-only; bootstrap is matched
+  # only as a whole package name, so bootstrap-icons (ADR-009) stays allowed.
+  # Also caught: Sass meta.load-css('<kit>') (any namespace, so `as m` + m.load-css too); a JSON string that names the
+  # kit after a ':' or '/' inside it, which covers npm aliases ("ui-kit": "npm:bootstrap@5.3.3"), github:/git+https:
+  # sources, tarball URLs and node_modules paths, so an alias cannot rename the kit past the rule.
+  - id: base.fe-ui-library-styles-and-deps
+    description: Third-party UI kit stylesheets, dependencies (including npm aliases) and angular.json styles/scripts are not allowed (D5).
+    pattern: '(?:@(?:use|import|forward)\s+(?:url\(\s*)?[''"]?|\bload-css\(\s*[''"]?|"(?:[^"\s]*?[:/])?)~?(?:\.{1,2}/)*(?:node_modules/)?(?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@''"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:[/''"#@]|\.git\b))'
+    appliesTo: ["**/*.scss", "**/*.css", "**/package.json", "**/angular.json"]
+    fix: Remove the UI kit's stylesheet, dependency (or its npm alias) or angular.json entry and use @codelab/ng-dga components and tokens, or ask the platform owner to add one.
+  # A stylesheet fetched from a CDN at run time would bring in any UI kit by URL (no package name to match), and the
+  # servers have no egress (on-premises). Fonts and icons are self-hosted (ADR-009), so no remote stylesheet is needed.
+  - id: base.fe-no-remote-stylesheet
+    description: Stylesheets imported from a remote URL (CDN) are not allowed (D5, no egress).
+    pattern: '(?:@(?:use|import|forward)\s+(?:url\(\s*)?|\bload-css\(\s*)[''"]?(?:https?:)?//'
+    appliesTo: ["**/*.scss", "**/*.css"]
+    fix: Install the stylesheet's package through the platform owner (or self-host the asset) and import it locally; UI kits stay refused (D5).
+  # The hook twin of the ESLint boundary policy for the shared building blocks (shared, patterns and layouts reach
+  # core and shared only): a relative import that climbs up to the app folder and into features/ is refused
+  # (core/features is core, not a feature).
+  - id: base.fe-shared-no-features
+    description: Shared building blocks (shared/, patterns/, layouts/) must not import feature code.
+    pattern: '(?:\bfrom|\bimport)\s*\(?\s*[''"](?:\.\./)+features/'
+    appliesTo: ["**/src/app/shared/**/*.ts", "**/src/app/patterns/**/*.ts", "**/src/app/layouts/**/*.ts"]
+    fix: Move what both need into shared/ (or core/), or pass it in through an input; a feature may import shared code, never the reverse.
   # Text between tags with at least one letter outside an HTML entity (&nbsp; and &times; are not text). A text
   # check cannot see raw text inside {{ }} or @if blocks or in attributes; the template AST lint is open (phase-log).
   - id: base.fe-raw-text-in-template

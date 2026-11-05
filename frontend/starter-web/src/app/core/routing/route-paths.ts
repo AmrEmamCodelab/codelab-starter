@@ -8,9 +8,23 @@ export const RoutePaths = {
   SsoCallback: 'auth/sso/callback',
   /** The account activation page (public): sets the first password from an activation ticket. */
   Activate: 'activate',
+  /** The public portal frame (no session). */
+  Portal: 'portal',
+  /** The component and pattern showcase (dev and staging; config.json showcase flag). */
+  Showcase: 'showcase',
 } as const;
 
 export type RoutePath = (typeof RoutePaths)[keyof typeof RoutePaths];
+
+/** The public portal pages: child paths under RoutePaths.Portal (owned by features/portal: PORTAL_ROUTES). */
+export const PortalPaths = {
+  Landing: '',
+  ServiceGuide: 'service-guide',
+  Faq: 'faq',
+  Contact: 'contact',
+  Privacy: 'privacy',
+  Terms: 'terms',
+} as const;
 
 /** Query parameters the core routing reads or writes. */
 export const RouteQueryParams = {

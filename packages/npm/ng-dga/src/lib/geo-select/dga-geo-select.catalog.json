@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-geo-select",
+  "className": "DgaGeoSelectComponent",
+  "category": "form",
+  "summary": "Region, city and district as three cascading selects. Presentational: the places come from a DgaGeoDataSource the app passes in ({ regions(), cities(regionId), districts(cityId) } returning a promise or observable); it never calls HTTP. A signal-model control of { regionId, cityId, districtId }.",
+  "inputs": [
+    { "name": "value", "type": "DgaGeoSelection, model", "required": false, "default": "DGA_GEO_EMPTY_SELECTION", "description": "The chosen ids; a new region clears city and district, a new city clears district; two-way [(value)]." },
+    { "name": "touched", "type": "boolean, model", "required": false, "default": "false", "description": "Becomes true when a level loses focus; two-way [(touched)]." },
+    { "name": "dataSource", "type": "DgaGeoDataSource", "required": true, "description": "Where the places come from (static data or the app's API service)." },
+    { "name": "language", "type": "DgaGeoLanguage ('ar' | 'en')", "required": false, "default": "'ar'", "description": "The language of the place names." },
+    { "name": "depth", "type": "DgaGeoDepth (1 | 2 | 3)", "required": false, "default": "3", "description": "How many levels to show: region, plus city, plus district." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible group label, the legend (translated)." },
+    { "name": "ariaLabel", "type": "string | null", "required": false, "default": "null", "description": "Accessible group name when there is no visible label (translated)." },
+    { "name": "regionLabel", "type": "string | null", "required": false, "default": "null", "description": "Label of the region select (translated)." },
+    { "name": "cityLabel", "type": "string | null", "required": false, "default": "null", "description": "Label of the city select (translated)." },
+    { "name": "districtLabel", "type": "string | null", "required": false, "default": "null", "description": "Label of the district select (translated)." },
+    { "name": "placeholder", "type": "string | null", "required": false, "default": "null", "description": "The empty choice of every level (translated)." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "Error message (translated), shown on the first level still missing a choice." },
+    { "name": "loadErrorText", "type": "string | null", "required": false, "default": "null", "description": "Shown on a level whose list failed to load (translated)." },
+    { "name": "required", "type": "boolean", "required": false, "default": "false", "description": "Marks every shown level required." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables every level." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "DgaGeoSelection", "description": "The new selection after every choice (the model's change event)." },
+    { "name": "touchedChange", "type": "boolean", "description": "Emits true when a level first loses focus." },
+    { "name": "loadFailed", "type": "DgaGeoLevel ('region' | 'city' | 'district')", "description": "The level whose list failed to load." }
+  ],
+  "slots": [],
+  "a11y": "A fieldset (legend or aria-label) holding native dga-select controls, each with a visible label, so the browser supplies the keyboard model. The group is aria-busy while a list loads; a level is disabled until its parent is chosen. Errors are linked to their select by aria-describedby and set aria-invalid. The levels follow reading order and wrap, so RTL mirrors them.",
+  "since": "1.0.0"
+}

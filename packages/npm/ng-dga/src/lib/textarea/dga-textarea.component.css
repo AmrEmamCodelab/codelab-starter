@@ -1,0 +1,108 @@
+/* Tokens only, logical CSS only. Shares the field look of dga-text-input. */
+:host {
+  display: block;
+}
+
+.dga-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-field__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-field__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-field__textarea {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: var(--dga-size-control-lg);
+  margin: 0;
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  outline: 0;
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-default);
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  line-height: var(--dga-line-height-sm);
+  text-align: start;
+  resize: vertical;
+  transition:
+    border-color var(--dga-duration-fast) var(--dga-easing-standard),
+    box-shadow var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-field__textarea--auto {
+  overflow: hidden;
+  resize: none;
+}
+
+.dga-field__textarea::placeholder {
+  color: var(--dga-color-text-placeholder);
+}
+
+.dga-field__textarea:focus {
+  border-color: var(--dga-color-border-primary);
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-field__textarea--invalid,
+.dga-field__textarea--invalid:focus {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-field__textarea--invalid:focus {
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo-error);
+}
+
+.dga-field__textarea:read-only {
+  background-color: var(--dga-color-surface-muted);
+}
+
+.dga-field__textarea:disabled {
+  border-color: var(--dga-color-border-disabled);
+  color: var(--dga-color-text-disabled);
+  background-color: var(--dga-color-surface-disabled);
+  cursor: not-allowed;
+}
+
+.dga-field__footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dga-space-3);
+}
+
+.dga-field__messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+}
+
+.dga-field__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-field__message--error {
+  color: var(--dga-color-text-error);
+}
+
+.dga-field__counter {
+  flex: none;
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+}

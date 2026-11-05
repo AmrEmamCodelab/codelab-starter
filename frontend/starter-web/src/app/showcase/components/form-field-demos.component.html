@@ -1,0 +1,173 @@
+<app-showcase-section anchor="dga-button">
+  <app-showcase-demo wide [labelKey]="keys.States.Variants">
+    <div class="demo-row">
+      @for (variant of variants; track variant) {
+        <dga-button [variant]="variant">{{ keys.Demo.Save | t }}</dga-button>
+      }
+    </div>
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Sizes">
+    @for (size of sizes; track size) {
+      <dga-button [size]="size">{{ keys.Demo.Next | t }}</dga-button>
+    }
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.WithIcon">
+    <dga-button variant="secondary-outline" leadIcon="plus">{{ keys.Demo.Save | t }}</dga-button>
+    <dga-button variant="neutral" trailIcon="arrow-end">{{ keys.Demo.Next | t }}</dga-button>
+    <dga-button variant="subtle" iconOnly leadIcon="search" [label]="keys.Demo.Search | t" />
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Destructive">
+    <dga-button destructive leadIcon="trash">{{ keys.Demo.Delete | t }}</dga-button>
+    <dga-button destructive variant="secondary-outline">{{ keys.Demo.Delete | t }}</dga-button>
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Loading">
+    <dga-button loading [label]="keys.Demo.Save | t">{{ keys.Demo.Save | t }}</dga-button>
+  </app-showcase-demo>
+  <app-showcase-demo [labelKey]="keys.States.Disabled">
+    <dga-button disabled>{{ keys.Demo.Save | t }}</dga-button>
+    <dga-button disabled variant="secondary-outline">{{ keys.Demo.Cancel | t }}</dga-button>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-text-input">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-text-input name="showcase-name" [label]="keys.Demo.FieldName | t" [hint]="keys.Demo.FieldNameHint | t" [(value)]="name" />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-text-input
+      name="showcase-email"
+      type="email"
+      required
+      leadIcon="email"
+      [label]="keys.Demo.FieldEmail | t"
+      [error]="keys.Demo.FieldRequired | t"
+      [(value)]="email"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-text-input disabled name="showcase-name-disabled" [label]="keys.Demo.FieldName | t" [value]="keys.Demo.BrandName | t" />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.ReadOnly">
+    <dga-text-input readonly name="showcase-name-readonly" [label]="keys.Demo.FieldName | t" [value]="keys.Demo.BrandName | t" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-textarea">
+  <app-showcase-demo stack [labelKey]="keys.States.WithCounter">
+    <dga-textarea
+      name="showcase-notes"
+      [label]="keys.Demo.FieldNotes | t"
+      [hint]="keys.Demo.FieldNotesHint | t"
+      [maxLength]="notesMax"
+      [counterLabel]="keys.Demo.Counter | t"
+      [(value)]="notes"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-textarea required name="showcase-notes-error" [label]="keys.Demo.FieldNotes | t" [error]="keys.Demo.FieldRequired | t" />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-textarea disabled name="showcase-notes-disabled" [label]="keys.Demo.FieldNotes | t" [value]="keys.Demo.CardBody | t" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-checkbox">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-checkbox name="showcase-notify" [label]="keys.Demo.Notify | t" [(checked)]="notify" />
+    <dga-checkbox name="showcase-select-all" indeterminate [label]="keys.Demo.SelectAll | t" />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-checkbox
+      name="showcase-agree"
+      required
+      [label]="keys.Demo.Agree | t"
+      [error]="keys.Demo.AgreeError | t"
+      [(checked)]="agree"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-checkbox name="showcase-agree-disabled" disabled [checked]="true" [label]="keys.Demo.Agree | t" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-radio-group">
+  <app-showcase-demo stack [labelKey]="keys.States.Vertical">
+    <dga-radio-group
+      name="showcase-priority"
+      [label]="keys.Demo.Priority | t"
+      [hint]="keys.Demo.PriorityHint | t"
+      [options]="priorities()"
+      [(value)]="priority"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-radio-group
+      name="showcase-priority-error"
+      orientation="horizontal"
+      required
+      [label]="keys.Demo.Priority | t"
+      [error]="keys.Demo.FieldRequired | t"
+      [options]="priorities()"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-radio-group
+      name="showcase-priority-disabled"
+      orientation="horizontal"
+      disabled
+      [label]="keys.Demo.Priority | t"
+      [options]="priorities()"
+      [value]="priority()"
+    />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-select">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-select
+      name="showcase-city"
+      [label]="keys.Demo.City | t"
+      [placeholder]="keys.Demo.CityPlaceholder | t"
+      [options]="cities()"
+      [(value)]="city"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-select
+      name="showcase-city-error"
+      required
+      [label]="keys.Demo.City | t"
+      [placeholder]="keys.Demo.CityPlaceholder | t"
+      [error]="keys.Demo.FieldRequired | t"
+      [options]="cities()"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-select name="showcase-city-disabled" disabled [label]="keys.Demo.City | t" [options]="cities()" [value]="cityChosen()" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-multi-select">
+  <app-showcase-demo stack [labelKey]="keys.States.Selected">
+    <dga-multi-select
+      name="showcase-languages"
+      [label]="keys.Demo.Languages | t"
+      [placeholder]="keys.Demo.LanguagesPlaceholder | t"
+      [removeLabel]="keys.Demo.Remove | t"
+      [emptyText]="keys.Demo.NoOptions | t"
+      [options]="languages()"
+      [(value)]="spoken"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-multi-select
+      name="showcase-languages-disabled"
+      disabled
+      [label]="keys.Demo.Languages | t"
+      [placeholder]="keys.Demo.LanguagesPlaceholder | t"
+      [removeLabel]="keys.Demo.Remove | t"
+      [options]="languages()"
+      [value]="spoken()"
+    />
+  </app-showcase-demo>
+</app-showcase-section>

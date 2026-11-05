@@ -167,6 +167,13 @@
       "mustNotDependOn": []
     },
     {
+      "module": "WebPortal",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/portal",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
       "module": "WebLayouts",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/layouts",
@@ -184,6 +191,13 @@
       "module": "WebShared",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/shared",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebShowcase",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/showcase",
       "mayDependOn": [],
       "mustNotDependOn": []
     },

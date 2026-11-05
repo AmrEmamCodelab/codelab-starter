@@ -42,7 +42,7 @@ in isolation.
    [`base.endpoint-contract`, `base.public-id-routes`]
 9. Frontend: HTTP only through `ApiService`; UI only from `@codelab/ng-dga` and the page patterns; every visible string
    is an i18n key present in both `ar` and `en`; design tokens and logical CSS only; routes and actions gated by
-   permission keys. [`base.fe-http-via-api-service`, `base.fe-ui-library-only`, `base.fe-raw-text-in-template`, `base.fe-raw-text-in-inline-template`,
+   permission keys. [`base.fe-http-via-api-service`, `base.fe-ui-library-only`, `base.fe-ui-library-styles-and-deps`, `base.fe-no-remote-stylesheet`, `base.fe-raw-text-in-template`, `base.fe-raw-text-in-inline-template`,
    `base.fe-no-raw-text`, `base.fe-logical-css`, `base.fe-design-tokens`, `base.fe-permission-gated`]
 10. Generated files are never hand-edited: `rules/rules.compiled.json`, nested module `CLAUDE.md`,
     `BannedSymbols.generated.txt`, module `.editorconfig`, `docs/generated/**`, the generated API client and permission

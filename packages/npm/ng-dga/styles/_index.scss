@@ -2,12 +2,14 @@
 //
 //   @use '@codelab/ng-dga/styles' as dga;
 //
-// It emits the design tokens on :root, the self-hosted fonts and the icon font, the reset, the base and typography
-// styles and the grid and spacing helpers. It forwards the Sass helpers (dga.media-up, dga.visually-hidden,
-// dga.focus-ring) and the configurable maps ($dga-breakpoints, $dga-grid-columns, $dga-spacing-steps).
+// It emits the design tokens on :root (with the branding layer, which maps --dga-brand-* onto the primary tokens),
+// the self-hosted fonts and the icon font, the reset, the base and typography styles and the grid and spacing
+// helpers. It forwards the Sass helpers (dga.media-up, dga.visually-hidden, dga.focus-ring) and the configurable maps
+// ($dga-breakpoints, $dga-grid-columns, $dga-spacing-steps).
 @forward 'tokens' show $dga-breakpoints, $dga-grid-columns, $dga-spacing-steps;
 @forward 'mixins';
 @use 'tokens';
+@use 'branding';
 @use 'fonts';
 @use 'icon-font';
 @use 'reset';
@@ -17,4 +19,5 @@
 
 :root {
   @include tokens.root-tokens;
+  @include branding.brand-tokens;
 }

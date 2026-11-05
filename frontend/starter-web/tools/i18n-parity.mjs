@@ -1,100 +1,48 @@
 #!/usr/bin/env node
-// i18n key parity (base rule base.fe-no-raw-text): every translation file under src/assets/i18n has exactly the same
-// nested keys as the others, the required languages (ar, en) exist, and every leaf is a non-empty string.
+// The i18n check (base rule base.fe-no-raw-text) for the starter app. The check is @codelab/ng-tools'
+// (`codelab-ng-tools i18n-check`): every file in src/assets/i18n has the same nested keys, ar and en exist, every leaf
+// is non-empty text, every Arabic text has Arabic letters, and every key src/app uses literally (piped through `t`,
+// a `<x>Key` input, translate(...), or a `*translation-keys.ts` catalogue) exists in both languages. This wrapper
+// fixes the app's folders and the Arabic keys that are deliberately Latin.
 //
-//   node tools/i18n-parity.mjs [--dir <folder>]     exit 0 ok, 1 a problem was found, 2 usage
+//   node tools/i18n-parity.mjs [--dir <translations>] [--src <folder>]     exit 0 ok, 1 a problem, 2 usage
 //
 // Part of `npm run lint`.
 
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ExitCodes, runI18nCheck } from '@codelab/ng-tools';
 
-/** Default folder, relative to the app folder (frontend/starter-web). */
+export { ExitCodes };
+
+/** Default folders, relative to the app folder (frontend/starter-web). */
 export const DEFAULT_I18N_DIR = 'src/assets/i18n';
+export const DEFAULT_SOURCE_DIR = 'src/app';
+/** Arabic texts that are Latin on purpose: the language switcher names English in English. */
+export const LATIN_ALLOWED_KEYS = Object.freeze(['layout.language-switcher.en']);
 
-/** Languages that must exist; Arabic first (the default language). */
-export const REQUIRED_LANGUAGES = Object.freeze(['ar', 'en']);
-
-export const ExitCodes = Object.freeze({ ok: 0, failure: 1, usage: 2 });
-
-const DIR_FLAG = '--dir';
-const JSON_EXTENSION = '.json';
-const KEY_SEPARATOR = '.';
+const Flags = Object.freeze({ dir: '--dir', src: '--src' });
+const USAGE = `Usage: node tools/i18n-parity.mjs [${Flags.dir} <translations>] [${Flags.src} <folder>]`;
+const PAIR = 2;
+/** process.argv holds node and this script before the arguments. */
+const ARGUMENTS_START = 2;
 const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-/**
- * Flattens a translation object into `Map<dottedKey, leaf>`. Problems (arrays, non-string or empty leaves, empty
- * objects) are pushed onto `problems` with the dotted key.
- */
-export function flattenTranslations(value, problems = [], prefix = '') {
-  const leaves = new Map();
-  const visit = (node, key) => {
-    if (typeof node === 'string') {
-      if (node.trim() === '') problems.push(`${key}: empty text`);
-      leaves.set(key, node);
-    } else if (node !== null && typeof node === 'object' && !Array.isArray(node)) {
-      const entries = Object.entries(node);
-      if (entries.length === 0 && key !== '') problems.push(`${key}: empty group`);
-      for (const [child, childValue] of entries) visit(childValue, key === '' ? child : key + KEY_SEPARATOR + child);
-    } else {
-      problems.push(`${key || '(root)'}: expected text or a group, found ${Array.isArray(node) ? 'an array' : typeof node}`);
-    }
-  };
-  visit(value, prefix);
-  return leaves;
-}
-
-/**
- * Compares the key sets of every language. `languages` is `[{ language, keys: Set<string> }]`.
- * Returns one problem line per key missing from a language, sorted.
- */
-export function compareKeySets(languages) {
-  const union = new Set(languages.flatMap(({ keys }) => [...keys]));
-  const problems = [];
-  for (const { language, keys } of languages) {
-    for (const key of [...union].sort()) {
-      if (!keys.has(key)) problems.push(`${language}: missing key ${key}`);
-    }
-  }
-  return problems;
-}
-
-/** Reads every `*.json` in `dir` and returns `{ problems: string[], languages: string[] }`. */
-export function checkI18nParity(dir) {
-  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
-    return { problems: [`translation folder not found: ${dir}`], languages: [] };
-  }
-  const files = fs.readdirSync(dir).filter((name) => name.endsWith(JSON_EXTENSION)).sort();
-  const problems = [];
-  const languages = [];
-  for (const file of files) {
-    const language = file.slice(0, -JSON_EXTENSION.length);
-    let document;
-    try {
-      document = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-    } catch (error) {
-      problems.push(`${file}: not valid JSON (${error.message})`);
-      continue;
-    }
-    const fileProblems = [];
-    const keys = new Set(flattenTranslations(document, fileProblems).keys());
-    problems.push(...fileProblems.map((problem) => `${language}: ${problem}`));
-    languages.push({ language, keys });
-  }
-  const present = new Set(languages.map(({ language }) => language));
-  for (const required of REQUIRED_LANGUAGES) {
-    if (!present.has(required) && !files.includes(required + JSON_EXTENSION)) problems.push(`${required}: ${required}${JSON_EXTENSION} is missing`);
-  }
-  problems.push(...compareKeySets(languages));
-  return { problems, languages: languages.map(({ language }) => language) };
-}
-
-/** Parses argv; returns `{ dir }` or `{ error }`. */
+/** Parses argv; returns `{ dir, src }` (absolute) or `{ error }`. */
 export function parseArguments(argv, appDir = APP_DIR) {
-  if (argv.length === 0) return { dir: path.resolve(appDir, DEFAULT_I18N_DIR) };
-  if (argv.length === 2 && argv[0] === DIR_FLAG) return { dir: path.resolve(appDir, argv[1]) };
-  return { error: `Usage: node tools/i18n-parity.mjs [${DIR_FLAG} <folder>]` };
+  const options = { dir: DEFAULT_I18N_DIR, src: DEFAULT_SOURCE_DIR };
+  if (argv.length % PAIR !== 0) return { error: USAGE };
+  for (let index = 0; index < argv.length; index += PAIR) {
+    const flag = Object.entries(Flags).find(([, name]) => name === argv[index]);
+    if (flag === undefined) return { error: USAGE };
+    options[flag[0]] = argv[index + 1];
+  }
+  return { dir: path.resolve(appDir, options.dir), src: path.resolve(appDir, options.src) };
+}
+
+/** The `codelab-ng-tools i18n-check` arguments for the parsed options. */
+export function checkArguments({ dir, src }) {
+  return ['--dir', dir, '--src', src, ...LATIN_ALLOWED_KEYS.flatMap((key) => ['--allow-latin', key])];
 }
 
 /** Runs the check; returns the exit code. */
@@ -104,15 +52,9 @@ export function run(argv, { appDir = APP_DIR, log = console.log, error = console
     error(options.error);
     return ExitCodes.usage;
   }
-  const { problems, languages } = checkI18nParity(options.dir);
-  if (problems.length > 0) {
-    error(`i18n parity failed (${problems.length}):\n${problems.map((problem) => `  ${problem}`).join('\n')}`);
-    return ExitCodes.failure;
-  }
-  log(`i18n parity ok: ${languages.join(', ')}`);
-  return ExitCodes.ok;
+  return runI18nCheck(checkArguments(options), { log, error });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  process.exitCode = run(process.argv.slice(2));
+  process.exitCode = run(process.argv.slice(ARGUMENTS_START));
 }

@@ -1,0 +1,30 @@
+<app-portal-content-pattern [sections]="sections()">
+  <dga-portal-page-header
+    portalHeader
+    [title]="document().titleKey | t"
+    [subtitle]="document().subtitleKey | t"
+    [breadcrumbs]="breadcrumbs()"
+    [breadcrumbLabel]="common.BreadcrumbLabel | t"
+  />
+
+  @for (section of document().sections; track section.id) {
+    <section class="legal__section" [portalSection]="section.id" [attr.aria-labelledby]="'legal-' + section.id">
+      <h2 class="legal__heading" [id]="'legal-' + section.id">{{ section.titleKey | t }}</h2>
+      @for (paragraph of section.paragraphKeys; track paragraph) {
+        <p class="legal__paragraph">{{ paragraph | t }}</p>
+      }
+      @if (section.itemKeys?.length) {
+        <ul class="legal__list">
+          @for (item of section.itemKeys; track item) {
+            <li>{{ item | t }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  <p portalLastUpdated class="legal__contact">
+    {{ common.LegalQuestions | t }}
+    <a class="legal__contact-link" [routerLink]="contactLink">{{ common.LegalContactLink | t }}</a>
+  </p>
+</app-portal-content-pattern>

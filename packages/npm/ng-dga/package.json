@@ -33,11 +33,18 @@
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/compile-specs.mjs && vitest run",
+    "test": "node scripts/compile-specs.mjs && vitest run && node scripts/generate-catalog.mjs --check && node scripts/generate-tokens-doc.mjs --check && npm run lint",
+    "lint": "npm run lint:rtl && npm run lint:styles",
+    "lint:rtl": "codelab-ng-tools rtl-lint src --icons assets/icons/codelab-icons.json",
+    "lint:styles": "stylelint \"src/**/*.{css,scss}\" \"styles/**/*.scss\"",
     "icons:generate": "node scripts/generate-icon-font.mjs",
     "icons:check": "node scripts/generate-icon-font.mjs --check",
     "assets:import": "node scripts/import-assets.mjs",
-    "assets:check": "node scripts/import-assets.mjs --check"
+    "assets:check": "node scripts/import-assets.mjs --check",
+    "catalog:generate": "node scripts/generate-catalog.mjs",
+    "catalog:check": "node scripts/generate-catalog.mjs --check",
+    "tokens:generate": "node scripts/generate-tokens-doc.mjs",
+    "tokens:check": "node scripts/generate-tokens-doc.mjs --check"
   },
   "peerDependencies": {
     "@angular/common": "^22.2.0",

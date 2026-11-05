@@ -1,0 +1,47 @@
+<section class="status-tracker" [attr.aria-labelledby]="titleId">
+  <div class="status-tracker__title" role="heading" [attr.aria-level]="headingLevel()" [id]="titleId">{{ titleKey() | t }}</div>
+
+  @if (currentEntry(); as entry) {
+    <div class="status-tracker__current">
+      <span class="status-tracker__current-label">{{ keys.CurrentStatus | t }}</span>
+      <dga-status-tag [tone]="toneFor()(entry.statusKey)">{{ entry.statusKey | t }}</dga-status-tag>
+      <time class="status-tracker__since" [attr.datetime]="entry.at">{{ keys.Since | t: { date: formatAt(entry) } }}</time>
+      @if (entry.reasonText; as reason) {
+        <p class="status-tracker__current-reason">
+          <span class="status-tracker__field-label">{{ keys.Reason | t }}</span>
+          <span>{{ reason }}</span>
+        </p>
+      }
+    </div>
+  }
+
+  <div class="status-tracker__history-title" role="heading" [attr.aria-level]="subHeadingLevel()">{{ keys.History | t }}</div>
+  @if (timeline().length === 0) {
+    <p class="status-tracker__empty">{{ keys.Empty | t }}</p>
+  } @else {
+    <ol class="status-tracker__timeline">
+      @for (entry of timeline(); track $index) {
+        <li
+          class="status-tracker__entry"
+          [attr.data-current]="entry === currentEntry() ? '' : null"
+          [attr.aria-current]="entry === currentEntry() ? 'true' : null"
+        >
+          <span class="status-tracker__marker" aria-hidden="true"></span>
+          <div class="status-tracker__entry-body">
+            <p class="status-tracker__status">{{ entry.statusKey | t }}</p>
+            <time class="status-tracker__at" [attr.datetime]="entry.at">{{ formatAt(entry) }}</time>
+            @if (entry.actorLabel; as actor) {
+              <p class="status-tracker__actor">{{ keys.By | t: { actor: actor } }}</p>
+            }
+            @if (entry.reasonText; as reason) {
+              <p class="status-tracker__reason">
+                <span class="status-tracker__field-label">{{ keys.Reason | t }}</span>
+                <span>{{ reason }}</span>
+              </p>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</section>

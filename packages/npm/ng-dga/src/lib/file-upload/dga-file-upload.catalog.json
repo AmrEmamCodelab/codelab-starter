@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-file-upload",
+  "className": "DgaFileUploadComponent",
+  "category": "form",
+  "summary": "A presentational file upload: drop zone and browse button with client-side checks (type, size, empty, count), and the list of files the caller is uploading with progress and remove. It sends nothing; an app adapter does the HTTP.",
+  "inputs": [
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Visible label of the control (translated)." },
+    { "name": "ariaLabelledBy", "type": "string | null", "required": false, "default": "null", "description": "Id of the caller's own label element, used when there is no label." },
+    { "name": "hint", "type": "string | null", "required": false, "default": "null", "description": "Help text under the label (translated); describes the control." },
+    { "name": "dropLabel", "type": "string | null", "required": false, "default": "null", "description": "The prompt inside the drop zone (translated)." },
+    { "name": "browseLabel", "type": "string", "required": true, "description": "The browse button's label (translated)." },
+    { "name": "accept", "type": "string", "required": false, "default": "''", "description": "Extensions, media types and type/* wildcards, comma-separated; empty accepts any type." },
+    { "name": "maxSizeBytes", "type": "number | null", "required": false, "default": "null", "description": "The largest file in bytes; null for no limit." },
+    { "name": "maxFiles", "type": "number", "required": false, "default": "1", "description": "How many files the control holds at most, counting items; more than one allows multi-select." },
+    { "name": "disabled", "type": "boolean", "required": false, "default": "false", "description": "Disables browsing, dropping and removing." },
+    { "name": "error", "type": "string | null", "required": false, "default": "null", "description": "The current problem (translated), shown as an alert and describing the control." },
+    { "name": "items", "type": "readonly DgaFileUploadItem[] ({ id, name, status: 'pending' | 'uploading' | 'uploaded' | 'failed', progress?, detail?, errorText? })", "required": false, "default": "[]", "description": "The files the caller holds, with their upload status and progress (percent, or null for indeterminate)." },
+    { "name": "removeLabel", "type": "string | null", "required": false, "default": "null", "description": "The remove button's accessible name as a template with {name} (translated); without it rows have no remove button." }
+  ],
+  "outputs": [
+    { "name": "filesSelected", "type": "DgaFileSelection ({ accepted: File[], rejected: { file, reason: 'type' | 'size' | 'empty' | 'count' }[] })", "description": "Every pick or drop, split by the client-side checks; an empty selection when the dialog was left empty." },
+    { "name": "removed", "type": "string", "description": "The id of the row whose remove button was pressed." }
+  ],
+  "slots": [
+    { "selector": "default", "description": "Extra content inside the drop zone, such as the chosen file's name." }
+  ],
+  "a11y": "A role=group named by the label (or ariaLabelledBy) and described by the hint and error. The native file input is hidden from assistive technology and the tab order; the native browse button opens it, so the control is fully keyboard-operable without drag and drop. File names are dir=ltr isolated; progress bars are labelled by their file name; each remove button is named for its file. Logical CSS mirrors in RTL.",
+  "since": "1.0.0"
+}

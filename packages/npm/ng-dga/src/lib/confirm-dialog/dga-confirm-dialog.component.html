@@ -1,0 +1,29 @@
+<dialog
+  #dialog
+  class="dga-confirm-dialog"
+  role="alertdialog"
+  aria-modal="true"
+  [attr.data-variant]="variant()"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="hasMessage() ? messageId : null"
+  [attr.aria-busy]="busy() ? 'true' : null"
+  (keydown)="onKeydown($event)"
+  (cancel)="onNativeCancel($event)"
+>
+  <div class="dga-confirm-dialog__head">
+    <span class="dga-confirm-dialog__icon"><dga-icon [name]="icon()" size="md" /></span>
+    <h2 class="dga-confirm-dialog__title" [id]="titleId">{{ title() }}</h2>
+  </div>
+  @if (hasMessage()) {
+    <p class="dga-confirm-dialog__message" [id]="messageId">{{ message() }}</p>
+  }
+  <div class="dga-confirm-dialog__body"><ng-content /></div>
+  <div class="dga-confirm-dialog__actions">
+    <dga-button #cancelButton class="dga-confirm-dialog__cancel" variant="secondary-outline" size="md" [disabled]="busy()" (click)="cancel()">
+      {{ cancelLabel() }}
+    </dga-button>
+    <dga-button #confirmButton class="dga-confirm-dialog__confirm" variant="primary" size="md" [destructive]="isDanger()" [loading]="busy()" (click)="confirm()">
+      {{ confirmLabel() }}
+    </dga-button>
+  </div>
+</dialog>

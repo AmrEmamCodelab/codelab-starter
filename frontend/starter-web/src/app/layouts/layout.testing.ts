@@ -1,10 +1,13 @@
 ﻿import { signal, type Provider, type WritableSignal } from '@angular/core';
+import type { Routes } from '@angular/router';
 import { vi, type Mock } from 'vitest';
 import type { SessionUser } from '../core/api/clients/api.models';
 import { AuthService } from '../core/auth/auth.service';
-import { AppLanguages, type AppLanguage } from '../core/i18n/language';
+import { AppLanguages, TextDirections, type AppLanguage, type TextDirection } from '../core/i18n/language';
 import { LanguageService } from '../core/i18n/language.service';
 import { TranslationService } from '../core/i18n/translation.service';
+import { APP_CLOCK } from '../core/session/clock';
+import type { NotificationItem } from './notifications-menu/notifications';
 
 /**
  * Test doubles shared by the layout and feature specs (spec-only; nothing in the app imports this file).
@@ -57,3 +60,37 @@ export function layoutTestProviders(auth: FakeAuth, language: FakeLanguage = fak
     { provide: TranslationService, useValue: { translate: echoTranslate } },
   ];
 }
+
+/** 2026-11-05T09:30:00Z: a fixed "now" for the footer year and anything else that reads the clock. */
+export const TEST_NOW = Date.UTC(2026, 10, 5, 9, 30);
+
+/** Pins `APP_CLOCK` to `now`. */
+export function fixedClock(now: number = TEST_NOW): Provider {
+  return { provide: APP_CLOCK, useValue: () => now };
+}
+
+/** A notification with sensible defaults; override any field. */
+export function aNotification(overrides: Partial<NotificationItem> = {}): NotificationItem {
+  return {
+    id: 'notification-1',
+    titleText: 'Title',
+    bodyText: 'Body',
+    at: '2026-11-05T09:30:00Z',
+    read: false,
+    ...overrides,
+  };
+}
+
+/** Both document directions, for specs that run once in RTL (Arabic, the default) and once in LTR. */
+export const BOTH_DIRECTIONS: readonly TextDirection[] = [TextDirections.RightToLeft, TextDirections.LeftToRight];
+
+/** Sets `<html dir>` as `LanguageService` would; returns a function that restores the previous value. */
+export function useDirection(direction: TextDirection): () => void {
+  const root = document.documentElement;
+  const previous = root.getAttribute('dir');
+  root.setAttribute('dir', direction);
+  return () => (previous === null ? root.removeAttribute('dir') : root.setAttribute('dir', previous));
+}
+
+/** A route table that accepts every URL, so a spec can follow a link without a "no route" rejection. */
+export const ANY_URL_ROUTES: Routes = [{ path: '**', children: [] }];

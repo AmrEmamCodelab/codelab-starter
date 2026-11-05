@@ -1,0 +1,16 @@
+@if (visible()) {
+  <div class="dga-alert" [attr.role]="role()" [attr.data-variant]="variant()" [attr.aria-labelledby]="hasTitle() ? titleId : null">
+    @if (icon(); as name) {
+      <dga-icon class="dga-alert__icon" [name]="name" size="md" />
+    }
+    <div class="dga-alert__content">
+      @if (hasTitle()) {
+        <p class="dga-alert__title" [id]="titleId">{{ title() }}</p>
+      }
+      <div class="dga-alert__body"><ng-content /></div>
+    </div>
+    @if (dismissible()) {
+      <dga-button class="dga-alert__dismiss" variant="transparent" size="sm" iconOnly leadIcon="close" [label]="dismissLabel()" (click)="dismiss()" />
+    }
+  </div>
+}

@@ -1,0 +1,116 @@
+/* Tokens only, logical CSS only. The dialog is a native modal <dialog>; the browser centres it in the top layer. */
+:host {
+  display: contents;
+}
+
+.dga-error-dialog {
+  inline-size: min(30rem, calc(100% - 2 * var(--dga-space-4)));
+  max-block-size: calc(100% - 2 * var(--dga-space-8));
+  padding-block: var(--dga-space-6);
+  padding-inline: var(--dga-space-6);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-lg);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-color-surface-default);
+  box-shadow: var(--dga-shadow-lg);
+}
+
+.dga-error-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.dga-error-dialog::backdrop {
+  background-color: var(--dga-color-surface-inverse);
+  opacity: var(--dga-opacity-disabled);
+}
+
+.dga-error-dialog__head {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.dga-error-dialog__icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--dga-size-control-md);
+  block-size: var(--dga-size-control-md);
+  border-radius: var(--dga-radius-full);
+  color: var(--dga-color-error-solid);
+  background-color: var(--dga-color-error-surface);
+}
+
+.dga-error-dialog__title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-lg);
+}
+
+.dga-error-dialog__message {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-md);
+  line-height: var(--dga-line-height-md);
+}
+
+.dga-error-dialog__reference {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+  padding-block: var(--dga-space-3);
+  padding-inline: var(--dga-space-4);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-muted);
+}
+
+.dga-error-dialog__reference-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+}
+
+.dga-error-dialog__reference-label {
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+/* The code is ASCII: dir="ltr" keeps it from being reordered inside an Arabic paragraph; it wraps rather than overflows. */
+.dga-error-dialog__reference-code {
+  color: var(--dga-color-text-default);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-lg);
+  text-align: start;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.dga-error-dialog__copy {
+  flex: none;
+  margin-inline-start: auto;
+}
+
+.dga-error-dialog__status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.dga-error-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+}

@@ -1,0 +1,84 @@
+// Shared by the pattern showcase pages: the small controls and notes around a pattern demo.
+:host {
+  display: block;
+}
+
+.pattern-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-4);
+  margin-block-end: var(--dga-space-6);
+  padding: var(--dga-space-4);
+  border: var(--dga-border-width-thin) dashed var(--dga-color-border-strong);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+}
+
+.pattern-note {
+  margin-block: var(--dga-space-4) 0;
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.pattern-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--dga-space-4);
+}
+
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pattern-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--dga-space-2);
+  padding-block: var(--dga-space-2);
+  border-block-end: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+}
+
+.pattern-text {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.pattern-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-3);
+}
+
+.portal-demo-section {
+  margin-block-end: var(--dga-space-6);
+
+  h2,
+  h3 {
+    margin-block: 0 var(--dga-space-2);
+    color: var(--dga-color-text-display);
+  }
+
+  h2 {
+    font-size: var(--dga-font-size-2xl);
+    line-height: var(--dga-line-height-2xl);
+  }
+
+  h3 {
+    margin-block-start: var(--dga-space-4);
+    font-size: var(--dga-font-size-lg);
+    line-height: var(--dga-line-height-lg);
+  }
+}

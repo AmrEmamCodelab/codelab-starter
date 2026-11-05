@@ -47,14 +47,20 @@
   gap: var(--dga-space-2);
 }
 
+// Each step picks its --dga-space-<step> token through --dga-layout-gap, so the gap declaration itself stays a plain
+// var() token that the Stylelint preset (design tokens only) can check.
 @each $step in tokens.$dga-spacing-steps {
   .dga-stack-#{$step} {
+    --dga-layout-gap: var(--dga-space-#{$step});
+
     display: flex;
     flex-direction: column;
-    gap: var(--dga-space-#{$step});
+    gap: var(--dga-layout-gap);
   }
 
   .dga-gap-#{$step} {
-    gap: var(--dga-space-#{$step});
+    --dga-layout-gap: var(--dga-space-#{$step});
+
+    gap: var(--dga-layout-gap);
   }
 }

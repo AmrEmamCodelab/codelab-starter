@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.branding-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--dga-space-4);
+  inline-size: 100%;
+}
+
+.branding-logo {
+  block-size: var(--dga-size-logo);
+  inline-size: auto;
+}
+
+.branding-text {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.branding-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.branding-samples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-6);
+  inline-size: 100%;
+}
+
+.branding-link {
+  color: var(--dga-color-text-link);
+
+  &:hover {
+    color: var(--dga-color-text-link-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-focus-halo-width);
+  }
+}

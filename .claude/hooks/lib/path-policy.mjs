@@ -10,11 +10,15 @@ import {
   GeneratedMarkerScanChars,
   HookRuleIds,
   ModuleRulesExemptionsKey,
+  ModuleRootKinds,
   ModuleScaffoldFiles,
   NewModuleSkill,
+  NewScreenSkill,
   NullDevices,
   PlatformOwnedGlobs,
   PlatformOwnerEnabledValue,
+  ReferenceFeatureArea,
+  RepoPaths,
   StopGateTimeouts,
 } from './constants.mjs';
 
@@ -104,9 +108,20 @@ function isScaffoldFile(relativePath) {
   return fileName === ModuleScaffoldFiles.Rules || fileName === ModuleScaffoldFiles.Docs;
 }
 
+/** The Fix of a module-without-rules refusal: a frontend feature area follows new-screen, a backend module new-module. */
+function moduleWithoutRulesFix(module) {
+  if (module.root.kind === ModuleRootKinds.Frontend) {
+    return `Fix: start the feature area as step 2 of the \`${NewScreenSkill}\` skill (/${NewScreenSkill}) says: shape it `
+      + `like ${ReferenceFeatureArea} by writing ${ModuleScaffoldFiles.Rules} and ${ModuleScaffoldFiles.Docs} first, `
+      + `then run \`node ${RepoPaths.RulesCompiler}\` to generate its ${ModuleScaffoldFiles.Agent}.`;
+  }
+  return `Fix: create the module with the \`${NewModuleSkill}\` skill (/${NewModuleSkill}), which writes `
+    + `${ModuleScaffoldFiles.Rules}, ${ModuleScaffoldFiles.Docs} and the generated ${ModuleScaffoldFiles.Agent}.`;
+}
+
 /**
- * Refuses files in a module folder that has no module.rules.yaml (typically a NEW module), except the
- * module.rules.yaml and MODULE.md scaffold files themselves.
+ * Refuses files in a module folder or frontend feature area that has no module.rules.yaml (typically a NEW
+ * one), except the module.rules.yaml and MODULE.md scaffold files themselves.
  */
 export function checkModuleHasRules({ relativePath, module, projectRoot }) {
   if (!module?.root || isScaffoldFile(relativePath)) return null;
@@ -115,8 +130,7 @@ export function checkModuleHasRules({ relativePath, module, projectRoot }) {
   return refusal(
     HookRuleIds.ModuleWithoutRules,
     `${module.folder} has no ${ModuleScaffoldFiles.Rules}. Every module needs its rules before its code. `
-      + `Fix: create the module with the \`${NewModuleSkill}\` skill (/${NewModuleSkill}), which writes `
-      + `${ModuleScaffoldFiles.Rules}, ${ModuleScaffoldFiles.Docs} and the generated ${ModuleScaffoldFiles.Agent}.`,
+      + moduleWithoutRulesFix(module),
   );
 }
 

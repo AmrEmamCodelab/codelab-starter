@@ -1,0 +1,53 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [states]="states" [(state)]="state" />
+
+  @if (decided(); as decisionKey) {
+    <dga-alert class="pattern-note" [variant]="AlertVariant.Success">
+      {{ keys.Patterns.DecisionDone | t: { decision: (decisionKey | t) } }}
+    </dga-alert>
+  }
+
+  <app-staff-detail-pattern
+    [titleKey]="keys.Patterns.DetailTitle"
+    [titleParams]="titleParams"
+    [actions]="actions()"
+    [loading]="loading()"
+    [error]="error()"
+    (decide)="onDecide($event)"
+    (retry)="retry()"
+  >
+    <a detailBack [routerLink]="queueLink">
+      <dga-icon name="arrow-start" />
+      {{ keys.Patterns.Back | t }}
+    </a>
+    <dga-status-tag detailStatus tone="progress">{{ keys.Demo.StatusReview | t }}</dga-status-tag>
+
+    <div class="pattern-grid">
+      <dga-card icon="user" [heading]="keys.Patterns.Applicant | t" [headingLevel]="3">
+        <div class="pattern-stack">
+          <dga-info-field align="start" [label]="keys.Demo.FieldName | t">{{ keys.Patterns.ApplicantOne | t }}</dga-info-field>
+          <dga-info-field align="start" valueDir="ltr" [label]="keys.Demo.InfoPhone | t">{{ phone }}</dga-info-field>
+        </div>
+      </dga-card>
+      <dga-card icon="file" [heading]="keys.Patterns.RequestDetails | t" [headingLevel]="3">
+        <div class="pattern-stack">
+          <dga-info-field align="start" valueDir="ltr" [label]="keys.Demo.InfoNumber | t">{{ recordNumber }}</dga-info-field>
+          <dga-info-field align="start" [label]="keys.Patterns.ServiceType | t">{{ keys.Patterns.ServicePermit | t }}</dga-info-field>
+        </div>
+      </dga-card>
+    </div>
+
+    <app-status-tracker detailHistory [entries]="history()" [toneFor]="toneFor" [headingLevel]="HeadingLevel.Section" />
+  </app-staff-detail-pattern>
+
+  <app-decision-dialog
+    [open]="pending() !== null"
+    [titleKey]="pending()?.labelKey ?? keys.Patterns.Return"
+    [confirmKey]="pending()?.labelKey ?? keys.Patterns.Return"
+    [messageKey]="keys.Patterns.DecisionMessage"
+    [destructive]="pending()?.tone === Tone.Destructive"
+    [(reason)]="reason"
+    (confirm)="onConfirm()"
+    (cancel)="onCancel()"
+  />
+</app-showcase-frame>

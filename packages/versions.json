@@ -7,6 +7,6 @@
   "Codelab.Integration": "0.1.0",
   "Codelab.Identity": "0.5.0",
   "@codelab/ng-security": "0.5.1",
-  "@codelab/ng-tools": "0.2.0",
-  "@codelab/ng-dga": "0.1.0"
+  "@codelab/ng-tools": "0.5.0",
+  "@codelab/ng-dga": "1.0.0"
 }

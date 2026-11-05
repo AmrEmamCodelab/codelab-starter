@@ -1,0 +1,43 @@
+// Shared by the layouts showcase pages: the frame drawn around a layout part or a whole shell.
+:host {
+  display: block;
+}
+
+.layout-frame {
+  // Positioned, so a framed shell's off-screen skip link hides above the frame (clipped) instead of the page top.
+  position: relative;
+  inline-size: 100%;
+  overflow: hidden;
+  border: var(--dga-border-width-thick) solid var(--dga-color-border-strong);
+  border-radius: var(--dga-radius-lg);
+  background-color: var(--dga-color-surface-page);
+}
+
+.layout-bar {
+  display: flex;
+  justify-content: flex-end;
+  inline-size: 100%;
+  min-block-size: 24rem;
+  padding: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+}
+
+.layout-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    color: var(--dga-color-text-link);
+  }
+
+  a:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-focus-halo-width);
+  }
+}

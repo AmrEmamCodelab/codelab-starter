@@ -1,0 +1,74 @@
+/* Tokens only, logical CSS only. Each kind sets the three tone properties; the layout reads only those. */
+:host {
+  display: block;
+}
+
+.dga-page-feedback {
+  --dga-page-feedback-surface: var(--dga-color-info-surface);
+  --dga-page-feedback-border: var(--dga-color-info-border);
+  --dga-page-feedback-accent: var(--dga-color-info-solid);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--dga-space-3);
+  padding-block: var(--dga-space-4);
+  padding-inline: var(--dga-space-5);
+  border: var(--dga-border-width-thin) solid var(--dga-page-feedback-border);
+  border-block-start-width: var(--dga-border-width-heavy);
+  border-block-start-color: var(--dga-page-feedback-accent);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-page-feedback-surface);
+}
+
+.dga-page-feedback:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-halo-width);
+}
+
+.dga-page-feedback[data-kind='success'] {
+  --dga-page-feedback-surface: var(--dga-color-success-surface);
+  --dga-page-feedback-border: var(--dga-color-success-border);
+  --dga-page-feedback-accent: var(--dga-color-success-solid);
+}
+
+.dga-page-feedback[data-kind='error'] {
+  --dga-page-feedback-surface: var(--dga-color-error-surface);
+  --dga-page-feedback-border: var(--dga-color-error-border);
+  --dga-page-feedback-accent: var(--dga-color-error-solid);
+}
+
+.dga-page-feedback__icon {
+  flex: none;
+  margin-block-start: var(--dga-space-half);
+  color: var(--dga-page-feedback-accent);
+}
+
+.dga-page-feedback__content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+}
+
+.dga-page-feedback__title,
+.dga-page-feedback__message {
+  margin: 0;
+  font-size: var(--dga-font-size-md);
+  line-height: var(--dga-line-height-md);
+}
+
+.dga-page-feedback__title {
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.dga-page-feedback__message {
+  color: var(--dga-color-text-paragraph);
+}
+
+.dga-page-feedback__dismiss {
+  flex: none;
+  margin-block: calc(-1 * var(--dga-space-1));
+  margin-inline-end: calc(-1 * var(--dga-space-2));
+}

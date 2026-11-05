@@ -65,6 +65,35 @@ describe('validateIconManifest', () => {
   });
 });
 
+/** The icon names other components and the app rely on (the phase 4 contract); a release never drops one. */
+const CONTRACT_ICONS = [
+  'menu', 'close', 'check', 'plus', 'minus', 'search', 'calendar', 'upload', 'file', 'trash', 'bell', 'info', 'warning',
+  'success', 'error', 'question', 'home', 'phone', 'email', 'location', 'filter', 'more-vertical', 'clock', 'eye',
+  'download', 'external-link', 'user', 'logout', 'language', 'chevron-start', 'chevron-end', 'chevron-up',
+  'chevron-down', 'arrow-start', 'arrow-end', 'pause', 'play', 'shield-check',
+];
+/** Glyphs that point along the reading direction and so mirror in RTL. */
+const CONTRACT_MIRRORED = ['logout', 'chevron-start', 'chevron-end', 'arrow-start', 'arrow-end', 'external-link'];
+
+describe('the icon contract', () => {
+  const manifest = readJson(ICON_MANIFEST_FILE);
+  const names = manifest.icons.map((icon) => icon.name);
+
+  it('lists every contract icon', () => {
+    expect(CONTRACT_ICONS.filter((name) => !names.includes(name))).toEqual([]);
+  });
+
+  it('mirrors exactly the reading-direction glyphs', () => {
+    const mirrored = manifest.icons.filter((icon) => icon.mirrorInRtl).map((icon) => icon.name);
+    expect(mirrored.sort()).toEqual([...CONTRACT_MIRRORED].sort());
+  });
+
+  it('assigns code points in order from U+E001, without gaps', () => {
+    const points = manifest.icons.map((icon) => Number.parseInt(icon.codepoint, 16));
+    points.forEach((point, index) => expect(point).toBe(PRIVATE_USE_FIRST + 1 + index));
+  });
+});
+
 describe('generated icon modules', () => {
   const manifest = readJson(ICON_MANIFEST_FILE);
 

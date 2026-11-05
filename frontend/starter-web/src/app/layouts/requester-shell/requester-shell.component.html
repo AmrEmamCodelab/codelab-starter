@@ -1,0 +1,32 @@
+<div class="frame">
+  <dga-stamp-strip [text]="keys.StampText | t" [verifyLabel]="keys.StampVerify | t">
+    <p>{{ keys.StampDomain | t }}</p>
+    <p>{{ keys.StampSecure | t }}</p>
+  </dga-stamp-strip>
+
+  <dga-header
+    [brandName]="brand.name()"
+    [logoSrc]="brand.logoSrc"
+    [homeLink]="homeLink"
+    [navItems]="navItems()"
+    [navLabel]="keys.NavLabel | t"
+    [menuLabel]="keys.MenuLabel | t"
+  >
+    <a dgaHeaderStart class="frame__skip" [routerLink]="[]" [fragment]="mainId" (click)="focusMain()">{{ keys.SkipLink | t }}</a>
+    <div dgaHeaderActions class="frame__actions">
+      <app-notifications-menu
+        [items]="notifications.items()"
+        [viewAllLink]="notificationsLink"
+        (markRead)="markRead($event)"
+      />
+      <app-language-switcher />
+      <app-user-profile-menu />
+    </div>
+  </dga-header>
+
+  <main #main class="frame__content" [id]="mainId" tabindex="-1">
+    <router-outlet />
+  </main>
+
+  <app-footer />
+</div>

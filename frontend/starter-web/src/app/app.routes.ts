@@ -5,7 +5,9 @@ import { permissionGuard } from './core/auth/permission.guard';
 import { PermissionKeys, type PermissionKey } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
+import { PORTAL_ROUTES } from './features/portal/portal.routes';
 import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
+import { SHOWCASE_ROUTES } from './showcase/showcase.routes';
 
 /** The empty path the staff shell hangs on: its children carry the real paths from {@link RoutePaths}. */
 export const SHELL_PATH = '';
@@ -47,6 +49,17 @@ export const SHELL_ROUTE: Route = {
 };
 
 /**
+ * The public portal frame (no session): the portal shell around the public pages, each one public. `children` is
+ * eager on purpose: only the small routes file is imported; every page is lazy. The route gate checks its children as
+ * top-level pages (`PUBLIC_LAYOUT_ROUTES` in `public-routes.ts`).
+ */
+export const PORTAL_ROUTE: Route = {
+  path: RoutePaths.Portal,
+  loadComponent: () => import('./layouts/portal-shell/portal-shell.component').then(m => m.PortalShellComponent),
+  children: PORTAL_ROUTES,
+};
+
+/**
  * Every route of the app. Pages are lazy; each page inside the shell is gated by a typed permission key
  * (`permissionGuard()` reads it from route data and fails closed). The login, 403 and 404 pages stand
  * outside the shell so they render without a session.
@@ -70,6 +83,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/errors/unauthorized/unauthorized-page.component').then(m => m.UnauthorizedPageComponent),
   },
+  PORTAL_ROUTE,
+  ...SHOWCASE_ROUTES,
   SHELL_ROUTE,
   {
     path: NOT_FOUND_PATH,

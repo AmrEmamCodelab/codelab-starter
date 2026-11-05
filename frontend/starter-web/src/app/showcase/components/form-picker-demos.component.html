@@ -1,0 +1,133 @@
+<app-showcase-section anchor="dga-date-input">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-date-input
+      name="showcase-visit-date"
+      [label]="keys.Demo.VisitDate | t"
+      [hint]="keys.Demo.VisitDateHint | t"
+      [today]="today"
+      notBeforeToday
+      [(value)]="visitDate"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-date-input
+      name="showcase-birth-date"
+      required
+      notAfterToday
+      [today]="today"
+      [label]="keys.Demo.BirthDate | t"
+      [error]="keys.Demo.DateError | t"
+      [(value)]="birthDate"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-date-input disabled name="showcase-date-disabled" [label]="keys.Demo.VisitDate | t" [value]="today" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-hijri-date-input">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-hijri-date-input
+      name="showcase-hijri"
+      [locale]="language()"
+      [today]="today"
+      [label]="keys.Demo.HijriDate | t"
+      [dayLabel]="keys.Demo.Day | t"
+      [monthLabel]="keys.Demo.Month | t"
+      [yearLabel]="keys.Demo.Year | t"
+      [(value)]="hijriDate"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-hijri-date-input
+      name="showcase-hijri-disabled"
+      disabled
+      [locale]="language()"
+      [label]="keys.Demo.HijriDate | t"
+      [dayLabel]="keys.Demo.Day | t"
+      [monthLabel]="keys.Demo.Month | t"
+      [yearLabel]="keys.Demo.Year | t"
+      [value]="hijriDate()"
+    />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-unit-input">
+  <app-showcase-demo stack [labelKey]="keys.States.Default">
+    <dga-unit-input
+      name="showcase-weight"
+      [unit]="keys.Demo.UnitKilogram | t"
+      [label]="keys.Demo.Weight | t"
+      [min]="weightMin"
+      [max]="weightMax"
+      [(value)]="weight"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Error">
+    <dga-unit-input
+      name="showcase-weight-error"
+      required
+      [unit]="keys.Demo.UnitKilogram | t"
+      [label]="keys.Demo.Weight | t"
+      [error]="keys.Demo.WeightError | t"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo stack [labelKey]="keys.States.Disabled">
+    <dga-unit-input disabled name="showcase-weight-disabled" [unit]="keys.Demo.UnitKilogram | t" [label]="keys.Demo.Weight | t" [value]="weight()" />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-geo-select">
+  <app-showcase-demo wide stack [labelKey]="keys.States.Default">
+    <dga-geo-select
+      [dataSource]="geoData"
+      [language]="language()"
+      [depth]="GeoDepth.District"
+      [label]="keys.Demo.Address | t"
+      [regionLabel]="keys.Demo.Region | t"
+      [cityLabel]="keys.Demo.City | t"
+      [districtLabel]="keys.Demo.District | t"
+      [placeholder]="keys.Demo.Choose | t"
+      [loadErrorText]="keys.Demo.LoadError | t"
+      [(value)]="place"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo wide stack [labelKey]="keys.States.Disabled">
+    <dga-geo-select
+      disabled
+      [dataSource]="geoData"
+      [language]="language()"
+      [depth]="GeoDepth.City"
+      [label]="keys.Demo.Address | t"
+      [regionLabel]="keys.Demo.Region | t"
+      [cityLabel]="keys.Demo.City | t"
+      [placeholder]="keys.Demo.Choose | t"
+    />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-file-upload">
+  <app-showcase-demo wide stack [labelKey]="keys.States.Uploads">
+    <dga-file-upload
+      [label]="keys.Demo.UploadLabel | t"
+      [hint]="keys.Demo.UploadHint | t"
+      [dropLabel]="keys.Demo.UploadDrop | t"
+      [browseLabel]="keys.Demo.UploadBrowse | t"
+      [removeLabel]="keys.Demo.UploadRemove | t"
+      [accept]="accept"
+      [maxSizeBytes]="maxBytes"
+      [maxFiles]="maxFiles"
+      [items]="uploads()"
+      (filesSelected)="onFilesSelected($event)"
+      (removed)="onRemoved($event)"
+    />
+  </app-showcase-demo>
+  <app-showcase-demo wide stack [labelKey]="keys.States.Disabled">
+    <dga-file-upload
+      disabled
+      [label]="keys.Demo.UploadLabel | t"
+      [dropLabel]="keys.Demo.UploadDrop | t"
+      [browseLabel]="keys.Demo.UploadBrowse | t"
+    />
+  </app-showcase-demo>
+</app-showcase-section>

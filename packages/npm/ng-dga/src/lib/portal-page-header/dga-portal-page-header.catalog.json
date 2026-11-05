@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-portal-page-header",
+  "className": "DgaPortalPageHeaderComponent",
+  "category": "layout",
+  "summary": "The title band at the top of a public portal page: a dga-breadcrumb trail, the page h1 and an optional subtitle, with slots for an illustration and actions.",
+  "inputs": [
+    { "name": "title", "type": "string", "required": true, "description": "The page title (translated); rendered as the page's only h1." },
+    { "name": "subtitle", "type": "string | null", "required": false, "default": "null", "description": "One line under the title (translated)." },
+    { "name": "breadcrumbs", "type": "readonly DgaBreadcrumbItem[]", "required": false, "default": "[]", "description": "The trail above the title, current page last; empty shows no breadcrumb." },
+    { "name": "breadcrumbLabel", "type": "string", "required": false, "default": "''", "description": "Accessible name of the breadcrumb landmark (translated); give it whenever there are breadcrumbs." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "[illustration]", "description": "A decorative image or icon at the end side, shown from the md breakpoint up; mark it aria-hidden or give an empty alt." },
+    { "selector": "[actions]", "description": "Buttons or links under the title." }
+  ],
+  "a11y": "One h1 per page; the breadcrumb is a named nav landmark with aria-current=page on the current crumb (needs the Angular router). The illustration is decorative. Logical CSS mirrors in RTL.",
+  "since": "1.0.0"
+}

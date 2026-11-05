@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.footer {
+  padding-block: var(--dga-space-8);
+  padding-inline: var(--dga-space-6);
+  background-color: var(--dga-color-surface-inverse);
+  color: var(--dga-color-text-on-color);
+}
+
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dga-space-6);
+  max-inline-size: var(--dga-size-container);
+  margin-inline: auto;
+}
+
+.footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.footer__logo {
+  block-size: var(--dga-size-logo);
+  inline-size: auto;
+}
+
+.footer__name {
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer__link {
+  color: var(--dga-color-text-on-color);
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-text-on-color);
+    outline-offset: var(--dga-focus-halo-width);
+  }
+}
+
+.footer__rights {
+  flex-basis: 100%;
+  margin: 0;
+  padding-block-start: var(--dga-space-4);
+  border-block-start: var(--dga-border-width-thin) solid var(--dga-color-border-on-color);
+  // Set explicitly: the global paragraph colour (dark neutral) would otherwise win on the dark footer surface.
+  color: var(--dga-color-text-on-color);
+  font-size: var(--dga-font-size-sm);
+}
+
+@media (width <= 600px) {
+  .footer {
+    padding-inline: var(--dga-space-4);
+  }
+
+  .footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,29 @@
+<app-showcase-section anchor="dga-info-field">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <div class="demo-row">
+      <dga-info-field icon="file" valueDir="ltr" [label]="keys.Demo.InfoNumber | t">{{ recordNumber }}</dga-info-field>
+      <dga-info-field icon="phone" valueDir="ltr" [label]="keys.Demo.InfoPhone | t">{{ phone }}</dga-info-field>
+      <dga-info-field icon="location" align="start" [label]="keys.Demo.InfoCity | t">{{ keys.Demo.CityRiyadh | t }}</dga-info-field>
+    </div>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-status-tag">
+  <app-showcase-demo wide [labelKey]="keys.States.Tones">
+    <div class="demo-row">
+      @for (entry of statusTones; track entry.tone) {
+        <dga-status-tag [tone]="entry.tone">{{ entry.labelKey | t }}</dga-status-tag>
+      }
+    </div>
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-tag">
+  <app-showcase-demo wide [labelKey]="keys.States.Tones">
+    <div class="demo-row">
+      @for (entry of tagTones; track entry.tone) {
+        <dga-tag [tone]="entry.tone" [icon]="entry.icon">{{ entry.labelKey | t }}</dga-tag>
+      }
+    </div>
+  </app-showcase-demo>
+</app-showcase-section>

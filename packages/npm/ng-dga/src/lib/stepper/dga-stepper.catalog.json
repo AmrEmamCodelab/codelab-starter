@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-stepper",
+  "className": "DgaStepperComponent",
+  "category": "navigation",
+  "summary": "The DGA stepper: a horizontal or vertical trail of completed, current, upcoming and invalid steps for a multi-step form or a procedure list. Progress only by default; navigable steps emit stepSelect and the app decides whether to move.",
+  "inputs": [
+    { "name": "steps", "type": "readonly DgaStep[] ({ label, description?, completed?, invalid?, disabled? })", "required": true, "description": "The steps in order; label and description are translated." },
+    { "name": "active", "type": "number", "required": false, "default": "0", "description": "Zero-based index of the current step, clamped to the steps; steps.length shows every step completed." },
+    { "name": "orientation", "type": "DgaStepperOrientation ('horizontal' | 'vertical')", "required": false, "default": "'horizontal'", "description": "Horizontal progress bar or vertical trail with the bullets at the inline start." },
+    { "name": "linear", "type": "boolean", "required": false, "default": "true", "description": "Earlier steps count as completed and only they (or completed steps) are selectable; false allows any enabled step and takes completion from each step's flag." },
+    { "name": "navigable", "type": "boolean", "required": false, "default": "false", "description": "Renders each step as a button that emits stepSelect." },
+    { "name": "compact", "type": "boolean", "required": false, "default": "false", "description": "Shows only the current step's label (mobile); a horizontal trail also compacts by itself in a container narrower than 36rem." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Accessible name of the step list (translated)." },
+    { "name": "completedLabel", "type": "string | null", "required": false, "default": "null", "description": "Screen-reader text read after a completed step's label (translated)." },
+    { "name": "currentLabel", "type": "string | null", "required": false, "default": "null", "description": "Screen-reader text read after the current step's label (translated)." },
+    { "name": "invalidLabel", "type": "string | null", "required": false, "default": "null", "description": "Screen-reader text read after an invalid step's label (translated)." }
+  ],
+  "outputs": [
+    { "name": "stepSelect", "type": "number", "description": "Index of the step the user chose (navigable only; never the current or an unselectable step)." }
+  ],
+  "slots": [],
+  "a11y": "An ordered list named by label; the current step carries aria-current=\"step\" and each state is also read as text (completedLabel, currentLabel, invalidLabel), never by colour alone; bullets are aria-hidden. Navigable: native buttons with a roving tabindex (Tab reaches the current step), arrow keys move along the trail (mirrored in RTL when horizontal, Up/Down when vertical), Home/End jump to the ends, unselectable steps are disabled and skipped, Enter/Space select. Compact mode hides labels visually only.",
+  "since": "1.0.0"
+}

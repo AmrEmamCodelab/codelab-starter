@@ -1,0 +1,47 @@
+<fieldset class="dga-geo-select" [attr.aria-label]="label() ? null : ariaLabel()" [attr.aria-busy]="busy() ? 'true' : null">
+  @if (label(); as text) {
+    <legend class="dga-geo-select__label">{{ text }}</legend>
+  }
+  <div class="dga-geo-select__levels">
+    <dga-select
+      class="dga-geo-select__level"
+      [label]="regionLabel()"
+      [placeholder]="placeholder()"
+      [options]="regionOptions()"
+      [value]="value().regionId"
+      [required]="required()"
+      [disabled]="regionDisabled()"
+      [error]="levelError(level.Region)"
+      (valueChange)="onRegion($event)"
+      (touchedChange)="onTouched($event)"
+    />
+    @if (showCity()) {
+      <dga-select
+        class="dga-geo-select__level"
+        [label]="cityLabel()"
+        [placeholder]="placeholder()"
+        [options]="cityOptions()"
+        [value]="value().cityId"
+        [required]="required()"
+        [disabled]="cityDisabled()"
+        [error]="levelError(level.City)"
+        (valueChange)="onCity($event)"
+        (touchedChange)="onTouched($event)"
+      />
+    }
+    @if (showDistrict()) {
+      <dga-select
+        class="dga-geo-select__level"
+        [label]="districtLabel()"
+        [placeholder]="placeholder()"
+        [options]="districtOptions()"
+        [value]="value().districtId"
+        [required]="required()"
+        [disabled]="districtDisabled()"
+        [error]="levelError(level.District)"
+        (valueChange)="onDistrict($event)"
+        (touchedChange)="onTouched($event)"
+      />
+    }
+  </div>
+</fieldset>

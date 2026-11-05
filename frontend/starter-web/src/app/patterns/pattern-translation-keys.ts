@@ -1,3 +1,11 @@
+import { DECISION_DIALOG_TRANSLATION_KEYS } from './decision-dialog/decision-dialog-translation-keys';
+import { LANDING_DASHBOARD_TRANSLATION_KEYS } from './landing-dashboard/landing-dashboard-translation-keys';
+import { PORTAL_CONTENT_TRANSLATION_KEYS } from './portal-content/portal-content-translation-keys';
+import { REQUESTER_DETAIL_TRANSLATION_KEYS } from './requester-detail/requester-detail-translation-keys';
+import { STAFF_DETAIL_TRANSLATION_KEYS } from './staff-detail/staff-detail-translation-keys';
+import { STATUS_TRACKER_TRANSLATION_KEYS } from './status-tracker/status-tracker-translation-keys';
+import { WIZARD_TRANSLATION_KEYS } from './wizard/wizard-translation-keys';
+import { WORK_QUEUE_TRANSLATION_KEYS } from './work-queue/work-queue-translation-keys';
 /**
  * Every translation key the page patterns render on their own (screens pass their own keys for titles, headers and
  * labels). All live under `patterns.*` in `src/assets/i18n/ar.json` and `en.json`; the spec checks both bundles.
@@ -49,6 +57,14 @@ export const PatternTranslationKeys = {
 } as const;
 
 /** The flat list of every pattern key. */
-export const PATTERN_TRANSLATION_KEYS: readonly string[] = Object.values(PatternTranslationKeys).flatMap(
-  (group) => Object.values(group) as string[],
-);
+export const PATTERN_TRANSLATION_KEYS: readonly string[] = [
+  ...Object.values(PatternTranslationKeys).flatMap((group) => Object.values(group) as string[]),
+  ...WORK_QUEUE_TRANSLATION_KEYS,
+  ...STAFF_DETAIL_TRANSLATION_KEYS,
+  ...DECISION_DIALOG_TRANSLATION_KEYS,
+  ...PORTAL_CONTENT_TRANSLATION_KEYS,
+  ...LANDING_DASHBOARD_TRANSLATION_KEYS,
+  ...WIZARD_TRANSLATION_KEYS,
+  ...STATUS_TRACKER_TRANSLATION_KEYS,
+  ...REQUESTER_DETAIL_TRANSLATION_KEYS,
+];

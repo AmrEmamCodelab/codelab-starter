@@ -1,0 +1,26 @@
+<app-showcase-section anchor="dga-hero-slider">
+  <app-showcase-demo wide [labelKey]="keys.States.Default">
+    <dga-hero-slider
+      [slides]="slides()"
+      [(index)]="slideIndex"
+      [label]="keys.Demo.SliderLabel | t"
+      [previousLabel]="keys.Demo.SliderPrevious | t"
+      [nextLabel]="keys.Demo.SliderNext | t"
+      [pauseLabel]="keys.Demo.SliderPause | t"
+      [playLabel]="keys.Demo.SliderPlay | t"
+    />
+  </app-showcase-demo>
+</app-showcase-section>
+
+<app-showcase-section anchor="dga-icon">
+  <app-showcase-demo wide [labelKey]="keys.States.AllIcons">
+    <ul class="demo-icons">
+      @for (name of icons; track name) {
+        <li class="demo-icon">
+          <dga-icon size="lg" [name]="name" />
+          <code class="demo-icon__name" dir="ltr" data-fixed-direction>{{ name }}</code>
+        </li>
+      }
+    </ul>
+  </app-showcase-demo>
+</app-showcase-section>

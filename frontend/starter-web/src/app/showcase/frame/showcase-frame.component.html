@@ -1,0 +1,45 @@
+<div class="showcase">
+  <div class="showcase__bar">
+    <a class="showcase__home" [routerLink]="homeLink">{{ keys.Frame.Title | t }}</a>
+    <dga-tag tone="warning">{{ keys.Frame.DevOnly | t }}</dga-tag>
+    <span class="showcase__spacer"></span>
+    <app-language-switcher />
+  </div>
+
+  <nav class="showcase__nav" [attr.aria-label]="keys.Frame.Nav | t">
+    @for (group of nav; track group.id) {
+      <div class="showcase__nav-group">
+        <p class="showcase__nav-title" [id]="'showcase-nav-' + group.id">{{ group.titleKey | t }}</p>
+        <ul class="showcase__nav-list" [attr.aria-labelledby]="'showcase-nav-' + group.id">
+          @for (entry of group.pages; track entry.id) {
+            <li>
+              <a
+                class="showcase__nav-link"
+                [routerLink]="entry.link"
+                [class.showcase__nav-link--current]="entry.id === pageId()"
+                [attr.aria-current]="entry.id === pageId() ? 'page' : null"
+                >{{ entry.titleKey | t }}</a
+              >
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </nav>
+
+  @if (landmark()) {
+    <main class="showcase__content" [id]="contentId" tabindex="-1">
+      <ng-container [ngTemplateOutlet]="body" />
+    </main>
+  } @else {
+    <div class="showcase__content" [id]="contentId">
+      <ng-container [ngTemplateOutlet]="body" />
+    </div>
+  }
+</div>
+
+<ng-template #body>
+  <h1 class="showcase__title">{{ page().titleKey | t }}</h1>
+  <p class="showcase__intro">{{ page().introKey | t }}</p>
+  <ng-content />
+</ng-template>

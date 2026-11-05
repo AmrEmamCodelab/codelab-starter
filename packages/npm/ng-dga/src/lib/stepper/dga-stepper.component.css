@@ -1,6 +1,11 @@
-/* Tokens only, logical CSS only: the trail runs along the inline axis, so it reverses in RTL by itself. */
+/*
+ * Tokens only, logical CSS only. A horizontal trail runs along the inline axis, so it reverses in RTL by itself; a
+ * vertical trail keeps its bullets at the inline start (right in RTL). The host is a size container: a horizontal
+ * trail narrower than the sm breakpoint (36rem) compacts by itself.
+ */
 :host {
   display: block;
+  container-type: inline-size;
 }
 
 .dga-stepper {
@@ -23,6 +28,38 @@
 
 .dga-stepper__item:last-child {
   flex: 0 0 auto;
+}
+
+.dga-stepper__step {
+  display: flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  min-inline-size: 0;
+}
+
+.dga-stepper__step--button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--dga-radius-md);
+  color: inherit;
+  background-color: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.dga-stepper__step--button:disabled {
+  cursor: default;
+}
+
+.dga-stepper__step--button:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-ring-width);
+}
+
+.dga-stepper__step--button:not(:disabled, [aria-current]):hover .dga-stepper__label {
+  text-decoration: underline;
 }
 
 .dga-stepper__bullet {
@@ -94,7 +131,73 @@
   box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
 }
 
+.dga-stepper__item[data-state='invalid'] .dga-stepper__bullet {
+  background-color: var(--dga-color-error-solid);
+}
+
 .dga-stepper__item[data-state='completed'] .dga-stepper__label,
 .dga-stepper__item[data-state='current'] .dga-stepper__label {
   color: var(--dga-color-text-display);
+}
+
+.dga-stepper__item[data-state='invalid'] .dga-stepper__label {
+  color: var(--dga-color-error-text);
+}
+
+/* Vertical: bullets in a column at the inline start, the connector runs down to the next bullet. */
+:host([data-orientation='vertical']) .dga-stepper {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: visible;
+}
+
+:host([data-orientation='vertical']) .dga-stepper__item {
+  display: grid;
+  grid-template-columns: var(--dga-size-bullet) minmax(0, 1fr);
+  flex: none;
+  align-items: start;
+  column-gap: var(--dga-space-3);
+  row-gap: var(--dga-space-1);
+}
+
+:host([data-orientation='vertical']) .dga-stepper__step {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+  gap: var(--dga-space-3);
+}
+
+:host([data-orientation='vertical']) .dga-stepper__label {
+  white-space: normal;
+}
+
+:host([data-orientation='vertical']) .dga-stepper__line {
+  grid-column: 1;
+  justify-self: center;
+  inline-size: var(--dga-border-width-thick);
+  min-inline-size: 0;
+  block-size: auto;
+  min-block-size: var(--dga-space-6);
+  margin-block-end: var(--dga-space-1);
+}
+
+/* Compact (mobile): bullets only, plus the current step's label; the other labels stay for screen readers. */
+:host(.dga-stepper--compact) .dga-stepper__item:not([data-state='current']) .dga-stepper__text {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container (max-width: 36rem) {
+  :host([data-orientation='horizontal']) .dga-stepper__item:not([data-state='current']) .dga-stepper__text {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }

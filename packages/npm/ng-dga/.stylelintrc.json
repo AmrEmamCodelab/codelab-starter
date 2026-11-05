@@ -1,0 +1,5 @@
+{
+  "extends": ["@codelab/ng-tools/stylelint"],
+  "ignoreFiles": ["dist/**", ".angular/**", "node_modules/**"],
+  "overrides": [{ "files": ["**/*.scss"], "customSyntax": "postcss-scss" }]
+}

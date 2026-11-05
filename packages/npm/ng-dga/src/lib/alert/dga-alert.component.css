@@ -1,0 +1,73 @@
+/* Tokens only, logical CSS only. Each variant sets the three tone properties; the layout reads only those. */
+:host {
+  display: block;
+}
+
+.dga-alert {
+  --dga-alert-surface: var(--dga-color-info-surface);
+  --dga-alert-border: var(--dga-color-info-border);
+  --dga-alert-accent: var(--dga-color-info-solid);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--dga-space-3);
+  padding-block: var(--dga-space-3);
+  padding-inline: var(--dga-space-4);
+  border: var(--dga-border-width-thin) solid var(--dga-alert-border);
+  border-inline-start-width: var(--dga-border-width-heavy);
+  border-inline-start-color: var(--dga-alert-accent);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-default);
+  background-color: var(--dga-alert-surface);
+}
+
+.dga-alert[data-variant='success'] {
+  --dga-alert-surface: var(--dga-color-success-surface);
+  --dga-alert-border: var(--dga-color-success-border);
+  --dga-alert-accent: var(--dga-color-success-solid);
+}
+
+.dga-alert[data-variant='warning'] {
+  --dga-alert-surface: var(--dga-color-warning-surface);
+  --dga-alert-border: var(--dga-color-warning-border);
+  --dga-alert-accent: var(--dga-color-warning-solid);
+}
+
+.dga-alert[data-variant='error'] {
+  --dga-alert-surface: var(--dga-color-error-surface);
+  --dga-alert-border: var(--dga-color-error-border);
+  --dga-alert-accent: var(--dga-color-error-solid);
+}
+
+.dga-alert__icon {
+  flex: none;
+  margin-block-start: var(--dga-space-half);
+  color: var(--dga-alert-accent);
+}
+
+.dga-alert__content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+}
+
+.dga-alert__title {
+  margin: 0;
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-alert__body {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-alert__dismiss {
+  flex: none;
+  margin-block: calc(-1 * var(--dga-space-1));
+  margin-inline-end: calc(-1 * var(--dga-space-2));
+}

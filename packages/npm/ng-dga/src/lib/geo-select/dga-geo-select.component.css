@@ -1,0 +1,31 @@
+/* Tokens only, logical CSS only. The levels sit side by side and wrap on narrow screens, in reading order. */
+:host {
+  display: block;
+}
+
+.dga-geo-select {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dga-geo-select__label {
+  padding: 0;
+  margin-block-end: var(--dga-space-2);
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-geo-select__levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-4);
+}
+
+.dga-geo-select__level {
+  flex: 1 1 var(--dga-size-menu-min);
+  min-inline-size: 0;
+}

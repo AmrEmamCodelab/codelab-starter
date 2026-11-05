@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-hero",
+  "className": "DgaHeroComponent",
+  "category": "layout",
+  "summary": "Large introduction band for a portal page: projected title, subtitle, content and actions, optional decorative background image under a readable overlay.",
+  "inputs": [
+    {
+      "name": "variant",
+      "type": "DgaHeroVariant (plain | brand)",
+      "required": false,
+      "default": "'plain'",
+      "description": "Surface without an image: muted page surface or brand primary colour."
+    },
+    {
+      "name": "imageSrc",
+      "type": "string | null",
+      "required": false,
+      "default": "null",
+      "description": "Decorative background image served by the app; adds a dark overlay and light text."
+    }
+  ],
+  "outputs": [],
+  "slots": [
+    {
+      "selector": "[dgaHeroTitle]",
+      "description": "The heading element (usually the page h1)."
+    },
+    {
+      "selector": "[dgaHeroSubtitle]",
+      "description": "A short paragraph under the title."
+    },
+    {
+      "selector": "default",
+      "description": "Free content between the subtitle and the actions."
+    },
+    {
+      "selector": "[dgaHeroActions]",
+      "description": "Buttons or links."
+    }
+  ],
+  "a11y": "The image is decorative (alt empty) and the overlay is aria-hidden; the projected heading carries the meaning. Coloured variants re-point the text tokens so contrast holds.",
+  "since": "1.0.0"
+}

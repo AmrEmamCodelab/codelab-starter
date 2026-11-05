@@ -1,0 +1,17 @@
+<header class="dga-portal-page-header">
+  <div class="dga-portal-page-header__inner">
+    @if (hasBreadcrumbs()) {
+      <dga-breadcrumb class="dga-portal-page-header__breadcrumb" [items]="breadcrumbs()" [label]="breadcrumbLabel()" />
+    }
+    <div class="dga-portal-page-header__row">
+      <div class="dga-portal-page-header__lead">
+        <h1 class="dga-portal-page-header__title">{{ title() }}</h1>
+        @if (hasSubtitle()) {
+          <p class="dga-portal-page-header__subtitle">{{ subtitle() }}</p>
+        }
+        <div class="dga-portal-page-header__actions"><ng-content select="[actions]" /></div>
+      </div>
+      <div class="dga-portal-page-header__illustration"><ng-content select="[illustration]" /></div>
+    </div>
+  </div>
+</header>

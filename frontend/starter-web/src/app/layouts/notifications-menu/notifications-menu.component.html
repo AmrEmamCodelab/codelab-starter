@@ -1,0 +1,63 @@
+<button
+  #bell
+  type="button"
+  class="notifications__bell"
+  [attr.aria-label]="keys.Bell | t: { count: unread() }"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="panelId"
+  (click)="toggle()"
+  (keydown)="onBellKeydown($event)"
+>
+  <dga-icon name="bell" size="md" />
+  @if (badge()) {
+    <span class="notifications__badge" aria-hidden="true">{{ badge() }}</span>
+  }
+</button>
+
+<span class="dga-visually-hidden" aria-live="polite" aria-atomic="true">
+  @if (unread() > 0) {
+    {{ keys.UnreadStatus | t: { count: unread() } }}
+  }
+</span>
+
+@if (open()) {
+  <div
+    #panel
+    class="notifications__panel"
+    role="region"
+    [id]="panelId"
+    [attr.aria-labelledby]="titleId"
+    (keydown)="onPanelKeydown($event)"
+  >
+    <h2 class="notifications__title" [id]="titleId">{{ keys.Title | t }}</h2>
+
+    @if (shown().length > 0) {
+      <ul class="notifications__list">
+        @for (item of shown(); track item.id) {
+          <li class="notifications__item" [class.notifications__item--unread]="!item.read">
+            @if (item.link; as link) {
+              <a class="notifications__item-title" [routerLink]="link" (click)="follow(item)">{{ item.titleText }}</a>
+            } @else {
+              <span class="notifications__item-title">{{ item.titleText }}</span>
+            }
+            <p class="notifications__item-body">{{ item.bodyText }}</p>
+            <time class="notifications__item-time" [attr.datetime]="item.at">{{ time(item.at) }}</time>
+            @if (!item.read) {
+              <span class="dga-visually-hidden">{{ keys.Unread | t }}</span>
+              <button type="button" class="notifications__mark" (click)="markRead.emit(item.id)">
+                <dga-icon name="check" />
+                <span>{{ keys.MarkRead | t }}</span>
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="notifications__empty">{{ keys.Empty | t }}</p>
+    }
+
+    @if (viewAllLink(); as link) {
+      <a class="notifications__view-all" [routerLink]="link" (click)="close()">{{ keys.ViewAll | t }}</a>
+    }
+  </div>
+}

@@ -1,0 +1,103 @@
+/* Tokens only, logical CSS only. The native select fills the control; the chevron sits at the inline end. */
+:host {
+  display: block;
+}
+
+.dga-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.dga-field__label {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  font-weight: var(--dga-font-weight-semibold);
+  line-height: var(--dga-line-height-sm);
+}
+
+.dga-field__required {
+  margin-inline-start: var(--dga-space-half);
+  color: var(--dga-color-text-error);
+}
+
+.dga-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  block-size: var(--dga-size-control-md);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+  transition:
+    border-color var(--dga-duration-fast) var(--dga-easing-standard),
+    box-shadow var(--dga-duration-fast) var(--dga-easing-standard);
+}
+
+.dga-field__control:focus-within {
+  border-color: var(--dga-color-border-primary);
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo);
+}
+
+.dga-field__control--invalid,
+.dga-field__control--invalid:focus-within {
+  border-color: var(--dga-color-border-error);
+}
+
+.dga-field__control--invalid:focus-within {
+  box-shadow: 0 0 0 var(--dga-focus-halo-width) var(--dga-color-focus-halo-error);
+}
+
+.dga-field__control--disabled {
+  border-color: var(--dga-color-border-disabled);
+  background-color: var(--dga-color-surface-disabled);
+}
+
+.dga-field__select {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  block-size: 100%;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--dga-space-3) calc(var(--dga-space-3) + var(--dga-size-icon-md) + var(--dga-space-2));
+  border: 0;
+  border-radius: inherit;
+  outline: 0;
+  color: var(--dga-color-text-default);
+  background: transparent;
+  font: inherit;
+  font-size: var(--dga-font-size-sm);
+  text-align: start;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dga-field__select--empty {
+  color: var(--dga-color-text-placeholder);
+}
+
+.dga-field__select option {
+  color: var(--dga-color-text-default);
+}
+
+.dga-field__select:disabled {
+  color: var(--dga-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.dga-field__chevron {
+  position: absolute;
+  inset-inline-end: var(--dga-space-3);
+  color: var(--dga-color-text-secondary);
+  pointer-events: none;
+}
+
+.dga-field__message {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+  line-height: var(--dga-line-height-xs);
+}
+
+.dga-field__message--error {
+  color: var(--dga-color-text-error);
+}

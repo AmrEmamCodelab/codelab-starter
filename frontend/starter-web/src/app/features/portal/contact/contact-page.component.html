@@ -1,0 +1,105 @@
+<div class="contact">
+  <dga-portal-page-header
+    [title]="keys.Title | t"
+    [subtitle]="keys.Subtitle | t"
+    [breadcrumbs]="breadcrumbs()"
+    [breadcrumbLabel]="common.BreadcrumbLabel | t"
+  />
+
+  <dga-page-feedback
+    class="contact__feedback"
+    data-testid="contact-feedback"
+    [state]="feedback()"
+    [dismissLabel]="keys.Dismiss | t"
+    (dismissed)="store.clearOutcome()"
+  />
+
+  <div class="contact__layout">
+    <section class="contact__form-card" aria-labelledby="contact-form-title">
+      <h2 class="contact__form-title" id="contact-form-title">{{ keys.FormTitle | t }}</h2>
+      @if (formEnabled) {
+        <p class="contact__intro">{{ keys.FormIntro | t }}</p>
+
+        <form class="contact__form" novalidate [attr.aria-busy]="store.busy() ? 'true' : null" (submit)="submit($event)">
+          <dga-text-input
+            [name]="fields.FullName"
+            autocomplete="name"
+            required
+            [label]="keys.FullNameLabel | t"
+            [maxLength]="limits.FullNameMaxLength"
+            [value]="form().fullName"
+            [error]="errorOf(fields.FullName)"
+            (valueChange)="edit(fields.FullName, $event)"
+            (touchedChange)="markTouched(fields.FullName, $event)"
+          />
+
+          <dga-text-input
+            [name]="fields.Email"
+            type="email"
+            inputMode="email"
+            autocomplete="email"
+            required
+            [label]="keys.EmailLabel | t"
+            [hint]="keys.EmailHint | t"
+            [maxLength]="limits.EmailMaxLength"
+            [value]="form().email"
+            [error]="errorOf(fields.Email)"
+            (valueChange)="edit(fields.Email, $event)"
+            (touchedChange)="markTouched(fields.Email, $event)"
+          />
+
+          <dga-select
+            [name]="fields.TopicId"
+            required
+            [label]="keys.TopicLabel | t"
+            [placeholder]="keys.TopicPlaceholder | t"
+            [options]="topicOptions()"
+            [value]="form().topicId"
+            [error]="errorOf(fields.TopicId)"
+            (valueChange)="edit(fields.TopicId, $event)"
+            (touchedChange)="markTouched(fields.TopicId, $event)"
+          />
+
+          <dga-textarea
+            [name]="fields.Message"
+            required
+            autoResize
+            [rows]="messageRows"
+            [label]="keys.MessageLabel | t"
+            [hint]="keys.MessageHint | t: { min: limits.MessageMinLength }"
+            [maxLength]="limits.MessageMaxLength"
+            [counterLabel]="keys.MessageCounter | t"
+            [value]="form().message"
+            [error]="errorOf(fields.Message)"
+            (valueChange)="edit(fields.Message, $event)"
+            (touchedChange)="markTouched(fields.Message, $event)"
+          />
+
+          <div class="contact__actions">
+            <dga-button type="submit" data-public-action data-testid="contact-submit" [loading]="store.busy()">
+              {{ keys.Submit | t }}
+            </dga-button>
+          </div>
+        </form>
+      } @else {
+        <p class="contact__intro" data-testid="contact-unavailable">{{ keys.FormUnavailable | t }}</p>
+      }
+    </section>
+
+    <aside class="contact__aside">
+      <dga-card icon="info" [heading]="keys.InfoTitle | t" [headingLevel]="infoHeadingLevel">
+        <dl class="contact__info">
+          <div class="contact__info-row">
+            <dt>{{ keys.InfoHoursLabel | t }}</dt>
+            <dd>{{ keys.InfoHoursValue | t }}</dd>
+          </div>
+          <div class="contact__info-row">
+            <dt>{{ keys.InfoReplyLabel | t }}</dt>
+            <dd>{{ keys.InfoReplyValue | t }}</dd>
+          </div>
+        </dl>
+        <a class="contact__faq-link" [routerLink]="faqLink">{{ keys.InfoFaq | t }}</a>
+      </dga-card>
+    </aside>
+  </div>
+</div>

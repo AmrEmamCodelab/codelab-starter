@@ -1,0 +1,79 @@
+// The frame both shells (portal and requester) draw around the page: stamp strip and header above, footer below,
+// the skip link and the header actions. Shared as a mixin so each component keeps its own encapsulated styles.
+@mixin frame {
+  :host {
+    display: block;
+  }
+
+  .frame {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 100vh;
+    background-color: var(--dga-color-surface-page);
+  }
+
+  .frame__skip {
+    position: absolute;
+    inset-block-start: var(--dga-space-2);
+    inset-inline-start: var(--dga-space-2);
+    z-index: var(--dga-z-index-dropdown);
+    padding-block: var(--dga-space-2);
+    padding-inline: var(--dga-space-3);
+    border-radius: var(--dga-radius-sm);
+    background-color: var(--dga-color-surface-default);
+    color: var(--dga-color-text-link);
+    transform: translateY(-200%);
+
+    &:focus {
+      transform: none;
+      outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    }
+  }
+
+  .frame__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--dga-space-3);
+  }
+
+  .frame__sign-in {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--dga-space-2);
+    padding-block: var(--dga-space-2);
+    padding-inline: var(--dga-space-3);
+    border-radius: var(--dga-radius-sm);
+    background-color: var(--dga-color-primary);
+    color: var(--dga-color-text-on-primary);
+    font-weight: var(--dga-font-weight-medium);
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--dga-color-primary-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+      outline-offset: var(--dga-focus-halo-width);
+    }
+  }
+
+  .frame__content {
+    flex: 1 1 auto;
+    inline-size: 100%;
+    max-inline-size: var(--dga-size-container);
+    margin-inline: auto;
+    padding-block: var(--dga-space-6);
+    padding-inline: var(--dga-space-6);
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  @media (width <= 600px) {
+    .frame__content {
+      padding-inline: var(--dga-space-4);
+    }
+  }
+}

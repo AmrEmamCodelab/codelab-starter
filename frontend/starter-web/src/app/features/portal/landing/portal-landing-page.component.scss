@@ -1,0 +1,111 @@
+:host {
+  display: block;
+}
+
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-8);
+}
+
+.landing-page__title {
+  margin: 0;
+  font-size: var(--dga-font-size-4xl);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-4xl);
+}
+
+.landing-page__subtitle {
+  margin: 0;
+  font-size: var(--dga-font-size-lg);
+  line-height: var(--dga-line-height-lg);
+}
+
+.landing-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-3);
+}
+
+.landing-page__action {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--dga-size-control-lg);
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-5);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-on-color);
+  border-radius: var(--dga-radius-md);
+  font-weight: var(--dga-font-weight-semibold);
+  text-decoration: none;
+}
+
+// Opaque white, not the translucent on-colour surface: primary-green text on a see-through white over the green hero
+// reads at about 1.4:1. On white it meets the 4.5:1 text contrast minimum.
+.landing-page__action--primary {
+  background-color: var(--dga-color-surface-default);
+  color: var(--dga-color-text-primary);
+}
+
+.landing-page__action--secondary {
+  background-color: transparent;
+  color: var(--dga-color-text-on-color);
+}
+
+.landing-page__action:focus-visible,
+.landing-page__card-link:focus-visible {
+  outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  outline-offset: var(--dga-focus-halo-width);
+}
+
+.landing-page__services {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.landing-page__services-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.landing-page__services-title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-2xl);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.landing-page__services-intro {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.landing-page__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--dga-size-container) / 4)), 1fr));
+  gap: var(--dga-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-page__card-item {
+  display: flex;
+}
+
+.landing-page__card-item > dga-card {
+  flex: 1 1 auto;
+}
+
+.landing-page__card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  color: var(--dga-color-text-link);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.landing-page__card-link:hover {
+  color: var(--dga-color-text-link-hover);
+}

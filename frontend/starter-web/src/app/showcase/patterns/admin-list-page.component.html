@@ -1,0 +1,41 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-state-switch [(state)]="state" />
+
+  <app-admin-list-pattern
+    [titleKey]="keys.Patterns.ListTitle"
+    [emptyKey]="keys.Patterns.ListEmpty"
+    [columns]="columns"
+    [rows]="view().rows"
+    [total]="view().total"
+    [rowId]="rowId"
+    [pageSize]="pageSize"
+    [loading]="view().loading"
+    [error]="view().error"
+    [(page)]="page"
+    [(search)]="search"
+    [(sort)]="sort"
+    (retry)="retry()"
+  >
+    <dga-button listToolbar size="md" leadIcon="plus" (click)="openCreate()">{{ keys.Patterns.Create | t }}</dga-button>
+    <dga-checkbox listFilters name="showcase-only-active" [label]="keys.Patterns.OnlyActive | t" [(checked)]="onlyActive" />
+    <ng-template [listCell]="Column.Name" let-row>{{ row.nameKey | t }}</ng-template>
+    <ng-template [listCell]="Column.Status" let-row>
+      <dga-status-tag [tone]="row.active ? 'success' : 'neutral'">
+        {{ (row.active ? keys.Patterns.Active : keys.Patterns.Inactive) | t }}
+      </dga-status-tag>
+    </ng-template>
+    <ng-template listRowActions let-row>
+      <dga-button variant="subtle" size="sm" leadIcon="file" (click)="openEdit(row)">{{ keys.Patterns.Edit | t }}</dga-button>
+    </ng-template>
+  </app-admin-list-pattern>
+
+  <app-editor-dialog-pattern
+    [open]="editing() !== null"
+    [titleKey]="dialogTitle()"
+    [confirmDisabled]="draftName().trim() === ''"
+    (confirm)="closeEditor()"
+    (cancel)="closeEditor()"
+  >
+    <dga-text-input name="showcase-org-name" required [label]="keys.Patterns.OrgName | t" [(value)]="draftName" />
+  </app-editor-dialog-pattern>
+</app-showcase-frame>

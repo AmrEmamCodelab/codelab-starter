@@ -1,0 +1,104 @@
+:host {
+  display: block;
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.feed__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-2);
+}
+
+.feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feed__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+  padding: var(--dga-space-4);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  border-radius: var(--dga-radius-md);
+  border-inline-start-width: var(--dga-border-width-thick);
+  background-color: var(--dga-color-surface-default);
+}
+
+.feed__item--unread {
+  border-inline-start-color: var(--dga-color-primary);
+  background-color: var(--dga-color-primary-subtle);
+}
+
+.feed__item-head,
+.feed__item-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-2);
+}
+
+.feed__item-foot {
+  justify-content: space-between;
+}
+
+.feed__item-title {
+  color: var(--dga-color-text-display);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+a.feed__item-title {
+  color: var(--dga-color-text-link);
+
+  &:hover {
+    color: var(--dga-color-text-link-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+  }
+}
+
+.feed__dot {
+  inline-size: var(--dga-size-dot);
+  block-size: var(--dga-size-dot);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-primary);
+}
+
+.feed__item-body {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.feed__item-time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-1);
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-sm);
+}
+
+.feed__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding-block: var(--dga-space-10);
+  color: var(--dga-color-text-muted);
+}
+
+.feed__more {
+  display: flex;
+  justify-content: center;
+}

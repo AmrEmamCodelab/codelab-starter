@@ -44,11 +44,10 @@ function under(appRoot, folder) {
 export function elementDescriptors(appRoot) {
   const single = [ElementTypes.core, ElementTypes.layouts, ElementTypes.patterns, ElementTypes.shared, ElementTypes.showcase];
   return [
-    ...single.map((type) => ({ type, pattern: under(appRoot, type), mode: 'folder', partialMatch: false })),
+    ...single.map((type) => ({ type, pattern: under(appRoot, type), partialMatch: false })),
     {
       type: ElementTypes.features,
       pattern: under(appRoot, `${ElementTypes.features}${SEPARATOR}${ANY_FOLDER}`),
-      mode: 'folder',
       partialMatch: false,
       capture: [FEATURE_CAPTURE],
     },

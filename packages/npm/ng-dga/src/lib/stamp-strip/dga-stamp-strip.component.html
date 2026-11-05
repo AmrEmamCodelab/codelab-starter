@@ -1,0 +1,18 @@
+<div class="dga-stamp-strip__bar">
+  <dga-icon class="dga-stamp-strip__mark" name="shield-check" size="sm" />
+  <span class="dga-stamp-strip__text">{{ text() }}</span>
+  <button
+    #toggleButton
+    type="button"
+    class="dga-stamp-strip__toggle"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="detailsId"
+    (click)="toggle()"
+  >
+    <span>{{ verifyLabel() }}</span>
+    <dga-icon class="dga-stamp-strip__caret" name="chevron-down" size="xs" />
+  </button>
+</div>
+<div class="dga-stamp-strip__details" [id]="detailsId" [hidden]="!expanded()" (keydown)="onDetailsKeydown($event)">
+  <ng-content />
+</div>

@@ -1,0 +1,62 @@
+<app-showcase-frame [pageId]="pageId">
+  <app-showcase-section [anchor]="Section.Current" [titleKey]="keys.Branding.Current" [level]="Level.Section">
+    @if (branding; as brand) {
+      <div class="branding-facts">
+        <dga-info-field align="start" [label]="keys.Branding.NameArabic | t"><bdi lang="ar">{{ brand.appName.ar }}</bdi></dga-info-field>
+        <dga-info-field align="start" [label]="keys.Branding.NameEnglish | t"><bdi lang="en">{{ brand.appName.en }}</bdi></dga-info-field>
+        <dga-info-field align="start" valueDir="ltr" [label]="keys.Branding.PrimaryColor | t">{{ brand.primaryColor }}</dga-info-field>
+        <dga-info-field align="start" [label]="keys.Branding.Logo | t">
+          @if (brand.logoSrc) {
+            <img class="branding-logo" [src]="brand.logoSrc" [alt]="brand.appName.en" />
+          } @else {
+            {{ keys.Branding.NoLogo | t }}
+          }
+        </dga-info-field>
+      </div>
+    } @else {
+      <p class="branding-text">{{ keys.Branding.NotConfigured | t }}</p>
+    }
+  </app-showcase-section>
+
+  <app-showcase-section [anchor]="Section.Preview" [titleKey]="keys.Branding.Preview" [level]="Level.Section">
+    <p class="branding-text">{{ keys.Branding.PreviewHint | t }}</p>
+    <div class="branding-row" role="group" [attr.aria-label]="keys.Branding.Preview | t">
+      @for (colour of colours; track colour) {
+        <dga-button
+          variant="secondary-outline"
+          size="sm"
+          [pressed]="preview.trying() === colour"
+          (click)="preview.tryColour(colour)"
+        >
+          {{ keys.Branding.TryColour | t: { colour: colour } }}
+        </dga-button>
+      }
+      <dga-button variant="subtle" size="sm" [disabled]="preview.trying() === null" (click)="preview.reset()">
+        {{ keys.Branding.Reset | t }}
+      </dga-button>
+    </div>
+  </app-showcase-section>
+
+  <app-showcase-section [anchor]="Section.Samples" [titleKey]="keys.Branding.Samples" [level]="Level.Section">
+    <div class="branding-samples">
+      <div class="branding-row">
+        <dga-button>{{ keys.Demo.Save | t }}</dga-button>
+        <dga-button variant="secondary-outline">{{ keys.Demo.Cancel | t }}</dga-button>
+        <dga-status-tag tone="progress">{{ keys.Demo.StatusProcessing | t }}</dga-status-tag>
+        <a class="branding-link" [routerLink]="galleryLink">{{ keys.Branding.SampleLink | t }}</a>
+      </div>
+      <dga-stepper
+        [steps]="steps()"
+        [active]="1"
+        [label]="keys.Demo.StepperLabel | t"
+        [completedLabel]="keys.Demo.StepCompleted | t"
+        [currentLabel]="keys.Demo.StepCurrent | t"
+        [invalidLabel]="keys.Demo.StepInvalid | t"
+      />
+      <div class="branding-row">
+        <dga-checkbox name="showcase-brand-check" [label]="keys.Demo.Notify | t" [(checked)]="checked" />
+        <dga-text-input name="showcase-brand-text" [label]="keys.Demo.FieldName | t" [(value)]="text" />
+      </div>
+    </div>
+  </app-showcase-section>
+</app-showcase-frame>

@@ -1,0 +1,83 @@
+/* Tokens only, logical CSS only. The band is tinted with the brand's lightest shade and ruled off below. */
+:host {
+  display: block;
+}
+
+.dga-portal-page-header {
+  border-block-end: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+  background-color: var(--dga-palette-primary-25);
+}
+
+.dga-portal-page-header__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-5);
+  max-inline-size: var(--dga-size-container);
+  margin-inline: auto;
+  padding-block: var(--dga-space-4) var(--dga-space-8);
+  padding-inline: var(--dga-space-4);
+}
+
+.dga-portal-page-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dga-space-6);
+}
+
+.dga-portal-page-header__lead {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+  min-inline-size: 0;
+}
+
+.dga-portal-page-header__title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-2xl);
+  font-weight: var(--dga-font-weight-bold);
+  line-height: var(--dga-line-height-2xl);
+}
+
+.dga-portal-page-header__subtitle {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-md);
+  line-height: var(--dga-line-height-md);
+}
+
+.dga-portal-page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+  margin-block-start: var(--dga-space-2);
+}
+
+.dga-portal-page-header__actions:empty,
+.dga-portal-page-header__illustration:empty {
+  display: none;
+}
+
+.dga-portal-page-header__illustration {
+  display: none;
+  flex: none;
+}
+
+@media (min-width: 48rem) {
+  .dga-portal-page-header__inner {
+    padding-inline: var(--dga-space-8);
+  }
+
+  .dga-portal-page-header__title {
+    font-size: var(--dga-font-size-3xl);
+    line-height: var(--dga-line-height-3xl);
+  }
+
+  .dga-portal-page-header__illustration:not(:empty) {
+    display: block;
+  }
+}

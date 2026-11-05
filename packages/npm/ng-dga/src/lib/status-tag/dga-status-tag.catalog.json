@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-status-tag",
+  "className": "DgaStatusTagComponent",
+  "category": "data",
+  "summary": "The DGA status tag: a solid pill with a leading dot for a record's status. The app maps each status of its workflow catalog to a tone; the library never knows status names.",
+  "inputs": [
+    { "name": "tone", "type": "DgaStatusTone ('neutral' | 'info' | 'warning' | 'success' | 'error' | 'progress')", "required": false, "default": "'neutral'", "description": "Colour of the pill; progress is the brand tone for work in progress." }
+  ],
+  "outputs": [],
+  "slots": [
+    { "selector": "default", "description": "The status text (translated)." }
+  ],
+  "a11y": "Plain inline text with a decorative dot (aria-hidden); the text carries the status. Not interactive and not focusable.",
+  "since": "1.0.0"
+}

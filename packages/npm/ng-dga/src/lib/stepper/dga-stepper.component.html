@@ -1,25 +1,59 @@
+<ng-template #stepContent let-view let-index="index">
+  <span class="dga-stepper__bullet" aria-hidden="true">
+    @switch (view.state) {
+      @case (states.Completed) {
+        <dga-icon name="check" size="sm" />
+      }
+      @case (states.Invalid) {
+        <dga-icon name="alert" size="sm" />
+      }
+      @default {
+        {{ index + 1 }}
+      }
+    }
+  </span>
+  <span class="dga-stepper__text">
+    <span class="dga-stepper__label">{{ view.step.label }}</span>
+    @if (view.step.description; as description) {
+      <span class="dga-stepper__description">{{ description }}</span>
+    }
+    @if (stateText(view.state); as text) {
+      <span class="dga-stepper__state">{{ text }}</span>
+    }
+  </span>
+</ng-template>
+
 <ol class="dga-stepper" [attr.aria-label]="label()">
-  @for (step of steps(); track $index; let index = $index; let last = $last) {
-    @let state = stateAt(index);
-    <li class="dga-stepper__item" [attr.data-state]="state" [attr.aria-current]="state === 'current' ? 'step' : null">
-      <span class="dga-stepper__bullet" aria-hidden="true">
-        @if (state === 'completed') {
-          <dga-icon name="check" size="sm" />
-        } @else {
-          {{ index + 1 }}
-        }
-      </span>
-      <span class="dga-stepper__text">
-        <span class="dga-stepper__label">{{ step.label }}</span>
-        @if (step.description; as description) {
-          <span class="dga-stepper__description">{{ description }}</span>
-        }
-        @if (stateText(state); as text) {
-          <span class="dga-stepper__state">{{ text }}</span>
-        }
-      </span>
+  @for (view of views(); track $index; let index = $index; let last = $last) {
+    <li
+      class="dga-stepper__item"
+      [attr.data-state]="view.state"
+      [attr.aria-current]="!navigable() && view.state === states.Current ? 'step' : null"
+    >
+      @if (navigable()) {
+        <button
+          #stepButton
+          type="button"
+          class="dga-stepper__step dga-stepper__step--button"
+          [attr.aria-current]="view.state === states.Current ? 'step' : null"
+          [attr.tabindex]="index === tabStop() ? 0 : -1"
+          [disabled]="!view.focusable"
+          (click)="select(index)"
+          (keydown)="onKeydown($event, index)"
+        >
+          <ng-container *ngTemplateOutlet="stepContent; context: { $implicit: view, index: index }" />
+        </button>
+      } @else {
+        <span class="dga-stepper__step">
+          <ng-container *ngTemplateOutlet="stepContent; context: { $implicit: view, index: index }" />
+        </span>
+      }
       @if (!last) {
-        <span class="dga-stepper__line" aria-hidden="true" [attr.data-filled]="state === 'completed' ? '' : null"></span>
+        <span
+          class="dga-stepper__line"
+          aria-hidden="true"
+          [attr.data-filled]="view.state === states.Completed ? '' : null"
+        ></span>
       }
     </li>
   }

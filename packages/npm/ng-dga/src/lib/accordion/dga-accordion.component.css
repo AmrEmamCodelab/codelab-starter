@@ -1,0 +1,5 @@
+/* Tokens only, logical CSS only. Each item draws the divider below it; the accordion draws the one on top. */
+:host {
+  display: block;
+  border-block-start: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+}

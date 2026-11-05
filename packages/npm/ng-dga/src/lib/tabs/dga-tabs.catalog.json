@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-tabs",
+  "className": "DgaTabsComponent",
+  "category": "navigation",
+  "summary": "DGA tabs: an underline tab list for switching between views of the same content. Bind the selected value two-way; link panels with panelIdPrefix and dgaTabPanelId(prefix, value).",
+  "inputs": [
+    { "name": "tabs", "type": "readonly DgaTab[] ({ value, label, icon?, disabled? })", "required": true, "description": "The tabs in order; labels are translated." },
+    { "name": "value", "type": "DgaTabValue (string | number), model", "required": true, "description": "The selected tab value; two-way [(value)]." },
+    { "name": "label", "type": "string | null", "required": false, "default": "null", "description": "Accessible name of the tab list (translated)." },
+    { "name": "panelIdPrefix", "type": "string | null", "required": false, "default": "null", "description": "When set, each tab gets aria-controls = dgaTabPanelId(prefix, value)." },
+    { "name": "fill", "type": "boolean", "required": false, "default": "false", "description": "Tabs share the full width and wrap long labels, so a short chooser stays fully visible on a phone." }
+  ],
+  "outputs": [
+    { "name": "valueChange", "type": "DgaTabValue", "description": "The newly selected value (the model's change event)." }
+  ],
+  "slots": [],
+  "a11y": "WAI-ARIA tabs pattern with automatic activation: role=tablist/tab, aria-selected and aria-controls. Arrow keys move along the visual order and mirror in RTL, Home and End jump to the ends, disabled tabs are skipped, and only the selected tab is in the Tab order (roving tabindex). Panels need role=tabpanel and the id from dgaTabPanelId.",
+  "since": "1.0.0"
+}

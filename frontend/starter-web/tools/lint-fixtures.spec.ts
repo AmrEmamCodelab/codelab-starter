@@ -50,7 +50,32 @@ const Cases = {
   inlineStyles: 'features/orders/inline-styles.component.ts.fixture',
   inlineStyleBindings: 'features/orders/inline-style-bindings.component.ts.fixture',
   styledByScss: 'features/orders/styled-by-scss.component.ts.fixture',
+  featureImportsPatternsLayouts: 'features/orders/feature-imports-patterns-layouts.component.ts.fixture',
+  showcaseImportsEverything: 'showcase/gallery/showcase-imports-everything.component.ts.fixture',
+  showcaseImportsFeature: 'showcase/gallery/showcase-imports-feature.component.ts.fixture',
+  patternImportsFeature: 'patterns/record-list/pattern-imports-feature.ts.fixture',
 } as const;
+
+/**
+ * Lint proof (phase 4): a third-party UI library is refused in every UI element folder. The external DGA scopes are
+ * assembled at run time because the scrub sweep refuses them written literally anywhere in the repository.
+ */
+const AT = '@';
+const THIRD_PARTY_UI_IMPORTS = [
+  '@angular/material/button',
+  'primeng/button',
+  'ng-zorro-antd/button',
+  [AT, 'dev-', 'dga', '/angular'].join(''),
+  [AT, 'dga', '/ui'].join(''),
+] as const;
+const UI_ELEMENT_FILES = [
+  'features/orders/ui-import.component.ts',
+  'patterns/record-list/ui-import.ts',
+  'shared/status-label/ui-import.ts',
+  'showcase/gallery/ui-import.component.ts',
+  'layouts/portal-frame/ui-import.ts',
+] as const;
+const UI_IMPORT_CASES = UI_ELEMENT_FILES.flatMap((file) => THIRD_PARTY_UI_IMPORTS.map((specifier) => [file, specifier] as const));
 
 /** Permission-gate cases: each ungated case fails on exactly one line (base.fe-permission-gated). */
 const GateCases = {
@@ -72,6 +97,8 @@ const RealFiles = [
   'core/http/config-loader.ts',
   'shared/status-label/status-label.ts',
   'features/orders/orders-page.ts',
+  'patterns/record-list/record-list-pattern.ts',
+  'layouts/portal-frame/portal-frame.ts',
 ] as const;
 
 /** A feature component that tries to switch every gate off with inline config comments (linted as text). */
@@ -155,6 +182,26 @@ describe('the starter ESLint config on lint-fixtures', () => {
     for (const message of messages) {
       for (const ruleId of STYLE_RULE_IDS) expect(message.message).toContain(ruleId);
     }
+  });
+
+  it.each(UI_IMPORT_CASES)('refuses in %s an import of the UI library %s', async (relativePath, specifier) => {
+    const source = `import { Widget } from '${specifier}';\n\nexport const widgets = [Widget];\n`;
+    const messages = await lintFile(join(APP_DIR, relativePath), source);
+    const ui = messages.filter((message) => message.ruleId === RuleIds.restrictedImports);
+    expect(ui).toHaveLength(1);
+    expect(ui[0].message).toContain(UI_LIBRARY_HINT);
+  });
+
+  it('allows a feature importing patterns, layouts and @codelab/ng-dga', async () => {
+    expect(await lintCase(Cases.featureImportsPatternsLayouts)).toEqual([]);
+  });
+
+  it('allows the showcase importing @codelab/ng-dga, patterns, layouts, shared and core', async () => {
+    expect(await lintCase(Cases.showcaseImportsEverything)).toEqual([]);
+  });
+
+  it.each([Cases.showcaseImportsFeature, Cases.patternImportsFeature])('refuses %s reaching into a feature', async (relativeCase) => {
+    expect(ruleIds(await lintCase(relativeCase))).toContain(RuleIds.boundaries);
   });
 
   it('allows styleUrl, classes and an attribute that merely ends in style', async () => {

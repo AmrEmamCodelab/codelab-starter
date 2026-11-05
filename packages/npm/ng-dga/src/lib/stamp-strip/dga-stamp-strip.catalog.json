@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../catalog.schema.json",
+  "selector": "dga-stamp-strip",
+  "className": "DgaStampStripComponent",
+  "category": "navigation",
+  "summary": "The DGA digital stamp strip above the header: the official-government-website statement with a disclosure button that reveals how to verify it.",
+  "inputs": [
+    {
+      "name": "text",
+      "type": "string",
+      "required": true,
+      "description": "The statement (translated)."
+    },
+    {
+      "name": "verifyLabel",
+      "type": "string",
+      "required": true,
+      "description": "The disclosure button label (translated)."
+    },
+    {
+      "name": "expanded",
+      "type": "boolean (model)",
+      "required": false,
+      "default": "false",
+      "description": "Details shown; two-way bindable with [(expanded)]."
+    }
+  ],
+  "outputs": [
+    {
+      "name": "expandedChange",
+      "type": "boolean",
+      "description": "The details were shown or hidden (model output of expanded)."
+    }
+  ],
+  "slots": [
+    {
+      "selector": "default",
+      "description": "The verification details."
+    }
+  ],
+  "a11y": "Disclosure button with aria-expanded and aria-controls; Escape inside the details closes them and returns focus to the button. The stamp mark is decorative.",
+  "since": "1.0.0"
+}
