@@ -115,6 +115,18 @@ function frontendHasScript(root, script) {
 }
 
 /**
+ * The two commands that regenerate both permission catalogs after a key change: Starter.DocsGen (the C# catalog to
+ * docs/generated/permissions.*) and api:gen (permissions.json to the frontend PermissionKeys). Printed by
+ * new-permission --no-gen; `regenerate` runs the same two.
+ */
+export function catalogCommands(env = process.env) {
+  return [
+    `${resolveDotnet(env)} run --project ${DOCSGEN_PROJECT} -- --out ${DOCS_GENERATED_DIR}`,
+    `npm run ${API_GEN_SCRIPT} --workspace ${FRONTEND_WORKSPACE}`,
+  ];
+}
+
+/**
  * Runs the downstream generators that exist: the rules compile (always, when its dependencies are installed),
  * DocsGen (when its project exists), then api:gen (with `apiClient`, when the frontend and the OpenAPI document exist).
  * Returns the report lines ("ran ..." / "skipped ...: reason").

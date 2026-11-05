@@ -9,8 +9,10 @@ const PACKAGE_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 describe('the package', () => {
-  it('exports the presets, the plugin and the sync API from its root', () => {
-    for (const name of ['createCodelabEslintConfig', 'codelabPlugin', 'codelabStylelintConfig', 'syncFolders', 'compareFolders']) {
+  it('exports the presets, the plugin, the sync API and the permission gates from its root', () => {
+    const names = ['createCodelabEslintConfig', 'codelabPlugin', 'codelabStylelintConfig', 'syncFolders', 'compareFolders',
+      'assertRoutesGated', 'findUngatedRoutes', 'checkPermissionGates', 'findUngatedButtons', 'extractInlineTemplates'];
+    for (const name of names) {
       expect(tools[name], name).toBeDefined();
     }
   });
@@ -29,6 +31,13 @@ describe('the package', () => {
     const targets = [...Object.entries(manifest.exports).filter(([key]) => key !== './package.json').map(([, value]) => value), ...Object.values(manifest.bin)];
     for (const target of targets) expect(target.replace(/^\.\//, '')).toMatch(/^dist\//);
     expect(manifest.files).toEqual(['dist', 'README.md', 'MODULE.md']);
+  });
+
+  it('ships the vectors and permission-gate bins and the routes and permission-gates sub-paths', () => {
+    expect(Object.keys(manifest.bin)).toEqual(['codelab-vectors-sync', 'codelab-ng-tools']);
+    expect(manifest.exports['./routes']).toBe('./dist/routes/route-gates.mjs');
+    expect(manifest.exports['./permission-gates']).toBe('./dist/permission-gates/index.mjs');
+    expect(existsSync(fileURLToPath(new URL('../src/routes/route-gates.d.mts', import.meta.url)))).toBe(true);
   });
 
   it('pins every dependency exactly and never depends on an external DGA package', () => {

@@ -10,7 +10,7 @@
     <div class="error-page__actions" dgaCardActions>
       @if (isAuthenticated()) {
         <a class="error-page__action" [routerLink]="homeLink">{{ 'error-pages.home' | t }}</a>
-        <dga-button variant="secondary-outline" size="md" (click)="signInAsAnotherUser()">
+        <dga-button variant="secondary-outline" size="md" data-public-action (click)="signInAsAnotherUser()">
           {{ 'error-pages.unauthorized.sign-in-as-another-user' | t }}
         </dga-button>
       } @else {

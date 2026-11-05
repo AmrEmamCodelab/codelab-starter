@@ -4,6 +4,55 @@
 
 Every key bound by an options class that declares `public const string SectionName`, with the default a fresh options instance carries. `<n>` is an array index and `<name>` a dictionary key. Secrets (keys, passwords, connection strings) never go into a committed file: Development reads them from `appsettings.Development.local.json` (`tools/devseed/New-LocalSecrets.ps1`), servers from the environment.
 
+## Codelab.Identity
+
+### `Codelab:Identity:ActiveDirectory`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Codelab:Identity:ActiveDirectory:BaseDn` | string |  | The subtree the user search starts from (for example `DC=example,DC=org`). It also limits who can sign in. |
+| `Codelab:Identity:ActiveDirectory:Domain` | string |  | The DNS domain a bare logon name is bound in, as `user@Domain` (for example `example.org`). |
+| `Codelab:Identity:ActiveDirectory:Enabled` | bool | `false` | Whether the Active Directory provider is on. Off: nothing else here is read and every sign-in is Unavailable. |
+| `Codelab:Identity:ActiveDirectory:Host` | string |  | The domain controller (or the domain's DNS name). Its certificate must name it for LDAPS to validate. |
+| `Codelab:Identity:ActiveDirectory:MatchBy` | enum LoginMatchField (Email, LoginName, Upn) | `LoginName` | Which directory value finds the local account (`LoginName` by default). |
+| `Codelab:Identity:ActiveDirectory:NetBiosName` | string |  | The NetBIOS name of `Domain` (for example `EXAMPLE`). A `DOMAIN\user` name is accepted only with this prefix; empty refuses the down-level form. Any other prefix names another (trusted) domain, whose account the bind would check while the search under `BaseDn` found a local namesake. |
+| `Codelab:Identity:ActiveDirectory:Port` | int | `636` | The LDAP port: `LdapsPort` by default. |
+| `Codelab:Identity:ActiveDirectory:SearchFilter` | string | `(&(objectCategory=person)(objectClass=user)(\|(sAMAccountName={0})(userPrincipalName={1})))` | The user search filter. Must contain `LoginNamePlaceholder`; may contain `BindNamePlaceholder`. Values are escaped per RFC 4515 before substitution. |
+| `Codelab:Identity:ActiveDirectory:TimeoutSeconds` | int | `10` | The bound on one sign-in, in seconds (`DefaultTimeoutSeconds`). |
+| `Codelab:Identity:ActiveDirectory:UpnSuffixes:<n>` | string |  | The UPN suffixes, besides `Domain`, that a typed `user@suffix` may carry (alternative suffixes of this domain). Any other suffix is refused before the bind, for the same reason as a foreign `NetBiosName`. |
+| `Codelab:Identity:ActiveDirectory:UseLdaps` | bool | `true` | Whether the connection is TLS. Required outside Development. There is no switch that skips certificate validation. |
+
+### `Codelab:Identity:Sso`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Codelab:Identity:Sso:AllowedAlgorithms:<n>` | string |  | The accepted id_token algorithms. Empty means `Default` (RS256). Only asymmetric algorithms are ever accepted. |
+| `Codelab:Identity:Sso:Authority` | string |  | The issuer identifier. The id_token's `iss` must equal it exactly (no trailing-slash folding). |
+| `Codelab:Identity:Sso:AuthorizationEndpoint` | string |  | Where the browser signs in (authorization code + PKCE S256). |
+| `Codelab:Identity:Sso:BackchannelTimeoutSeconds` | int | `15` | The timeout of each back-channel call, in seconds. |
+| `Codelab:Identity:Sso:Claims:DisplayName` | string | `name` | The display name claim. |
+| `Codelab:Identity:Sso:Claims:Email` | string | `email` | The email claim. |
+| `Codelab:Identity:Sso:Claims:EmailVerified` | string | `email_verified` | The email-verified claim (a JSON boolean or the string `true`). |
+| `Codelab:Identity:Sso:Claims:LoginName` | string | `preferred_username` | The login-name claim (some providers release the directory logon name as `loginName`). |
+| `Codelab:Identity:Sso:Claims:Upn` | string | `upn` | The user principal name claim. |
+| `Codelab:Identity:Sso:ClientId` | string |  | This application's client id; the id_token's `aud` must contain it. |
+| `Codelab:Identity:Sso:ClientSecret` | string |  | The client secret, sent as `client_secret_post` on the token request. Blank: a public client (PKCE only). |
+| `Codelab:Identity:Sso:ClockSkewSeconds` | int | `120` | The clock-skew tolerance, in seconds. |
+| `Codelab:Identity:Sso:EffectiveAllowedAlgorithms:<n>` | string |  | The algorithms actually accepted. |
+| `Codelab:Identity:Sso:EffectiveScopes:<n>` | string |  | The scopes actually requested. |
+| `Codelab:Identity:Sso:Enabled` | bool | `false` | Whether the provider is on. Off: nothing else here is read. |
+| `Codelab:Identity:Sso:EndSessionEndpoint` | string |  | Where the browser ends the provider session (RP-initiated logout). |
+| `Codelab:Identity:Sso:JwksUri` | string |  | The provider's JSON Web Key Set (used when `SigningKeyMode` is `Jwks`). |
+| `Codelab:Identity:Sso:MatchBy` | enum LoginMatchField (Email, LoginName, Upn) | `Email` | Which identity value finds the local account (`Email` by default). |
+| `Codelab:Identity:Sso:PinnedKeys:<n>:Kid` | string |  | The key's `kid` as the provider publishes it. Optional: blank keys are tried for any token. |
+| `Codelab:Identity:Sso:PinnedKeys:<n>:PublicKey` | string |  | An RSA (2048 bits or more) or EC public key: SubjectPublicKeyInfo PEM (`BEGIN PUBLIC KEY`) or its base64 DER. |
+| `Codelab:Identity:Sso:PostLogoutRedirectUri` | string |  | The post-logout redirect URI registered at the provider. Optional; sent on end_session when set. |
+| `Codelab:Identity:Sso:RedirectUri` | string |  | The redirect URI registered at the provider, as the browser sees it. Sent on both the authorization and the token request. |
+| `Codelab:Identity:Sso:RequireVerifiedEmail` | bool | `true` | Whether the email is released only when the token asserts `email_verified`. Default true (fail closed): an unverified email that finds an account could claim somebody else's. |
+| `Codelab:Identity:Sso:Scopes:<n>` | string |  | The scopes requested. Empty means `DefaultScopes`. Must include `openid`. |
+| `Codelab:Identity:Sso:SigningKeyMode` | enum SigningKeyMode (Jwks, Pinned) | `Jwks` | Where the id_token signing keys come from. |
+| `Codelab:Identity:Sso:TokenEndpoint` | string |  | Where the server redeems the code. |
+
 ## Codelab.Observability
 
 ### `Observability`
@@ -171,6 +220,19 @@ Every key bound by an options class that declares `public const string SectionNa
 
 ## Identity
 
+### `Auth`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Auth:Modes:<n>` | string |  | The configured mode names, or null when `Auth:Modes` is absent (then `Default`). |
+| `Auth:WebBaseUrl` | string |  | The SPA's absolute base URL (for example `https://portal.example.org`), required with `sso`: the SSO callback redirects the browser to `{WebBaseUrl}/auth/sso/callback`. |
+
+### `Identity:Activation`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Identity:Activation:TicketLifetimeHours` | int | `72` | How long an activation link works, in hours (1 to `TicketLifetimeHoursCeiling`). |
+
 ### `Identity:BreakGlass`
 
 | Key | Type | Default | Description |
@@ -194,6 +256,20 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Identity:Jwt:Audience` | string |  | The token audience (`aud`); empty means the host's service name. |
 | `Identity:Jwt:Issuer` | string |  | The token issuer (`iss`); empty means the host's service name. |
 | `Identity:Jwt:SigningKey` | string |  | The HMAC-SHA256 signing key, base64, at least `MinimumSigningKeyBytes` bytes. |
+
+### `Identity:Lockout`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Identity:Lockout:LockoutMinutes` | int | `15` | How long a lockout lasts, in minutes (1 to `LockoutMinutesCeiling`). |
+| `Identity:Lockout:MaxFailedAttempts` | int | `5` | Consecutive wrong passwords that lock the account (1 to `MaxFailedAttemptsCeiling`). |
+
+### `Identity:Password`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Identity:Password:MinDistinctCharacters` | int | `5` | The fewest distinct characters (1 to `MinLength`). |
+| `Identity:Password:MinLength` | int | `12` | The shortest password (at least `PasswordMinLengthFloor`, at most `PasswordMaxLength`). |
 
 ### `Identity:Session`
 
@@ -222,3 +298,18 @@ Every key bound by an options class that declares `public const string SectionNa
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | `Features:<name>` | bool |  | The configured feature switches (section `Features`): flag name to on/off. |
+
+## Users
+
+### `Users:Activation`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Users:Activation:LinkBaseUrl` | string |  | The web app's absolute http(s) origin and base path (for example `http://localhost:4280`); the link is `{LinkBaseUrl}/activate#ticket=...`. No query and no fragment. |
+
+### `Users:Import`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Users:Import:BatchLifetimeMinutes` | int | `30` | How long a previewed batch may be committed, in minutes (1 to `MaxBatchLifetimeMinutes`). |
+| `Users:Import:MaxRows` | int | `1000` | The most data rows a sheet may have (1 to `MaxRowsCeiling`). |

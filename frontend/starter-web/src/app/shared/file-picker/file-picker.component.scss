@@ -1,0 +1,35 @@
+.file-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.file-picker__label {
+  color: var(--dga-color-text-default);
+  font-size: var(--dga-font-size-sm);
+}
+
+.file-picker__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+// Visually hidden but present: the DGA button opens it, so the native control's own text never shows.
+.file-picker__input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.file-picker__name {
+  color: var(--dga-color-text-paragraph);
+  font-size: var(--dga-font-size-sm);
+  overflow-wrap: anywhere;
+}

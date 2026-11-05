@@ -13,7 +13,19 @@ export interface AppConfig {
   readonly security: AppConfigSecurity;
   /** The language a first visit renders in. */
   readonly defaultLanguage: AppLanguage;
+  /**
+   * Seconds between background permission syncs while signed in, so a grant or revoke shows without a new login
+   * (0 turns the interval off; focus and navigation still sync). Optional in the file: defaults to
+   * {@link DEFAULT_PERMISSION_REFRESH_SECONDS}.
+   */
+  readonly permissionRefreshSeconds: number;
 }
+
+/** The background permission sync interval when `config.json` names none. */
+export const DEFAULT_PERMISSION_REFRESH_SECONDS = 30;
+
+/** The longest accepted interval (one day): a larger value is a typo, not a policy. */
+export const MAX_PERMISSION_REFRESH_SECONDS = 86_400;
 
 export interface AppConfigOrigins {
   readonly api: readonly string[];
@@ -50,6 +62,14 @@ function isStringList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(isNonEmptyString);
 }
 
+function isRefreshSeconds(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) >= 0 && (value as number) <= MAX_PERMISSION_REFRESH_SECONDS;
+}
+
+function optionalField<T>(value: unknown, field: string, check: (candidate: unknown) => candidate is T, fallback: T): T {
+  return value === undefined ? fallback : requireField(value, field, check);
+}
+
 function requireField<T>(value: unknown, field: string, check: (candidate: unknown) => candidate is T): T {
   if (!check(value)) {
     throw new AppConfigInvalidError(field);
@@ -77,6 +97,12 @@ export function parseAppConfig(raw: unknown): AppConfig {
       protocolPrefix: requireField(security['protocolPrefix'], 'security.protocolPrefix', isNonEmptyString),
     },
     defaultLanguage: requireField(root['defaultLanguage'], 'defaultLanguage', isAppLanguage),
+    permissionRefreshSeconds: optionalField(
+      root['permissionRefreshSeconds'],
+      'permissionRefreshSeconds',
+      isRefreshSeconds,
+      DEFAULT_PERMISSION_REFRESH_SECONDS,
+    ),
   };
 }
 

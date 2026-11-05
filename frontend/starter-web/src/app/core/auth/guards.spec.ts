@@ -66,6 +66,21 @@ describe('core guards', () => {
       await expect(run(permissionGuard(), route({ permission: 'dashboard.view' }))).resolves.toBe(true);
     });
 
+    it('lets a holder of any one key in a list through', async () => {
+      store.set(['users.view']);
+      await expect(run(permissionGuard(['access.admin.view', 'users.view']))).resolves.toBe(true);
+    });
+
+    it('sends a user holding none of the listed keys to the 403 page', async () => {
+      store.set(['dashboard.view']);
+      expect(String(await run(permissionGuard(['access.admin.view', 'users.view'])))).toBe('/unauthorized');
+    });
+
+    it('fails closed on an empty key list', async () => {
+      store.set(['dashboard.view']);
+      expect(String(await run(permissionGuard([]), route({ permission: 'dashboard.view' })))).toBe('/unauthorized');
+    });
+
     it('sends a user without the key to the 403 page', async () => {
       store.set(['dashboard.view']);
       const result = (await run(permissionGuard('access.admin.view'))) as UrlTree;

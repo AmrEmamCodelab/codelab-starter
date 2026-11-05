@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { BROWSER_STORAGE } from '../session/app-storage';
 import { MemoryStorage } from '../session/memory-storage';
 import { StorageKeys } from '../session/storage-keys';
+import { SignInMode } from './sign-in-mode';
 import { TokenStore } from './token.store';
 
 const RESPONSE = {
@@ -35,7 +36,7 @@ describe('TokenStore', () => {
 
   it('saves a response in memory and in storage', () => {
     const store = setUp(storage);
-    const session = store.save(RESPONSE);
+    const session = store.save(RESPONSE, SignInMode.Basic);
     expect(session.accessTokenExpiresAt).toBe(Date.parse(RESPONSE.accessTokenExpiresAt));
     expect(store.accessToken()).toBe('a1');
     expect(store.refreshToken()).toBe('r1');
@@ -45,7 +46,7 @@ describe('TokenStore', () => {
   });
 
   it('restores a stored session on start', () => {
-    setUp(storage).save(RESPONSE);
+    setUp(storage).save(RESPONSE, SignInMode.Basic);
     TestBed.resetTestingModule();
     const restored = setUp(storage);
     expect(restored.session()?.idleTimeoutMinutes).toBe(20);
@@ -53,7 +54,7 @@ describe('TokenStore', () => {
   });
 
   it('treats a partial or corrupt stored session as no session', () => {
-    setUp(storage).save(RESPONSE);
+    setUp(storage).save(RESPONSE, SignInMode.Basic);
     storage.setItem(StorageKeys.SessionUser, '{not json');
     TestBed.resetTestingModule();
     expect(setUp(storage).session()).toBeNull();
@@ -68,9 +69,29 @@ describe('TokenStore', () => {
     expect(setUp(storage).session()).toBeNull();
   });
 
+  it('remembers the sign-in mode across a reload', () => {
+    const store = setUp(storage);
+    store.save(RESPONSE, SignInMode.Sso);
+    expect(store.signInMode()).toBe(SignInMode.Sso);
+    expect(storage.getItem(StorageKeys.SignInMode)).toBe(String(SignInMode.Sso));
+    TestBed.resetTestingModule();
+    expect(setUp(storage).signInMode()).toBe(SignInMode.Sso);
+  });
+
+  it('reads a session stored without a mode as a basic session', () => {
+    setUp(storage).save(RESPONSE, SignInMode.ActiveDirectory);
+    storage.removeItem(StorageKeys.SignInMode);
+    TestBed.resetTestingModule();
+    expect(setUp(storage).session()?.signInMode).toBe(SignInMode.Basic);
+  });
+
+  it('has no sign-in mode while signed out', () => {
+    expect(setUp(storage).signInMode()).toBeNull();
+  });
+
   it('clears memory and storage', () => {
     const store = setUp(storage);
-    store.save(RESPONSE);
+    store.save(RESPONSE, SignInMode.Basic);
     store.clear();
     expect(store.session()).toBeNull();
     expect(storage.length).toBe(0);
@@ -101,7 +122,7 @@ describe('TokenStore', () => {
       recording.setItem = (key, value) => (writes.push(key), setItem(key, value));
       recording.removeItem = (key) => (writes.push(key), removeItem(key));
       const store = setUp(recording);
-      store.save(RESPONSE);
+      store.save(RESPONSE, SignInMode.Basic);
       expect(writes.at(-1)).toBe(StorageKeys.AccessTokenExpiresAt);
       store.clear();
       expect(writes.at(-1)).toBe(StorageKeys.AccessTokenExpiresAt);
@@ -109,7 +130,7 @@ describe('TokenStore', () => {
 
     it('adopts tokens another tab rotated when their expiry is written', () => {
       const store = setUp(storage);
-      store.save(RESPONSE);
+      store.save(RESPONSE, SignInMode.Basic);
       otherTab(() => writeSession(storage, ROTATED), StorageKeys.AccessTokenExpiresAt, 'x');
       expect(store.accessToken()).toBe('a2');
       expect(store.refreshToken()).toBe('r2');
@@ -117,21 +138,21 @@ describe('TokenStore', () => {
 
     it('ignores the events of the other session keys (they arrive before the session is complete)', () => {
       const store = setUp(storage);
-      store.save(RESPONSE);
+      store.save(RESPONSE, SignInMode.Basic);
       otherTab(() => storage.setItem(StorageKeys.RefreshToken, 'r2'), StorageKeys.RefreshToken, 'r2');
       expect(store.refreshToken()).toBe('r1');
     });
 
     it('signs out when another tab clears the session', () => {
       const store = setUp(storage);
-      store.save(RESPONSE);
+      store.save(RESPONSE, SignInMode.Basic);
       otherTab(() => storage.clear(), StorageKeys.AccessTokenExpiresAt, null);
       expect(store.session()).toBeNull();
     });
 
     it('adoptStored keeps the in-memory session when storage holds none (a storage that refuses writes)', () => {
       const store = setUp(storage);
-      store.save(RESPONSE);
+      store.save(RESPONSE, SignInMode.Basic);
       storage.clear();
       expect(store.adoptStored()?.refreshToken).toBe('r1');
     });

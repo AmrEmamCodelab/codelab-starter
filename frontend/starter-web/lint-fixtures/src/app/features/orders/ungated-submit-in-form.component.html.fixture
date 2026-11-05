@@ -1,0 +1,4 @@
+<!-- Lint fixture case: a submit button inside a (ngSubmit) form, without *hasPermission or data-public-action (must fail on line 3). -->
+<section class="orders">
+  <form (ngSubmit)="save()"><button>{{ 'orders.save' | t }}</button></form>
+</section>

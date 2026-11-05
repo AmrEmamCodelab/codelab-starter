@@ -5,14 +5,15 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, type Route } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { App } from './app';
+import { APP_NAV_ITEMS } from './app-nav';
 import { NOT_FOUND_PATH, SHELL_PATH, routes } from './app.routes';
 import { authGuard } from './core/auth/auth.guard';
 import { CORE_TRANSLATION_KEYS } from './core/i18n/core-translation-keys';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
+import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
 import { LoginFieldMessageKeys } from './features/auth/login-form';
 import { SignInMessageKeys } from './features/auth/sign-in.service';
-import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
 import { LanguageNameKeys } from './layouts/language-switcher/language-switcher.component';
 import { fakeAuth, layoutTestProviders } from './layouts/layout.testing';
 
@@ -83,10 +84,12 @@ describe('routes', () => {
     const children = route(SHELL_PATH).children ?? [];
     const gate = (path: string) => route(path, children);
     expect(gate(RoutePaths.Dashboard).data?.[RouteDataKeys.Permission]).toBe(PermissionKeys.DashboardView);
-    expect(gate(RoutePaths.Admin).data?.[RouteDataKeys.Permission]).toBe(PermissionKeys.AccessAdminView);
+    // The admin mount opens to any admin page key (ADMIN_AREA_PERMISSIONS); each admin page carries its own key.
+    expect(gate(RoutePaths.Admin).data?.[RouteDataKeys.Permission]).toBeUndefined();
+    expect(ADMIN_AREA_PERMISSIONS).toContain(PermissionKeys.AccessAdminView);
     for (const child of children) {
       expect(child.canActivate).toHaveLength(1);
-      expect(child.loadComponent).toBeTypeOf('function');
+      expect(child.loadComponent ?? child.loadChildren).toBeTypeOf('function');
     }
   });
 
@@ -95,10 +98,16 @@ describe('routes', () => {
   });
 
   it('lazy-loads every page', async () => {
-    const pages = [...routes, ...(route(SHELL_PATH).children ?? [])];
+    const pages = [...routes, ...(route(SHELL_PATH).children ?? [])].filter(page => page.loadComponent !== undefined);
     for (const page of pages) {
       await expect(page.loadComponent?.()).resolves.toBeTypeOf('function');
     }
+  });
+
+  it('lazy-loads the admin area as its own route table', async () => {
+    const admin = route(RoutePaths.Admin, route(SHELL_PATH).children ?? []);
+    expect(admin.loadComponent).toBeUndefined();
+    await expect(admin.loadChildren?.()).resolves.toEqual(expect.any(Array));
   });
 });
 
@@ -111,7 +120,7 @@ describe('translations', () => {
   const usedKeys = [
     ...CORE_TRANSLATION_KEYS,
     ...templateKeys(),
-    ...SHELL_NAV_ITEMS.map(item => item.labelKey),
+    ...APP_NAV_ITEMS.map(item => item.labelKey),
     ...Object.values(LanguageNameKeys),
     ...Object.values(SignInMessageKeys),
     ...Object.values(LoginFieldMessageKeys),

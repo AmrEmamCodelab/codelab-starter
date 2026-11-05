@@ -1,0 +1,103 @@
+<section class="admin-list" [attr.aria-labelledby]="titleId">
+  <header class="admin-list__header">
+    <h1 class="admin-list__title" [id]="titleId">{{ titleKey() | t }}</h1>
+    <div class="admin-list__toolbar">
+      <ng-content select="[listToolbar]" />
+    </div>
+  </header>
+
+  <div class="admin-list__filters">
+    @if (searchable()) {
+      <form class="admin-list__search" role="search" (submit)="applySearch($event)">
+        <dga-text-input
+          type="search"
+          leadIcon="search"
+          [label]="searchLabelKey() | t"
+          [placeholder]="keys.List.SearchPlaceholder | t"
+          [value]="searchText()"
+          (valueChange)="onSearchInput($event)"
+        />
+      </form>
+    }
+    <ng-content select="[listFilters]" />
+  </div>
+
+  @if (errorMessageKey(); as messageKey) {
+    <div class="admin-list__error" role="alert">
+      <dga-icon name="alert" size="md" />
+      <div class="admin-list__error-text">
+        <p class="admin-list__error-title">{{ keys.List.Error | t }}</p>
+        <p class="admin-list__error-message">{{ messageKey | t }}</p>
+        @if (error()?.referenceCode; as code) {
+          <p class="admin-list__error-reference">{{ keys.Common.ReferenceCode | t: { code: code } }}</p>
+        }
+      </div>
+      <dga-button variant="secondary-outline" size="sm" data-public-action (click)="retry.emit()">
+        {{ keys.List.Retry | t }}
+      </dga-button>
+    </div>
+  }
+
+  <div class="admin-list__table-wrap">
+    <table class="admin-list__table" [attr.aria-busy]="loading() ? 'true' : null">
+      <caption class="dga-visually-hidden">{{ titleKey() | t }}</caption>
+      <thead>
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th scope="col" class="admin-list__head" [attr.aria-sort]="ariaSortOf(column)">
+              @if (column.sortable) {
+                <button type="button" class="admin-list__sort" data-public-action (click)="toggleSort(column)">
+                  <span>{{ column.headerKey | t }}</span>
+                  @if (sort()?.key === column.key) {
+                    <dga-icon [name]="sort()?.direction === ascending ? 'arrow-up' : 'arrow-down'" size="xs" />
+                  }
+                </button>
+              } @else {
+                {{ column.headerKey | t }}
+              }
+            </th>
+          }
+          @if (actionsTemplate()) {
+            <th scope="col" class="admin-list__head admin-list__head--actions">{{ keys.List.Actions | t }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (!error()) {
+          @for (row of rows(); track rowId()(row)) {
+            <tr class="admin-list__row">
+              @for (column of columns(); track column.key) {
+                <td class="admin-list__cell">
+                  @if (templateFor(column); as template) {
+                    <ng-container *ngTemplateOutlet="template; context: cellContext(column, row)" />
+                  } @else {
+                    {{ cellTextOf(column, row) }}
+                  }
+                </td>
+              }
+              @if (actionsTemplate(); as actions) {
+                <td class="admin-list__cell admin-list__cell--actions">
+                  <ng-container *ngTemplateOutlet="actions; context: { $implicit: row }" />
+                </td>
+              }
+            </tr>
+          }
+          @if (showLoadingRow()) {
+            <tr>
+              <td class="admin-list__state" role="status" [attr.colspan]="columnCount()">{{ keys.List.Loading | t }}</td>
+            </tr>
+          }
+          @if (showEmpty()) {
+            <tr>
+              <td class="admin-list__state" [attr.colspan]="columnCount()">{{ emptyKey() | t }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!error()) {
+    <app-list-pager [(page)]="page" [total]="total()" [pageSize]="pageSize()" />
+  }
+</section>

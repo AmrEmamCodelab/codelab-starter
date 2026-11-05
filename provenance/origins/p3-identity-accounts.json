@@ -1,0 +1,105 @@
+{
+  "batch": "p3-identity-accounts",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p3-identity-accounts -Clean (staging %TEMP%/codelab-extract/p3-identity-accounts, outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Each promoted file was rewritten with starter names and structure from the staging copy (never copied whole); \"target\" is the repo file it became, \"stagedTarget\" the path in the staging folder, so the repo file hash differs from stagedSha256. Rewritten to the phase 3 contract: the auth event vocabulary became integer enums (AuthEventType, AuthFailureReason) with explicit values; the row stores the keyed user-name hash instead of the typed user name, no IP address or user agent (the correlation id joins the request log); the sink keeps its own DbContext and fails open after logging first; lockout options moved to Identity:Lockout with a validator and no enable switch. Left behind on purpose: the gateway relay fields (relayed IP and correlation), the SSO profile-sync, unsigned-token and gateway reasons (phase 8 or not carried), the permission-denied event (owned by Access if ever added), the national-id provisioning rules and the source product roles.",
+  "origins": [
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "auth-event-sink",
+      "source": "backend/MODHS.Infrastructure/Auditing/EfAuthEventSink.cs",
+      "target": "backend/src/Modules/Identity/Infrastructure/Auditing/EfAuthEventSink.cs",
+      "mode": "copy",
+      "sourceGitBlob": "4e334ebd75029ff61ce629084d211bb862d998f6",
+      "sourceSha256": "2df76ef4e71e69975fa93c4ad5e1278a52c67d03bd30256410c08ba497525fa0",
+      "stagedSha256": "2df76ef4e71e69975fa93c4ad5e1278a52c67d03bd30256410c08ba497525fa0",
+      "stagedTarget": "reference/p3/identity-accounts/auditing/EfAuthEventSink.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "auth-event-model",
+      "source": "backend/MODHS.Domain/Abstractions/IAuthEventSink.cs",
+      "target": "backend/src/Modules/Identity/Application/Auditing/IAuthEventSink.cs",
+      "mode": "copy",
+      "sourceGitBlob": "17e6def2b32259d71f89cbe4398b3bb230319acf",
+      "sourceSha256": "7dd047fbe15592d4c9825222d5a15b05a44ff6bcb0ed49cb52d9c21ef4f98ff1",
+      "stagedSha256": "7dd047fbe15592d4c9825222d5a15b05a44ff6bcb0ed49cb52d9c21ef4f98ff1",
+      "stagedTarget": "reference/p3/identity-accounts/auditing/model/MODHS.Domain/Abstractions/IAuthEventSink.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "auth-event-model",
+      "source": "backend/MODHS.Domain/Constants/AuthEventTypes.cs",
+      "target": "backend/src/Modules/Identity/Domain/AuthEvent.cs",
+      "mode": "copy",
+      "sourceGitBlob": "d8d7f1f7467297c458cbd255bb9f23fe3c7f4ec8",
+      "sourceSha256": "b90a981fe7d038972ad481e1a8c2045aa0616f16fa2c6968be644bda3015e2f4",
+      "stagedSha256": "b90a981fe7d038972ad481e1a8c2045aa0616f16fa2c6968be644bda3015e2f4",
+      "stagedTarget": "reference/p3/identity-accounts/auditing/model/MODHS.Domain/Constants/AuthEventTypes.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "auth-event-model",
+      "source": "backend/MODHS.Domain/Entities/Auditing/AuthEvent.cs",
+      "target": "backend/src/Modules/Identity/Domain/AuthEvent.cs",
+      "mode": "copy",
+      "sourceGitBlob": "8248f3e669b14b9846690c525664138001a64561",
+      "sourceSha256": "c839c9c235bad0bc502a4c9c7b68e63a827b23236ab75956a364d64137c2abaa",
+      "stagedSha256": "c839c9c235bad0bc502a4c9c7b68e63a827b23236ab75956a364d64137c2abaa",
+      "stagedTarget": "reference/p3/identity-accounts/auditing/model/MODHS.Domain/Entities/Auditing/AuthEvent.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "auth-event-model",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/AuthEventConfiguration.cs",
+      "target": "backend/src/Modules/Identity/Infrastructure/Persistence/IdentityDbContext.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ae07ee61b784b74c1ea1c56a8706370b93de8147",
+      "sourceSha256": "bb51a49675205ff928ab30c0a595b059ef1e23bebdab0e853528f1d10e714fca",
+      "stagedSha256": "bb51a49675205ff928ab30c0a595b059ef1e23bebdab0e853528f1d10e714fca",
+      "stagedTarget": "reference/p3/identity-accounts/auditing/model/MODHS.Infrastructure/Data/Configurations/AuthEventConfiguration.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "account-provisioner",
+      "source": "backend/MODHS.Infrastructure/Authorization/UserAccountProvisioner.cs",
+      "target": "reference/p3/identity-accounts/accounts/UserAccountProvisioner.cs",
+      "mode": "copy",
+      "sourceGitBlob": "73cd53a4eabd3c1cfa2fa85738fd965950c371de",
+      "sourceSha256": "92518b3955ab2bdce86382b3f9a7b8870f7f324b1b0b9c7f0391318880a0d308",
+      "stagedSha256": "92518b3955ab2bdce86382b3f9a7b8870f7f324b1b0b9c7f0391318880a0d308",
+      "stagedTarget": "reference/p3/identity-accounts/accounts/UserAccountProvisioner.cs",
+      "promotion": "staged",
+      "note": "Not carried: its rules are the national-id shape and ownership checks, the identity-provider mirror columns and the organization representative link, all left behind or owned by the Users module. The one credential rule it shared (which credential a new account receives) is rewritten from the phase contract as Application/Accounts/AccountAdministration.cs plus Application/Activation/ActivationIssuer.cs: no password ever, an activation link for password accounts."
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "lockout-options",
+      "source": "backend/MODHS.Api/Services/AccountLockoutOptions.cs",
+      "target": "backend/src/Modules/Identity/Infrastructure/Options/AccountSecurityOptions.cs",
+      "mode": "copy",
+      "sourceGitBlob": "9aefd1be69b4fe745940b0c85c05a72cbd323a9d",
+      "sourceSha256": "279abb66007287934ec94a96354c8f9d5c46b8f6cdbd884f36894b0f5a8bd301",
+      "stagedSha256": "279abb66007287934ec94a96354c8f9d5c46b8f6cdbd884f36894b0f5a8bd301",
+      "stagedTarget": "reference/p3/identity-accounts/lockout/AccountLockoutOptions.cs",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p3-identity-accounts",
+      "entryId": "tests-integration",
+      "source": "backend/MODHS.IntegrationTests/AuthEventTrailTests.cs",
+      "target": "backend/tests/Starter.Integration.Tests/Accounts/AccountSecurityFlowTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "f52979fe19df2b0f61018f0666bc12755f80c826",
+      "sourceSha256": "ff05018ad164f0362842d10a438d5321f75c8a13af46fc200722617d9f869612",
+      "stagedSha256": "ff05018ad164f0362842d10a438d5321f75c8a13af46fc200722617d9f869612",
+      "stagedTarget": "reference/p3/identity-accounts/tests/integration/AuthEventTrailTests.cs",
+      "promotion": "rewritten"
+    }
+  ]
+}

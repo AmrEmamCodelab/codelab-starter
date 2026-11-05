@@ -17,7 +17,8 @@ A start:
 
 1. Writes `backend/src/Starter.Api/appsettings.Development.local.json` with `tools/devseed/New-LocalSecrets.ps1`
    when it is missing (never overwrites).
-2. Starts LocalDB (`sqllocaldb start MSSQLLocalDB`).
+2. Starts LocalDB (`sqllocaldb start MSSQLLocalDB`), unless `ConnectionStrings__Starter` is set to another server
+   (for example a throwaway database on `(localdb)\P2Proof`): then that instance is left alone.
 3. Uses Seq when it answers at `CODELAB_SEQ_URL` or `http://localhost:5341`, starts the `Seq` Windows service when
    it is installed but stopped, and otherwise warns and continues (`-NoSeq` skips this).
 4. Builds the API with the private .NET SDK (`dotnet build backend/src/Starter.Api/Starter.Api.csproj`; a build

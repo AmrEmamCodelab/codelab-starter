@@ -13,6 +13,7 @@ host use. It never names a module.
 | `Features` | `IFeatureFlagSource`, `FeatureFlag`, `Features:*` switches (validated on start), `IFeatureGate`, `[RequiresFeature]` (removes the action from MVC while off), the anonymous `GET /api/features` controller (flags only) |
 | `Users`, `Localization` | `HttpCurrentUserContext` (`sub`, `sid`), `HttpAuditContextAccessor`, `HttpCurrentLanguage` (`Accept-Language`, Arabic default) |
 | `Results`, `Errors` | `OutcomeResults` (Outcome to 200/204 or problem+json), `StarterFailures` (domain exceptions to 404/403/422) |
+| `Messaging` | `OutboxDbContext` (schema `messaging`, table `OutboxMessages`: Id bigint identity, Type, PayloadJson, Status int, CreatedAt, NotBefore; index Status + CreatedAt), its reshaped `InitialCreate` migration and `OutboxMigrationModel`, `EfOutbox` (`IOutbox`), `AddStarterMessaging` (called by `AddStarterKernel`) |
 | `Hosting` | `ApiRoutes.Prefix` (`api`), `AddStarterKernel`, `UseStarterPipeline`, `MapStarterEndpoints` |
 | `Configuration` | `AddLocalSecretsFile` (`appsettings.Development.local.json`, Development only) |
 
@@ -54,6 +55,12 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 - Time comes from `TimeProvider`; tests: `backend/tests/Starter.Api.Tests` (no database).
 
 ## Gotchas
+- **The outbox saves on its own.** `EfOutbox` adds a Pending row and saves `OutboxDbContext` at once; it does not join
+  the caller's module transaction (phase 5 adds that and the drain). The `messaging` schema is one more migrated
+  context on start, with its own `__EFMigrationsHistory`, and one more DBA script in production.
+- **A messaging migration** follows the module migration rules: add one with dotnet-ef, then reshape it (named types
+  and ids, no generated marker, no `*.Designer.cs`), freeze `OutboxMigrationModel` and keep
+  `backend/tests/Starter.Api.Tests/Messaging` (`HasPendingModelChanges`) green.
 - **Unmatched routes are 404, not 401.** The fallback requirement passes a request that matched no endpoint, so the
   status-code page answers 404 problem+json; every real endpoint stays closed to anonymous callers.
 - **`[RequiresFeature]` removes the action at startup**: a switched-off endpoint is a plain 404, and changing a

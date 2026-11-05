@@ -7,5 +7,6 @@
   "security": {
     "protocolPrefix": "STARTER"
   },
-  "defaultLanguage": "ar"
+  "defaultLanguage": "ar",
+  "permissionRefreshSeconds": 30
 }

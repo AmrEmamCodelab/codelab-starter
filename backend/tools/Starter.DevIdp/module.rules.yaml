@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the dev IdP tool (inherits rules/base.rules.yaml). After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: StarterDevIdp
+kind: dotnet
+description: "Dev IdP: a small OpenID Connect issuer (code + PKCE S256, RS256 id_token, JWKS, userinfo, end-session) for local runs on :5190 and in-process tests; Development only, never deployed."
+mayDependOn: []
+required:
+  - id: starterdevidp.development-only
+    statement: Every entry point (the process, DevIdpApp.MapDevIdp, DevIdpInProcessServer) refuses any environment other than Development, and the tool is never published, packaged or added to a deploy kit.
+    enforcedBy: [review]
+  - id: starterdevidp.no-key-material
+    statement: The RSA signing key is generated in memory at start and never written, logged or read from a file; client secrets are never committed (the committed client is public, tests generate secrets at run time).
+    enforcedBy: [review]
+  - id: starterdevidp.standard-protocol
+    statement: The tool speaks standard OAuth 2.0 / OpenID Connect only (RFC 6749, RFC 7636 S256, OIDC Core, RP-Initiated Logout); protocol names and values come from the Protocol constants, and it never adds behaviour a real provider would not have just to make a test pass.
+    enforcedBy: [review]
+  - id: starterdevidp.neutral-fixtures
+    statement: Fixture users use neutral data in the example.test domain; no real person, organization or product name.
+    enforcedBy: [review]
+forbidden:
+  - id: starterdevidp.no-starter-dependency
+    description: The dev IdP stands alone (the API reaches it only over HTTP); a using of another Starter assembly would couple a test double to the code it tests.
+    pattern: '^\s*using\s+Starter\.(?!DevIdp\b)'
+    flags: m
+    appliesTo: ["**/*.cs"]
+    fix: Keep the IdP self-contained; share protocol facts through configuration, not types.
+    severity: error

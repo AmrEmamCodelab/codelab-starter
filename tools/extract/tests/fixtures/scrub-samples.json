@@ -315,7 +315,9 @@
     "const PRIVATE_DOTNET = 'E:\\codelab-tools\\dotnet10\\dotnet.exe';",
     "pattern: \"\\bconfiguration\\s*\\[\\s*\"",
     "build 20261104 of order 12345",
-    "scan https://dga.gov.sa and https://example.sa"
+    "scan https://dga.gov.sa and https://example.sa",
+    "var kind = UserKind.Internal;",
+    "using Microsoft.Extensions.Hosting.Internal;"
   ],
   "dga": {
     "packageJsonDependency": "\"@dga/ui\": \"1.0.0\"",

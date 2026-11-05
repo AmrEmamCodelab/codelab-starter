@@ -1,4 +1,5 @@
-import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ResponseSignatureError, ResponseSignatureFailures } from '@codelab/ng-security';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -9,7 +10,7 @@ import { PermissionSyncService } from '../permissions/permission-sync.service';
 import { SessionEndReasons } from '../routing/route-paths';
 import { errorDialogInterceptor } from './error-dialog.interceptor';
 import { ErrorDialogStore } from './error-dialog.store';
-import { forbiddenInterceptor } from './forbidden.interceptor';
+import { forbiddenInterceptor, isForbidden } from './forbidden.interceptor';
 import { quietContext, selfHandledContext } from './http-context';
 import { sessionExpiredInterceptor } from './session-expired.interceptor';
 
@@ -93,6 +94,16 @@ describe('core response interceptors', () => {
     it('leaves a self-handled 403 alone', () => {
       fail(403, quietContext());
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('treats a 403 whose signature could not be verified as a 403, and nothing else', () => {
+      const unverified = (status: number) =>
+        new ResponseSignatureError(ResponseSignatureFailures.mismatch, { status, url: URL });
+      expect(isForbidden(unverified(403))).toBe(true);
+      expect(isForbidden(unverified(500))).toBe(false);
+      expect(isForbidden(new HttpErrorResponse({ status: 403 }))).toBe(true);
+      expect(isForbidden(new HttpErrorResponse({ status: 404 }))).toBe(false);
+      expect(isForbidden(new Error('403'))).toBe(false);
     });
   });
 

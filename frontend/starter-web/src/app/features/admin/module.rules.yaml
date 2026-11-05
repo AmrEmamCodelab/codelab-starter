@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebAdmin
 kind: angular
-description: "Starter web access administration: a placeholder page gated by access.admin.view."
+description: "Starter web administration (/admin): the admin home, users, organizations and the Excel user import on the admin-list and editor-dialog patterns (feature clients over ApiService, per-page stores, every route and action button gated by a typed permission key), plus the access screens under access/."
 mayDependOn: []
 mustNotDependOn: []

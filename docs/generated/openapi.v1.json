@@ -35,6 +35,1403 @@
         }
       }
     },
+    "/api/admin/access/permissions": {
+      "get": {
+        "tags": [
+          "AccessPermissions"
+        ],
+        "summary": "Every catalog permission, retired ones included, sorted by key.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/access/roles": {
+      "get": {
+        "tags": [
+          "AccessRoles"
+        ],
+        "summary": "Every role, virtual roles first.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleSummaryResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleSummaryResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleSummaryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AccessRoles"
+        ],
+        "summary": "Creates an active, ordinary role (201).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/access/roles/{id}": {
+      "get": {
+        "tags": [
+          "AccessRoles"
+        ],
+        "summary": "One role with its permissions.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AccessRoles"
+        ],
+        "summary": "Changes a role's names, permissions and active state.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/access/users": {
+      "get": {
+        "tags": [
+          "AccessUsers"
+        ],
+        "summary": "Up to 20 accounts matching the search (active and deactivated).",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessUserResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessUserResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessUserResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/access/users/{userId}/grants": {
+      "get": {
+        "tags": [
+          "AccessUsers"
+        ],
+        "summary": "One user's roles, direct grants, virtual roles and effective permissions.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AccessUsers"
+        ],
+        "summary": "Replaces one user's roles and direct grants (live on the user's next request, no relogin).",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutUserGrantsCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutUserGrantsCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutUserGrantsCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGrantsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/organizations": {
+      "get": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "One page of organizations, ordered by code.",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "description": "Matched against the code and both names.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Kind",
+            "in": "query",
+            "description": "Only this kind.",
+            "schema": {
+              "$ref": "#/components/schemas/OrganizationKind"
+            }
+          },
+          {
+            "name": "IsActive",
+            "in": "query",
+            "description": "Only active or deactivated organizations.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "description": "The 1-based page (default 1).",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "description": "The page size (default int UsersLimits.DefaultPageSize, at most int UsersLimits.MaxPageSize).",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationPageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "Creates an active organization.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/organizations/{id}": {
+      "get": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "One organization.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "Changes an organization's code, names and kind.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/organizations/{id}/deactivate": {
+      "post": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "Deactivates an organization (its accounts stay; it accepts no new member).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/organizations/{id}/reactivate": {
+      "post": {
+        "tags": [
+          "AdminOrganizations"
+        ],
+        "summary": "Reactivates an organization.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/user-import/preview": {
+      "post": {
+        "tags": [
+          "UserImport"
+        ],
+        "summary": "Reads and validates the sheet and stores the batch; nothing is created yet.",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ContentType": {
+                    "type": "string"
+                  },
+                  "ContentDisposition": {
+                    "type": "string"
+                  },
+                  "Headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "Length": {
+                    "pattern": "^-?(?:0|[1-9]\\d*)$",
+                    "type": [
+                      "integer",
+                      "string"
+                    ],
+                    "format": "int64"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "FileName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/user-import/{batchId}/commit": {
+      "post": {
+        "tags": [
+          "UserImport"
+        ],
+        "summary": "Creates the accounts of the batch's valid rows (no passwords; activation links for password-bound rows).",
+        "parameters": [
+          {
+            "name": "batchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCommitResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "AdminUsers"
+        ],
+        "summary": "One page of accounts with their organization names.",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "description": "Matched against the user name, display name and e-mail address.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "OrganizationId",
+            "in": "query",
+            "description": "Only this organization's accounts.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Kind",
+            "in": "query",
+            "description": "Only this kind.",
+            "schema": {
+              "$ref": "#/components/schemas/UserKind"
+            }
+          },
+          {
+            "name": "IsActive",
+            "in": "query",
+            "description": "Only active or deactivated accounts.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "description": "The 1-based page (default 1).",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "description": "The page size (default int UsersLimits.DefaultPageSize, at most int UsersLimits.MaxPageSize).",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AdminUsers"
+        ],
+        "summary": "Creates an account without a password; a password-bound one comes back with its activation link.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "tags": [
+          "AdminUsers"
+        ],
+        "summary": "One account.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AdminUsers"
+        ],
+        "summary": "Changes an account's editable fields.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/activation": {
+      "post": {
+        "tags": [
+          "AdminUserActions"
+        ],
+        "summary": "Issues a new activation link (password binding only); the current password stops working.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/deactivate": {
+      "post": {
+        "tags": [
+          "AdminUserActions"
+        ],
+        "summary": "Deactivates the account; its open sessions answer 401 from their next call.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/reactivate": {
+      "post": {
+        "tags": [
+          "AdminUserActions"
+        ],
+        "summary": "Reactivates the account.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/unlock": {
+      "post": {
+        "tags": [
+          "AdminUserActions"
+        ],
+        "summary": "Ends a lockout.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/activate": {
+      "post": {
+        "tags": [
+          "Activation"
+        ],
+        "summary": "Sets the account's password from an activation link; the link is spent.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateAccountCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateAccountCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateAccountCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/ad/login": {
+      "post": {
+        "tags": [
+          "DirectoryLogin"
+        ],
+        "summary": "Signs in with a directory user name and password.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectoryLoginCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectoryLoginCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectoryLoginCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
     "/api/auth/login": {
       "post": {
         "tags": [
@@ -111,6 +1508,26 @@
         }
       }
     },
+    "/api/auth/modes": {
+      "get": {
+        "tags": [
+          "LoginModes"
+        ],
+        "summary": "The switched-on login modes (`Auth:Modes`).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginModesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/refresh": {
       "post": {
         "tags": [
@@ -152,6 +1569,243 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sso/exchange": {
+      "post": {
+        "tags": [
+          "Sso"
+        ],
+        "summary": "Trades the one-time ticket for the session (the same body as `/api/auth/login`).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SsoExchangeCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SsoExchangeCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SsoExchangeCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sso/login": {
+      "get": {
+        "tags": [
+          "Sso"
+        ],
+        "summary": "Starts a sign-in: 302 to the identity provider.",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "binding",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sso/logout": {
+      "post": {
+        "tags": [
+          "Sso"
+        ],
+        "summary": "Ends the caller's session: 200 with the provider's end_session URL for an SSO session, else 204.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SsoLogoutResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sso/signin-oidc": {
+      "get": {
+        "tags": [
+          "Sso"
+        ],
+        "summary": "The provider's redirect back: 302 to the SPA callback with `#ticket=` or `#error=`.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Found"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -285,11 +1939,466 @@
     "schemas": {
       "AccessAdminResponse": {
         "type": "object",
-        "description": "The body of `GET /api/access/admin` (an empty placeholder in phase 2)."
+        "description": "The body of `GET /api/access/admin` (an empty placeholder)."
+      },
+      "AccessUserResponse": {
+        "required": [
+          "id",
+          "userName",
+          "displayName",
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The user's PublicId (label `users`).",
+            "$ref": "#/components/schemas/PublicIdOfUserIds"
+          },
+          "userName": {
+            "type": "string",
+            "description": "The sign-in name."
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The display name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False for a deactivated account."
+          }
+        },
+        "description": "One account of the user picker (`GET /api/admin/access/users`)."
+      },
+      "AccountBinding": {
+        "type": "integer",
+        "description": "How an account proves who it is: the one sign-in mode the account accepts. Stored and sent as the integer value;\r\nlabels come from the client's i18n bundles, never from the member names."
+      },
+      "AccountFields": {
+        "required": [
+          "displayName",
+          "email",
+          "loginName",
+          "upn",
+          "kind",
+          "binding",
+          "organizationId"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The display name."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The e-mail address, or null."
+          },
+          "loginName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory login name, or null."
+          },
+          "upn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The user principal name, or null."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The kind.",
+                "$ref": "#/components/schemas/UserKind"
+              }
+            ]
+          },
+          "binding": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The binding.",
+                "$ref": "#/components/schemas/AccountBinding"
+              }
+            ]
+          },
+          "organizationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The organization, or null.",
+                "$ref": "#/components/schemas/PublicIdOfOrganizationIds"
+              }
+            ]
+          },
+          "organizationValue": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The organization's internal id, or null.",
+            "format": "int64"
+          }
+        },
+        "description": "The account fields a create and an update share, as sent."
+      },
+      "ActivateAccountCommand": {
+        "required": [
+          "ticket",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sealed ticket from the activation link's fragment."
+          },
+          "password": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The password the user chooses."
+          }
+        },
+        "description": "The body of `POST /api/auth/activate`."
+      },
+      "ActivationResponse": {
+        "required": [
+          "activationLink",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "activationLink": {
+            "type": "string",
+            "description": "The link (the sealed one-time ticket is in its fragment)."
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When it stops working.",
+            "format": "date-time"
+          }
+        },
+        "description": "An activation link to hand to the user."
+      },
+      "AssignedRoleResponse": {
+        "required": [
+          "roleId",
+          "code",
+          "nameEn",
+          "nameAr",
+          "isActive",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "description": "The role's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfRoleIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The stable code."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False when the role grants nothing."
+          },
+          "scope": {
+            "description": "Global (1) or own organization (2).",
+            "$ref": "#/components/schemas/PermissionScope"
+          }
+        },
+        "description": "An assigned role of a grants response."
+      },
+      "CreateOrganizationCommand": {
+        "required": [
+          "code",
+          "nameEn",
+          "nameAr",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The unique code (letters, digits, `_`, `-`; stored upper-case)."
+          },
+          "nameEn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The Arabic name."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Internal (1) or external (2).",
+                "$ref": "#/components/schemas/OrganizationKind"
+              }
+            ]
+          }
+        },
+        "description": "The body of `POST /api/admin/organizations`."
+      },
+      "CreateRoleCommand": {
+        "required": [
+          "code",
+          "nameEn",
+          "nameAr",
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The stable code (lower-case kebab, RoleCodeFormat); it never changes."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name (unique)."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name (unique)."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The permission keys the role grants (each in the live catalog)."
+          }
+        },
+        "description": "The body of `POST /api/admin/access/roles`, validated by CreateRoleValidator."
+      },
+      "CreateUserCommand": {
+        "required": [
+          "userName",
+          "displayName",
+          "email",
+          "loginName",
+          "upn",
+          "kind",
+          "binding",
+          "organizationId"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sign-in name (unique)."
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name shown in the shell and the lists."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The e-mail address (unique when given), or null."
+          },
+          "loginName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory login name (unique when given), or null."
+          },
+          "upn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The user principal name (unique when given), or null."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Internal (1) or external (2).",
+                "$ref": "#/components/schemas/UserKind"
+              }
+            ]
+          },
+          "binding": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Password (1), Active Directory (2) or SSO (3).",
+                "$ref": "#/components/schemas/AccountBinding"
+              }
+            ]
+          },
+          "organizationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The organization; required for an external user.",
+                "$ref": "#/components/schemas/PublicIdOfOrganizationIds"
+              }
+            ]
+          },
+          "fields": {
+            "description": "The fields a create shares with an update.",
+            "$ref": "#/components/schemas/AccountFields"
+          }
+        },
+        "description": "The body of `POST /api/admin/users`. There is no password field: a password-bound account gets an activation\r\nlink, an Active Directory or SSO account signs in through its directory or identity provider."
+      },
+      "CreatedUserResponse": {
+        "required": [
+          "user",
+          "activation"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "description": "The account.",
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "activation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Its activation link (password binding only), or null.",
+                "$ref": "#/components/schemas/ActivationResponse"
+              }
+            ]
+          }
+        },
+        "description": "The body of a successful `POST /api/admin/users` (201)."
       },
       "DashboardResponse": {
         "type": "object",
         "description": "The body of `GET /api/dashboard` (empty in phase 2)."
+      },
+      "DirectGrantResponse": {
+        "required": [
+          "key",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The permission key."
+          },
+          "scope": {
+            "description": "Global (1) or own organization (2).",
+            "$ref": "#/components/schemas/PermissionScope"
+          }
+        },
+        "description": "A direct grant of a grants response."
+      },
+      "DirectoryLoginCommand": {
+        "required": [
+          "userName",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory user name as the user types it (`user`, `DOMAIN\\user` or `user@domain`)."
+          },
+          "password": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory password."
+          }
+        },
+        "description": "The body of `POST /api/auth/ad/login`."
+      },
+      "EffectivePermissionResponse": {
+        "required": [
+          "key",
+          "scope",
+          "sources"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The key."
+          },
+          "scope": {
+            "description": "The widest scope (global wins).",
+            "$ref": "#/components/schemas/PermissionScope"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionSourceResponse"
+            },
+            "description": "Every source."
+          }
+        },
+        "description": "One effective permission."
       },
       "FeaturesResponse": {
         "required": [
@@ -306,6 +2415,244 @@
           }
         },
         "description": "The feature flags of this deployment, as the client reads them."
+      },
+      "GrantUserResponse": {
+        "required": [
+          "id",
+          "userName",
+          "displayName",
+          "isActive",
+          "kind",
+          "isBreakGlass"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The user's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfUserIds"
+          },
+          "userName": {
+            "type": "string",
+            "description": "The sign-in name."
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The display name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False for a deactivated account (it holds nothing)."
+          },
+          "kind": {
+            "description": "Internal (1) or external (2): selects the virtual roles.",
+            "$ref": "#/components/schemas/UserKind"
+          },
+          "isBreakGlass": {
+            "type": "boolean",
+            "description": "True for the break-glass administrator (holds everything; not editable)."
+          }
+        },
+        "description": "The user of a grants response."
+      },
+      "ImportCommitResponse": {
+        "required": [
+          "created",
+          "rejected"
+        ],
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportedUserResponse"
+            },
+            "description": "The accounts created."
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RejectedImportRowResponse"
+            },
+            "description": "The rows left out."
+          }
+        },
+        "description": "The body of `POST /api/admin/user-import/{batchId}/commit`."
+      },
+      "ImportPreviewResponse": {
+        "required": [
+          "batchId",
+          "rows",
+          "validCount",
+          "invalidCount"
+        ],
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "description": "The batch to commit.",
+            "$ref": "#/components/schemas/PublicIdOfUserImportIds"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportPreviewRowResponse"
+            },
+            "description": "Every data row with its verdict."
+          },
+          "validCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of valid rows.",
+            "format": "int32"
+          },
+          "invalidCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows with an error.",
+            "format": "int32"
+          }
+        },
+        "description": "The body of `POST /api/admin/user-import/preview`."
+      },
+      "ImportPreviewRowResponse": {
+        "required": [
+          "rowNumber",
+          "userName",
+          "displayName",
+          "email",
+          "kind",
+          "binding",
+          "organizationCode",
+          "valid",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "rowNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The sheet row number.",
+            "format": "int32"
+          },
+          "userName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sign-in name, as read."
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The display name, as read."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The e-mail address, as read."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The parsed kind, or null when invalid.",
+                "$ref": "#/components/schemas/UserKind"
+              }
+            ]
+          },
+          "binding": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The parsed binding, or null when invalid.",
+                "$ref": "#/components/schemas/AccountBinding"
+              }
+            ]
+          },
+          "organizationCode": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The organization code, as read."
+          },
+          "valid": {
+            "type": "boolean",
+            "description": "True when the row will become an account."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The row's error codes (`errors.&lt;CODE&gt;` on the client); empty when valid."
+          }
+        },
+        "description": "One row of an import preview."
+      },
+      "ImportedUserResponse": {
+        "required": [
+          "id",
+          "userName",
+          "binding",
+          "activationLink",
+          "expiresAt",
+          "activationErrorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The account's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfUsersIds"
+          },
+          "userName": {
+            "type": "string",
+            "description": "The sign-in name."
+          },
+          "binding": {
+            "description": "Password (1), Active Directory (2) or SSO (3).",
+            "$ref": "#/components/schemas/AccountBinding"
+          },
+          "activationLink": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The activation link of a password-bound account, or null."
+          },
+          "expiresAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When that link stops working, or null.",
+            "format": "date-time"
+          },
+          "activationErrorCode": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Why a password-bound account got no link (rare; issue one from the users list), or null."
+          }
+        },
+        "description": "An account the commit created."
       },
       "LoginCommand": {
         "required": [
@@ -331,6 +2678,29 @@
         },
         "description": "The body of `POST /api/auth/login`."
       },
+      "LoginModesResponse": {
+        "required": [
+          "basic",
+          "activeDirectory",
+          "sso"
+        ],
+        "type": "object",
+        "properties": {
+          "basic": {
+            "type": "boolean",
+            "description": "User name and password."
+          },
+          "activeDirectory": {
+            "type": "boolean",
+            "description": "Directory user name and password."
+          },
+          "sso": {
+            "type": "boolean",
+            "description": "The organization's identity provider."
+          }
+        },
+        "description": "The login methods the login page offers."
+      },
       "MyPermissionsResponse": {
         "required": [
           "permissions"
@@ -346,6 +2716,158 @@
           }
         },
         "description": "The body of `GET /api/me/permissions`."
+      },
+      "OrganizationKind": {
+        "type": "integer",
+        "description": "Whose organization it is: the one running the portal (its departments) or an outside one (a partner entity).\r\nStored and sent as the integer value; labels come from the client's i18n bundles, never from the member names."
+      },
+      "OrganizationPageResponse": {
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationResponse"
+            },
+            "description": "The organizations of the page."
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of matches on every page.",
+            "format": "int32"
+          }
+        },
+        "description": "The body of `GET /api/admin/organizations`."
+      },
+      "OrganizationResponse": {
+        "required": [
+          "id",
+          "code",
+          "nameEn",
+          "nameAr",
+          "kind",
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The organization's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfOrganizationIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The unique code (upper-case)."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "kind": {
+            "description": "Internal (1) or external (2).",
+            "$ref": "#/components/schemas/OrganizationKind"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False once deactivated."
+          }
+        },
+        "description": "An organization."
+      },
+      "PermissionGrantInput": {
+        "required": [
+          "key",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The permission key (in the live catalog)."
+          },
+          "scope": {
+            "description": "How far the grant reaches.",
+            "$ref": "#/components/schemas/PermissionScope"
+          }
+        },
+        "description": "One permission to grant directly."
+      },
+      "PermissionResponse": {
+        "required": [
+          "key",
+          "module",
+          "description",
+          "isRetired"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The key; the editors build their tree from its dotted segments."
+          },
+          "module": {
+            "type": "string",
+            "description": "The owner segment."
+          },
+          "description": {
+            "type": "string",
+            "description": "The English description."
+          },
+          "isRetired": {
+            "type": "boolean",
+            "description": "True when the key left the code (grants nothing, cannot be granted)."
+          }
+        },
+        "description": "One catalog permission (`GET /api/admin/access/permissions`)."
+      },
+      "PermissionScope": {
+        "type": "integer",
+        "description": "How far a held permission reaches. Stored and sent as the integer value. When a user holds the same permission at\r\nboth scopes, PermissionScope.Global wins."
+      },
+      "PermissionSourceKind": {
+        "type": "integer",
+        "description": "Where an effective permission comes from. Stored nowhere; sent as the integer value."
+      },
+      "PermissionSourceResponse": {
+        "required": [
+          "kind",
+          "roleId",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "description": "Direct (1), role (2), virtual role (3) or break-glass (4).",
+            "$ref": "#/components/schemas/PermissionSourceKind"
+          },
+          "roleId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The role's PublicId, or null for a direct grant and break-glass.",
+                "$ref": "#/components/schemas/PublicIdOfRoleIds"
+              }
+            ]
+          },
+          "scope": {
+            "description": "The scope this source grants.",
+            "$ref": "#/components/schemas/PermissionScope"
+          }
+        },
+        "description": "One source of an effective permission."
       },
       "ProblemDetails": {
         "type": "object",
@@ -385,6 +2907,38 @@
           }
         }
       },
+      "PublicIdOfOrganizationIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfRoleIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfUserIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfUserImportIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
       "PublicIdOfUsers": {
         "examples": [
           "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -392,6 +2946,43 @@
         "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
         "type": "string",
         "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfUsersIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PutUserGrantsCommand": {
+        "required": [
+          "roles",
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleAssignmentInput"
+            },
+            "description": "The ordinary roles the user holds after the write."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionGrantInput"
+            },
+            "description": "The direct grants the user holds after the write."
+          },
+          "confirmBreakGlassOnly": {
+            "type": "boolean",
+            "description": "True accepts that the write leaves only the break-glass administrator able to manage access (otherwise refused\r\nwith string AccessErrorCodes.LastManager).",
+            "default": false
+          }
+        },
+        "description": "The body of `PUT /api/admin/access/users/{userId}/grants`: the user's complete set of roles and direct grants\r\n(replaces both), validated by PutUserGrantsValidator. A role or key listed twice keeps its widest\r\nscope."
       },
       "RefreshCommand": {
         "required": [
@@ -408,6 +2999,176 @@
           }
         },
         "description": "The body of `POST /api/auth/refresh`."
+      },
+      "RejectedImportRowResponse": {
+        "required": [
+          "rowNumber",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "rowNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The sheet row number.",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Why (error codes)."
+          }
+        },
+        "description": "A row the commit left out."
+      },
+      "RoleAssignmentInput": {
+        "required": [
+          "roleId",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "description": "The role's PublicId (an ordinary role; a virtual role is refused).",
+            "$ref": "#/components/schemas/PublicIdOfRoleIds"
+          },
+          "scope": {
+            "description": "How far the role's permissions reach for the user.",
+            "$ref": "#/components/schemas/PermissionScope"
+          }
+        },
+        "description": "One role to assign."
+      },
+      "RoleResponse": {
+        "required": [
+          "id",
+          "code",
+          "nameEn",
+          "nameAr",
+          "isActive",
+          "isVirtual",
+          "virtualKind",
+          "permissions",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The role's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfRoleIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The stable code."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False when the role grants nothing."
+          },
+          "isVirtual": {
+            "type": "boolean",
+            "description": "True for a virtual role."
+          },
+          "virtualKind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The users a virtual role reaches (int), or null.",
+                "$ref": "#/components/schemas/VirtualRoleKind"
+              }
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The keys the role grants, sorted."
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Warning codes of the write (`ACCESS_ONLY_BREAK_GLASS_MANAGES`); empty on a read."
+          }
+        },
+        "description": "One role with its permissions (GET, POST and PUT of the roles routes)."
+      },
+      "RoleSummaryResponse": {
+        "required": [
+          "id",
+          "code",
+          "nameEn",
+          "nameAr",
+          "isActive",
+          "isVirtual",
+          "virtualKind",
+          "permissionCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The role's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfRoleIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The stable code."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False when the role grants nothing."
+          },
+          "isVirtual": {
+            "type": "boolean",
+            "description": "True for a virtual role (never assignable)."
+          },
+          "virtualKind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The users a virtual role reaches (int), or null.",
+                "$ref": "#/components/schemas/VirtualRoleKind"
+              }
+            ]
+          },
+          "permissionCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "How many permissions the role grants.",
+            "format": "int32"
+          }
+        },
+        "description": "One row of `GET /api/admin/access/roles`."
       },
       "SessionResponse": {
         "required": [
@@ -503,6 +3264,424 @@
           }
         },
         "description": "A signed-in user as the client sees it."
+      },
+      "SsoExchangeCommand": {
+        "required": [
+          "ticket",
+          "bindingProof"
+        ],
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The one-time ticket from the callback's URL fragment."
+          },
+          "bindingProof": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The binding secret whose hash started the sign-in (required: without it the ticket is rejected)."
+          }
+        },
+        "description": "The body of `POST /api/auth/sso/exchange`."
+      },
+      "SsoLogoutResponse": {
+        "required": [
+          "endSessionUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "endSessionUrl": {
+            "type": "string",
+            "description": "The identity provider's end_session URL; open it with a top-level GET (not fetch)."
+          }
+        },
+        "description": "The end of an SSO logout."
+      },
+      "UpdateOrganizationCommand": {
+        "required": [
+          "code",
+          "nameEn",
+          "nameAr",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The unique code."
+          },
+          "nameEn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The Arabic name."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Internal (1) or external (2); it cannot change while accounts belong to the organization.",
+                "$ref": "#/components/schemas/OrganizationKind"
+              }
+            ]
+          }
+        },
+        "description": "The body of `PUT /api/admin/organizations/{id}` (the same fields as a create)."
+      },
+      "UpdateRoleCommand": {
+        "required": [
+          "nameEn",
+          "nameAr",
+          "permissions",
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "nameEn": {
+            "type": "string",
+            "description": "The English name (unique)."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name (unique)."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The permission keys the role grants after the write (replaces the set)."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False deactivates the role (it then grants nothing; assignments stay)."
+          },
+          "confirmBreakGlassOnly": {
+            "type": "boolean",
+            "description": "True accepts that the write leaves only the break-glass administrator able to manage access (otherwise refused\r\nwith string AccessErrorCodes.LastManager).",
+            "default": false
+          }
+        },
+        "description": "The body of `PUT /api/admin/access/roles/{id}`, validated by UpdateRoleValidator."
+      },
+      "UpdateUserCommand": {
+        "required": [
+          "displayName",
+          "email",
+          "loginName",
+          "upn",
+          "kind",
+          "binding",
+          "organizationId"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name shown in the shell and the lists."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The e-mail address (unique when given), or null."
+          },
+          "loginName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory login name (unique when given), or null."
+          },
+          "upn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The user principal name (unique when given), or null."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Internal (1) or external (2).",
+                "$ref": "#/components/schemas/UserKind"
+              }
+            ]
+          },
+          "binding": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Password (1), Active Directory (2) or SSO (3).",
+                "$ref": "#/components/schemas/AccountBinding"
+              }
+            ]
+          },
+          "organizationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The organization; required for an external user.",
+                "$ref": "#/components/schemas/PublicIdOfOrganizationIds"
+              }
+            ]
+          },
+          "fields": {
+            "description": "The fields of the update.",
+            "$ref": "#/components/schemas/AccountFields"
+          }
+        },
+        "description": "The body of `PUT /api/admin/users/{id}` (the user name never changes)."
+      },
+      "UserGrantsResponse": {
+        "required": [
+          "user",
+          "roles",
+          "permissions",
+          "virtualRoles",
+          "effective",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "description": "The user.",
+            "$ref": "#/components/schemas/GrantUserResponse"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignedRoleResponse"
+            },
+            "description": "The assigned ordinary roles with their scopes."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectGrantResponse"
+            },
+            "description": "The direct grants with their scopes."
+          },
+          "virtualRoles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VirtualRoleResponse"
+            },
+            "description": "The virtual roles that match the user's kind."
+          },
+          "effective": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EffectivePermissionResponse"
+            },
+            "description": "The live effective permissions."
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Warning codes of the write; empty on a read."
+          }
+        },
+        "description": "The body of `GET` and `PUT /api/admin/access/users/{userId}/grants`: the editable rows (roles and direct\r\npermissions), the virtual roles that reach the user, and what the user holds now with every source."
+      },
+      "UserKind": {
+        "type": "integer",
+        "description": "Who a user is to the organization running the portal. Stored and sent as the integer value; labels come from the\r\nclient's i18n bundles, never from the member names."
+      },
+      "UserPageResponse": {
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            },
+            "description": "The accounts of the page."
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of matches on every page.",
+            "format": "int32"
+          }
+        },
+        "description": "The body of `GET /api/admin/users`."
+      },
+      "UserResponse": {
+        "required": [
+          "id",
+          "userName",
+          "displayName",
+          "email",
+          "loginName",
+          "upn",
+          "kind",
+          "binding",
+          "organizationId",
+          "organizationName",
+          "isActive",
+          "hasPassword",
+          "isLockedOut",
+          "isBreakGlass"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The account's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfUsersIds"
+          },
+          "userName": {
+            "type": "string",
+            "description": "The sign-in name."
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The display name."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The e-mail address, or null."
+          },
+          "loginName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The directory login name, or null."
+          },
+          "upn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The user principal name, or null."
+          },
+          "kind": {
+            "description": "Internal (1) or external (2).",
+            "$ref": "#/components/schemas/UserKind"
+          },
+          "binding": {
+            "description": "Password (1), Active Directory (2) or SSO (3).",
+            "$ref": "#/components/schemas/AccountBinding"
+          },
+          "organizationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The organization's PublicId, or null.",
+                "$ref": "#/components/schemas/PublicIdOfOrganizationIds"
+              }
+            ]
+          },
+          "organizationName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The organization's name in the request language, or null."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False for a deactivated account."
+          },
+          "hasPassword": {
+            "type": "boolean",
+            "description": "True once a password-bound account has set its password through the activation link."
+          },
+          "isLockedOut": {
+            "type": "boolean",
+            "description": "True while failed sign-ins keep it locked."
+          },
+          "isBreakGlass": {
+            "type": "boolean",
+            "description": "True for the configured break-glass administrator."
+          }
+        },
+        "description": "An account as the admin screens see it (never a password, hash or ticket)."
+      },
+      "VirtualRoleKind": {
+        "type": "integer"
+      },
+      "VirtualRoleResponse": {
+        "required": [
+          "roleId",
+          "code",
+          "nameEn",
+          "nameAr",
+          "isActive",
+          "virtualKind"
+        ],
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "description": "The role's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfRoleIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The stable code."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "False when the role grants nothing."
+          },
+          "virtualKind": {
+            "description": "Which users it reaches (int).",
+            "$ref": "#/components/schemas/VirtualRoleKind"
+          }
+        },
+        "description": "A virtual role that reaches the user."
       }
     }
   },
@@ -512,6 +3691,15 @@
     },
     {
       "name": "Features"
+    },
+    {
+      "name": "AccessPermissions"
+    },
+    {
+      "name": "AccessRoles"
+    },
+    {
+      "name": "AccessUsers"
     },
     {
       "name": "MyPermissions"
@@ -524,6 +3712,30 @@
     },
     {
       "name": "Auth"
+    },
+    {
+      "name": "LoginModes"
+    },
+    {
+      "name": "DirectoryLogin"
+    },
+    {
+      "name": "Sso"
+    },
+    {
+      "name": "Activation"
+    },
+    {
+      "name": "AdminOrganizations"
+    },
+    {
+      "name": "AdminUsers"
+    },
+    {
+      "name": "AdminUserActions"
+    },
+    {
+      "name": "UserImport"
     }
   ]
 }

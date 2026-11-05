@@ -12,6 +12,7 @@ import { APP_CLOCK } from '../session/clock';
 import { MemoryStorage } from '../session/memory-storage';
 import { ACCESS_TOKEN_REFRESH_LEAD_MS, AuthService } from './auth.service';
 import { CROSS_TAB_LOCK, noCrossTabLock, type CrossTabLock } from './cross-tab-lock';
+import { SignInMode } from './sign-in-mode';
 import { TokenStore } from './token.store';
 
 const NOW = Date.parse('2030-01-01T00:00:00Z');
@@ -88,7 +89,7 @@ describe('AuthService across two tabs sharing one storage', () => {
       ],
     });
     // Tab one signed in earlier; both tabs start from the stored session.
-    TestBed.inject(TokenStore).save(server.session());
+    TestBed.inject(TokenStore).save(server.session(), SignInMode.Basic);
   });
 
   afterEach(() => {

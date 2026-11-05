@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../rules/rules.schema.json
+# Rules for the starter web app's shared building blocks (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebShared
+kind: angular
+description: "Starter web shared building blocks used by two or more features that are neither page patterns nor ng-dga components: the *hasPermission structural directive and its matching helper. Shared imports only core and @codelab/ng-dga (ESLint boundaries)."
+mayDependOn: []
+mustNotDependOn: []

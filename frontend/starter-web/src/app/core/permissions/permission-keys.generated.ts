@@ -3,8 +3,26 @@
 export const PermissionKeys = {
   /** Open the access administration area. (module Access) */
   AccessAdminView: 'access.admin.view',
+  /** Assign roles to users and grant permissions to them directly, with a scope. (module Access) */
+  AccessGrantsManage: 'access.grants.manage',
+  /** See a user's roles, direct grants, virtual roles and effective permissions. (module Access) */
+  AccessGrantsView: 'access.grants.view',
+  /** Create roles and change their names, permissions and active state. (module Access) */
+  AccessRolesManage: 'access.roles.manage',
+  /** See the roles, their permissions and the permission catalog. (module Access) */
+  AccessRolesView: 'access.roles.view',
   /** Open the dashboard. (module Access) */
   DashboardView: 'dashboard.view',
+  /** Create, edit, deactivate and reactivate organizations. (module Users) */
+  OrganizationsManage: 'organizations.manage',
+  /** List and open organizations. (module Users) */
+  OrganizationsView: 'organizations.view',
+  /** Preview and commit an Excel user import. (module Users) */
+  UsersImport: 'users.import',
+  /** Create, edit, deactivate, reactivate and unlock user accounts, and issue activation links. (module Users) */
+  UsersManage: 'users.manage',
+  /** List and open user accounts. (module Users) */
+  UsersView: 'users.view',
 } as const;
 
 export type PermissionKey = typeof PermissionKeys[keyof typeof PermissionKeys];

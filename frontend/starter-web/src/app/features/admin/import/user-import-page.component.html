@@ -1,0 +1,165 @@
+<section class="import-page" aria-labelledby="import-title">
+  <header class="import-page__header">
+    <h1 id="import-title" class="import-page__title">{{ 'admin.import.title' | t }}</h1>
+    <p class="import-page__text">{{ 'admin.import.intro' | t }}</p>
+  </header>
+
+  <dga-card icon="info" [heading]="'admin.import.file.heading' | t" [headingLevel]="2">
+    <div class="import-page__upload">
+      <p class="import-page__text">{{ 'admin.import.file.columns' | t }}</p>
+      <div class="import-page__field" data-testid="import-file">
+        <app-file-picker
+          labelKey="admin.import.file.label"
+          [accept]="accept"
+          [disabled]="store.busy()"
+          (fileChange)="store.selectFile($event)"
+        />
+        <span class="import-page__hint">{{ 'admin.import.file.hint' | t: { max: maxMebibytes } }}</span>
+      </div>
+      @if (store.fileProblem(); as problem) {
+        <p class="import-page__problem" role="alert" data-testid="import-file-problem">
+          {{ problemKeys[problem] | t: { max: maxMebibytes } }}
+        </p>
+      }
+      <div class="import-page__actions">
+        <dga-button
+          *hasPermission="PermissionKeys.UsersImport"
+          size="md"
+          data-testid="import-preview"
+          [disabled]="!store.canPreview()"
+          [loading]="store.busy() && store.step() === ImportStep.Pick"
+          (click)="store.uploadPreview()"
+        >
+          {{ 'admin.import.actions.preview' | t }}
+        </dga-button>
+        @if (store.step() !== ImportStep.Pick) {
+          <dga-button
+            *hasPermission="PermissionKeys.UsersImport"
+            variant="secondary-outline"
+            size="md"
+            data-testid="import-start-over"
+            [disabled]="store.busy()"
+            (click)="startOver()"
+          >
+            {{ 'admin.import.actions.start-over' | t }}
+          </dga-button>
+        }
+      </div>
+    </div>
+  </dga-card>
+
+  @if (errorMessageKey(); as messageKey) {
+    <div class="import-page__error" role="alert" data-testid="import-error">
+      <dga-icon name="alert" size="md" />
+      <div class="import-page__error-text">
+        <p class="import-page__error-message">{{ messageKey | t }}</p>
+        @if (errorDetails().length > 0) {
+          <ul class="import-page__list">
+            @for (detail of errorDetails(); track detail.field + detail.key) {
+              <li>{{ 'admin.import.error-detail' | t: { field: detail.field, message: (detail.key | t) } }}</li>
+            }
+          </ul>
+        }
+        @if (store.error()?.referenceCode; as code) {
+          <p class="import-page__reference">{{ 'patterns.common.reference-code' | t: { code: code } }}</p>
+        }
+      </div>
+    </div>
+  }
+
+  @if (store.step() === ImportStep.Previewed) {
+    <app-admin-list-pattern
+      titleKey="admin.import.preview.title"
+      emptyKey="admin.import.preview.empty"
+      [searchable]="false"
+      [columns]="previewColumns"
+      [rows]="store.previewRows()"
+      [rowId]="previewRowId"
+      [total]="store.previewTotal()"
+      [pageSize]="store.pageSize"
+      [(page)]="store.previewPage"
+    >
+      <dga-button
+        listToolbar
+        *hasPermission="PermissionKeys.UsersImport"
+        size="md"
+        data-testid="import-commit"
+        [disabled]="!store.canCommit()"
+        [loading]="store.busy()"
+        (click)="store.commit()"
+      >
+        {{ 'admin.import.actions.commit' | t: { count: store.validCount() } }}
+      </dga-button>
+      <p listFilters class="import-page__summary" data-testid="import-summary">
+        {{ 'admin.import.preview.summary' | t: { valid: store.validCount(), invalid: store.invalidCount() } }}
+      </p>
+
+      <ng-template listCell="kind" let-row [listCellOf]="store.previewRows()">
+        {{ kindLabelKey(row.kind) | t }}
+      </ng-template>
+      <ng-template listCell="binding" let-row [listCellOf]="store.previewRows()">
+        {{ bindingLabelKey(row.binding) | t }}
+      </ng-template>
+      <ng-template listCell="valid" let-row [listCellOf]="store.previewRows()">
+        @if (row.valid) {
+          <dga-status-tag tone="success">{{ 'admin.import.preview.valid' | t }}</dga-status-tag>
+        } @else {
+          <div class="import-page__verdict">
+            <dga-status-tag tone="error">{{ 'admin.import.preview.invalid' | t }}</dga-status-tag>
+            <ul class="import-page__list">
+              @for (code of row.errors; track code) {
+                <li>{{ errorCodeKey(code) | t }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </ng-template>
+    </app-admin-list-pattern>
+  }
+
+  @if (store.result(); as result) {
+    <app-admin-list-pattern
+      titleKey="admin.import.result.created-title"
+      emptyKey="admin.import.result.created-empty"
+      [searchable]="false"
+      [columns]="createdColumns"
+      [rows]="result.created"
+      [rowId]="createdRowId"
+      [total]="result.created.length"
+      [pageSize]="resultPageSize(result.created.length)"
+    >
+      <ng-template listCell="binding" let-row [listCellOf]="result.created">
+        {{ bindingLabelKey(row.binding) | t }}
+      </ng-template>
+      <ng-template listCell="activationLink" let-row [listCellOf]="result.created">
+        @if (row.activationLink && row.expiresAt) {
+          <app-activation-link [link]="row.activationLink" [expiresAt]="row.expiresAt" />
+        } @else if (row.activationErrorCode) {
+          <span class="import-page__problem">{{ errorCodeKey(row.activationErrorCode) | t }}</span>
+        } @else {
+          <span class="import-page__hint">{{ 'admin.import.result.no-link' | t }}</span>
+        }
+      </ng-template>
+    </app-admin-list-pattern>
+
+    @if (result.rejected.length > 0) {
+      <app-admin-list-pattern
+        titleKey="admin.import.result.rejected-title"
+        [searchable]="false"
+        [columns]="rejectedColumns"
+        [rows]="result.rejected"
+        [rowId]="rejectedRowId"
+        [total]="result.rejected.length"
+        [pageSize]="resultPageSize(result.rejected.length)"
+      >
+        <ng-template listCell="errors" let-row [listCellOf]="result.rejected">
+          <ul class="import-page__list">
+            @for (code of row.errors; track code) {
+              <li>{{ errorCodeKey(code) | t }}</li>
+            }
+          </ul>
+        </ng-template>
+      </app-admin-list-pattern>
+    }
+  }
+</section>

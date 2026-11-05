@@ -82,6 +82,20 @@ describe('start', () => {
     assert.ok(!system.calls.some((call) => call[0] === 'powershell.exe'), 'existing secrets are never rewritten');
   });
 
+  it('leaves LocalDB alone when the connection string is overridden to another server', async () => {
+    const system = fakeSystem({
+      files: { [SECRETS]: '{"Identity":{"BreakGlass":{"UserName":"breakglass"}}}', [MANIFEST]: '{"scripts":{"start":"ng serve"}}', [NODE_MODULES]: '' },
+      statuses: healthy,
+      commands: { 'sc.exe': { code: 1, output: 'not installed' } },
+    });
+    system.env = { ConnectionStrings__Starter: 'Server=(localdb)\P2Proof;Database=StarterThrowaway' };
+
+    await start(system, { root: ROOT, noWeb: false, noSeq: false });
+
+    assert.ok(!system.calls.some((call) => call[0] === 'sqllocaldb'), 'never starts the default instance');
+    assert.ok(system.lines.some((line) => line.includes('is not started')));
+  });
+
   it('writes missing secrets once, skips a web app without dependencies and uses a reachable Seq', async () => {
     const system = fakeSystem({
       files: { [MANIFEST]: '{"scripts":{"start":"ng serve"}}' },

@@ -3,6 +3,7 @@ using Codelab.Security.Keys;
 using Codelab.Security.PublicIds;
 using Codelab.Security.Signing;
 using Codelab.Security.Storage;
+using Codelab.Security.Tickets;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Identity.Infrastructure.Options;
 
@@ -44,9 +45,12 @@ public static class StarterHostSettings
             [UserIdHashSettings.KeyName] = StarterTestAccounts.NewKeyBase64(),
             [Key(LogFileSettings.KeyPrefix, nameof(LogFileSettings.Enabled))] = Flag(false),
             [Key(SeqSettings.KeyPrefix, nameof(SeqSettings.ServerUrl))] = string.Empty,
+            // Sealed tickets on, so account activation links can be issued like in a real deployment.
+            [Key(SealedTicketOptions.SectionName, nameof(SealedTicketOptions.Enabled))] = Flag(true),
         };
         AddKeyRing(settings, PublicIdKeyringOptions.SectionName);
         AddKeyRing(settings, RequestSigningOptions.SectionName);
+        AddKeyRing(settings, SealedTicketOptions.SectionName);
         return settings;
     }
 

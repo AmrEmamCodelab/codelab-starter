@@ -1,7 +1,11 @@
 # Shared (`src/app/shared`)
 
-Empty on purpose. This folder is for presentational building blocks that two or more features use and that are not
-page patterns (`src/app/patterns`) or `@codelab/ng-dga` components.
+This folder is now a module: read [MODULE.md](MODULE.md) (what lives here, how to use and extend it) and its
+generated [CLAUDE.md](CLAUDE.md) (the rules for edits).
+
+It holds presentational building blocks that two or more features use and that are not page patterns
+(`src/app/patterns`) or `@codelab/ng-dga` components. The first one is the `*hasPermission` structural directive
+(`permissions/has-permission.directive.ts`).
 
 Rules for anything added here:
 
@@ -11,7 +15,6 @@ Rules for anything added here:
   `core`.
 - No raw text: every label comes from a translation key through the `t` pipe.
 - Design tokens and logical CSS only.
-- Each item ships with a spec, and the first item added turns this folder into a module: add a
-  `module.rules.yaml` and a `MODULE.md` (Purpose, Use, Extend, Rules, Gotchas).
+- Each item ships with a spec and a row in [MODULE.md](MODULE.md).
 - Before adding something, check whether it belongs in `@codelab/ng-dga` instead (a generic DGA component) and ask
   the platform owner.

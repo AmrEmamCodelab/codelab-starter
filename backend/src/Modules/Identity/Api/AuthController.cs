@@ -64,6 +64,9 @@ public static class AuthRoutes
     /// <summary><c>POST api/auth/logout</c>.</summary>
     public const string Logout = "logout";
 
+    /// <summary><c>POST api/auth/activate</c> (anonymous: redeems an activation link).</summary>
+    public const string Activate = "activate";
+
     /// <summary>The response content type.</summary>
     public const string JsonContentType = "application/json";
 }
@@ -97,7 +100,7 @@ public sealed record SessionResponse(
     SessionUserResponse User)
 {
     /// <summary>The response of <paramref name="result"/>.</summary>
-    public static SessionResponse From(SignedInSession result)
+    public static SessionResponse From(LoginResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
         return new SessionResponse(

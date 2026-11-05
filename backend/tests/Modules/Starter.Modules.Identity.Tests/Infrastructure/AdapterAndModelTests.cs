@@ -66,14 +66,17 @@ public sealed class SessionStoreAdapterTests
 public sealed class IdentityModelTests
 {
     [Fact]
-    public void The_model_lives_in_the_identity_schema_and_matches_the_InitialCreate_migration()
+    public void The_model_lives_in_the_identity_schema_and_matches_its_migrations()
     {
         using var context = NewContext();
 
         Assert.Equal(IdentityDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(TableNames.UserAccounts, context.Model.FindEntityType(typeof(UserAccount))!.GetTableName());
         Assert.Equal(TableNames.UserSessions, context.Model.FindEntityType(typeof(UserSession))!.GetTableName());
-        Assert.Equal([Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.InitialCreate], context.Database.GetMigrations());
+        Assert.Equal(TableNames.AuthEvents, context.Model.FindEntityType(typeof(AuthEvent))!.GetTableName());
+        Assert.Equal(
+            [Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.InitialCreate, Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.AccountAdministration],
+            context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 

@@ -1,0 +1,68 @@
+<dialog
+  #dialog
+  class="editor-dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  (keydown)="onKeydown($event)"
+  (cancel)="onNativeCancel($event)"
+>
+  <form class="editor-dialog__form" novalidate [attr.aria-busy]="busy() ? 'true' : null" (submit)="onSubmit($event)">
+    <header class="editor-dialog__header">
+      <h2 class="editor-dialog__title" [id]="titleId">{{ titleKey() | t }}</h2>
+      <dga-button
+        variant="transparent"
+        size="sm"
+        iconOnly
+        leadIcon="close"
+        data-public-action
+        class="editor-dialog__close"
+        [label]="keys.Dialog.Close | t"
+        [disabled]="busy()"
+        (click)="requestCancel()"
+      />
+    </header>
+
+    @if (showSummary()) {
+      <div class="editor-dialog__errors" role="alert">
+        <dga-icon name="alert" size="md" />
+        <div class="editor-dialog__errors-text">
+          @if (errorMessageKey(); as messageKey) {
+            <p class="editor-dialog__error-message">{{ messageKey | t }}</p>
+          }
+          @if (fieldErrorList().length > 0) {
+            <p class="editor-dialog__errors-title">{{ keys.Dialog.ErrorsTitle | t }}</p>
+            <ul class="editor-dialog__error-list">
+              @for (item of fieldErrorList(); track item.field + item.key) {
+                <li [attr.data-field]="item.field">{{ item.key | t }}</li>
+              }
+            </ul>
+          }
+          @if (error()?.referenceCode; as code) {
+            <p class="editor-dialog__error-reference">{{ keys.Common.ReferenceCode | t: { code: code } }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    <div #body class="editor-dialog__body">
+      <ng-content />
+    </div>
+
+    <footer class="editor-dialog__footer">
+      <dga-button variant="secondary-outline" size="md" data-public-action [disabled]="busy()" (click)="requestCancel()">
+        {{ cancelKey() | t }}
+      </dga-button>
+      <dga-button
+        type="submit"
+        variant="primary"
+        size="md"
+        data-public-action
+        [destructive]="destructive()"
+        [loading]="busy()"
+        [disabled]="confirmDisabled()"
+      >
+        {{ confirmKey() | t }}
+      </dga-button>
+    </footer>
+  </form>
+</dialog>

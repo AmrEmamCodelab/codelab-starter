@@ -1,0 +1,14 @@
+<!-- Lint fixture: gated action buttons (the permission-gate case that must pass). -->
+<section class="orders">
+  <dga-button *hasPermission="FixturePermissionKeys.OrdersManage" (click)="approve()">{{ 'orders.approve' | t }}</dga-button>
+  <ng-container *hasPermission="FixturePermissionKeys.OrdersManage">
+    @if (canCancel) {
+      <button type="button" (click)="cancel()">{{ 'orders.cancel' | t }}</button>
+    }
+  </ng-container>
+  <ng-template [hasPermission]="FixturePermissionKeys.OrdersManage">
+    <dga-button (click)="archive()">{{ 'orders.archive' | t }}</dga-button>
+  </ng-template>
+  <button type="button" data-public-action (click)="retry()">{{ 'orders.retry' | t }}</button>
+  <button type="submit" data-public-action>{{ 'orders.search' | t }}</button>
+</section>

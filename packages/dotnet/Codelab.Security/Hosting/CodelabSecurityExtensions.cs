@@ -49,8 +49,9 @@ public static class CodelabSecurityExtensions
     /// <summary>
     /// Adds the security pipeline. Call it after authentication (WebApplication adds UseAuthentication automatically
     /// when authentication is registered) and before the endpoints: the rate limiter, session revocation checks,
-    /// response signing, request signature verification. The security headers need no call: AddCodelabSecurity puts
-    /// them first in the pipeline (a startup filter), so every response carries them. Also installs the PublicId codec and
+    /// request signature verification. The security headers and response signing need no call: AddCodelabSecurity puts
+    /// them first in the pipeline (startup filters), so every response carries the headers and the response signature
+    /// covers the body the host's error handling writes (status-code pages, exception handler). Also installs the PublicId codec and
     /// round-trips a self-test identifier, so a broken PublicId ring fails here rather than on the first request.
     /// Call it after UseRouting: when the endpoint's policy names authentication schemes, they are authenticated first,
     /// so the session and signature checks see the principal authorization will use (not only the default scheme's).
@@ -63,7 +64,6 @@ public static class CodelabSecurityExtensions
         app.Use(Hosting.EndpointPrincipal.ResolveAsync);
         app.UseRateLimiter();
         app.UseMiddleware<SessionValidationMiddleware>();
-        app.UseMiddleware<ResponseSignatureMiddleware>();
         app.UseMiddleware<RequestSignatureMiddleware>();
         return app;
     }

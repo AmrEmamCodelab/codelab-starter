@@ -14,3 +14,25 @@
   margin: 0;
   color: var(--dga-color-text-paragraph);
 }
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--dga-size-container) / 4), 1fr));
+  gap: var(--dga-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tiles__link {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--dga-radius-md);
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-focus-halo-width);
+  }
+}

@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebAuth
 kind: angular
-description: "Starter web sign-in: the basic user-name and password login page and its sign-in flow (problem+json refusals shown inline, safe return URL)."
+description: "Starter web sign-in: the login method chooser (basic, Active Directory, single sign-on) and its sign-in flow, the SSO callback page and the account activation page (problem+json refusals shown inline, fragment tickets cleared at once, safe return URL)."
 mayDependOn: []
 mustNotDependOn: []

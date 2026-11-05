@@ -1,5 +1,5 @@
 import type { Provider } from '@angular/core';
-import type { AppConfig } from './app-config';
+import { DEFAULT_PERMISSION_REFRESH_SECONDS, type AppConfig } from './app-config';
 import { APP_CONFIG } from './app-config.service';
 import { AppLanguages } from '../i18n/language';
 
@@ -11,6 +11,7 @@ export const TEST_APP_CONFIG: AppConfig = {
   origins: { api: [TEST_API_BASE_URL], attachment: [] },
   security: { protocolPrefix: 'STARTER' },
   defaultLanguage: AppLanguages.Arabic,
+  permissionRefreshSeconds: DEFAULT_PERMISSION_REFRESH_SECONDS,
 };
 
 export function provideTestAppConfig(config: AppConfig = TEST_APP_CONFIG): Provider {

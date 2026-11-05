@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../rules/rules.schema.json
+# Rules for the starter web app's page patterns (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebPatterns
+kind: angular
+description: "Starter web page patterns: reusable page bases screens are built on (admin list + pager, editor dialog over native <dialog>, permission tree editor) and their pure helpers. Patterns import only core and @codelab/ng-dga (ESLint boundaries), hold no API calls and no feature policy."
+mayDependOn: []
+mustNotDependOn: []

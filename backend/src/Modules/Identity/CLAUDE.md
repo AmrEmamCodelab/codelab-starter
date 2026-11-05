@@ -4,8 +4,8 @@
 Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/build.ps1 -Target CI`); the Claude hooks refuse violating edits early. Owners: @platform-owner.
 
 ## Dependencies
-- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabErrors`
-- Must not depend on: `Access`
+- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabObservability`, `CodelabErrors`, `CodelabIdentity`
+- Must not depend on: `Access`, `Users`
 
 ## Required
 - `base.thin-controllers`: Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access. (enforced by architecture-test, review, automated from P2)
@@ -21,11 +21,15 @@ Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/bu
 - `base.fe-ui-library`: Screens are built only from @codelab/ng-dga components and the 8 page patterns. (enforced by eslint, hook, review, automated from P2)
 - `base.fe-no-raw-text`: No user-visible raw text in templates or components; every string is an i18n key present in both ar and en. (enforced by i18n-check, hook, automated from P2)
 - `base.fe-tokens-logical-css`: Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work. (enforced by stylelint, hook, automated from P2)
-- `base.fe-permission-gated`: Every route and every action button is gated by a typed permission key. (enforced by review)
+- `base.fe-permission-gated`: Every route and every action button is gated by a typed permission key (base.fe-routes-gated, base.fe-buttons-gated); the backend endpoint behind it carries [HasPermission] with the same key. Recipe docs/recipes/add-permission.md. (enforced by contract-test, scaffold, review, automated from P3)
+- `base.fe-routes-gated`: Every route that renders a page (component or loadComponent) carries data.permission (RouteDataKeys.Permission, a generated PermissionKeys value) on itself or an ancestor, with permissionGuard() (tagged with Symbol.for('codelab.ng-tools.permission-guard'); an untagged guard fails as missing-guard) on itself or an ancestor, or its full path is in PUBLIC_ROUTE_PATHS (src/app/public-routes.ts); redirects are exempt and every lazily loaded child table is passed to the route-gates spec. Fix: add data: { [RouteDataKeys.Permission]: PermissionKeys.<Key> } or, for a page every visitor may open, the public path. Recipe docs/recipes/add-permission.md. (enforced by contract-test, review, automated from P3)
+- `base.fe-buttons-gated`: Every action element (a <dga-button>; a <button> with any event binding, a submit button or a typeless one in a submitting form; a role=button element with an event binding; any element binding (click) or (confirm), such as a dialog host) in features/**/*.html and in the inline templates of features/**/*.ts carries *hasPermission="PermissionKeys.<Key>" (on itself, on an ancestor element, or [hasPermission] on an <ng-template> wrapper) or an explicit data-public-action for an action every visitor may take. Fix: add the directive with a generated key, or data-public-action. Recipe docs/recipes/add-permission.md. (enforced by contract-test, review, automated from P3)
 - `identity.layers`: Domain references nothing outside itself; Application references Domain and the kernel ports only (no EF Core, no ASP.NET Core, no Codelab.Security); Infrastructure holds EF Core, JWT and the security-store adapters; Api holds thin controllers that call one use case each. (enforced by architecture-test, review)
 - `identity.one-session-issuer`: Every access and refresh token is issued by SessionIssuer (through SessionTokens); no other code signs a token or writes a session. (enforced by review)
 - `identity.token-identity-only`: Access tokens carry identity and session claims only (sub, sid, sver, skid, jti); never a permission or role claim. Permissions are resolved live by the Access module. (enforced by review)
 - `identity.no-access-reference`: Identity never references the Access module. Grants go through IUserPermissionGrants; the keys a Development user receives are constants of DevUserPermissionKeys. (enforced by architecture-test, review)
+- `identity.session-bumps`: Deactivation, an activation link (password reset), an activation redemption, a binding change and a rotated configured password bump the user's session version before the change is saved (AccountWrites.SaveAsync with SessionImpact.EndSessions); grant and role changes never bump (permissions are live). (enforced by review)
+- `identity.auth-trail-no-pii`: Auth events store no password, token, ticket or raw user name: the typed identifier only as its keyed UserIdHash, the user only as the internal id. The sink never throws (except cancellation). (enforced by review)
 
 ## Forbidden
 - `base.time-provider` (error) in `**/*.cs`: Reading the system clock directly makes time untestable. Fix: Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.
@@ -58,6 +62,7 @@ Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/bu
 - `base.fe-ui-library-only` (error) in `**/*.ts`: Third-party UI kits and external DGA packages are not allowed (D5). Fix: Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.
 - `base.fe-raw-text-in-template` (error) in `**/*.html`: Raw text in a template is not translated. Fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.
 - `base.fe-raw-text-in-inline-template` (error) in `**/*.ts`: Raw text in an inline component template is not translated. Fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.
+- `base.fe-no-string-permission-key-in-template` (error) in `**/*.html`, `**/*.ts`: A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too). Fix: Use the generated key, *hasPermission="PermissionKeys.<Key>" (docs/recipes/add-permission.md).
 - `base.fe-logical-css` (error) in `**/*.scss`, `**/*.css`: Physical left/right properties break RTL. Fix: Use logical properties (margin-inline-start, inset-inline-end, text-align start/end).
 - `base.fe-design-tokens` (error) in `**/*.scss`, `**/*.css`: Raw colours bypass the design tokens. Fix: Use a design token, e.g. var(--codelab-color-primary).
 - `identity.no-secret-defaults` (error) in `backend/src/Modules/Identity/**/*.cs`: A password or signing key default in code or a committed settings file defeats New-LocalSecrets.ps1. Fix: Leave the property null; the value comes from the local secrets file or the environment, and the options validator fails the start without it.

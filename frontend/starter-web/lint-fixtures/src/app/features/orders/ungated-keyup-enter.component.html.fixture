@@ -1,0 +1,4 @@
+<!-- Lint fixture case: a button bound to (keyup.enter) (must fail on line 3). -->
+<section class="orders">
+  <button type="button" (keyup.enter)="cancel()">{{ 'orders.cancel' | t }}</button>
+</section>

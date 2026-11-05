@@ -15,7 +15,7 @@ Run from the repo root with the private Node (`E:\codelab-tools\node24` first on
 ```powershell
 node tools/scaffold/new-module.mjs --name <Pascal>
 node tools/scaffold/new-endpoint.mjs --module <Name> --name <Pascal> --method <GET|POST|PUT|DELETE> --route <segment> [--permission <kebab>]
-node tools/scaffold/new-permission.mjs --module <Name> --action <kebab> [--description <text>]
+node tools/scaffold/new-permission.mjs --module <Name> --action <kebab> [--description <text>] [--no-gen]
 ```
 
 Every command also takes `--root <dir>` (default: the repo this script lives in) and `--skip-generate` (skip the
@@ -27,6 +27,13 @@ line per downstream generator (`ran ...` or `skipped ...: reason`).
 | 0 | Done, or already present (identical arguments again change nothing). |
 | 1 | Refused; nothing was written. |
 | 2 | Usage error, or the files were written but a downstream generator failed (the message names it). |
+
+`new-permission` updates both permission catalogs: it writes the C# constant and the catalog entry, then the
+downstream generators rebuild `docs/generated/permissions.*` and the frontend `PermissionKeys`; its last line names
+the frontend constant (`frontend key: PermissionKeys.<Name> ("<key>")`). With `--no-gen` it runs no generator and
+prints the exact two commands instead (`next: <dotnet> run --project backend/tools/Starter.DocsGen/... -- --out
+docs/generated` and `next: npm run api:gen --workspace frontend/starter-web`; `catalogCommands` in
+`lib/workspace.mjs`, the same two `regenerate` runs). Recipe: [docs/recipes/add-permission.md](../../docs/recipes/add-permission.md).
 
 Downstream generators, each only when it exists: `node tools/rules-engine/compile.mjs` (needs `node_modules` at the
 root), `Starter.DocsGen --out docs/generated` (`backend/tools/Starter.DocsGen`), and for endpoints and permissions
@@ -65,3 +72,6 @@ Architecture, Contract and Demo tests; set `CODELAB_SKIP_DOGFOOD=1` to skip it i
   builds and its endpoints answer with a refusal until the data access is written.
 - A module never gets a DbContext from the scaffolder; add one when the module stores data (module anatomy).
 - On Node 24, `node --test <directory>` runs the directory as a script; always pass the glob.
+- The frontend constant name (`frontendPermissionKeyName` in `lib/names.mjs`) mirrors `permissionKeyName` in
+  `frontend/starter-web/tools/api-gen/lib/permission-keys.mjs` (the scaffold may not import frontend code); change
+  both together. The dogfood test checks that the generated `permission-keys.generated.ts` carries `DemoApprove`.

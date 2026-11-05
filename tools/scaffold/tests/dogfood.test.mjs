@@ -31,6 +31,11 @@ const DEMO_TESTS = 'backend/tests/Modules/Starter.Modules.Demo.Tests/Starter.Mod
 /** Derived outputs the downstream generators (rules compile, DocsGen, api:gen) may rewrite anywhere. */
 const DERIVED_OUTPUT = /^(?:rules\/[^/]+\.(?:compiled\.json|globalconfig)|docs\/generated\/.*|frontend\/starter-web\/src\/app\/core\/(?:api\/generated\/.*|permissions\/permission-keys\.generated\.ts)|.*\/(?:CLAUDE\.md|BannedSymbols\.generated\.txt|\.editorconfig|CodeMetricsConfig\.txt))$/;
 const REPORTED_FILE = /^(?:created|changed) (\S+)$/;
+/** Where the permission added by the dogfood's new-permission must appear after the downstream generators ran. */
+const CATALOG_OUTPUTS = Object.freeze([
+  ['docs/generated/permissions.json', '"demo.approve"'],
+  ['frontend/starter-web/src/app/core/permissions/permission-keys.generated.ts', "DemoApprove: 'demo.approve'"],
+]);
 
 const GENERATORS = Object.freeze([
   ['tools/scaffold/new-module.mjs', '--name', 'Demo'],
@@ -101,6 +106,18 @@ function changedPaths(scratch) {
     .map((entry) => entry.slice(3));
 }
 
+/** new-permission updated both catalogs: the generated permission docs and the frontend PermissionKeys carry the key. */
+function assertBothCatalogs(scratch) {
+  for (const [file, expected] of CATALOG_OUTPUTS) {
+    const full = path.join(scratch, file);
+    if (!fs.existsSync(full)) {
+      console.log(`dogfood: ${file} not in the tree yet, catalog not checked`);
+      continue;
+    }
+    assert.ok(fs.readFileSync(full, UTF8).includes(expected), `${file} lacks ${expected}`);
+  }
+}
+
 describe('rules dogfood: new-module, new-endpoint and new-permission build and pass unmodified', { skip: process.env[SKIP_ENV] === '1' && `${SKIP_ENV}=1` }, () => {
   it('scaffolds Demo with a GET, a POST and a permission, builds -warnaserror and passes the tests', { timeout: TEST_TIMEOUT_MS }, () => {
     const scratch = fs.mkdtempSync(path.join(os.tmpdir(), SCRATCH_PREFIX));
@@ -126,6 +143,7 @@ ${output.trim()}`);
 
       const unexpected = changedPaths(scratch).filter((file) => !reported.has(file) && !DERIVED_OUTPUT.test(file));
       assert.deepEqual(unexpected, [], 'git status shows files no generator reported');
+      assertBothCatalogs(scratch);
 
       const dotnet = resolveDotnet();
       check(dotnet, ['build', SOLUTION_FILE, ...DOTNET_BUILD_FLAGS], scratch);

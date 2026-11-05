@@ -7,12 +7,12 @@ import { DEFAULT_ROOT, GeneratorError } from './workspace.mjs';
 /** Bad arguments (exit 2). */
 export class UsageError extends Error {}
 
-const BOOLEAN_FLAGS = new Set([Flags.skipGenerate, Flags.help]);
+const BOOLEAN_FLAGS = new Set([Flags.skipGenerate, Flags.noGenerate, Flags.help]);
 
 /**
  * Parses `--flag value` pairs and boolean switches. Only `allowed` flags are accepted.
  * @param {string[]} argv
- * @param {string[]} allowed value flags this CLI takes (besides --root, --skip-generate and --help)
+ * @param {string[]} allowed value flags this CLI takes (besides --root, --skip-generate, --no-gen and --help)
  * @returns {Record<string, string | boolean> & { root: string }}
  */
 export function parseArguments(argv, allowed) {

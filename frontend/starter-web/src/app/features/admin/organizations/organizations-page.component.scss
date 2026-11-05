@@ -1,0 +1,5 @@
+@use 'admin-controls' as controls;
+
+@include controls.filters;
+@include controls.row-actions;
+@include controls.editor-fields;

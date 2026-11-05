@@ -1,0 +1,5 @@
+<!-- Lint fixture case: an action button without *hasPermission or data-public-action (must fail on line 4). -->
+<section class="orders">
+  <dga-button *hasPermission="FixturePermissionKeys.OrdersManage" (click)="approve()">{{ 'orders.approve' | t }}</dga-button>
+  <button type="button" (click)="cancel()">{{ 'orders.cancel' | t }}</button>
+</section>

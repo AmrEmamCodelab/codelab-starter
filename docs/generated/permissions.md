@@ -7,4 +7,13 @@ The permission catalog: the union of every module's `IPermissionCatalogSource`. 
 | Key | Module | Description | Endpoints |
 | --- | --- | --- | --- |
 | `access.admin.view` | Access | Open the access administration area. | `GET /api/access/admin` |
+| `access.grants.manage` | Access | Assign roles to users and grant permissions to them directly, with a scope. | `PUT /api/admin/access/users/{userId:publicid}/grants` |
+| `access.grants.view` | Access | See a user's roles, direct grants, virtual roles and effective permissions. | `GET /api/admin/access/users`, `GET /api/admin/access/users/{userId:publicid}/grants` |
+| `access.roles.manage` | Access | Create roles and change their names, permissions and active state. | `POST /api/admin/access/roles`, `PUT /api/admin/access/roles/{id:publicid}` |
+| `access.roles.view` | Access | See the roles, their permissions and the permission catalog. | `GET /api/admin/access/permissions`, `GET /api/admin/access/roles`, `GET /api/admin/access/roles/{id:publicid}` |
 | `dashboard.view` | Access | Open the dashboard. | `GET /api/dashboard` |
+| `organizations.manage` | Users | Create, edit, deactivate and reactivate organizations. | `POST /api/admin/organizations`, `PUT /api/admin/organizations/{id:publicid}`, `POST /api/admin/organizations/{id:publicid}/deactivate`, `POST /api/admin/organizations/{id:publicid}/reactivate` |
+| `organizations.view` | Users | List and open organizations. | `GET /api/admin/organizations`, `GET /api/admin/organizations/{id:publicid}` |
+| `users.import` | Users | Preview and commit an Excel user import. | `POST /api/admin/user-import/preview`, `POST /api/admin/user-import/{batchId:publicid}/commit` |
+| `users.manage` | Users | Create, edit, deactivate, reactivate and unlock user accounts, and issue activation links. | `POST /api/admin/users`, `PUT /api/admin/users/{id:publicid}`, `POST /api/admin/users/{id:publicid}/activation`, `POST /api/admin/users/{id:publicid}/deactivate`, `POST /api/admin/users/{id:publicid}/reactivate`, `POST /api/admin/users/{id:publicid}/unlock` |
+| `users.view` | Users | List and open user accounts. | `GET /api/admin/users`, `GET /api/admin/users/{id:publicid}` |

@@ -1,4 +1,5 @@
 using Starter.Application.Persistence;
+using Starter.Domain.Users;
 using Starter.Modules.Identity.Domain;
 
 namespace Starter.Modules.Identity.Application;
@@ -15,9 +16,61 @@ public interface IUserAccountRepository
     /// <summary>The account with this token subject, or null.</summary>
     Task<UserAccount?> FindBySubjectAsync(Guid subjectId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The account whose <paramref name="field"/> equals <paramref name="value"/> (both compared in normalized form,
+    /// <see cref="UserNames.Normalize"/>), or null; null for a blank value.
+    /// </summary>
+    Task<UserAccount?> FindByMatchAsync(AccountMatchField field, string value, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The first of <paramref name="identifiers"/> (in the order user name, e-mail, login name, UPN) already held by an
+    /// account other than <paramref name="exceptUserId"/>, or null when every one is free. Null identifiers are skipped.
+    /// </summary>
+    Task<AccountIdentifier?> FindTakenIdentifierAsync(AccountIdentifiers identifiers, long? exceptUserId, CancellationToken cancellationToken);
+
+    /// <summary>One page of accounts matching <paramref name="request"/>, ordered by normalized user name, then id.</summary>
+    Task<AccountListPage> ListAsync(AccountListRequest request, CancellationToken cancellationToken);
+
     /// <summary>Stages a new account; <c>IIdentityUnitOfWork.SaveChangesAsync</c> writes it and assigns its id.</summary>
     void Add(UserAccount account);
 }
+
+/// <summary>An identifier that must be unique across accounts.</summary>
+public enum AccountIdentifier
+{
+    /// <summary>The user name.</summary>
+    UserName = 1,
+
+    /// <summary>The e-mail address.</summary>
+    Email = 2,
+
+    /// <summary>The directory login name.</summary>
+    LoginName = 3,
+
+    /// <summary>The user principal name.</summary>
+    Upn = 4,
+}
+
+/// <summary>The unique identifiers of an account, in normalized form (null when absent).</summary>
+/// <param name="NormalizedUserName">The normalized user name, or null when it is not being checked (an update).</param>
+/// <param name="NormalizedEmail">The normalized e-mail address, or null.</param>
+/// <param name="NormalizedLoginName">The normalized login name, or null.</param>
+/// <param name="NormalizedUpn">The normalized UPN, or null.</param>
+public sealed record AccountIdentifiers(string? NormalizedUserName, string? NormalizedEmail, string? NormalizedLoginName, string? NormalizedUpn);
+
+/// <summary>A page request over the accounts (validated and capped by the caller).</summary>
+/// <param name="Search">Contained in the user name, display name or e-mail address, or null.</param>
+/// <param name="OrganizationId">Only this organization's accounts, or null.</param>
+/// <param name="Kind">Only this kind, or null.</param>
+/// <param name="IsActive">Only active or only deactivated accounts, or null.</param>
+/// <param name="Skip">How many matching accounts to skip (zero or more).</param>
+/// <param name="Take">How many to return (positive).</param>
+public sealed record AccountListRequest(string? Search, long? OrganizationId, UserKind? Kind, bool? IsActive, int Skip, int Take);
+
+/// <summary>One page of accounts and the number of matches.</summary>
+/// <param name="Items">The accounts of the page.</param>
+/// <param name="Total">The number of accounts matching the filters.</param>
+public sealed record AccountListPage(IReadOnlyList<UserAccount> Items, int Total);
 
 /// <summary>The sessions store.</summary>
 public interface IUserSessionRepository
@@ -91,7 +144,11 @@ public interface ISessionRevocation
     Task RevokeAsync(string sessionId, DateTimeOffset until, CancellationToken cancellationToken);
 }
 
-/// <summary>The per-user session version (bumped by password change, deactivation or permission change).</summary>
+/// <summary>
+/// The per-user session version: bumped by deactivation, an administrator's password reset, an activation, a binding
+/// change and a rotated configured password. Grant and role changes do NOT bump it: permissions are resolved live per
+/// request, so they apply without ending a session.
+/// </summary>
 public interface ISessionVersions
 {
     /// <summary>The current version of the user (0 when never bumped).</summary>

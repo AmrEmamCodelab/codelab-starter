@@ -2,7 +2,9 @@
 // start and how a health poll ends. No process or file-system access here, so every rule is unit-tested.
 import path from 'node:path';
 import {
+  CONNECTION_STRING_ENV,
   DEVELOPMENT,
+  LOCALDB_INSTANCE,
   DOTNET_ENV,
   DOTNET_ON_PATH,
   ENVIRONMENT_ENV,
@@ -59,6 +61,15 @@ export function prependPath(currentPath, dir) {
 /** The Seq URL to probe: CODELAB_SEQ_URL, else the default local port. */
 export function seqUrl(env) {
   return env[SEQ_URL_ENV] || Urls.seqDefault;
+}
+
+/**
+ * True when the API uses the default LocalDB instance: no connection-string override, or one that names it. With an
+ * override on another server run-local leaves that instance alone (it never starts it).
+ */
+export function usesDefaultLocalDb(env) {
+  const override = env[CONNECTION_STRING_ENV];
+  return !override || override.toLowerCase().includes(LOCALDB_INSTANCE.toLowerCase());
 }
 
 /** The environment of the API process: Development, plus the Seq URL when one was chosen. */

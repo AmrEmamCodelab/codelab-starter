@@ -1,0 +1,20 @@
+.access-dialog__text {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.access-notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  padding-block: var(--dga-space-3);
+  padding-inline: var(--dga-space-4);
+  border-radius: var(--dga-radius-md);
+  border-inline-start: var(--dga-border-width-thick) solid var(--dga-color-warning-border);
+  background: var(--dga-color-warning-surface);
+}
+
+.access-notice__text {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}

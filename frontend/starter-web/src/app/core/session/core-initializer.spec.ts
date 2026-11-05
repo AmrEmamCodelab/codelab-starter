@@ -17,6 +17,7 @@ describe('initializeCore', () => {
     ensureLoaded: vi.fn(),
     startTimeout: vi.fn(),
     startTranslations: vi.fn(),
+    startPermissions: vi.fn(),
   };
 
   beforeEach(() => {
@@ -27,7 +28,7 @@ describe('initializeCore', () => {
         { provide: LanguageService, useValue: { init: mocks.init } },
         { provide: FeatureStore, useValue: { load: mocks.load } },
         { provide: AuthService, useValue: { isAuthenticated: authenticated } },
-        { provide: PermissionSyncService, useValue: { ensureLoaded: mocks.ensureLoaded } },
+        { provide: PermissionSyncService, useValue: { ensureLoaded: mocks.ensureLoaded, start: mocks.startPermissions } },
         { provide: SessionTimeoutService, useValue: { start: mocks.startTimeout } },
         { provide: ProtectedTranslationsService, useValue: { start: mocks.startTranslations } },
       ],
@@ -40,6 +41,7 @@ describe('initializeCore', () => {
     expect(mocks.load).toHaveBeenCalled();
     expect(mocks.startTimeout).toHaveBeenCalled();
     expect(mocks.startTranslations).toHaveBeenCalled();
+    expect(mocks.startPermissions).toHaveBeenCalled();
     expect(mocks.ensureLoaded).not.toHaveBeenCalled();
   });
 

@@ -14,7 +14,7 @@ const TABS: readonly DgaTab[] = [
   imports: [DgaTabsComponent],
   template: `
     <div [attr.dir]="dir()">
-      <dga-tabs [tabs]="tabs" [(value)]="selected" label="Views" [panelIdPrefix]="prefix()" />
+      <dga-tabs [tabs]="tabs" [(value)]="selected" label="Views" [panelIdPrefix]="prefix()" [fill]="fill()" />
     </div>
   `,
 })
@@ -23,6 +23,7 @@ class HostComponent {
   readonly selected = signal<DgaTabValue>('one');
   readonly dir = signal('ltr');
   readonly prefix = signal<string | null>('views');
+  readonly fill = signal(false);
 }
 
 async function render() {
@@ -90,5 +91,21 @@ describe('DgaTabsComponent', () => {
     press(tabs()[0], 'a');
     await fixture.whenStable();
     expect(fixture.componentInstance.selected()).toBe('one');
+  });
+
+  it('scrolls by default and shares the full width with wrapping labels when fill is set', async () => {
+    const { fixture, host, tabs } = await render();
+    const tabsHost = host.querySelector<HTMLElement>('dga-tabs');
+    expect(tabsHost?.classList.contains('dga-tabs--fill')).toBe(false);
+    expect(getComputedStyle(tabs()[0]).whiteSpace).toBe('nowrap');
+
+    fixture.componentInstance.fill.set(true);
+    await fixture.whenStable();
+    expect(tabsHost?.classList.contains('dga-tabs--fill')).toBe(true);
+    const style = getComputedStyle(tabs()[0]);
+    expect(style.whiteSpace).toBe('normal');
+    expect(style.flexGrow).toBe('1');
+    expect(style.flexShrink).toBe('1');
+    expect(style.minInlineSize || style.minWidth).toMatch(/^0(px)?$/);
   });
 });

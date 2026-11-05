@@ -1,0 +1,99 @@
+// Shared layout of the access screens (imported by each page's .scss). Tokens and logical properties only.
+.access-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-6);
+}
+
+.access-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--dga-space-4);
+}
+
+.access-page__title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-2xl);
+}
+
+.access-page__subtitle {
+  margin: 0;
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.access-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-2);
+}
+
+.access-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+}
+
+.access-page__section-title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+}
+
+.access-page__hint {
+  margin: 0;
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.access-page__notice {
+  margin: 0;
+  padding-block: var(--dga-space-3);
+  padding-inline: var(--dga-space-4);
+  border-radius: var(--dga-radius-md);
+  border-inline-start: var(--dga-border-width-thick) solid var(--dga-color-info-border);
+  background: var(--dga-color-info-surface);
+  color: var(--dga-color-text-paragraph);
+}
+
+.access-page__notice--success {
+  border-inline-start-color: var(--dga-color-success-border);
+  background: var(--dga-color-success-surface);
+}
+
+.access-page__error {
+  margin: 0;
+  padding-block: var(--dga-space-3);
+  padding-inline: var(--dga-space-4);
+  border-radius: var(--dga-radius-md);
+  border-inline-start: var(--dga-border-width-thick) solid var(--dga-color-error-border);
+  background: var(--dga-color-error-surface);
+  color: var(--dga-color-text-error);
+}
+
+.access-page__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--dga-space-4);
+}
+
+.access-page__link {
+  color: var(--dga-color-text-link);
+  font-weight: var(--dga-font-weight-medium);
+
+  &:hover {
+    color: var(--dga-color-text-link-hover);
+  }
+}
+
+.access-page__save-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+  padding-block-start: var(--dga-space-4);
+  border-block-start: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+}

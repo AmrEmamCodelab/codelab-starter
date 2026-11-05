@@ -1,0 +1,39 @@
+@use '../common/access-page';
+
+.grants__back {
+  align-self: flex-start;
+}
+
+.grants__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grants__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+  padding-block: var(--dga-space-2);
+  border-block-end: var(--dga-border-width-thin) solid var(--dga-color-border-subtle);
+}
+
+.grants__label {
+  color: var(--dga-color-text-default);
+  font-weight: var(--dga-font-weight-medium);
+}
+
+.grants__scope {
+  margin-inline-start: auto;
+}
+
+.grants__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-1);
+  margin-inline-start: auto;
+}

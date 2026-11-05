@@ -48,6 +48,8 @@ export const TASKKILL = 'taskkill.exe';
 export const TASKLIST = 'tasklist.exe';
 export const SQL_LOCALDB = 'sqllocaldb';
 export const LOCALDB_INSTANCE = 'MSSQLLocalDB';
+/** An environment override of the API's connection string (for example a throwaway database on another instance). */
+export const CONNECTION_STRING_ENV = 'ConnectionStrings__Starter';
 export const SERVICE_CONTROL = 'sc.exe';
 export const SEQ_SERVICE = 'Seq';
 export const PATH_ENV = 'PATH';

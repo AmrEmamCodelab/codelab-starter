@@ -1,6 +1,20 @@
-<section class="page">
-  <h1 class="page__title">{{ 'admin.title' | t }}</h1>
-  <dga-card icon="lock" [heading]="'admin.placeholder.heading' | t" [headingLevel]="2">
-    <p class="page__text">{{ 'admin.placeholder.text' | t }}</p>
-  </dga-card>
+<section class="page" aria-labelledby="admin-home-title">
+  <h1 id="admin-home-title" class="page__title">{{ 'admin.title' | t }}</h1>
+  <p class="page__text">{{ 'admin.home.intro' | t }}</p>
+
+  <ul class="tiles">
+    @for (tile of tiles; track tile.id) {
+      <li *hasPermission="tile.permission" class="tiles__item" [attr.data-tile]="tile.id">
+        <a class="tiles__link" [routerLink]="tile.link">
+          <dga-card effect="shadow" [icon]="tile.icon" [heading]="tile.titleKey | t" [headingLevel]="2">
+            <p class="page__text">{{ tile.textKey | t }}</p>
+          </dga-card>
+        </a>
+      </li>
+    }
+  </ul>
+
+  @if (!hasAnyTile()) {
+    <p class="page__text" data-testid="admin-home-empty">{{ 'admin.home.empty' | t }}</p>
+  }
 </section>

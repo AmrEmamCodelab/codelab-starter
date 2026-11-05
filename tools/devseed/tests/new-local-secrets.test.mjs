@@ -46,6 +46,7 @@ function secretsOf(doc) {
     doc.Identity.Jwt.SigningKey,
     security.PublicIds.Keys[0].MaterialBase64,
     security.RequestSigning.Keys[0].MaterialBase64,
+    security.Tickets.Keys[0].MaterialBase64,
     doc.Observability.UserIdHash.Key,
   ];
 }
@@ -71,6 +72,8 @@ test('writes the contract shape with strong values and prints the break-glass us
     assertKey(doc.Identity.Jwt.SigningKey, 'session signing key');
     assertRing(doc.Codelab.Security.PublicIds, 'PublicIds');
     assertRing(doc.Codelab.Security.RequestSigning, 'RequestSigning');
+    assertRing(doc.Codelab.Security.Tickets, 'Tickets');
+    assert.equal(doc.Codelab.Security.Tickets.Enabled, true, 'sealed tickets are enabled locally');
     assertKey(doc.Observability.UserIdHash.Key, 'user hash key');
     assert.ok(result.output.includes(doc.Identity.BreakGlass.UserName), 'prints the break-glass user name');
     for (const secret of secretsOf(doc)) assert.ok(!result.output.includes(secret), 'never prints a secret');

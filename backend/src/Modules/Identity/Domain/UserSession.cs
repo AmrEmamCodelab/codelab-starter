@@ -64,6 +64,16 @@ public sealed class UserSession
     /// <summary>When the session was ended, or null while it is open.</summary>
     public DateTimeOffset? RevokedAt { get; private set; }
 
+    /// <summary>How the session was signed in.</summary>
+    public SignInMode SignInMode { get; private set; }
+
+    /// <summary>
+    /// The identity provider's id_token, kept only as the <c>id_token_hint</c> of the provider's end-session call
+    /// (SSO sessions), or null. A hint longer than <see cref="IdentityLimits.IdTokenHintMaxLength"/> is not kept (the
+    /// provider then asks the user to confirm the logout).
+    /// </summary>
+    public string? IdTokenHint { get; private set; }
+
     /// <summary>Starts a session.</summary>
     public static UserSession Start(NewUserSession session)
     {
@@ -78,6 +88,8 @@ public sealed class UserSession
             CreatedAt = session.StartedAt,
             LastActivityAt = session.StartedAt,
             ExpiresAt = session.StartedAt + session.Lifetime,
+            SignInMode = session.Mode,
+            IdTokenHint = session.IdTokenHint is { Length: <= IdentityLimits.IdTokenHintMaxLength } hint ? hint : null,
         };
     }
 
@@ -129,4 +141,14 @@ public sealed class UserSession
 /// <param name="SessionVersion">The user's current session version.</param>
 /// <param name="StartedAt">The start time.</param>
 /// <param name="Lifetime">The absolute session lifetime.</param>
-public sealed record NewUserSession(string SessionId, long UserId, string RefreshSecret, long SessionVersion, DateTimeOffset StartedAt, TimeSpan Lifetime);
+/// <param name="Mode">How the session was signed in.</param>
+/// <param name="IdTokenHint">The identity provider's id_token for its end-session call (SSO), or null.</param>
+public sealed record NewUserSession(
+    string SessionId,
+    long UserId,
+    string RefreshSecret,
+    long SessionVersion,
+    DateTimeOffset StartedAt,
+    TimeSpan Lifetime,
+    SignInMode Mode,
+    string? IdTokenHint);

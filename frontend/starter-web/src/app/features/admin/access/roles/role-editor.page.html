@@ -1,0 +1,125 @@
+<div class="access-page">
+  <a class="access-page__link role-editor__back" [routerLink]="AccessPaths.roles()">{{ 'admin.access.editor.back' | t }}</a>
+
+  @if (invalidId()) {
+    <p class="access-page__error role-editor__load-error" role="alert">{{ notFoundKey | t }}</p>
+  } @else if (store.loadError(); as failure) {
+    <p class="access-page__error role-editor__load-error" role="alert">{{ errorMessageKey(failure.code) | t }}</p>
+  } @else if (store.loading()) {
+    <p class="access-page__hint" role="status">{{ 'admin.access.loading' | t }}</p>
+  } @else if (store.role(); as role) {
+    <header class="access-page__header">
+      <div>
+        <h1 class="access-page__title role-editor__title">{{ roleName() }}</h1>
+        <p class="access-page__subtitle"><code>{{ role.code }}</code></p>
+      </div>
+      <div class="access-page__actions">
+        @if (role.isVirtual) {
+          <dga-tag tone="info">{{ 'admin.access.roles.virtual' | t }}</dga-tag>
+        }
+        <dga-status-tag [tone]="role.isActive ? 'success' : 'neutral'">
+          {{ (role.isActive ? 'admin.access.roles.active' : 'admin.access.roles.inactive') | t }}
+        </dga-status-tag>
+      </div>
+    </header>
+
+    @if (role.isVirtual) {
+      <p class="access-page__notice role-editor__virtual-notice">
+        {{ 'admin.access.editor.virtual-notice' | t: { audience: (virtualKindLabelKey(role.virtualKind) | t) } }}
+      </p>
+    }
+    @if (!role.isActive) {
+      <p class="access-page__notice">{{ 'admin.access.editor.inactive-notice' | t }}</p>
+    }
+    @if (!canManage()) {
+      <p class="access-page__notice role-editor__read-only">{{ 'admin.access.editor.read-only-notice' | t }}</p>
+    }
+
+    <section class="access-page__section">
+      <h2 class="access-page__section-title">{{ 'admin.access.editor.names' | t }}</h2>
+      <div class="access-page__fields">
+        <dga-text-input
+          class="role-editor__name-en"
+          name="nameEn"
+          required
+          [readonly]="!canManage()"
+          [label]="'admin.access.editor.name-en' | t"
+          [error]="store.saveError() | fieldError: 'nameEn'"
+          [(value)]="store.nameEn"
+        />
+        <dga-text-input
+          class="role-editor__name-ar"
+          name="nameAr"
+          required
+          [readonly]="!canManage()"
+          [label]="'admin.access.editor.name-ar' | t"
+          [error]="store.saveError() | fieldError: 'nameAr'"
+          [(value)]="store.nameAr"
+        />
+      </div>
+    </section>
+
+    <section class="access-page__section">
+      <app-tree-editor-pattern
+        class="role-editor__tree"
+        labelKey="admin.access.editor.permissions"
+        [keys]="store.split().live"
+        [labelFor]="labelFor()"
+        [readOnly]="!canManage()"
+        [(value)]="store.selection"
+      />
+    </section>
+
+    @if (store.retiredHeld().length > 0) {
+      <section class="access-page__section role-editor__retired">
+        <p class="access-page__hint">{{ 'admin.access.editor.retired-hint' | t }}</p>
+        <app-tree-editor-pattern
+          labelKey="admin.access.editor.retired-title"
+          readOnly
+          [searchable]="false"
+          [keys]="store.retiredHeld()"
+          [labelFor]="labelFor()"
+          [value]="retiredValue()"
+        />
+      </section>
+    }
+
+    @if (store.saveError(); as failure) {
+      <p class="access-page__error role-editor__save-error" role="alert">{{ errorMessageKey(failure.code) | t }}</p>
+    }
+    <app-access-warnings [codes]="store.warnings()" />
+
+    <div class="access-page__save-bar" *hasPermission="PermissionKeys.AccessRolesManage">
+      <dga-button
+        class="role-editor__save"
+        [disabled]="!store.dirty()"
+        [loading]="store.saving()"
+        (click)="save()"
+      >
+        {{ 'admin.access.editor.save' | t }}
+      </dga-button>
+      <dga-button
+        variant="secondary-outline"
+        class="role-editor__discard"
+        [disabled]="!store.dirty() || store.saving()"
+        (click)="discard()"
+      >
+        {{ 'admin.access.editor.discard' | t }}
+      </dga-button>
+      @if (store.dirty()) {
+        <span class="access-page__hint role-editor__unsaved" role="status">{{ 'admin.access.editor.unsaved' | t }}</span>
+      } @else if (store.saved()) {
+        <span class="access-page__hint role-editor__saved" role="status">{{ 'admin.access.editor.saved' | t }}</span>
+      }
+    </div>
+  }
+</div>
+
+<app-last-manager-dialog
+  *hasPermission="PermissionKeys.AccessRolesManage"
+  [open]="store.lastManagerPending()"
+  [busy]="store.saving()"
+  (confirm)="store.confirmLastManager()"
+  (cancel)="store.cancelLastManager()"
+/>
+<app-leave-dialog [open]="leave.open()" (answer)="leave.answer($event)" />

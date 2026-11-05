@@ -30,6 +30,11 @@ export class AppConfigService {
     return this.config.defaultLanguage;
   }
 
+  /** Seconds between background permission syncs; 0 means no interval. */
+  get permissionRefreshSeconds(): number {
+    return this.config.permissionRefreshSeconds;
+  }
+
   /** Resolves a path against the API root. */
   apiUrl(path: string): string {
     return joinUrl(this.apiBaseUrl, path);

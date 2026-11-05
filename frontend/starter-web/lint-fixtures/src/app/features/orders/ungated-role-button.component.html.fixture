@@ -1,0 +1,4 @@
+<!-- Lint fixture case: a role=button element with an event binding (must fail on line 3). -->
+<section class="orders">
+  <div role="button" tabindex="0" (keydown)="cancel()">{{ 'orders.cancel' | t }}</div>
+</section>

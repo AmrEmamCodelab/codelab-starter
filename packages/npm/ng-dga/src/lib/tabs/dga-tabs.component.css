@@ -31,6 +31,16 @@
     border-color var(--dga-duration-fast) var(--dga-easing-standard);
 }
 
+:host(.dga-tabs--fill) .dga-tabs__tab {
+  flex: 1 1 0;
+  justify-content: center;
+  min-inline-size: 0;
+  padding-inline: var(--dga-space-2);
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .dga-tabs__tab:hover:not(:disabled) {
   border-block-end-color: var(--dga-color-border-default);
   color: var(--dga-color-text-paragraph);

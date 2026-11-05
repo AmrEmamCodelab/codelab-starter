@@ -1,0 +1,31 @@
+@use '../organizations/admin-controls' as controls;
+
+@include controls.filters;
+@include controls.row-actions;
+@include controls.editor-fields;
+
+.status-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-1);
+}
+
+.row-link {
+  color: var(--dga-color-text-link);
+  font-size: var(--dga-font-size-sm);
+
+  &:hover {
+    color: var(--dga-color-text-link-hover);
+  }
+}
+
+.editor-readonly {
+  margin: 0;
+  color: var(--dga-color-text-muted);
+}
+
+.field-error {
+  margin: 0;
+  color: var(--dga-color-text-error);
+  font-size: var(--dga-font-size-sm);
+}

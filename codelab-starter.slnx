@@ -15,6 +15,10 @@
     <Project Path="backend/tests/Starter.Integration.Tests/Starter.Integration.Tests.csproj" />
     <Project Path="backend/tools/Starter.DocsGen/Starter.DocsGen.csproj" />
     <Project Path="backend/tools/Starter.DocsGen.Tests/Starter.DocsGen.Tests.csproj" />
+    <Project Path="backend/tools/Starter.DevIdp/Starter.DevIdp.csproj" />
+    <Project Path="backend/tools/Starter.DevIdp.Tests/Starter.DevIdp.Tests.csproj" />
+    <Project Path="backend/src/Modules/Users/Starter.Modules.Users.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Users.Tests/Starter.Modules.Users.Tests.csproj" />
   </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />
@@ -22,6 +26,8 @@
     <Project Path="packages/dotnet/Codelab.Build.Sdk/Codelab.Build.Sdk.csproj" />
     <Project Path="packages/dotnet/Codelab.Errors/Codelab.Errors.csproj" />
     <Project Path="packages/dotnet/Codelab.Errors.Tests/Codelab.Errors.Tests.csproj" />
+    <Project Path="packages/dotnet/Codelab.Identity/Codelab.Identity.csproj" />
+    <Project Path="packages/dotnet/Codelab.Identity.Tests/Codelab.Identity.Tests.csproj" />
     <Project Path="packages/dotnet/Codelab.Integration/Codelab.Integration.csproj" />
     <Project Path="packages/dotnet/Codelab.Integration.Tests/Codelab.Integration.Tests.csproj" />
     <Project Path="packages/dotnet/Codelab.Observability/Codelab.Observability.csproj" />

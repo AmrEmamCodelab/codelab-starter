@@ -6,8 +6,17 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { GateFindingKinds, checkPermissionGates, findUngatedButtonsInSource } from '@codelab/ng-tools/permission-gates';
+import { RouteFindingKinds, findUngatedRoutes } from '@codelab/ng-tools/routes';
 import { ESLint, type Linter } from 'eslint';
 import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  FIXTURE_PERMISSION_DATA_KEY,
+  FIXTURE_PUBLIC_PATHS,
+  GATED_ORDER_ROUTES,
+  UNGATED_ORDER_ROUTES,
+  UNGUARDED_ORDER_ROUTES,
+} from '../lint-fixtures/src/app/features/orders/orders.routes';
 
 const TOOLS_DIR = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_ROOT = resolve(TOOLS_DIR, '..', 'lint-fixtures');
@@ -42,6 +51,21 @@ const Cases = {
   inlineStyleBindings: 'features/orders/inline-style-bindings.component.ts.fixture',
   styledByScss: 'features/orders/styled-by-scss.component.ts.fixture',
 } as const;
+
+/** Permission-gate cases: each ungated case fails on exactly one line (base.fe-permission-gated). */
+const GateCases = {
+  ungatedButton: { file: 'features/orders/ungated-button.component.html.fixture', line: 4, element: 'button' },
+  ungatedInlineButton: { file: 'features/orders/ungated-inline-button.component.ts.fixture', line: 8, element: 'dga-button' },
+  ungatedSubmitInForm: { file: 'features/orders/ungated-submit-in-form.component.html.fixture', line: 3, element: 'button' },
+  ungatedOnClick: { file: 'features/orders/ungated-on-click.component.html.fixture', line: 3, element: 'button' },
+  ungatedKeyupEnter: { file: 'features/orders/ungated-keyup-enter.component.html.fixture', line: 3, element: 'button' },
+  ungatedAnchorClick: { file: 'features/orders/ungated-anchor-click.component.html.fixture', line: 3, element: 'a' },
+  ungatedRoleButton: { file: 'features/orders/ungated-role-button.component.html.fixture', line: 3, element: 'div' },
+  ungatedDialogConfirm: { file: 'features/orders/ungated-dialog-confirm.component.html.fixture', line: 3, element: 'app-editor-dialog-pattern' },
+} as const;
+const GATED_TEMPLATE = 'features/orders/orders-actions.component.html';
+const UNGATED_ROUTE_PATH = '/orders/export';
+const UNGUARDED_ROUTE_PATH = '/orders/report';
 
 const RealFiles = [
   'core/api/api.service.ts',
@@ -150,5 +174,33 @@ describe('the starter ESLint config on lint-fixtures', () => {
   it('ignores generated outputs', async () => {
     const generated = join(APP_DIR, 'core', 'permissions', 'permission-keys.generated.ts');
     expect(await eslint.isPathIgnored(generated)).toBe(true);
+  });
+});
+
+describe('the permission gates on lint-fixtures', () => {
+  const routeOptions = { permissionDataKey: FIXTURE_PERMISSION_DATA_KEY, publicPaths: FIXTURE_PUBLIC_PATHS };
+
+  it('passes a route table whose pages are gated or public', () => {
+    expect(findUngatedRoutes(GATED_ORDER_ROUTES, routeOptions)).toEqual([]);
+  });
+
+  it('fails a route without a permission key', () => {
+    expect(findUngatedRoutes(UNGATED_ORDER_ROUTES, routeOptions)).toEqual([{ path: UNGATED_ROUTE_PATH, kind: RouteFindingKinds.missingPermission }]);
+  });
+
+  it('fails a route with a permission key but no permission guard', () => {
+    expect(findUngatedRoutes(UNGUARDED_ORDER_ROUTES, routeOptions)).toEqual([{ path: UNGUARDED_ROUTE_PATH, kind: RouteFindingKinds.missingGuard }]);
+  });
+
+  it.each(Object.values(GateCases))('fails the ungated button in $file', async ({ file, line, element }) => {
+    const casePath = join(APP_DIR, file);
+    const findings = findUngatedButtonsInSource(casePath.slice(0, -CASE_SUFFIX.length), await readFile(casePath, 'utf8'));
+    expect(findings).toEqual([{ kind: GateFindingKinds.ungatedButton, line, column: expect.any(Number), element }]);
+  });
+
+  it('passes gated, wrapped and public buttons, and the fixture features folder as a whole', async () => {
+    const template = join(APP_DIR, GATED_TEMPLATE);
+    expect(findUngatedButtonsInSource(template, await readFile(template, 'utf8'))).toEqual([]);
+    expect(checkPermissionGates(join(APP_DIR, 'features')).findings).toEqual([]);
   });
 });

@@ -7,9 +7,40 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | Method | Route | Access | Owner | Summary |
 | --- | --- | --- | --- | --- |
 | GET | `/api/access/admin` | permission `access.admin.view` | Access | The access administration overview. |
+| GET | `/api/admin/access/permissions` | permission `access.roles.view` | Access | Every catalog permission, retired ones included, sorted by key. |
+| GET | `/api/admin/access/roles` | permission `access.roles.view` | Access | Every role, virtual roles first. |
+| POST | `/api/admin/access/roles` | permission `access.roles.manage` | Access | Creates an active, ordinary role (201). |
+| GET | `/api/admin/access/roles/{id:publicid}` | permission `access.roles.view` | Access | One role with its permissions. |
+| PUT | `/api/admin/access/roles/{id:publicid}` | permission `access.roles.manage` | Access | Changes a role's names, permissions and active state. |
+| GET | `/api/admin/access/users` | permission `access.grants.view` | Access | Up to 20 accounts matching the search (active and deactivated). |
+| GET | `/api/admin/access/users/{userId:publicid}/grants` | permission `access.grants.view` | Access | One user's roles, direct grants, virtual roles and effective permissions. |
+| PUT | `/api/admin/access/users/{userId:publicid}/grants` | permission `access.grants.manage` | Access | Replaces one user's roles and direct grants (live on the user's next request, no relogin). |
+| GET | `/api/admin/organizations` | permission `organizations.view` | Users | One page of organizations, ordered by code. |
+| POST | `/api/admin/organizations` | permission `organizations.manage` | Users | Creates an active organization. |
+| GET | `/api/admin/organizations/{id:publicid}` | permission `organizations.view` | Users | One organization. |
+| PUT | `/api/admin/organizations/{id:publicid}` | permission `organizations.manage` | Users | Changes an organization's code, names and kind. |
+| POST | `/api/admin/organizations/{id:publicid}/deactivate` | permission `organizations.manage` | Users | Deactivates an organization (its accounts stay; it accepts no new member). |
+| POST | `/api/admin/organizations/{id:publicid}/reactivate` | permission `organizations.manage` | Users | Reactivates an organization. |
+| POST | `/api/admin/user-import/preview` | permission `users.import` | Users | Reads and validates the sheet and stores the batch; nothing is created yet. |
+| POST | `/api/admin/user-import/{batchId:publicid}/commit` | permission `users.import` | Users | Creates the accounts of the batch's valid rows (no passwords; activation links for password-bound rows). |
+| GET | `/api/admin/users` | permission `users.view` | Users | One page of accounts with their organization names. |
+| POST | `/api/admin/users` | permission `users.manage` | Users | Creates an account without a password; a password-bound one comes back with its activation link. |
+| GET | `/api/admin/users/{id:publicid}` | permission `users.view` | Users | One account. |
+| PUT | `/api/admin/users/{id:publicid}` | permission `users.manage` | Users | Changes an account's editable fields. |
+| POST | `/api/admin/users/{id:publicid}/activation` | permission `users.manage` | Users | Issues a new activation link (password binding only); the current password stops working. |
+| POST | `/api/admin/users/{id:publicid}/deactivate` | permission `users.manage` | Users | Deactivates the account; its open sessions answer 401 from their next call. |
+| POST | `/api/admin/users/{id:publicid}/reactivate` | permission `users.manage` | Users | Reactivates the account. |
+| POST | `/api/admin/users/{id:publicid}/unlock` | permission `users.manage` | Users | Ends a lockout. |
+| POST | `/api/auth/activate` | anonymous (allowlisted) | Identity | Sets the account's password from an activation link; the link is spent. |
+| POST | `/api/auth/ad/login` | anonymous (allowlisted) | Identity | Signs in with a directory user name and password. |
 | POST | `/api/auth/login` | anonymous (allowlisted) | Identity | Signs in with a user name and password. |
 | POST | `/api/auth/logout` | authenticated (allowlisted) | Identity | Ends the caller's session; the access token in hand is refused from the next request on. |
+| GET | `/api/auth/modes` | anonymous (allowlisted) | Identity | The switched-on login modes (`Auth:Modes`). |
 | POST | `/api/auth/refresh` | anonymous (allowlisted) | Identity | Rotates the refresh token and issues a new access token. |
+| POST | `/api/auth/sso/exchange` | anonymous (allowlisted) | Identity | Trades the one-time ticket for the session (the same body as `/api/auth/login`). |
+| GET | `/api/auth/sso/login` | anonymous (allowlisted) | Identity | Starts a sign-in: 302 to the identity provider. |
+| POST | `/api/auth/sso/logout` | authenticated (allowlisted) | Identity | Ends the caller's session: 200 with the provider's end_session URL for an SSO session, else 204. |
+| GET | `/api/auth/sso/signin-oidc` | anonymous (allowlisted) | Identity | The provider's redirect back: 302 to the SPA callback with `#ticket=` or `#error=`. |
 | GET | `/api/dashboard` | permission `dashboard.view` | Access | The dashboard's data. |
 | GET | `/api/features` | anonymous (allowlisted) | Kernel | Every declared flag and its effective value. |
 | GET | `/api/me/permissions` | authenticated (allowlisted) | Access | The permission keys the caller holds now. |

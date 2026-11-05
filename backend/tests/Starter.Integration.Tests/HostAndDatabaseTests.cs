@@ -11,7 +11,10 @@ public sealed class HostAndDatabaseTests(DevelopmentHost host)
 {
     private const string FlagsMember = "flags";
     private const string MigrationHistoryCount = "SELECT COUNT(*) FROM sys.tables WHERE name = '__EFMigrationsHistory'";
-    private const string ModuleSchemaCount = "SELECT COUNT(*) FROM sys.schemas WHERE name IN ('identity', 'access')";
+    private const string ModuleSchemaCount = "SELECT COUNT(*) FROM sys.schemas WHERE name IN ('identity', 'access', 'messaging', 'users')";
+
+    /// <summary>The migrated module schemas: identity, access, messaging (kernel outbox) and users.</summary>
+    private const int MigratedSchemaCount = 4;
 
     [Fact]
     public async Task TheFixtureDatabaseExists() => Assert.True(await TestSqlServer.ExistsAsync(host.DatabaseName));
@@ -19,8 +22,8 @@ public sealed class HostAndDatabaseTests(DevelopmentHost host)
     [Fact]
     public async Task EveryModuleDbContextIsMigratedIntoItsOwnSchema()
     {
-        Assert.Equal(2, await CountAsync(ModuleSchemaCount));
-        Assert.Equal(2, await CountAsync(MigrationHistoryCount)); // one history table per module schema
+        Assert.Equal(MigratedSchemaCount, await CountAsync(ModuleSchemaCount));
+        Assert.Equal(MigratedSchemaCount, await CountAsync(MigrationHistoryCount)); // one history table per module schema
     }
 
     [Theory]

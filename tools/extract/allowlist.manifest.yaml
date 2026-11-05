@@ -35,6 +35,13 @@ hardDeny:
     # verification permissions and controller) are the same integration under neutral names (phase 2 review).
     - '*IdentityVerif*'
     - '*IdentityLookup*'
+    # Phase 3: the national-ID fixtures behind the external sign-up, the evacuation-doctor role guard and the SSO
+    # gateway-mode files (gateway SSO is phase 8, written fresh).
+    - 'NinType*'
+    - '*FlightDoctor*'
+    - '*SsoGateway*'
+    - 'GatewaySso*'
+    - 'InternalSsoController.cs'
     # The dropped external DGA npm package (D5).
     - '*dev-dga*.tgz'
     # Key material and dependencies never come across.
@@ -408,6 +415,179 @@ batches:
       - id: security-material
         source: 'docs/security/{account-security,spa-headers,wire-id-cutover}.md'
         target: 'reference/p2/aikit/security/'
+        mode: copy
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Phase 3 inputs (identity and access). One batch per phase 3 builder; each builder rewrites from the staging copy
+  # with starter names and writes only its own provenance/origins/<batch>.json. Every file is a REWRITE reference.
+  # Leave-behind (plan, phase 3): every national-SSO branch, controller, service, tab and polling; the national-ID
+  # fixtures (hard-denied by name); the evacuation-doctor role guard and its screens; SSO gateway mode (phase 8).
+  # National branches inside allowlisted files are dropped by the rewrite, and the scrub sweep blocks any leftover.
+  # ---------------------------------------------------------------------------------------------------------------
+  p3-identity-pkg:
+    description: 'Phase 3 input (owner: identity-pkg): LDAP directory sign-in and OIDC id_token validation for Codelab.Identity 0.5.'
+    entries:
+      - id: active-directory
+        source: 'backend/MODHS.Infrastructure/ActiveDirectory/**'
+        target: 'reference/p3/identity-pkg/active-directory/'
+        mode: copy
+      # Direct-mode OIDC only; gateway-mode files are hard-denied by name.
+      - id: oidc
+        source: 'backend/MODHS.Infrastructure/Sso/**'
+        target: 'reference/p3/identity-pkg/oidc/'
+        mode: copy
+      - id: tests-api
+        source: 'backend/MODHS.Api.Tests/{ActiveDirectoryDeploymentGuardTests,LdapAuthenticatorTests,NamIdTokenValidatorTests,NamOidcIdentityProviderTests,SsoDeploymentGuardTests,SsoDeploymentContractTests}.cs'
+        target: 'reference/p3/identity-pkg/tests/'
+        mode: copy
+      - id: tests-integration
+        source: 'backend/MODHS.IntegrationTests/ActiveDirectoryStartupGuardTests.cs'
+        target: 'reference/p3/identity-pkg/tests/integration/ActiveDirectoryStartupGuardTests.cs'
+        mode: copy
+
+  p3-identity-accounts:
+    description: 'Phase 3 input (owner: identity-accounts): account provisioning, lockout and the auth-event trail.'
+    entries:
+      - id: auth-event-sink
+        source: 'backend/MODHS.Infrastructure/Auditing/EfAuthEventSink.cs'
+        target: 'reference/p3/identity-accounts/auditing/EfAuthEventSink.cs'
+        mode: copy
+      - id: auth-event-model
+        source: 'backend/MODHS.{Domain/Abstractions/IAuthEventSink,Domain/Constants/AuthEventTypes,Domain/Entities/Auditing/AuthEvent,Infrastructure/Data/Configurations/AuthEventConfiguration}.cs'
+        target: 'reference/p3/identity-accounts/auditing/model/'
+        mode: copy
+      - id: account-provisioner
+        source: 'backend/MODHS.Infrastructure/Authorization/UserAccountProvisioner.cs'
+        target: 'reference/p3/identity-accounts/accounts/UserAccountProvisioner.cs'
+        mode: copy
+      # The lockout settings; the lockout code path itself is in the auth controller (batch p3-identity-login-modes).
+      - id: lockout-options
+        source: 'backend/MODHS.Api/Services/AccountLockoutOptions.cs'
+        target: 'reference/p3/identity-accounts/lockout/AccountLockoutOptions.cs'
+        mode: copy
+      - id: tests-integration
+        source: 'backend/MODHS.IntegrationTests/AuthEventTrailTests.cs'
+        target: 'reference/p3/identity-accounts/tests/integration/AuthEventTrailTests.cs'
+        mode: copy
+
+  p3-identity-login-modes:
+    description: 'Phase 3 input (owner: identity-login-modes): AD and SSO sign-in endpoints, the SSO exchange ticket and SSO logout.'
+    entries:
+      # Reference only: the national-SSO branches are left behind on rewrite.
+      - id: controllers
+        source: 'backend/MODHS.Api/Controllers/{SsoController,AuthController}.cs'
+        target: 'reference/p3/identity-login-modes/controllers/'
+        mode: copy
+      # Direct mode only: the gateway sign-in and the internal SSO controller are hard-denied.
+      - id: sso-services
+        source: 'backend/MODHS.Api/Services/{SsoTokenService,SsoLogoutHandles,SsoEndSessionFormPage,SsoSignInCompletion}.cs'
+        target: 'reference/p3/identity-login-modes/services/'
+        mode: copy
+      - id: sso-logout-hint
+        source: 'backend/MODHS.{Domain/Entities/Security/SsoLogoutHint,Domain/Security/ISsoLogoutHintStore,Infrastructure/Security/EfSsoLogoutHintStore,Infrastructure/Data/Configurations/SsoLogoutHintConfiguration}.cs'
+        target: 'reference/p3/identity-login-modes/logout-hint/'
+        mode: copy
+      - id: tests-api
+        source: 'backend/MODHS.Api.Tests/{SsoAccountMatchTests,SsoLogoutTests,SsoLogoutHintKeyTests,SsoTokenServiceTests,SsoSpaRouteContractTests,SsoSignInHarness}.cs'
+        target: 'reference/p3/identity-login-modes/tests/'
+        mode: copy
+      - id: tests-integration
+        source: 'backend/MODHS.IntegrationTests/SsoLoginFlowTests.cs'
+        target: 'reference/p3/identity-login-modes/tests/integration/SsoLoginFlowTests.cs'
+        mode: copy
+
+  p3-access:
+    description: 'Phase 3 input (owner: access-backend): role and grant administration, the per-user resolver and the self-lockout guard.'
+    entries:
+      - id: services
+        source: 'backend/MODHS.Infrastructure/Authorization/{RoleAdminService,UserGrantService,UserPermissionResolver,AuthReachabilityChecker}.cs'
+        target: 'reference/p3/access/services/'
+        mode: copy
+      - id: controllers
+        source: 'backend/MODHS.Api/Controllers/{RolesController,UserGrantsController}.cs'
+        target: 'reference/p3/access/controllers/'
+        mode: copy
+      - id: tests-api
+        source: 'backend/MODHS.Api.Tests/{RoleAdminServiceTests,UserGrantServiceTests,AuthReachabilityCheckerTests}.cs'
+        target: 'reference/p3/access/tests/'
+        mode: copy
+      - id: tests-integration
+        source: 'backend/MODHS.IntegrationTests/{RoleAdminRoundTripTests,PerUserGrantLifecycleTests,CrossOrganizationRequestScopeTests}.cs'
+        target: 'reference/p3/access/tests/integration/'
+        mode: copy
+
+  p3-users:
+    description: 'Phase 3 input (owner: users-backend): user and organization administration and the Excel user import.'
+    entries:
+      # National-ID fields are dropped on rewrite; the national-ID fixtures themselves are hard-denied.
+      - id: services
+        source: 'backend/MODHS.Infrastructure/Authorization/{UserAdminService,OrganizationAdminService}.cs'
+        target: 'reference/p3/users/services/'
+        mode: copy
+      # Import reference only (the starter reads xlsx with System.IO.Compression and XmlReader).
+      - id: import
+        source: 'backend/MODHS.Infrastructure/Migration/**'
+        target: 'reference/p3/users/import/'
+        mode: copy
+      - id: controllers
+        source: 'backend/MODHS.Api/Controllers/{AdminUsersController,AdminOrganizationsController,AdminMigrationController}.cs'
+        target: 'reference/p3/users/controllers/'
+        mode: copy
+      - id: tests-api
+        source: 'backend/MODHS.Api.Tests/{UserAdminServiceTests,OrganizationAdminServiceTests,UserMigrationServiceTests,RoleMigrationServiceTests}.cs'
+        target: 'reference/p3/users/tests/'
+        mode: copy
+
+  p3-fe-auth:
+    description: 'Phase 3 input (owner: fe-auth): SPA sign-in modes, SSO callback, live permission sync and session timeout.'
+    entries:
+      # The national-SSO service is hard-denied; its branches in these files are dropped by the rewrite.
+      - id: core-auth
+        source: 'frontend/modhs-web/src/app/core/auth/{sso.ts,login-rejection.ts,login-rejection.spec.ts,permission-sync.service*.ts,permission.store*.ts,session-timeout.service*.ts,root-redirect*.ts,auth.service*.ts,auth.models*.ts,token.store*.ts}'
+        target: 'reference/p3/fe-auth/core/auth/'
+        mode: copy
+      # The login chooser (national tab and polling left behind) and the SSO callback page.
+      - id: features-auth
+        source: 'frontend/modhs-web/src/app/features/auth/**'
+        target: 'reference/p3/fe-auth/features/auth/'
+        mode: copy
+
+  p3-fe-admin-users:
+    description: 'Phase 3 input (owner: fe-admin-users): user, account, organization and import admin screens and the admin routes.'
+    entries:
+      # The grants screen in the same folder belongs to p3-fe-admin-access.
+      - id: users
+        source: 'frontend/modhs-web/src/app/features/admin/users/{user-list.component,users.api}*'
+        target: 'reference/p3/fe-admin-users/users/'
+        mode: copy
+      - id: user-accounts
+        source: 'frontend/modhs-web/src/app/features/admin/user-accounts/**'
+        target: 'reference/p3/fe-admin-users/user-accounts/'
+        mode: copy
+      - id: organizations
+        source: 'frontend/modhs-web/src/app/features/admin/entities/**'
+        target: 'reference/p3/fe-admin-users/organizations/'
+        mode: copy
+      - id: import
+        source: 'frontend/modhs-web/src/app/features/admin/user-migration/**'
+        target: 'reference/p3/fe-admin-users/import/'
+        mode: copy
+      # Reference only: the evacuation-doctor and flight routes are left behind on rewrite.
+      - id: admin-routes
+        source: 'frontend/modhs-web/src/app/features/admin/admin.routes*.ts'
+        target: 'reference/p3/fe-admin-users/routes/'
+        mode: copy
+
+  p3-fe-admin-access:
+    description: 'Phase 3 input (owner: fe-admin-access): role list and editor, and the per-user grants screen.'
+    entries:
+      - id: roles
+        source: 'frontend/modhs-web/src/app/features/admin/roles/**'
+        target: 'reference/p3/fe-admin-access/roles/'
+        mode: copy
+      - id: user-grants
+        source: 'frontend/modhs-web/src/app/features/admin/users/user-grants.component*'
+        target: 'reference/p3/fe-admin-access/user-grants/'
         mode: copy
 
 secretDigests:

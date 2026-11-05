@@ -1,0 +1,82 @@
+<fieldset class="tree-editor" [attr.aria-describedby]="treeId + '-count'">
+  <legend class="tree-editor__legend">{{ labelKey() | t }}</legend>
+
+  <div class="tree-editor__toolbar">
+    @if (searchable()) {
+      <dga-text-input
+        class="tree-editor__search"
+        type="search"
+        leadIcon="search"
+        [label]="keysText.Search | t"
+        [value]="query()"
+        (valueChange)="query.set($event)"
+      />
+    }
+    <div class="tree-editor__actions">
+      <dga-button variant="subtle" size="sm" data-public-action [disabled]="filtering()" (click)="expandAll()">
+        {{ keysText.ExpandAll | t }}
+      </dga-button>
+      <dga-button variant="subtle" size="sm" data-public-action [disabled]="filtering()" (click)="collapseAll()">
+        {{ keysText.CollapseAll | t }}
+      </dga-button>
+      @if (!readOnly()) {
+        <dga-button variant="subtle" size="sm" data-public-action (click)="selectAll()">
+          {{ keysText.SelectAll | t }}
+        </dga-button>
+        <dga-button variant="subtle" size="sm" data-public-action (click)="clearAll()">
+          {{ keysText.ClearAll | t }}
+        </dga-button>
+      }
+    </div>
+  </div>
+
+  <p class="tree-editor__count" [id]="treeId + '-count'" aria-live="polite">
+    {{ keysText.SelectedCount | t: { selected: selectedCount(), total: totalCount() } }}
+  </p>
+
+  @if (visible().length === 0) {
+    <p class="tree-editor__state">{{ (filtering() ? keysText.NoMatch : keysText.Empty) | t }}</p>
+  } @else {
+    <ng-container *ngTemplateOutlet="branch; context: { $implicit: visible(), root: true }" />
+  }
+</fieldset>
+
+<ng-template #branch let-nodes let-root="root">
+  <ul class="tree-editor__list" [class.tree-editor__list--nested]="!root">
+    @for (node of nodes; track node.key) {
+      @let state = stateOf(node);
+      <li class="tree-editor__item" [attr.data-key]="node.key">
+        <div class="tree-editor__row">
+          @if (node.children.length > 0) {
+            <button
+              type="button"
+              class="tree-editor__toggle"
+              data-public-action
+              [attr.aria-expanded]="isExpanded(node)"
+              [attr.aria-controls]="groupId(node)"
+              [attr.aria-label]="(isExpanded(node) ? keysText.Collapse : keysText.Expand) | t: { label: labelText(node) }"
+              [disabled]="filtering()"
+              (click)="toggleExpanded(node)"
+            >
+              <dga-icon [name]="isExpanded(node) ? 'chevron-down' : 'chevron-end'" size="xs" />
+            </button>
+          } @else {
+            <span class="tree-editor__spacer" aria-hidden="true"></span>
+          }
+          <dga-checkbox
+            [label]="labelText(node)"
+            [checked]="state === states.Checked"
+            [indeterminate]="state === states.Mixed"
+            [disabled]="readOnly()"
+            (checkedChange)="toggle(node, $event)"
+          />
+        </div>
+        @if (node.children.length > 0) {
+          <div class="tree-editor__group" [id]="groupId(node)" [hidden]="!isExpanded(node)">
+            <ng-container *ngTemplateOutlet="branch; context: { $implicit: node.children, root: false }" />
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>

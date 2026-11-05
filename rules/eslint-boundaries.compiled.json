@@ -17,10 +17,12 @@
         "StarterDomain",
         "StarterApplication",
         "StarterInfrastructure",
+        "CodelabSecurity",
         "CodelabErrors"
       ],
       "mustNotDependOn": [
-        "Identity"
+        "Identity",
+        "Users"
       ]
     },
     {
@@ -32,9 +34,28 @@
         "StarterApplication",
         "StarterInfrastructure",
         "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabIdentity"
+      ],
+      "mustNotDependOn": [
+        "Access",
+        "Users"
+      ]
+    },
+    {
+      "module": "Users",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Users",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
         "CodelabErrors"
       ],
       "mustNotDependOn": [
+        "Identity",
         "Access"
       ]
     },
@@ -89,6 +110,13 @@
       "mustNotDependOn": [
         "StarterApi"
       ]
+    },
+    {
+      "module": "StarterDevIdp",
+      "kind": "dotnet",
+      "path": "backend/tools/Starter.DevIdp",
+      "mayDependOn": [],
+      "mustNotDependOn": []
     },
     {
       "module": "StarterDocsGen",
@@ -146,6 +174,20 @@
       "mustNotDependOn": []
     },
     {
+      "module": "WebPatterns",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/patterns",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebShared",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/shared",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
       "module": "CodelabBuildAnalyzers",
       "kind": "dotnet",
       "path": "packages/dotnet/Codelab.Build.Analyzers",
@@ -167,6 +209,19 @@
       ],
       "mustNotDependOn": [
         "CodelabSecurity",
+        "CodelabIntegration",
+        "CodelabTesting"
+      ]
+    },
+    {
+      "module": "CodelabIdentity",
+      "kind": "dotnet",
+      "path": "packages/dotnet/Codelab.Identity",
+      "mayDependOn": [],
+      "mustNotDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
         "CodelabIntegration",
         "CodelabTesting"
       ]

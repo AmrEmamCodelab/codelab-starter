@@ -20,6 +20,15 @@ public sealed class AccessDbContext(DbContextOptions<AccessDbContext> options) :
     /// <summary>The direct user grants.</summary>
     public DbSet<UserPermissionGrant> UserPermissionGrants => Set<UserPermissionGrant>();
 
+    /// <summary>The roles, ordinary and virtual.</summary>
+    public DbSet<Role> Roles => Set<Role>();
+
+    /// <summary>The permissions each role grants.</summary>
+    public DbSet<RolePermissionEntry> RolePermissions => Set<RolePermissionEntry>();
+
+    /// <summary>The roles assigned to users.</summary>
+    public DbSet<UserRoleAssignment> UserRoleAssignments => Set<UserRoleAssignment>();
+
     /// <inheritdoc />
     protected override string Schema => SchemaName;
 }

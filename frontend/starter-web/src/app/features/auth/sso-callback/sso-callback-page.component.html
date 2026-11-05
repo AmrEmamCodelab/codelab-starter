@@ -1,0 +1,14 @@
+<main class="sso-callback" id="main-content">
+  @if (callback.state() === states.Failed) {
+    <dga-card class="sso-callback__card" effect="shadow" icon="lock" [heading]="texts.FailedTitle | t" [headingLevel]="1">
+      @if (callback.failure(); as failure) {
+        <p class="sso-callback__error" role="alert">{{ failure.messageKey | t }}</p>
+      }
+      <dga-button data-public-action fullWidth (click)="backToLogin()">{{ texts.BackToLogin | t }}</dga-button>
+    </dga-card>
+  } @else {
+    <dga-card class="sso-callback__card" effect="shadow" icon="lock" [heading]="texts.Title | t" [headingLevel]="1">
+      <p class="sso-callback__status" role="status" aria-live="polite">{{ texts.Completing | t }}</p>
+    </dga-card>
+  }
+</main>

@@ -1,0 +1,28 @@
+<div class="activation-link">
+  <label class="activation-link__label" [for]="fieldId">{{ labelKey() | t }}</label>
+  <div class="activation-link__row">
+    <input
+      class="activation-link__field"
+      type="text"
+      readonly
+      dir="ltr"
+      [id]="fieldId"
+      [value]="link()"
+      (focus)="selectAll($event)"
+    />
+    <dga-button variant="secondary-outline" size="md" data-public-action data-testid="copy-link" (click)="copy()">
+      {{ 'admin.activation.copy' | t }}
+    </dga-button>
+  </div>
+  <p class="activation-link__expiry">{{ 'admin.activation.expires' | t: { at: expiry() } }}</p>
+  <p class="activation-link__status" aria-live="polite">
+    @switch (copyState()) {
+      @case (CopyState.Copied) {
+        {{ 'admin.activation.copied' | t }}
+      }
+      @case (CopyState.Failed) {
+        {{ 'admin.activation.copy-failed' | t }}
+      }
+    }
+  </p>
+</div>

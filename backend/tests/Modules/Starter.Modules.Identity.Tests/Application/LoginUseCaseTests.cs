@@ -104,7 +104,7 @@ public sealed class LoginUseCaseTests
         Assert.Equal(PlainTextHasher.HashOf(Passphrase), user.PasswordHash);
     }
 
-    private static void AssertInvalidCredentials(Outcome<SignedInSession> outcome)
+    private static void AssertInvalidCredentials(Outcome<LoginResult> outcome)
     {
         Assert.False(outcome.IsSuccess);
         Assert.Equal(RefusalCategory.Invalid, outcome.Refusal.Category);

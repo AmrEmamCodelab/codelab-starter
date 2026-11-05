@@ -1,0 +1,4 @@
+<!-- Lint fixture case: a button bound with the on-click canonical form (must fail on line 3). -->
+<section class="orders">
+  <button type="button" on-click="cancel()">{{ 'orders.cancel' | t }}</button>
+</section>

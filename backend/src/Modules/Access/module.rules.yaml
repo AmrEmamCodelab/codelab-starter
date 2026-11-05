@@ -4,19 +4,25 @@
 schemaVersion: 1
 module: Access
 kind: dotnet
-description: "Permission catalog (union of every module's IPermissionCatalogSource), the [HasPermission] handler over a live per-user resolve, direct user grants, and the catalog synchronizer."
-mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabErrors]
-mustNotDependOn: [Identity]
+description: "Permission catalog (union of every module's IPermissionCatalogSource) synchronized at start, the [HasPermission] handler over a live per-user resolve (direct grants, roles, virtual roles, organization scope), the role and grant editor with the self-lockout guard."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Users]
 required:
   - id: access.users-through-directory
-    statement: Read user state (active, break-glass) only through the kernel IUserDirectory port; never reference the Identity module or its tables.
+    statement: Read user state (active, break-glass, kind, organization) only through the kernel IUserDirectory and IAccountAdministration ports; never reference the Identity or Users module or their tables.
     enforcedBy: [architecture-test, review]
   - id: access.live-resolve
-    statement: Permissions are resolved live per request from the current rows; never put permission claims in a token and never cache a resolve without invalidating it on every grant change.
+    statement: Permissions are resolved live per request from the current rows; never put permission claims in a token and never cache a resolve without invalidating it on every grant change. A grant or role change never bumps the session version.
     enforcedBy: [review]
   - id: access.catalog-in-code
     statement: Permission keys are constants of a <Name>PermissionKeys class declared through an IPermissionCatalogSource; the database rows are written only by the PermissionSynchronizer.
     enforcedBy: [contract-test, review]
+  - id: access.virtual-roles-by-migration
+    statement: Virtual roles are rows seeded only by a migration (one per VirtualRoleKind); their permissions are editable, they are never assigned, and no runtime code creates or deletes them.
+    enforcedBy: [review]
+  - id: access.no-last-manager-removal
+    statement: Every role or grant write passes the ManagerContinuityGuard, so no change leaves zero active non-break-glass users holding both access.roles.manage and access.grants.manage without an explicit break-glass confirmation.
+    enforcedBy: [review]
 forbidden:
   - id: access.no-identity-reference
     description: The Access module reads users through IUserDirectory; a reference to the Identity module couples the two and breaks removing either.

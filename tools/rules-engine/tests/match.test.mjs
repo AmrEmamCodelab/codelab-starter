@@ -131,6 +131,7 @@ describe('base forbidden rules (rules/base.rules.yaml)', () => {
     ['base.no-threshold-override', 'tools/x.globalconfig', 'is_global = true\ncodelab_parameters = 12', 'is_global = true'],
     ['base.no-string-permission-key', 'src/A.cs', '[HasPermission("records.read")]', '[HasPermission(Permissions.Records.Read)]'],
     ['base.no-string-permission-key', 'web/a.ts', "if (this.perm.hasPermission('x')) {}", 'if (this.perm.hasPermission(PermissionKeys.X)) {}'],
+    ['base.fe-no-string-permission-key-in-template', 'src/app/features/x/x.component.html', `<dga-button *hasPermission="'a.b'">`, '<dga-button *hasPermission="PermissionKeys.A">'],
     ['base.no-string-role-check', 'src/A.cs', 'if (User.IsInRole("ADMIN")) {}', 'if (allowed) {}'],
     ['base.no-string-config-key', 'src/A.cs', 'var v = configuration["Smtp:Host"];', 'var v = options.Value.Host;'],
     ['base.no-string-config-key', 'src/A.cs', 'services.Configure<X>(config.GetSection("Smtp"));', 'config.GetSection(SmtpOptions.SectionName)'],

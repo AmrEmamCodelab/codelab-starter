@@ -1,0 +1,79 @@
+// Shared styles of the admin area's native controls (filter selects, pickers, row-action groups). The users,
+// organizations and import screens @use this partial; tokens and logical properties only.
+
+@mixin native-select {
+  min-block-size: var(--dga-size-control-md);
+  padding-block: var(--dga-space-2);
+  padding-inline: var(--dga-space-3);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-sm);
+  background: var(--dga-color-surface-default);
+  color: var(--dga-color-text-default);
+  font: inherit;
+  font-size: var(--dga-font-size-md);
+
+  &:focus-visible {
+    outline: var(--dga-focus-ring-width) solid var(--dga-color-focus-ring);
+    outline-offset: var(--dga-focus-halo-width);
+  }
+
+  &:disabled {
+    border-color: var(--dga-color-border-disabled);
+    background: var(--dga-color-surface-disabled);
+    color: var(--dga-color-text-disabled);
+  }
+}
+
+@mixin field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+@mixin field-label {
+  color: var(--dga-color-text-default);
+  font-size: var(--dga-font-size-sm);
+}
+
+@mixin filters {
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--dga-space-4);
+  }
+
+  .filter {
+    @include field;
+  }
+
+  .filter__label {
+    @include field-label;
+  }
+
+  .filter__select {
+    @include native-select;
+  }
+}
+
+@mixin row-actions {
+  .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dga-space-2);
+  }
+}
+
+@mixin editor-fields {
+  .editor-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dga-space-4);
+  }
+
+  .confirm-text {
+    margin: 0;
+    color: var(--dga-color-text-paragraph);
+  }
+}

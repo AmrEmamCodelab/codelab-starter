@@ -33,6 +33,11 @@ test('a literal password in a connection string is reported and redacted', () =>
   assert.ok(!findings[0].excerpt.includes(literal), 'the secret must not be printed');
 });
 
+test('an enum member declaration named Password is not a connection-string password', () => {
+  assert.deepEqual(ruleIds(joined('    Pass', 'word = 1,')), []);
+  assert.deepEqual(ruleIds(joined('  Pass', 'word = 1')), []);
+});
+
 test('secret-named settings with literal values are reported; placeholders and identifiers are not', () => {
   assert.deepEqual(ruleIds(joined('"Client', 'Secret": "', 'q9X2-kLm4-Pz77"')), ['secret-assignment']);
   assert.deepEqual(ruleIds(joined('"Client', 'Secret": ""')), []);

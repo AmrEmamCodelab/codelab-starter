@@ -102,6 +102,10 @@ function maskNationalId(value) {
 const INTERNAL_HOST_PATTERN = /\b(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:local|lan|internal|intranet|corp|home\.arpa|sa)(?![\w-]|\.[a-z])/gi;
 // Public, documentation-safe names under the denied suffixes.
 const ALLOWED_HOSTS = new Set(['dga.gov.sa', 'www.dga.gov.sa', 'example.gov.sa', 'example.sa', 'example.com.sa']);
+// Code member access such as `UserKind.Internal` or `Microsoft.Extensions.Hosting.Internal`: every label is written in
+// PascalCase as typed (an upper-case start and at least one lower-case letter), which a DNS host name never is in practice.
+const PASCAL_CASE_MEMBER_ACCESS = /^(?:[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*\.)+[A-Z][a-z]+$/;
+const isAllowedHost = (host) => ALLOWED_HOSTS.has(host.toLowerCase()) || PASCAL_CASE_MEMBER_ACCESS.test(host);
 // LDAP distinguished-name domain components other than documentation names reveal a real directory.
 const LDAP_DOMAIN_PATTERN = /\bDC=(?!(?:example|test|invalid|com|org|net)\b)[a-z0-9-]+/gi;
 
@@ -172,7 +176,7 @@ export function builtInScrubRules() {
       pattern: INTERNAL_HOST_PATTERN,
       message: 'internal or government host name (use example.test / localhost in the starter)',
       scope: SCOPE_CONTENT,
-      isAllowedMatch: (host) => ALLOWED_HOSTS.has(host.toLowerCase()),
+      isAllowedMatch: isAllowedHost,
     },
     {
       id: 'ldap-domain',

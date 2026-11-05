@@ -44,7 +44,7 @@ public sealed class RefreshCommandValidator : IValidator<RefreshCommand>
 /// <param name="IdleTimeoutMinutes">The idle timeout the client enforces, in minutes.</param>
 /// <param name="UserId">The internal user id (the Api layer sends it as a PublicId).</param>
 /// <param name="DisplayName">The user's display name.</param>
-public sealed record SignedInSession(
+public sealed record LoginResult(
     string AccessToken,
     DateTimeOffset AccessTokenExpiresAt,
     string RefreshToken,

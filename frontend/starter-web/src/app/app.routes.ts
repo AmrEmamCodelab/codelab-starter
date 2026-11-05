@@ -1,8 +1,11 @@
-import type { Routes } from '@angular/router';
+import type { Route, Routes } from '@angular/router';
+import { APP_NAV_ITEMS } from './app-nav';
 import { authGuard } from './core/auth/auth.guard';
 import { permissionGuard } from './core/auth/permission.guard';
 import { PermissionKeys, type PermissionKey } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
+import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
+import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
 
 /** The empty path the staff shell hangs on: its children carry the real paths from {@link RoutePaths}. */
 export const SHELL_PATH = '';
@@ -16,6 +19,34 @@ function requires(permission: PermissionKey): Readonly<Record<string, Permission
 }
 
 /**
+ * The staff shell: a layout behind `authGuard` that renders no page content of its own. Each page inside it carries
+ * its own permission key. The route gate exempts this route by identity (`LAYOUT_ROUTES` in `public-routes.ts`),
+ * never by its empty path.
+ */
+export const SHELL_ROUTE: Route = {
+  path: SHELL_PATH,
+  canActivate: [authGuard],
+  providers: [{ provide: SHELL_NAV_ITEMS, useValue: APP_NAV_ITEMS }],
+  loadComponent: () => import('./layouts/app-shell/app-shell.component').then(m => m.AppShellComponent),
+  children: [
+    {
+      path: RoutePaths.Dashboard,
+      pathMatch: 'full',
+      canActivate: [permissionGuard()],
+      data: requires(PermissionKeys.DashboardView),
+      loadComponent: () =>
+        import('./features/dashboard/dashboard-page/dashboard-page.component').then(m => m.DashboardPageComponent),
+    },
+    {
+      // A holder of any admin page key may enter; each page under the mount is gated again by its own key.
+      path: RoutePaths.Admin,
+      canActivate: [permissionGuard(ADMIN_AREA_PERMISSIONS)],
+      loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    },
+  ],
+};
+
+/**
  * Every route of the app. Pages are lazy; each page inside the shell is gated by a typed permission key
  * (`permissionGuard()` reads it from route data and fails closed). The login, 403 and 404 pages stand
  * outside the shell so they render without a session.
@@ -26,32 +57,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login-page/login-page.component').then(m => m.LoginPageComponent),
   },
   {
+    path: RoutePaths.SsoCallback,
+    loadComponent: () =>
+      import('./features/auth/sso-callback/sso-callback-page.component').then(m => m.SsoCallbackPageComponent),
+  },
+  {
+    path: RoutePaths.Activate,
+    loadComponent: () => import('./features/auth/activate/activate-page.component').then(m => m.ActivatePageComponent),
+  },
+  {
     path: RoutePaths.Unauthorized,
     loadComponent: () =>
       import('./features/errors/unauthorized/unauthorized-page.component').then(m => m.UnauthorizedPageComponent),
   },
-  {
-    path: SHELL_PATH,
-    canActivate: [authGuard],
-    loadComponent: () => import('./layouts/app-shell/app-shell.component').then(m => m.AppShellComponent),
-    children: [
-      {
-        path: RoutePaths.Dashboard,
-        pathMatch: 'full',
-        canActivate: [permissionGuard()],
-        data: requires(PermissionKeys.DashboardView),
-        loadComponent: () =>
-          import('./features/dashboard/dashboard-page/dashboard-page.component').then(m => m.DashboardPageComponent),
-      },
-      {
-        path: RoutePaths.Admin,
-        canActivate: [permissionGuard()],
-        data: requires(PermissionKeys.AccessAdminView),
-        loadComponent: () =>
-          import('./features/admin/admin-page/admin-page.component').then(m => m.AdminPageComponent),
-      },
-    ],
-  },
+  SHELL_ROUTE,
   {
     path: NOT_FOUND_PATH,
     loadComponent: () =>

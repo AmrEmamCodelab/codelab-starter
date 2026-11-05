@@ -162,6 +162,7 @@ $VectorsFolder         = 'packages/vectors'
 $VectorsDirEnvVar      = 'CODELAB_VECTORS_DIR'
 $CodelabReferencePattern = '(?i)Codelab\.|packages[\/]dotnet'
 $RepoBuildProps        = Join-Path $RepoRoot 'Directory.Build.props'
+$RepoPackagesProps     = Join-Path $RepoRoot 'Directory.Packages.props'
 $PinnedSdkVersionProp  = 'CodelabBuildSdkVersion'
 $PackageSourceSwitch   = 'UseCodelabPackageSource'
 $BaseRefScript         = 'tools/ci/base-ref.mjs'
@@ -697,7 +698,7 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '7 docs gate';        Run = { Invoke-DocsGateStep $Dotnet } },
         @{ Name = '8 conflict markers'; Run = { Invoke-NodeScriptStep 'tools/ci/conflict-markers.mjs' @('--root', '.') 'tools/ci' } },
         @{ Name = '9 content rules';    Run = { Invoke-NodeScriptStep 'tools/rules-engine/check-content.mjs' @('--root', '.') 'tools/rules-engine' } },
-        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/run-local') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local' } },
+        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/devseed/user-import/tests', 'tools/run-local') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local' } },
         @{ Name = '11 npm build+lint+test';  Run = { Invoke-NpmStep } },
         @{ Name = '12 vectors verify';  Run = { Invoke-VectorsStep } },
         @{ Name = '13 package integration test'; Run = { Invoke-PackageIntegrationStep $Dotnet } },
@@ -867,6 +868,33 @@ function Set-PinnedBuildSdkVersion([string] $Version) {
     Write-Host "Pinned $PinnedSdkVersionProp = $Version in Directory.Build.props" -ForegroundColor Green
 }
 
+# A ci pack of a NuGet package that has never been released: its feed-mode pin (Directory.Packages.props) names a
+# release the feed does not hold yet. Returns @{ id = ci version } for those packages; released ones keep their pin.
+function Get-UnreleasedNuGetPins($Plan) {
+    $versions = [IO.File]::ReadAllText((Join-Path $RepoRoot 'packages/versions.json')) | ConvertFrom-Json
+    $pins = @{}
+    foreach ($entry in @($Plan.packages | Where-Object { $_.kind -eq $NuGetKind -and -not $_.skip })) {
+        $release = $versions.($entry.id)
+        if (-not $release -or $entry.version -eq $release) { continue }
+        if (Test-Path -LiteralPath (Join-Path $NuGetFeedDir "$($entry.id).$release.nupkg")) { continue }
+        $pins[$entry.id] = $entry.version
+    }
+    return $pins
+}
+
+# Pins each listed package to its ci version in Directory.Packages.props; returns the original text (to restore).
+function Set-TemporaryPackagePins([hashtable] $Pins) {
+    $original = [IO.File]::ReadAllText($RepoPackagesProps)
+    $text = $original
+    foreach ($id in $Pins.Keys) {
+        $pattern = "(<PackageVersion\s+Include=`"$([regex]::Escape($id))`"\s+Version=`")[^`"]*(`")"
+        $text = [regex]::Replace($text, $pattern, "`${1}$($Pins[$id])`${2}")
+        Write-Host "Feed-mode build pins the unreleased $id to $($Pins[$id]) (restored afterwards)." -ForegroundColor Yellow
+    }
+    [IO.File]::WriteAllText($RepoPackagesProps, $text, (New-Object Text.UTF8Encoding($false)))
+    return $original
+}
+
 # ADR-002 feed mode: build and test exactly as a fork does, from the feed only, with a cold package cache.
 function Invoke-FeedModeBuild([string] $Dotnet) {
     Write-Banner "Feed-mode build ($PackageSourceSwitch=false, isolated NUGET_PACKAGES)"
@@ -917,7 +945,11 @@ function Invoke-PackTarget([string] $Dotnet, [bool] $IsRelease) {
     }
     finally { Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue }
     Set-PinnedBuildSdkVersion $sdk.version
-    Invoke-FeedModeBuild $Dotnet
+    $unreleased = $(if ($IsRelease) { @{} } else { Get-UnreleasedNuGetPins $plan })
+    if ($unreleased.Count -eq 0) { Invoke-FeedModeBuild $Dotnet; return }
+    $originalPins = Set-TemporaryPackagePins $unreleased
+    try { Invoke-FeedModeBuild $Dotnet }
+    finally { [IO.File]::WriteAllText($RepoPackagesProps, $originalPins, (New-Object Text.UTF8Encoding($false))) }
 }
 
 # ---------------------------------------------------------------------------------------------------------------

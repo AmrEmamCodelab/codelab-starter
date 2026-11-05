@@ -1,7 +1,7 @@
 {
   "name": "@codelab/ng-tools",
-  "version": "0.1.0",
-  "description": "Codelab Angular tooling: ESLint boundary preset and wire-id cast rule, Stylelint tokens-and-logical-CSS preset, golden-vector sync.",
+  "version": "0.2.0",
+  "description": "Codelab Angular tooling: ESLint boundary preset and wire-id cast rule, Stylelint tokens-and-logical-CSS preset, golden-vector sync, route-table and template permission gates.",
   "license": "UNLICENSED",
   "author": "Codelab",
   "type": "module",
@@ -10,10 +10,13 @@
     "./eslint": "./dist/eslint/index.mjs",
     "./stylelint": "./dist/stylelint/index.mjs",
     "./vectors": "./dist/vectors/sync.mjs",
+    "./routes": "./dist/routes/route-gates.mjs",
+    "./permission-gates": "./dist/permission-gates/index.mjs",
     "./package.json": "./package.json"
   },
   "bin": {
-    "codelab-vectors-sync": "dist/bin/codelab-vectors-sync.mjs"
+    "codelab-vectors-sync": "dist/bin/codelab-vectors-sync.mjs",
+    "codelab-ng-tools": "dist/bin/codelab-ng-tools.mjs"
   },
   "files": [
     "dist",

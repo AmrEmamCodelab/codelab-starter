@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTestAppConfig, TEST_API_BASE_URL } from '../../config/app-config.testing';
-import { SKIP_ERROR_DIALOG, SKIP_SESSION_EXPIRY } from '../../http/http-context';
+import { SKIP_ERROR_DIALOG, SKIP_SESSION_EXPIRY, UNSIGNED_REQUEST } from '../../http/http-context';
 import { BROWSER_STORAGE } from '../../session/app-storage';
 import { MemoryStorage } from '../../session/memory-storage';
 import { AUTHORIZATION_HEADER } from '../api.service';
@@ -47,6 +47,7 @@ describe('core API clients', () => {
     const request = http.expectOne(url(ApiPaths.AuthRefresh));
     expect(request.request.body).toEqual({ refreshToken: 'r1' });
     expect(request.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
+    expect(request.request.context.get(UNSIGNED_REQUEST)).toBe(true);
   });
 
   it('logs out', () => {
@@ -62,6 +63,7 @@ describe('core API clients', () => {
     expect(request.request.method).toBe('GET');
     expect(request.request.context.get(SKIP_ERROR_DIALOG)).toBe(true);
     expect(request.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
+    expect(request.request.context.get(UNSIGNED_REQUEST)).toBe(true);
   });
 
   it('reads my permissions quietly', () => {
@@ -92,5 +94,58 @@ describe('core API clients', () => {
     for (const path of Object.values(ApiPaths)) {
       expect(path.startsWith('api/')).toBe(true);
     }
+  });
+
+  it('reads the sign-in modes anonymously', () => {
+    TestBed.inject(AuthClient).modes().subscribe();
+    const request = http.expectOne(url(ApiPaths.AuthModes));
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.has(AUTHORIZATION_HEADER)).toBe(false);
+    expect(request.request.context.get(SKIP_ERROR_DIALOG)).toBe(true);
+  });
+
+  it('signs in with Active Directory anonymously', () => {
+    TestBed.inject(AuthClient).directoryLogin({ userName: 'u', password: 'p' }).subscribe();
+    const request = http.expectOne(url(ApiPaths.AuthAdLogin));
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ userName: 'u', password: 'p' });
+    expect(request.request.headers.has(AUTHORIZATION_HEADER)).toBe(false);
+    expect(request.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
+  });
+
+  it('builds the absolute SSO start URL with an encoded return URL and the binding hash', () => {
+    const client = TestBed.inject(AuthClient);
+    expect(client.ssoLoginUrl(null, 'h-1')).toBe(`${url(ApiPaths.AuthSsoLogin)}?binding=h-1`);
+    expect(client.ssoLoginUrl('/admin/users?page=2&q=a b', 'h-1')).toBe(
+      `${url(ApiPaths.AuthSsoLogin)}?returnUrl=%2Fadmin%2Fusers%3Fpage%3D2%26q%3Da+b&binding=h-1`,
+    );
+  });
+
+  it('exchanges the SSO ticket anonymously with the binding proof', () => {
+    TestBed.inject(AuthClient).ssoExchange({ ticket: 't1', bindingProof: 'p1' }).subscribe();
+    const request = http.expectOne(url(ApiPaths.AuthSsoExchange));
+    expect(request.request.body).toEqual({ ticket: 't1', bindingProof: 'p1' });
+    expect(request.request.headers.has(AUTHORIZATION_HEADER)).toBe(false);
+  });
+
+  it('activates an account anonymously', () => {
+    TestBed.inject(AuthClient).activate({ ticket: 't1', password: 'p' }).subscribe();
+    const request = http.expectOne(url(ApiPaths.AuthActivate));
+    expect(request.request.body).toEqual({ ticket: 't1', password: 'p' });
+    expect(request.request.headers.has(AUTHORIZATION_HEADER)).toBe(false);
+    expect(request.request.context.get(SKIP_ERROR_DIALOG)).toBe(true);
+  });
+
+  it('ends an SSO session and reads the end-session URL, or null for a 204', () => {
+    const results: (string | null)[] = [];
+    const client = TestBed.inject(AuthClient);
+    client.ssoLogout().subscribe(value => results.push(value));
+    const first = http.expectOne(url(ApiPaths.AuthSsoLogout));
+    expect(first.request.method).toBe('POST');
+    expect(first.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
+    first.flush({ endSessionUrl: 'https://idp.test/end' });
+    client.ssoLogout().subscribe(value => results.push(value));
+    http.expectOne(url(ApiPaths.AuthSsoLogout)).flush(null, { status: 204, statusText: 'No Content' });
+    expect(results).toEqual(['https://idp.test/end', null]);
   });
 });

@@ -8,7 +8,18 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 
 | Code | Constant | Description |
 | --- | --- | --- |
+| `ACCESS_BREAK_GLASS_NOT_EDITABLE` | `AccessErrorCodes.BreakGlassNotEditable` | The break-glass administrator holds every permission; its grants are not edited (409). |
+| `ACCESS_LAST_MANAGER` | `AccessErrorCodes.LastManager` | The change would leave no active user (other than break-glass) able to manage both roles and grants (409). Resend with `confirmBreakGlassOnly: true` to accept that only the break-glass administrator remains. |
+| `ACCESS_ONLY_BREAK_GLASS_MANAGES` | `AccessErrorCodes.OnlyBreakGlassManages` | A WARNING, not an error: the confirmed change left only the break-glass administrator able to manage roles and grants. Returned in the `warnings` list of a successful write. |
+| `ACCESS_ROLE_CODE_TAKEN` | `AccessErrorCodes.RoleCodeTaken` | Another role already uses this code (409). |
+| `ACCESS_ROLE_NAME_TAKEN` | `AccessErrorCodes.RoleNameTaken` | Another role already uses this English or Arabic name (409). |
+| `ACCESS_ROLE_NOT_FOUND` | `AccessErrorCodes.RoleNotFound` | No role has this id (404). |
+| `ACCESS_SCOPE_EXCEEDS_CALLER` | `AccessErrorCodes.ScopeExceedsCaller` | A grant write raises the caller's own grants, assigns a role wider than the caller holds `access.grants.manage`, or grants a permission the caller does not hold at least that widely (403). |
 | `ACCESS_SUBJECT_REQUIRED` | `AccessErrorCodes.SubjectRequired` | The access token carries no readable subject, so there is no user to resolve permissions for (403). |
+| `ACCESS_UNKNOWN_PERMISSION` | `AccessErrorCodes.UnknownPermission` | A permission key is not in the live catalog: unknown, or retired from the code (400). |
+| `ACCESS_UNKNOWN_ROLE` | `AccessErrorCodes.UnknownRole` | A role id in a grant write names no role (400). |
+| `ACCESS_USER_NOT_FOUND` | `AccessErrorCodes.UserNotFound` | No user has this id (404). |
+| `ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE` | `AccessErrorCodes.VirtualRoleNotAssignable` | A virtual role reaches its users by kind and is never assigned (400). |
 
 ## Codelab.Errors
 
@@ -31,12 +42,71 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 
 | Code | Constant | Description |
 | --- | --- | --- |
+| `IDENTITY_ACCOUNT_INACTIVE` | `IdentityErrorCodes.AccountInactive` | The account is deactivated (422): reactivate it before issuing an activation link. |
+| `IDENTITY_ACCOUNT_NOT_FOUND` | `IdentityErrorCodes.AccountNotFound` | No account has this id (404). |
+| `IDENTITY_ACTIVATION_NOT_APPLICABLE` | `IdentityErrorCodes.ActivationNotApplicable` | The account is bound to Active Directory or SSO, so it has no password to activate or reset (422). |
+| `IDENTITY_ACTIVATION_REJECTED` | `IdentityErrorCodes.ActivationRejected` | The activation link cannot be used (400): malformed, expired, already used, superseded by a newer link, or the account is deactivated or no longer password bound. One code for every reason. |
+| `IDENTITY_ACTIVATION_UNAVAILABLE` | `IdentityErrorCodes.ActivationUnavailable` | Activation links cannot be issued because sealed tickets are switched off in this deployment (422; `Codelab:Security:Tickets:Enabled`). |
+| `IDENTITY_BREAK_GLASS_PROTECTED` | `IdentityErrorCodes.BreakGlassProtected` | The break-glass administrator is configured, not administered (409): it cannot be edited, deactivated or given an activation link here; its configuration is the authority. |
+| `IDENTITY_DIRECTORY_UNAVAILABLE` | `LoginModeErrorCodes.DirectoryUnavailable` | The Active Directory could not be asked (unreachable, timed out, TLS refused); no password was checked (503). |
+| `IDENTITY_EMAIL_TAKEN` | `IdentityErrorCodes.EmailTaken` | Another account already has this e-mail address (409). |
 | `IDENTITY_INVALID_CREDENTIALS` | `IdentityErrorCodes.InvalidCredentials` | The user name and password do not match an active account (400). One code for every reason (unknown user, wrong password, inactive account), so a caller cannot tell which. |
+| `IDENTITY_LOGIN_MODE_DISABLED` | `LoginModeErrorCodes.LoginModeDisabled` | The endpoint belongs to a login mode this deployment has not switched on (`Auth:Modes`; 404). |
+| `IDENTITY_LOGIN_NAME_TAKEN` | `IdentityErrorCodes.LoginNameTaken` | Another account already has this directory login name (409). |
 | `IDENTITY_REFRESH_REJECTED` | `IdentityErrorCodes.RefreshRejected` | The refresh token cannot be used (400): malformed, unknown, expired, idle too long, already rotated, revoked, or the account's session version moved on. The client signs in again. |
 | `IDENTITY_SESSION_REQUIRED` | `IdentityErrorCodes.SessionRequired` | The access token carries no session id, so there is no session to end (403). |
+| `IDENTITY_SSO_REJECTED` | `LoginModeErrorCodes.SsoRejected` | The SSO callback cannot be completed (fragment `#error=`): the provider answered an error, the sign-in cookie is missing, expired or already used, the state does not match, or the id_token is invalid. |
+| `IDENTITY_SSO_TICKET_REJECTED` | `LoginModeErrorCodes.SsoTicketRejected` | The SSO exchange ticket cannot be used (400): malformed, expired, already used, or not this browser's. |
+| `IDENTITY_SSO_UNAVAILABLE` | `LoginModeErrorCodes.SsoUnavailable` | The identity provider, or the one-time ticket store, could not be asked (fragment `#error=`). |
+| `IDENTITY_UPN_TAKEN` | `IdentityErrorCodes.UpnTaken` | Another account already has this user principal name (409). |
+| `IDENTITY_USER_NAME_TAKEN` | `IdentityErrorCodes.UserNameTaken` | Another account already has this user name (409). |
 
 ## Kernel
 
 | Code | Constant | Description |
 | --- | --- | --- |
 | `VALIDATION_FAILED` | `PlatformErrorCodes.Validation` | Well-formed request, invalid field values (Codelab.Errors `ErrorCodes.Validation`). |
+
+## Users
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `USERS_ACTIVATION_LINK_UNCONFIGURED` | `UsersErrorCodes.ActivationLinkUnconfigured` | Users:Activation:LinkBaseUrl is not configured, so no activation link can be issued (422). |
+| `USERS_ACTIVATION_NOT_APPLICABLE` | `UsersErrorCodes.ActivationNotApplicable` | Only a password-bound account has an activation; Active Directory and SSO accounts sign in elsewhere (422). |
+| `USERS_BREAK_GLASS_PROTECTED` | `UsersErrorCodes.BreakGlassProtected` | The break-glass administrator is configured, not administered here (409). |
+| `USERS_CANNOT_CHANGE_OWN_ACCESS` | `UsersErrorCodes.CannotChangeOwnAccess` | An administrator cannot change their own kind, binding or organization (409). |
+| `USERS_CANNOT_DEACTIVATE_SELF` | `UsersErrorCodes.CannotDeactivateSelf` | An administrator cannot deactivate their own account (409). |
+| `USERS_IMPORT_BATCH_COMMITTED` | `UsersErrorCodes.ImportBatchCommitted` | The import batch was already committed (409). |
+| `USERS_IMPORT_BATCH_EXPIRED` | `UsersErrorCodes.ImportBatchExpired` | The import batch expired before it was committed; preview the file again (409). |
+| `USERS_IMPORT_BATCH_NOT_FOUND` | `UsersErrorCodes.ImportBatchNotFound` | No import batch has this id for the caller (404). |
+| `USERS_IMPORT_COLUMNS_MISSING` | `UsersErrorCodes.ImportColumnsMissing` | The header row lacks a required column; the field errors name each missing column (400). |
+| `USERS_IMPORT_FILE_INVALID` | `UsersErrorCodes.ImportFileInvalid` | The file is not a readable .xlsx workbook (400). |
+| `USERS_IMPORT_FILE_REQUIRED` | `UsersErrorCodes.ImportFileRequired` | The import request carries no file (400). |
+| `USERS_IMPORT_FILE_TOO_LARGE` | `UsersErrorCodes.ImportFileTooLarge` | The file, or the workbook inside it, is larger than the import allows (400). |
+| `USERS_IMPORT_NO_ROWS` | `UsersErrorCodes.ImportNoRows` | The sheet has no data row (400). |
+| `USERS_IMPORT_ROW_BINDING_INVALID` | `UsersImportRowErrorCodes.BindingInvalid` | The binding is blank or not `password` / `ad` / `sso`. |
+| `USERS_IMPORT_ROW_DIRECTORY_NAME_TOO_LONG` | `UsersImportRowErrorCodes.DirectoryNameTooLong` | The login name or the user principal name is too long. |
+| `USERS_IMPORT_ROW_DISPLAY_NAME_REQUIRED` | `UsersImportRowErrorCodes.DisplayNameRequired` | The display name is blank. |
+| `USERS_IMPORT_ROW_DISPLAY_NAME_TOO_LONG` | `UsersImportRowErrorCodes.DisplayNameTooLong` | The display name is too long. |
+| `USERS_IMPORT_ROW_EMAIL_DUPLICATE` | `UsersImportRowErrorCodes.EmailDuplicate` | Another row of the file has the same e-mail address. |
+| `USERS_IMPORT_ROW_EMAIL_INVALID` | `UsersImportRowErrorCodes.EmailInvalid` | The e-mail address does not have the shape of one, or is too long. |
+| `USERS_IMPORT_ROW_KIND_INVALID` | `UsersImportRowErrorCodes.KindInvalid` | The kind is blank or not `internal` / `external`. |
+| `USERS_IMPORT_ROW_ORGANIZATION_INACTIVE` | `UsersImportRowErrorCodes.OrganizationInactive` | The organization is deactivated. |
+| `USERS_IMPORT_ROW_ORGANIZATION_KIND_MISMATCH` | `UsersImportRowErrorCodes.OrganizationKindMismatch` | The user's kind does not match the organization's kind. |
+| `USERS_IMPORT_ROW_ORGANIZATION_NOT_FOUND` | `UsersImportRowErrorCodes.OrganizationNotFound` | No organization has this code. |
+| `USERS_IMPORT_ROW_ORGANIZATION_OUT_OF_SCOPE` | `UsersImportRowErrorCodes.OrganizationOutOfScope` | The importer holds the import permission for their own organization only, and this row is outside it. |
+| `USERS_IMPORT_ROW_ORGANIZATION_REQUIRED` | `UsersImportRowErrorCodes.OrganizationRequired` | An external user has no organization code. |
+| `USERS_IMPORT_ROW_USER_NAME_DUPLICATE` | `UsersImportRowErrorCodes.UserNameDuplicate` | Another row of the file has the same user name. |
+| `USERS_IMPORT_ROW_USER_NAME_REQUIRED` | `UsersImportRowErrorCodes.UserNameRequired` | The user name is blank. |
+| `USERS_IMPORT_ROW_USER_NAME_TAKEN` | `UsersImportRowErrorCodes.UserNameTaken` | An existing account has this user name. |
+| `USERS_IMPORT_ROW_USER_NAME_TOO_LONG` | `UsersImportRowErrorCodes.UserNameTooLong` | The user name is too long. |
+| `USERS_IMPORT_TOO_MANY_ROWS` | `UsersErrorCodes.ImportTooManyRows` | The sheet has more data rows than the import allows (400). |
+| `USERS_LAST_ACCESS_MANAGER` | `UsersErrorCodes.LastAccessManager` | Deactivating the account would leave no access manager other than break-glass (409). |
+| `USERS_ORGANIZATION_CODE_TAKEN` | `UsersErrorCodes.OrganizationCodeTaken` | Another organization already has this code (409). |
+| `USERS_ORGANIZATION_INACTIVE` | `UsersErrorCodes.OrganizationInactive` | The organization is deactivated and accepts no new member (422). |
+| `USERS_ORGANIZATION_KIND_IN_USE` | `UsersErrorCodes.OrganizationKindInUse` | The organization's kind cannot change while accounts belong to it (409). |
+| `USERS_ORGANIZATION_KIND_MISMATCH` | `UsersErrorCodes.OrganizationKindMismatch` | The account's kind does not match the organization's kind (external users need an external organization) (422). |
+| `USERS_ORGANIZATION_NOT_FOUND` | `UsersErrorCodes.OrganizationNotFound` | No organization has this id, or the account names an organization that does not exist (404 / 422). |
+| `USERS_ORGANIZATION_OUT_OF_SCOPE` | `UsersErrorCodes.OrganizationOutOfScope` | The organization is outside the caller's organization scope: an own-organization holder can only place accounts in, and administer, their own organization (403). |
+| `USERS_TARGET_OUTRANKS_CALLER` | `UsersErrorCodes.TargetOutranksCaller` | The account holds a permission the caller does not hold (or holds it more widely), so the caller may not reset, edit or switch it off (403). |
+| `USERS_USER_NOT_FOUND` | `UsersErrorCodes.UserNotFound` | No account has this id (404). |

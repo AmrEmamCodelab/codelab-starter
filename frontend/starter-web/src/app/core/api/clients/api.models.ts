@@ -49,3 +49,31 @@ export type EmptyResponse = Readonly<Record<string, never>>;
 export interface TranslationTree {
   readonly [key: string]: string | TranslationTree;
 }
+
+/** GET api/auth/modes: the sign-in methods this deployment enables (the API's `Auth:Modes`). */
+export interface AuthModesResponse {
+  readonly basic: boolean;
+  readonly activeDirectory: boolean;
+  readonly sso: boolean;
+}
+
+/** POST api/auth/sso/exchange: the one-time ticket the API put in the callback fragment. */
+export interface SsoExchangeRequest {
+  readonly ticket: string;
+  /** The binding secret whose hash started the sign-in in this tab (the API refuses the ticket without it). */
+  readonly bindingProof: string;
+}
+
+/**
+ * POST api/auth/sso/logout answers 200 with this body when the session came from the identity provider
+ * (its end_session URL, carrying id_token_hint and post_logout_redirect_uri), or 204 with none.
+ */
+export interface SsoLogoutResponse {
+  readonly endSessionUrl: string;
+}
+
+/** POST api/auth/activate: the activation ticket from the link and the user's first password. */
+export interface ActivateRequest {
+  readonly ticket: string;
+  readonly password: string;
+}

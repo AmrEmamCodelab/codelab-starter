@@ -59,3 +59,25 @@
 .login__error-reference {
   font-size: var(--dga-font-size-sm);
 }
+
+.login__notice--success {
+  border-color: var(--dga-color-success-border);
+  background-color: var(--dga-color-success-surface);
+  color: var(--dga-color-success-text);
+}
+
+.login__status {
+  margin: 0;
+  color: var(--dga-color-text-secondary);
+}
+
+.login__methods {
+  display: block;
+  margin-block-end: var(--dga-space-4);
+}
+
+.login__sso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}

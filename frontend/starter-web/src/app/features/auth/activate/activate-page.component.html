@@ -1,0 +1,55 @@
+<main class="activate" id="main-content">
+  <div class="activate__toolbar">
+    <app-language-switcher />
+  </div>
+
+  <dga-card
+    class="activate__card"
+    effect="shadow"
+    icon="lock"
+    [heading]="texts.Title | t"
+    [description]="texts.Subtitle | t"
+    [headingLevel]="1"
+  >
+    @if (activation.hasTicket()) {
+      @if (activation.failure(); as failure) {
+        <div class="activate__error" role="alert">
+          <p class="activate__error-message">{{ failure.messageKey | t }}</p>
+          @if (failure.referenceCode; as code) {
+            <p class="activate__error-reference">{{ 'core.error-dialog.reference-code' | t: { code: code } }}</p>
+          }
+        </div>
+      }
+
+      <form class="activate__form" novalidate (submit)="submit($event)">
+        <p class="activate__hint">{{ texts.PasswordHint | t: { min: minLength } }}</p>
+        <dga-text-input
+          type="password"
+          name="password"
+          autocomplete="new-password"
+          required
+          leadIcon="lock"
+          [label]="texts.PasswordLabel | t"
+          [error]="passwordError()"
+          [(value)]="passwordInput"
+        />
+        <dga-text-input
+          type="password"
+          name="confirmPassword"
+          autocomplete="new-password"
+          required
+          leadIcon="lock"
+          [label]="texts.ConfirmLabel | t"
+          [error]="confirmError()"
+          [(value)]="confirmInput"
+        />
+        <dga-button data-public-action type="submit" fullWidth [loading]="activation.busy()">
+          {{ texts.Submit | t }}
+        </dga-button>
+      </form>
+    } @else {
+      <p class="activate__error activate__error-message" role="alert">{{ texts.MissingTicket | t }}</p>
+      <dga-button data-public-action fullWidth (click)="backToLogin()">{{ texts.BackToLogin | t }}</dga-button>
+    }
+  </dga-card>
+</main>

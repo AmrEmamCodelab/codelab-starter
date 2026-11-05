@@ -60,6 +60,7 @@ internal static class SecurityRegistration
             provider.GetRequiredService<SecurityProtocol>(),
             provider.GetRequiredService<IOptionsMonitor<RequestSigningOptions>>().CurrentValue));
         services.TryAddSingleton<SigningKeyIssuer>();
+        services.TryAddEnumerable(ServiceDescriptor.Transient<Microsoft.AspNetCore.Hosting.IStartupFilter, ResponseSigningStartupFilter>());
     }
 
     internal static void AddReplay(IServiceCollection services, IConfiguration configuration)

@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Users module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Users
+kind: dotnet
+description: "Users and organizations: organizations (internal or external, unique code), the user admin endpoints over the kernel IAccountAdministration port, and the Excel user import with activation tickets and Pending outbox messages instead of any password."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access]
+required:
+  - id: users.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a UsersPermissionKeys constant and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: users.data-through-ports
+    statement: Application code reads and writes data only through ports it declares; the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  - id: users.accounts-through-port
+    statement: Accounts are read and changed only through the kernel IAccountAdministration port (implemented by Identity); the Users module never references the Identity or Access module, their tables or their types.
+    enforcedBy: [architecture-test, review]
+  - id: users.no-default-password
+    statement: No account ever gets a default, shared or generated password; a password-bound account gets a sealed one-time activation ticket (AccountActivations), an Active Directory or SSO account gets none. No request, sheet column or response carries a password.
+    enforcedBy: [review]
+  - id: users.ticket-stays-out-of-storage
+    statement: The sealed activation ticket goes only into the activation link returned to the administrator; the outbox payload (AccountActivationPayload) names the ticket by id, and no table, log or error message of this module holds the ticket.
+    enforcedBy: [review]
+  - id: users.import-caps
+    statement: The xlsx reader enforces every ImportLimits cap while it reads (upload bytes, zip entries, inflated bytes, shared strings, columns, cell length, rows); a cap is never trusted from the file's own headers.
+    enforcedBy: [review]
+forbidden:
+  - id: users.no-module-reference
+    description: The Users module talks to Identity and Access only through kernel ports; a reference to either couples the modules and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use Starter.Application.Users.IAccountAdministration (accounts) or a new kernel port in Starter.Application.
+  - id: users.no-spreadsheet-package
+    description: The import reads .xlsx with System.IO.Compression and XmlReader only, under named caps; a spreadsheet package brings its own unbounded parsing and a new dependency.
+    pattern: '(?<![A-Za-z0-9_])(?:ClosedXML|DocumentFormat[.]OpenXml|ExcelDataReader|EPPlus|NPOI)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Extend Infrastructure/Import (XlsxPackage, XlsxSheetParser) and keep every cap in ImportLimits.
+recipes: [docs/recipes/add-endpoint.md]

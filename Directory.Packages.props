@@ -60,6 +60,10 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+  <ItemGroup Label="Codelab.Identity: LDAP/LDAPS for the Active Directory provider (not in the ASP.NET Core shared framework)">
+    <PackageVersion Include="System.DirectoryServices.Protocols" Version="10.0.14" />
+  </ItemGroup>
+
   <!--
     Microsoft.Extensions.* are part of the ASP.NET Core shared framework: a project with
     <FrameworkReference Include="Microsoft.AspNetCore.App" /> must NOT reference them (NU1510 fails the build). They are
@@ -116,9 +120,10 @@
     init.ps1 rewrites to the versions its feed holds.
   -->
   <ItemGroup Label="Codelab packages (feed mode)">
-    <PackageVersion Include="Codelab.Security" Version="0.5.1" />
+    <PackageVersion Include="Codelab.Security" Version="0.5.2" />
     <PackageVersion Include="Codelab.Observability" Version="0.5.1" />
     <PackageVersion Include="Codelab.Errors" Version="0.5.1" />
     <PackageVersion Include="Codelab.Testing" Version="0.5.0" />
+    <PackageVersion Include="Codelab.Identity" Version="0.5.0" />
   </ItemGroup>
 </Project>

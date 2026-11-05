@@ -57,6 +57,18 @@ Breaking changes are allowed before 1.0.0 but must be listed under **Changed** o
 
 ## Codelab.Security
 
+### [Unreleased] - 0.5.2
+
+#### Fixed
+
+- Response signatures now cover error bodies written by the host's own error handling. `ResponseSignatureMiddleware`
+  runs first in the pipeline (a startup filter registered by `AddCodelabSecurity`) instead of inside
+  `UseCodelabSecurity`, so the problem+json body that `UseStatusCodePages` writes for an empty 401/403 and the body
+  `UseExceptionHandler` writes for a 500 are hashed. Before, they were signed with the empty-body hash and every
+  verifying client refused them (`response_signature_mismatch`). `HttpResponse.Clear()` now drops a failing endpoint's
+  partial output from the signed body. **Migration:** none; `UseCodelabSecurity` no longer adds the response signer,
+  and `AddCodelabSecurity` adds it.
+
 ### [0.5.1] - 2026-11-04
 
 #### Fixed
@@ -155,6 +167,32 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 - `CodedRefusal` for expected refusals returned as values.
 - Pipeline order: `UseCodelabObservability()` first, then `UseCodelabErrors()`.
 
+## Codelab.Identity
+
+### [Unreleased] - 0.5.0
+
+#### Added
+
+- Active Directory over LDAPS (`IActiveDirectoryAuthenticator`): binds as the user, then searches the user's own entry;
+  LDAP result codes and AD sub-codes map to `DirectoryAuthStatus`; a timeout; the `ILdapConnectionFactory` test seam;
+  `LdapsCertificateReader`; `IActiveDirectoryConnectionProbe`; `ActiveDirectoryDeploymentGuard`.
+- Generic OIDC code flow with PKCE S256 (`IOidcIdentityProvider`): JWKS or pinned signing keys, an asymmetric-only
+  algorithm allowlist (none and HS* refused), issuer/audience/azp/nonce/lifetime checks on `TimeProvider`, and the
+  end_session URL with `id_token_hint`; `SsoDeploymentGuard`.
+- `LoginMatchField` / `LoginMatch` (email, login name or UPN) and `AddCodelabActiveDirectory` / `AddCodelabOidc`.
+
+#### Security
+
+- Active Directory sign-in refuses a `DOMAIN\user` whose prefix is not `NetBiosName` and a `user@suffix` whose suffix
+  is not `Domain` or in `UpnSuffixes`, before the bind (a trusted-domain account could resolve to a local namesake).
+  New options `NetBiosName` and `UpnSuffixes`; log event 3106. Breaking: deployments whose users type `DOMAIN\user`
+  must set `NetBiosName`.
+- Active Directory sign-in checks that the account the password was bound as is the entry the search found, using
+  RFC 4532 "Who am I?" (new `ILdapConnection.WhoAmI()`, default `null`; `SystemLdapConnection` implements it). A
+  mismatch is `InvalidCredentials` with log event 3107. A connection without `WhoAmI` gets a weaker check: a found
+  entry whose `userPrincipalName` is present and differs from the bind name is refused. Possibly breaking: if the
+  directory server refuses the "Who am I?" request, every AD sign-in becomes `Unavailable`.
+
 ## Codelab.Integration
 
 ### [0.1.0] - 2026-11-04
@@ -203,6 +241,28 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 - A second entry point, `@codelab/ng-security/core`, with no Angular imports, so Node tools can use it.
 
 ## @codelab/ng-tools
+
+### [Unreleased] - 0.2.0
+
+#### Added
+
+- `@codelab/ng-tools/routes`: `assertRoutesGated` / `findUngatedRoutes` / `formatRouteFindings`, the route-table
+  permission gate for a Vitest spec. Every route rendering a page carries a permission key in route data on itself or
+  an ancestor, or its full path is public. Redirects are exempt. Lazy child arrays are passed in `lazyChildren` (a
+  missing one fails). Optional `knownPermissions`. TypeScript declarations included.
+- `@codelab/ng-tools/permission-gates` and the `codelab-ng-tools permission-gates --dir <folder> [--fix <text>]` bin:
+  every `<dga-button>`, and every `<button>` with `(click)`, in templates and inline templates carries
+  `*hasPermission` (itself, an ancestor, or `[hasPermission]` on `<ng-template>`) or `data-public-action`.
+  String-literal keys are refused. Exit 0/1/2.
+- The route gate also requires a permission guard (`missing-guard`), tracked per key: the route that declares a page's
+  innermost key runs it in `canActivate` or `canMatch`, or an ancestor strictly above that route runs it in
+  `canActivateChild` (a route's own `canActivateChild` does not count for itself), with a guard tagged with
+  `Symbol.for('codelab.ng-tools.permission-guard')` (`markPermissionGuard()`, `PERMISSION_GUARD_MARKER`), or one the
+  `isPermissionGuard` option accepts. Breaking for consumers whose guards are not tagged.
+- The template gate counts more action elements: a `<button>` with any event binding (including `on-x` and
+  `(keyup.enter)`), a submit button or a typeless one inside a submitting form, a `role=button` element with an event
+  binding, and any element that binds `(click)` or `(confirm)`. `template: NAME` inline templates are scanned when the
+  file declares `NAME` as a string.
 
 ### [0.1.1] - 2026-11-04
 

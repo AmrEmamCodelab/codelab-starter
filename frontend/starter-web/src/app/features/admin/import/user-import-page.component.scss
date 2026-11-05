@@ -1,0 +1,80 @@
+@use '../organizations/admin-controls' as controls;
+
+.import-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-6);
+}
+
+.import-page__header,
+.import-page__upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+}
+
+.import-page__title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-2xl);
+}
+
+.import-page__text,
+.import-page__summary {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}
+
+.import-page__field {
+  @include controls.field;
+}
+
+.import-page__hint,
+.import-page__reference {
+  margin: 0;
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-sm);
+}
+
+.import-page__problem {
+  margin: 0;
+  color: var(--dga-color-text-error);
+  font-size: var(--dga-font-size-sm);
+}
+
+.import-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-3);
+}
+
+.import-page__error {
+  display: flex;
+  gap: var(--dga-space-3);
+  padding: var(--dga-space-4);
+  border: var(--dga-border-width-thin) solid var(--dga-color-error-border);
+  border-radius: var(--dga-radius-md);
+  color: var(--dga-color-text-error);
+}
+
+.import-page__error-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-2);
+}
+
+.import-page__error-message {
+  margin: 0;
+}
+
+.import-page__verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+}
+
+.import-page__list {
+  margin: 0;
+  padding-inline-start: var(--dga-space-4);
+  font-size: var(--dga-font-size-sm);
+}

@@ -12,6 +12,11 @@ using Starter.Infrastructure.Modularity;
 using Starter.Infrastructure.Persistence;
 using Starter.Infrastructure.Startup;
 using Starter.Modules.Identity.Application;
+using Starter.Modules.Identity.Application.Accounts;
+using Starter.Modules.Identity.Application.Activation;
+using Starter.Modules.Identity.Application.Auditing;
+using Starter.Modules.Identity.Infrastructure.Accounts;
+using Starter.Modules.Identity.Infrastructure.Auditing;
 using Starter.Modules.Identity.Infrastructure.Options;
 using Starter.Modules.Identity.Infrastructure.Persistence;
 using Starter.Modules.Identity.Infrastructure.Security;
@@ -25,8 +30,9 @@ public static class IdentityModuleRegistration
 {
     /// <summary>
     /// Registers the options (validated on start), the DbContext in schema <c>identity</c>, the session issuer and
-    /// its token adapters, the use cases and validators, <see cref="IUserDirectory"/>, the account seeding task and the
-    /// JWT bearer scheme (the default authentication scheme) with its per-request <c>sid</c> revocation check.
+    /// its token adapters, the use cases and validators, <see cref="IUserDirectory"/>, <see cref="IAccountAdministration"/>,
+    /// the activation tickets, the auth event sink, the account seeding task and the JWT bearer scheme (the default
+    /// authentication scheme) with its per-request <c>sid</c> revocation check.
     /// </summary>
     public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
     {
@@ -39,6 +45,7 @@ public static class IdentityModuleRegistration
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         AddSessions(services);
         AddUseCases(services);
+        AddAccounts(services);
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<JwtBearerOptions>, BearerAuthentication>());
         return services;
@@ -57,6 +64,11 @@ public static class IdentityModuleRegistration
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<DevUsersOptions>, DevUsersOptionsValidator>());
         services.AddOptions<JwtOptions>().PostConfigure<IHostEnvironment>(DefaultIssuerAndAudience);
+        AddValidated<LockoutOptions, LockoutOptionsValidator>(services, configuration.GetSection(LockoutOptions.SectionName));
+        AddValidated<PasswordPolicyOptions, PasswordPolicyOptionsValidator>(services, configuration.GetSection(PasswordPolicyOptions.SectionName));
+        AddValidated<ActivationOptions, ActivationOptionsValidator>(services, configuration.GetSection(ActivationOptions.SectionName));
+        services.AddSingleton(provider => provider.GetRequiredService<IOptions<LockoutOptions>>().Value.ToPolicy());
+        services.AddSingleton(provider => provider.GetRequiredService<IOptions<PasswordPolicyOptions>>().Value.ToPolicy());
     }
 
     private static void AddValidated<TOptions, TValidator>(IServiceCollection services, IConfigurationSection section)
@@ -84,12 +96,27 @@ public static class IdentityModuleRegistration
     {
         services.AddSingleton<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddSingleton<IValidator<RefreshCommand>, RefreshCommandValidator>();
+        services.AddScoped<PasswordCheck>();
         services.AddScoped<LoginUseCase>();
         services.AddScoped<RefreshSessionUseCase>();
         services.AddScoped<LogoutUseCase>();
+        services.AddScoped<SignInExternalAccount>();
+        services.AddScoped<CurrentSessionQuery>();
         services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<AccountSeeder>();
         services.AddScoped<IStartupTask, AccountSeedingTask>();
+        services.AddScoped<IAuthEventSink, EfAuthEventSink>();
+    }
+
+    private static void AddAccounts(IServiceCollection services)
+    {
+        services.AddSingleton<AccountInputValidator>();
+        services.AddSingleton<IActivationTickets, SealedActivationTickets>();
+        services.AddSingleton<IValidator<ActivateAccountCommand>, ActivateAccountCommandValidator>();
+        services.AddScoped<AccountWrites>();
+        services.AddScoped<ActivationIssuer>();
+        services.AddScoped<ActivateAccountUseCase>();
+        services.AddScoped<IAccountAdministration, AccountAdministration>();
     }
 
     private static void DefaultIssuerAndAudience(JwtOptions options, IHostEnvironment environment)

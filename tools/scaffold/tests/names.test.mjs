@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  frontendPermissionKeyName,
   permissionKeyOf,
   refusalForAction,
   refusalForMethod,
@@ -15,6 +16,14 @@ import {
 } from '../lib/names.mjs';
 
 const NO_MODULES = { existingModules: [], removedModules: [] };
+
+describe('frontendPermissionKeyName', () => {
+  it('matches the api:gen naming: PascalCase of every dotted and dashed word', () => {
+    assert.equal(frontendPermissionKeyName('dashboard.view'), 'DashboardView');
+    assert.equal(frontendPermissionKeyName('access.admin.view'), 'AccessAdminView');
+    assert.equal(frontendPermissionKeyName('service-requests.approve-request'), 'ServiceRequestsApproveRequest');
+  });
+});
 
 describe('name conversion', () => {
   it('converts PascalCase to kebab-case and CONSTANT_CASE, keeping acronyms together', () => {

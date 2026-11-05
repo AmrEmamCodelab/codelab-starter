@@ -23,7 +23,7 @@ var app = builder.Build();
 app.UseCors();                                      // before authentication
 app.UseRouting();                                   // before UseCodelabSecurity (endpoint policy schemes)
 app.UseAuthentication();
-app.UseCodelabSecurity();                           // after authentication: rate limiter, sessions, signing
+app.UseCodelabSecurity();                           // after authentication: rate limiter, sessions, request signing
 app.UseAuthorization();
 app.MapCodelabSigningKeyEndpoint();
 ```
@@ -72,7 +72,7 @@ Everyday calls:
 - Time comes from `TimeProvider`; tests use `FakeTimeProvider`.
 
 ## Gotchas
-- **Order matters:** `UseCodelabSecurity()` runs after authentication (it throws on the first request when signing is on and no authentication ran). The security headers do not depend on it: a startup filter puts them first, so CORS preflights and 404s carry them too. Call `app.UseCors()` before authentication.
+- **Order matters:** `UseCodelabSecurity()` runs after authentication (it throws on the first request when signing is on and no authentication ran). The security headers and response signing do not depend on it: startup filters put them first, so CORS preflights and 404s carry the headers, and the response signature covers the body the host's error handling writes later (see the signing gotcha below). Call `app.UseCors()` before authentication.
 - **The checks see the principal authorization will use.** `UseAuthentication()` authenticates only the default
   scheme. When an endpoint's policy names its own schemes (`[Authorize(AuthenticationSchemes = ...)]`,
   `AddAuthenticationSchemes`), for example bearer API endpoints beside a cookie default for SSO, or several schemes and
@@ -84,7 +84,7 @@ Everyday calls:
   an identity provider's claim mapping, say) proves nothing; a merged user and service principal is a user.
 - **The PublicId codec is process-wide.** `UseCodelabSecurity()` installs it and round-trips a self-test id; host shutdown restores the previous one. Tests that start hosts or install codecs run in one serial xunit collection.
 - **Minimal APIs:** a handler shaped like `RequestDelegate` (`HttpContext` in, `Task` out) discards its result (ASP0016); take `HttpRequest` or typed parameters. A body endpoint answers 415 at routing for a wrong content type, before authentication.
-- **Response signing buffers** the body of verified requests; mark file endpoints `[UnsignedResponse]`. The capture swaps `IHttpResponseBodyFeature`, so writers that use the `PipeWriter` are covered too.
+- **Response signing buffers** the body of verified requests; mark file endpoints `[UnsignedResponse]`. The capture swaps `IHttpResponseBodyFeature`, so writers that use the `PipeWriter` are covered too. The signer runs OUTSIDE the host pipeline (a startup filter, not `UseCodelabSecurity`): the problem body that `UseStatusCodePages` writes for an empty 401/403, and the body `UseExceptionHandler` writes for a 500, are written inside it and signed. Signed inside `UseCodelabSecurity` they arrived with the hash of the empty body and every verifying client refused them (`response_signature_mismatch`). While it buffers, the capture is seekable, so `HttpResponse.Clear()` drops what a failing endpoint wrote before the error body. Regression: `OuterErrorBodySigningTests`.
 - **Memory stores are per process.** Outside Development the memory replay store (signing in Enforce, service assertions, tickets) and the memory session store are refused unless `Codelab:Security:ReplayProtection:AcknowledgeSingleInstance` is set; multi-replica deployments use `SqlServer`.
 - **The browser proof covers `Request.Path` without `PathBase`.** Under an IIS child application (`PathBase` `/starter-api`) the SPA's API root is `/starter-api`, and @codelab/ng-security signs `/api/items`. Service assertions sign the full path (`PathBase` + `Path`), because a service client knows only the URL.
 - **Body binding never trusts framing headers alone.** An HTTP/2 or HTTP/3 body may have no `Content-Length` and no `Transfer-Encoding`; the server's body-detection feature decides, so such a body is hashed (or refused over the cap), never treated as empty.

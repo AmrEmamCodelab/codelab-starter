@@ -1,0 +1,179 @@
+<div class="access-page">
+  <a class="access-page__link grants__back" [routerLink]="adminLink">{{ 'admin.access.grants.back' | t }}</a>
+
+  @if (invalidId()) {
+    <p class="access-page__error grants__load-error" role="alert">{{ notFoundKey | t }}</p>
+  } @else if (store.loadError(); as failure) {
+    <p class="access-page__error grants__load-error" role="alert">{{ errorMessageKey(failure.code) | t }}</p>
+  } @else if (store.loading()) {
+    <p class="access-page__hint" role="status">{{ 'admin.access.loading' | t }}</p>
+  } @else if (store.grants(); as grants) {
+    <header class="access-page__header">
+      <div>
+        <h1 class="access-page__title grants__title">
+          {{ 'admin.access.grants.title' | t: { name: grants.user.displayName } }}
+        </h1>
+        <p class="access-page__subtitle grants__user-name">{{ grants.user.userName }}</p>
+      </div>
+      <div class="access-page__actions">
+        <dga-tag tone="neutral">{{ userKindLabelKey(grants.user.kind) | t }}</dga-tag>
+        @if (grants.user.isBreakGlass) {
+          <dga-tag tone="warning">{{ 'admin.access.grants.break-glass' | t }}</dga-tag>
+        }
+        <dga-status-tag [tone]="grants.user.isActive ? 'success' : 'neutral'">
+          {{ (grants.user.isActive ? 'admin.access.grants.active' : 'admin.access.grants.inactive') | t }}
+        </dga-status-tag>
+      </div>
+    </header>
+
+    @if (grants.user.isBreakGlass) {
+      <p class="access-page__notice grants__break-glass-notice">{{ 'admin.access.grants.break-glass-notice' | t }}</p>
+    } @else if (!canManage()) {
+      <p class="access-page__notice grants__read-only">{{ 'admin.access.grants.read-only-notice' | t }}</p>
+    }
+    @if (!grants.user.isActive) {
+      <p class="access-page__notice">{{ 'admin.access.grants.inactive-notice' | t }}</p>
+    }
+
+    <section class="access-page__section grants__roles" aria-labelledby="grants-roles-title">
+      <h2 class="access-page__section-title" id="grants-roles-title">{{ 'admin.access.grants.roles' | t }}</h2>
+      <p class="access-page__hint">{{ 'admin.access.grants.roles-hint' | t }}</p>
+      @if (store.roleOptions().length === 0) {
+        <p class="access-page__hint">{{ 'admin.access.grants.no-roles' | t }}</p>
+      }
+      <ul class="grants__list">
+        @for (option of store.roleOptions(); track option.roleId) {
+          <li class="grants__row grants__role">
+            <dga-checkbox
+              [label]="name(option)"
+              [disabled]="readOnly()"
+              [checked]="roleScope(option.roleId) !== null"
+              (checkedChange)="store.setRoleAssigned(option.roleId, $event)"
+            />
+            @if (!option.isActive) {
+              <dga-tag tone="neutral">{{ 'admin.access.roles.inactive' | t }}</dga-tag>
+            }
+            @if (roleScope(option.roleId); as scope) {
+              <dga-radio-group
+                class="grants__scope"
+                orientation="horizontal"
+                [ariaLabel]="'admin.access.scope.label-for' | t: { name: name(option) }"
+                [options]="scopeOptions()"
+                [disabled]="readOnly()"
+                [value]="scope"
+                (valueChange)="onRoleScope(option.roleId, $event)"
+              />
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="access-page__section grants__direct">
+      <app-tree-editor-pattern
+        class="grants__tree"
+        labelKey="admin.access.grants.direct"
+        [keys]="store.directKeys()"
+        [labelFor]="labelFor()"
+        [readOnly]="readOnly()"
+        [value]="store.directSelection()"
+        (valueChange)="store.setDirectSelection($event)"
+      />
+      @if (store.directDraft().size > 0) {
+        <h3 class="access-page__section-title">{{ 'admin.access.grants.direct-scopes' | t }}</h3>
+        <ul class="grants__list">
+          @for (key of store.directSelection(); track key) {
+            <li class="grants__row grants__direct-row">
+              <span class="grants__label">{{ permissionText(key) }}</span>
+              <dga-radio-group
+                class="grants__scope"
+                orientation="horizontal"
+                [ariaLabel]="'admin.access.scope.label-for' | t: { name: permissionText(key) }"
+                [options]="scopeOptions()"
+                [disabled]="readOnly()"
+                [value]="directScope(key)"
+                (valueChange)="onDirectScope(key, $event)"
+              />
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="access-page__hint">{{ 'admin.access.grants.no-direct' | t }}</p>
+      }
+    </section>
+
+    <section class="access-page__section grants__virtual" aria-labelledby="grants-virtual-title">
+      <h2 class="access-page__section-title" id="grants-virtual-title">{{ 'admin.access.grants.virtual' | t }}</h2>
+      @if (grants.virtualRoles.length === 0) {
+        <p class="access-page__hint">{{ 'admin.access.grants.no-virtual' | t }}</p>
+      }
+      <ul class="grants__list">
+        @for (role of grants.virtualRoles; track role.roleId) {
+          <li class="grants__row grants__virtual-row">
+            <span class="grants__label">{{ name(role) }}</span>
+            <span class="access-page__hint">{{ virtualKindLabelKey(role.virtualKind) | t }}</span>
+            @if (!role.isActive) {
+              <dga-tag tone="neutral">{{ 'admin.access.roles.inactive' | t }}</dga-tag>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="access-page__section grants__effective" aria-labelledby="grants-effective-title">
+      <h2 class="access-page__section-title" id="grants-effective-title">{{ 'admin.access.grants.effective' | t }}</h2>
+      <p class="access-page__hint">{{ 'admin.access.grants.effective-hint' | t }}</p>
+      @if (store.effective().length === 0) {
+        <p class="access-page__hint">{{ 'admin.access.grants.no-effective' | t }}</p>
+      }
+      <ul class="grants__list">
+        @for (row of store.effective(); track row.key) {
+          <li class="grants__row grants__effective-row">
+            <span class="grants__label">{{ permissionText(row.key) }}</span>
+            <dga-tag tone="info">{{ scopeLabelKey(row.scope) | t }}</dga-tag>
+            <span class="grants__sources">
+              @for (source of row.sources; track $index) {
+                <dga-tag tone="neutral" class="grants__source">{{ sourceText(source) }}</dga-tag>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (store.saveError(); as failure) {
+      <p class="access-page__error grants__save-error" role="alert">{{ errorMessageKey(failure.code) | t }}</p>
+    }
+    <app-access-warnings [codes]="store.warnings()" />
+
+    @if (!grants.user.isBreakGlass) {
+      <div class="access-page__save-bar" *hasPermission="PermissionKeys.AccessGrantsManage">
+        <dga-button class="grants__save" [disabled]="!store.dirty()" [loading]="store.saving()" (click)="save()">
+          {{ 'admin.access.grants.save' | t }}
+        </dga-button>
+        <dga-button
+          variant="secondary-outline"
+          class="grants__discard"
+          [disabled]="!store.dirty() || store.saving()"
+          (click)="discard()"
+        >
+          {{ 'admin.access.grants.discard' | t }}
+        </dga-button>
+        @if (store.dirty()) {
+          <span class="access-page__hint grants__unsaved" role="status">{{ 'admin.access.editor.unsaved' | t }}</span>
+        } @else if (store.saved()) {
+          <span class="access-page__hint grants__saved" role="status">{{ 'admin.access.grants.saved' | t }}</span>
+        }
+      </div>
+    }
+  }
+</div>
+
+<app-last-manager-dialog
+  *hasPermission="PermissionKeys.AccessGrantsManage"
+  [open]="store.lastManagerPending()"
+  [busy]="store.saving()"
+  (confirm)="store.confirmLastManager()"
+  (cancel)="store.cancelLastManager()"
+/>
+<app-leave-dialog [open]="leave.open()" (answer)="leave.answer($event)" />

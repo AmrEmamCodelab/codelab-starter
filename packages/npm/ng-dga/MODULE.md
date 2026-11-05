@@ -68,6 +68,9 @@ Component notes:
   `error` string, linked by `aria-describedby` and setting `aria-invalid`.
 - `dga-breadcrumb` uses `RouterLink`, so the app must provide the router. `dga-tabs` panels link through
   `panelIdPrefix` and `dgaTabPanelId(prefix, value)`.
+- `dga-tabs` scrolls sideways by default when its tabs do not fit, which hides tabs on a phone. A short chooser that
+  must stay fully visible (the sign-in methods, a two-to-four-way switch) sets `fill`: the tabs share the full width
+  and long labels wrap inside their tab.
 - An icon is decorative unless it has a `label`. Use `iconOnly` buttons only with a `label`.
 
 Scripts (Node from `.nvmrc`; prepend the pinned Node to PATH):
@@ -107,6 +110,10 @@ Scripts (Node from `.nvmrc`; prepend the pinned Node to PATH):
 - This package depends on no other Codelab package (`mustNotDependOn` in `module.rules.yaml`).
 
 ## Gotchas
+
+- The component specs run under jsdom, which has no layout: a spec can assert the computed styles that keep tabs
+  inside their list (`fill`), but not their bounding boxes. Check widths at 320px in a real browser (the app's
+  Playwright evidence).
 
 - Specs run on AOT output. `npm test` first compiles `src/` into `.angular/spec` with `ngc`, because signal inputs only
   exist through the compiler. A template type error therefore fails the test run before Vitest starts.

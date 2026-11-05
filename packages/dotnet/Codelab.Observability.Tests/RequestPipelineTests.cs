@@ -39,7 +39,10 @@ public sealed class RequestPipelineTests
         Assert.Equal($"\"{RecordsPath}\"", requestLine.Properties[LogPropertyNames.RouteTemplate].ToString());
         var text = sink.AllText();
         Assert.DoesNotContain("jane@example.test", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("7946", text, StringComparison.Ordinal);
+        // The random correlation id (and its reference code) can contain any digits; only the rest of the text must not.
+        var textWithoutIds = text.Replace(correlationId, string.Empty, StringComparison.Ordinal)
+            .Replace(ReferenceCode.From(correlationId), string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain("7946", textWithoutIds, StringComparison.Ordinal);
         Assert.Contains("j***@example.test", text, StringComparison.Ordinal);
     }
 

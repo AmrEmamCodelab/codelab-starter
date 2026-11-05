@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Identity 0.5: the two external sign-in providers a starter host can switch on. Active Directory over
+    LDAP/LDAPS (bind then search, a certificate reader and a diagnostic connection probe) and generic OpenID Connect
+    (authorization code + PKCE S256, id_token validation against JWKS or pinned keys, RP-initiated logout), each with
+    a fail-fast deployment guard. Read MODULE.md first. Public surface is tracked in PublicAPI.*.txt.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.Identity</RootNamespace>
+    <PackageId>Codelab.Identity</PackageId>
+    <CodelabPackage>true</CodelabPackage>
+    <IsPackable>true</IsPackable>
+    <Authors>Codelab</Authors>
+    <Company>Codelab</Company>
+    <Description>Codelab external sign-in providers for ASP.NET Core: Active Directory over LDAPS (bind then search, LDAP result-code mapping, timeouts, certificate reader, connection probe) and generic OpenID Connect (authorization code with PKCE S256, state and nonce, id_token validation against JWKS or pinned keys with an asymmetric-only algorithm allowlist, end_session URL), with fail-fast deployment guards and configurable login matching (email, loginName, upn).</Description>
+    <PackageTags>codelab;identity;ldap;activedirectory;oidc;sso;aspnetcore</PackageTags>
+    <PackageReadmeFile>MODULE.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="System.DirectoryServices.Protocols" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MODULE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Identity.Tests" />
+  </ItemGroup>
+</Project>

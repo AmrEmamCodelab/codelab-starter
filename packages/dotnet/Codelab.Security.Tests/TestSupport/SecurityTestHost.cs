@@ -28,6 +28,12 @@ internal sealed class TestHostOptions
 
     public Action<IEndpointRouteBuilder>? MapEndpoints { get; set; }
 
+    /// <summary>
+    /// Middleware added before everything else in the host's own pipeline (as a host adds its error handling
+    /// before routing), so it sees what the security pipeline returns and can still write the body.
+    /// </summary>
+    public Action<WebApplication>? ConfigureOuterPipeline { get; set; }
+
     public bool UseMvc { get; set; }
 
     public PublishedMaterialDenylist? Denylist { get; set; }
@@ -102,6 +108,7 @@ internal sealed class SecurityTestHost : IAsyncDisposable
         AddMvcIfRequested(builder.Services, options.UseMvc);
         options.ConfigureServices?.Invoke(builder.Services);
         var app = builder.Build();
+        options.ConfigureOuterPipeline?.Invoke(app);
         if (options.PathBase is not null)
         {
             app.UsePathBase(options.PathBase);

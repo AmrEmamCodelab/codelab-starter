@@ -89,7 +89,9 @@ public sealed class UserSessionTests
         RefreshSecret: "first",
         SessionVersion: 0,
         StartedAt: TestClock.Start,
-        Lifetime: lifetime ?? TimeSpan.FromDays(7)));
+        Lifetime: lifetime ?? TimeSpan.FromDays(7),
+        Mode: SignInMode.Basic,
+        IdTokenHint: null));
 }
 
 public sealed class UserAccountTests

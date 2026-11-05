@@ -6,7 +6,8 @@
     Creates backend/src/Starter.Api/appsettings.Development.local.json (gitignored; loaded in Development only, right
     after appsettings.Development.json). Every value is generated on this machine at run time, never copied from a
     fixture: the break-glass administrator password, the Development user's password, the session token signing key,
-    the Codelab.Security PublicId and request-signing key rings, and the observability user-hash key.
+    the Codelab.Security PublicId, request-signing and sealed-ticket key rings, and the observability user-hash key.
+    The ticket ring is enabled, so account activation links and the SSO login mode work locally.
 
     The JSON shape is a contract (the Playwright check and init.ps1 read it):
       Identity:BreakGlass:UserName / Password
@@ -14,6 +15,7 @@
       Identity:Jwt:SigningKey
       Codelab:Security:PublicIds:ActiveKeyId / Keys[0]:KeyId / Keys[0]:MaterialBase64
       Codelab:Security:RequestSigning:ActiveKeyId / Keys[0]:KeyId / Keys[0]:MaterialBase64
+      Codelab:Security:Tickets:Enabled / ActiveKeyId / Keys[0]:KeyId / Keys[0]:MaterialBase64
       Observability:UserIdHash:Key
 
     An existing file is never overwritten unless -Force is given. Prints the break-glass user name and the file path;
@@ -102,6 +104,12 @@ function New-KeyRing {
     }
 }
 
+function New-TicketRing {
+    $ring = [ordered]@{ Enabled = $true }
+    foreach ($entry in (New-KeyRing).GetEnumerator()) { $ring[$entry.Key] = $entry.Value }
+    return $ring
+}
+
 function New-Account([string] $Name) {
     $account = [ordered]@{}
     $account['UserName'] = $Name
@@ -120,6 +128,7 @@ function New-SecretsDocument {
             Security = [ordered]@{
                 PublicIds      = (New-KeyRing)
                 RequestSigning = (New-KeyRing)
+                Tickets        = (New-TicketRing)
             }
         }
         Observability = [ordered]@{ UserIdHash = [ordered]@{ Key = (New-KeyBase64) } }

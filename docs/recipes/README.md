@@ -7,6 +7,7 @@ fill in by hand (business logic only), the tests to extend and how to verify. Th
 | Recipe | Generator | Skill |
 | --- | --- | --- |
 | [Add an endpoint](add-endpoint.md) | `node tools/scaffold/new-endpoint.mjs` | `new-endpoint` |
+| [Add a permission](add-permission.md): add a key to both catalogs (C# + generated `PermissionKeys`) and gate the endpoint, route and buttons | `node tools/scaffold/new-permission.mjs` | `new-permission` |
 
 The other scaffold generators are documented in [tools/scaffold/README.md](../../tools/scaffold/README.md):
 `new-module.mjs` (a new business area) and `new-permission.mjs` (a new permission key).

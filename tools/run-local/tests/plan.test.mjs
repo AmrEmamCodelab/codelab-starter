@@ -13,6 +13,7 @@ import {
   prependPath,
   resolveDotnet,
   resolveNodeDir,
+  usesDefaultLocalDb,
   seqDecision,
   seqUrl,
   serializeState,
@@ -127,5 +128,13 @@ describe('health polling', () => {
   it('stops when the process exits or the deadline passes', async () => {
     assert.equal(await pollUntilReady({ ...clock(), probe: async () => false, exited: () => true, timeoutMs: 100, intervalMs: 10 }), 'exited');
     assert.equal(await pollUntilReady({ ...clock(), probe: async () => false, exited: () => false, timeoutMs: 100, intervalMs: 10 }), 'timeout');
+  });
+});
+
+describe('usesDefaultLocalDb', () => {
+  it('is true without an override or with one that names the default instance, false for another server', () => {
+    assert.equal(usesDefaultLocalDb({}), true);
+    assert.equal(usesDefaultLocalDb({ ConnectionStrings__Starter: 'Server=(localdb)\MSSQLLocalDB;Database=X' }), true);
+    assert.equal(usesDefaultLocalDb({ ConnectionStrings__Starter: 'Server=(localdb)\P2Proof;Database=X' }), false);
   });
 });

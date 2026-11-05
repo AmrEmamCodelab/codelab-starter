@@ -35,7 +35,7 @@ public sealed class InitialCreate : Migration
     }
 
     /// <inheritdoc />
-    protected override void BuildTargetModel(ModelBuilder modelBuilder) => AccessMigrationModel.Build(modelBuilder);
+    protected override void BuildTargetModel(ModelBuilder modelBuilder) => InitialCreateModel.Build(modelBuilder);
 
     private static void CreatePermissions(MigrationBuilder migrationBuilder) =>
         migrationBuilder.CreateTable(

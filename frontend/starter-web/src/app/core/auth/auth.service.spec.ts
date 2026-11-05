@@ -1,4 +1,5 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { ErrorHandler } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { SessionKeyStore, type SigningSessionBlock } from '@codelab/ng-security';
@@ -10,8 +11,12 @@ import { PermissionSyncService } from '../permissions/permission-sync.service';
 import { SessionEndReasons } from '../routing/route-paths';
 import { BROWSER_STORAGE } from '../session/app-storage';
 import { APP_CLOCK } from '../session/clock';
+import { BrowserLocation } from '../session/browser-location';
 import { MemoryStorage } from '../session/memory-storage';
+import { StorageKeys } from '../session/storage-keys';
 import { ACCESS_TOKEN_REFRESH_LEAD_MS, AuthService } from './auth.service';
+import { SignInMode } from './sign-in-mode';
+import { TAB_STORAGE } from './sso-binding';
 import { TokenStore } from './token.store';
 
 const NOW = Date.parse('2030-01-01T00:00:00Z');
@@ -36,26 +41,37 @@ const SIGNING: SigningSessionBlock = {
   serverTimeUnix: 1,
 };
 
+const END_SESSION_URL = 'https://idp.test/end-session?id_token_hint=h&post_logout_redirect_uri=x';
+const SSO_LOGIN_URL = 'http://api.test/api/auth/sso/login';
+
 describe('AuthService', () => {
   let client: {
     login: ReturnType<typeof vi.fn>;
     refresh: ReturnType<typeof vi.fn>;
     logout: ReturnType<typeof vi.fn>;
     signingKey: ReturnType<typeof vi.fn>;
+    directoryLogin: ReturnType<typeof vi.fn>;
+    ssoExchange: ReturnType<typeof vi.fn>;
+    ssoLogout: ReturnType<typeof vi.fn>;
+    ssoLoginUrl: ReturnType<typeof vi.fn>;
   };
+  let browser: { assign: ReturnType<typeof vi.fn> };
   let sync: { refresh: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
   let keys: { adopt: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
   let storage: MemoryStorage;
+  let tabStorage: MemoryStorage;
 
   function setUp(): AuthService {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
         { provide: BROWSER_STORAGE, useValue: storage },
+        { provide: TAB_STORAGE, useValue: tabStorage },
         { provide: APP_CLOCK, useValue: () => NOW },
         { provide: AuthClient, useValue: client },
         { provide: PermissionSyncService, useValue: sync },
         { provide: SessionKeyStore, useValue: keys },
+        { provide: BrowserLocation, useValue: browser },
       ],
     });
     return TestBed.inject(AuthService);
@@ -64,12 +80,18 @@ describe('AuthService', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     storage = new MemoryStorage();
+    tabStorage = new MemoryStorage();
     client = {
       login: vi.fn().mockReturnValue(of(response('a1'))),
       refresh: vi.fn().mockReturnValue(of(response('a2'))),
       logout: vi.fn().mockReturnValue(of(undefined)),
       signingKey: vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: HttpStatusCode.NotFound }))),
+      directoryLogin: vi.fn().mockReturnValue(of(response('ad1'))),
+      ssoExchange: vi.fn().mockReturnValue(of(response('sso1'))),
+      ssoLogout: vi.fn().mockReturnValue(of(END_SESSION_URL)),
+      ssoLoginUrl: vi.fn((returnUrl: string | null, binding: string) => `${SSO_LOGIN_URL}?returnUrl=${returnUrl ?? ''}&binding=${binding}`),
     };
+    browser = { assign: vi.fn().mockReturnValue(true) };
     sync = { refresh: vi.fn().mockResolvedValue(undefined), clear: vi.fn() };
     keys = { adopt: vi.fn().mockResolvedValue({}), clear: vi.fn().mockResolvedValue(undefined) };
   });
@@ -153,14 +175,31 @@ describe('AuthService', () => {
     expect(client.refresh).toHaveBeenCalledTimes(1);
   });
 
-  it('ends the session when the refresh is refused', async () => {
-    client.refresh.mockReturnValue(throwError(() => new Error('401')));
+  it('expires the session with a visible reason and reports the failure when the refresh is refused', async () => {
+    const refusal = new Error('401');
+    client.refresh.mockReturnValue(throwError(() => refusal));
     const auth = setUp();
     await auth.login('user', 'secret');
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const report = vi.spyOn(TestBed.inject(ErrorHandler), 'handleError').mockImplementation(() => undefined);
     await expect(auth.refresh()).resolves.toBe(false);
     expect(auth.isAuthenticated()).toBe(false);
     expect(sync.clear).toHaveBeenCalled();
     expect(keys.clear).toHaveBeenCalled();
+    expect(report).toHaveBeenCalledWith(refusal);
+    expect(String(navigate.mock.calls[0]?.[0])).toContain(`reason=${SessionEndReasons.Expired}`);
+  });
+
+  it('expires the session when the signing keys of the refreshed session are refused', async () => {
+    const auth = setUp();
+    await auth.login('user', 'secret');
+    client.refresh.mockReturnValue(of(response('a2', SIGNING)));
+    keys.adopt.mockRejectedValue(new Error('refused'));
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(ErrorHandler), 'handleError').mockImplementation(() => undefined);
+    await expect(auth.refresh()).resolves.toBe(false);
+    expect(auth.isAuthenticated()).toBe(false);
+    expect(String(navigate.mock.calls[0]?.[0])).toContain(`reason=${SessionEndReasons.Expired}`);
   });
 
   it('does not refresh without a refresh token', async () => {
@@ -205,10 +244,147 @@ describe('AuthService', () => {
 
   it('schedules a refresh for a restored session', async () => {
     setUp();
-    TestBed.inject(TokenStore).save(response('restored'));
+    TestBed.inject(TokenStore).save(response('restored'), SignInMode.Basic);
     TestBed.resetTestingModule();
     setUp();
     await vi.advanceTimersByTimeAsync(TEN_MINUTES_MS);
     expect(client.refresh).toHaveBeenCalledWith('restored-refresh');
+  });
+  describe('sign-in methods', () => {
+    it('signs in with Active Directory and records the mode', async () => {
+      const auth = setUp();
+      await auth.loginWithDirectory('user', 'secret');
+      expect(client.directoryLogin).toHaveBeenCalledWith({ userName: 'user', password: 'secret' });
+      expect(client.login).not.toHaveBeenCalled();
+      expect(TestBed.inject(TokenStore).signInMode()).toBe(SignInMode.ActiveDirectory);
+      expect(sync.refresh).toHaveBeenCalled();
+    });
+
+    it('records a basic login as basic', async () => {
+      await setUp().login('user', 'secret');
+      expect(TestBed.inject(TokenStore).signInMode()).toBe(SignInMode.Basic);
+    });
+
+    it('starts SSO with a top-level navigation, the binding hash and the safe return URL', async () => {
+      const auth = setUp();
+      await expect(auth.startSsoSignIn('/admin')).resolves.toBe(true);
+      const secret = tabStorage.getItem(StorageKeys.SsoBindingSecret);
+      expect(secret).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      const binding = client.ssoLoginUrl.mock.calls[0]?.[1] as string;
+      expect(binding).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      expect(binding).not.toBe(secret);
+      expect(client.ssoLoginUrl).toHaveBeenCalledWith('/admin', binding);
+      expect(browser.assign).toHaveBeenCalledWith(`${SSO_LOGIN_URL}?returnUrl=/admin&binding=${binding}`);
+      expect(storage.getItem(StorageKeys.SsoReturnUrl)).toBe('/admin');
+      expect(storage.getItem(StorageKeys.SsoBindingSecret)).toBeNull();
+    });
+
+    it('hands the binding secret out once, as the exchange proof', async () => {
+      const auth = setUp();
+      await auth.startSsoSignIn(null);
+      const secret = tabStorage.getItem(StorageKeys.SsoBindingSecret);
+      expect(auth.takeSsoBindingProof()).toBe(secret);
+      expect(auth.takeSsoBindingProof()).toBeNull();
+    });
+
+    it('never sends or remembers an off-site return URL', async () => {
+      const auth = setUp();
+      storage.setItem(StorageKeys.SsoReturnUrl, '/old');
+      await auth.startSsoSignIn('https://evil.test/');
+      expect(client.ssoLoginUrl).toHaveBeenCalledWith(null, expect.any(String));
+      expect(storage.getItem(StorageKeys.SsoReturnUrl)).toBeNull();
+    });
+
+    it('reports a refused SSO navigation', async () => {
+      browser.assign.mockReturnValue(false);
+      await expect(setUp().startSsoSignIn(null)).resolves.toBe(false);
+    });
+
+    it('swaps the SSO ticket and the binding proof for a session in SSO mode', async () => {
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      expect(client.ssoExchange).toHaveBeenCalledWith({ ticket: 'ticket-1', bindingProof: 'proof-1' });
+      expect(TestBed.inject(TokenStore).signInMode()).toBe(SignInMode.Sso);
+      expect(auth.isAuthenticated()).toBe(true);
+    });
+
+    it('stores nothing when the SSO exchange is refused', async () => {
+      client.ssoExchange.mockReturnValue(throwError(() => new HttpErrorResponse({ status: HttpStatusCode.BadRequest })));
+      const auth = setUp();
+      await expect(auth.completeSsoSignIn('spent', 'proof-1')).rejects.toBeInstanceOf(HttpErrorResponse);
+      expect(auth.isAuthenticated()).toBe(false);
+    });
+
+    it('hands the remembered return URL out once', () => {
+      const auth = setUp();
+      storage.setItem(StorageKeys.SsoReturnUrl, '/admin');
+      expect(auth.takeSsoReturnUrl()).toBe('/admin');
+      expect(auth.takeSsoReturnUrl()).toBeNull();
+    });
+
+    it('rechecks a remembered return URL', () => {
+      storage.setItem(StorageKeys.SsoReturnUrl, '//evil.test');
+      expect(setUp().takeSsoReturnUrl()).toBeNull();
+    });
+
+    it('keeps the sign-in mode when the token is refreshed', async () => {
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      await auth.refresh();
+      expect(TestBed.inject(TokenStore).accessToken()).toBe('a2');
+      expect(TestBed.inject(TokenStore).signInMode()).toBe(SignInMode.Sso);
+    });
+  });
+
+  describe('SSO logout', () => {
+    it('ends the SSO session and navigates the whole page to the end-session URL', async () => {
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      await auth.logout();
+      expect(client.ssoLogout).toHaveBeenCalled();
+      expect(client.logout).not.toHaveBeenCalled();
+      expect(auth.isAuthenticated()).toBe(false);
+      expect(browser.assign).toHaveBeenCalledWith(END_SESSION_URL);
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('goes to the login page when the API answers 204 (no end-session URL)', async () => {
+      client.ssoLogout.mockReturnValue(of(null));
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      await auth.logout();
+      expect(browser.assign).not.toHaveBeenCalled();
+      expect(String(navigate.mock.calls[0]?.[0])).toBe('/login');
+    });
+
+    it('goes to the login page when the browser seam refuses the end-session URL', async () => {
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      browser.assign.mockReturnValue(false);
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      await auth.logout();
+      expect(String(navigate.mock.calls[0]?.[0])).toBe('/login');
+    });
+
+    it('clears the local session when the SSO logout fails', async () => {
+      client.ssoLogout.mockReturnValue(throwError(() => new Error('gone')));
+      const auth = setUp();
+      await auth.completeSsoSignIn('ticket-1', 'proof-1');
+      vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      await auth.logout();
+      expect(auth.isAuthenticated()).toBe(false);
+      expect(browser.assign).not.toHaveBeenCalled();
+    });
+
+    it('logs an Active Directory session out through the plain logout', async () => {
+      const auth = setUp();
+      await auth.loginWithDirectory('user', 'secret');
+      vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      await auth.logout();
+      expect(client.logout).toHaveBeenCalled();
+      expect(client.ssoLogout).not.toHaveBeenCalled();
+    });
   });
 });

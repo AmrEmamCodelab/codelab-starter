@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, model, viewChildren } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, model, viewChildren } from '@angular/core';
 import { DgaIconComponent } from '../icon/dga-icon.component';
 import { isRightToLeft } from '../internal/direction';
 import { createDgaId } from '../internal/unique-id';
@@ -11,8 +11,13 @@ import { dgaTabPanelId, type DgaTab, type DgaTabValue, focusableTabIndex, nextTa
  * To link tabs and panels, set `panelIdPrefix` and render each panel with `id = dgaTabPanelId(prefix, value)` and
  * `role="tabpanel"`.
  *
+ * Layout: by default each tab keeps its natural width and the list scrolls sideways when the tabs do not fit (for a
+ * long list of views). Set `fill` for a short chooser that must stay fully visible on a phone (for example the sign-in
+ * methods): the tabs share the full width equally and long labels wrap inside their tab instead of overflowing.
+ *
  * @example
  * <dga-tabs [tabs]="tabs()" [(value)]="selected" [label]="'records.views' | translate" panelIdPrefix="records" />
+ * <dga-tabs fill [tabs]="methods()" [(value)]="method" [label]="'auth.methods' | translate" />
  */
 @Component({
   selector: 'dga-tabs',
@@ -20,6 +25,9 @@ import { dgaTabPanelId, type DgaTab, type DgaTabValue, focusableTabIndex, nextTa
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dga-tabs.component.html',
   styleUrl: './dga-tabs.component.css',
+  host: {
+    '[class.dga-tabs--fill]': 'fill()',
+  },
 })
 export class DgaTabsComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -32,6 +40,8 @@ export class DgaTabsComponent {
   readonly label = input<string | null>(null);
   /** When set, each tab gets aria-controls = dgaTabPanelId(panelIdPrefix, value). */
   readonly panelIdPrefix = input<string | null>(null);
+  /** Tabs share the full width and wrap long labels, so every tab stays visible at phone width (no sideways scroll). */
+  readonly fill = input(false, { transform: booleanAttribute });
 
   readonly focusableIndex = computed(() => focusableTabIndex(this.tabs(), this.value()));
 

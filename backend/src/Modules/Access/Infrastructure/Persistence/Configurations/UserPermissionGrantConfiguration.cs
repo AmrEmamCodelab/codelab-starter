@@ -5,8 +5,8 @@ using Starter.Modules.Access.Domain;
 namespace Starter.Modules.Access.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Table <c>access.UserPermissionGrants</c>: one row per (user, permission), unique. The user id has no foreign key,
-/// because users live in another module's schema (ADR-004).
+/// Table <c>access.UserPermissionGrants</c>: one row per (user, permission), unique, with its scope (an int). The user
+/// id has no foreign key, because users live in another module's schema (ADR-004).
 /// </summary>
 public sealed class UserPermissionGrantConfiguration : IEntityTypeConfiguration<UserPermissionGrant>
 {
@@ -16,6 +16,7 @@ public sealed class UserPermissionGrantConfiguration : IEntityTypeConfiguration<
         ArgumentNullException.ThrowIfNull(builder);
         builder.ToTable(AccessTableNames.UserPermissionGrants);
         builder.HasKey(grant => grant.Id);
+        builder.Property(grant => grant.Scope);
         builder.HasOne(grant => grant.Permission)
             .WithMany()
             .HasForeignKey(grant => grant.PermissionId)
@@ -32,4 +33,13 @@ public static class AccessTableNames
 
     /// <summary>The direct user grants.</summary>
     public const string UserPermissionGrants = "UserPermissionGrants";
+
+    /// <summary>The roles.</summary>
+    public const string Roles = "Roles";
+
+    /// <summary>The permissions of each role.</summary>
+    public const string RolePermissions = "RolePermissions";
+
+    /// <summary>The roles assigned to users.</summary>
+    public const string UserRoleAssignments = "UserRoleAssignments";
 }

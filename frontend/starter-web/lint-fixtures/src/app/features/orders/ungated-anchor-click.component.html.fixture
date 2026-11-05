@@ -1,0 +1,4 @@
+<!-- Lint fixture case: an anchor that binds (click) (must fail on line 3). -->
+<section class="orders">
+  <a href="#" (click)="cancel()">{{ 'orders.cancel' | t }}</a>
+</section>

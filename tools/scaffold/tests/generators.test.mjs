@@ -9,7 +9,7 @@ import { newPermission } from '../new-permission.mjs';
 import { runCli } from '../lib/cli.mjs';
 import { ExitCode, SKIP_GENERATE_ENV } from '../lib/constants.mjs';
 import { renderTemplateSet, TEMPLATES_ROOT } from '../lib/templates.mjs';
-import { regenerate, resolveDotnet } from '../lib/workspace.mjs';
+import { catalogCommands, regenerate, resolveDotnet } from '../lib/workspace.mjs';
 
 const SKIP = '--skip-generate';
 const MODULE_DIR = 'backend/src/Modules/Demo';
@@ -171,6 +171,25 @@ describe('new-permission', () => {
     newPermission(['--module', 'Access', '--action', 'audit-view', '--root', root, SKIP]);
     assert.match(read('backend/src/Modules/Access/Application/AccessPermissionKeys.cs'), /AuditView = "access.audit-view";\n\}/);
     assert.match(read('backend/src/Modules/Access/Application/AccessPermissionCatalogSource.cs'), /new\(Key: AccessPermissionKeys.AuditView, Description: "Audit view \(Access module\)."\),\n    \];/);
+  });
+
+  it('names the frontend constant api:gen will generate', () => {
+    const lines = newPermission(['--module', 'Access', '--action', 'audit-view', '--root', root, SKIP]);
+    assert.equal(lines.at(-1), 'frontend key: PermissionKeys.AccessAuditView ("access.audit-view")');
+  });
+
+  it('with --no-gen writes the C# catalog, runs nothing and prints the exact two regenerate commands', () => {
+    const env = { CODELAB_DOTNET: 'C:/sdk/dotnet.exe' };
+    const lines = newPermission(['--module', 'Access', '--action', 'audit-view', '--root', root, '--no-gen'], env);
+    assert.deepEqual(lines, [
+      'changed backend/src/Modules/Access/Application/AccessPermissionKeys.cs',
+      'changed backend/src/Modules/Access/Application/AccessPermissionCatalogSource.cs',
+      'frontend key: PermissionKeys.AccessAuditView ("access.audit-view")',
+      'next: C:/sdk/dotnet.exe run --project backend/tools/Starter.DocsGen/Starter.DocsGen.csproj -- --out docs/generated',
+      'next: npm run api:gen --workspace frontend/starter-web',
+    ]);
+    assert.deepEqual(catalogCommands(env), lines.slice(-2).map((line) => line.slice('next: '.length)));
+    assert.match(newPermission(['--module', 'Access', '--action', 'audit-view', '--root', root, '--no-gen'], env)[0], /^unchanged /);
   });
 
   it('refuses a non-kebab action and an unknown module', () => {

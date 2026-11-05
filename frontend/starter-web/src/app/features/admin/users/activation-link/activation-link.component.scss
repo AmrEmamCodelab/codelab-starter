@@ -1,0 +1,32 @@
+@use '../../organizations/admin-controls' as controls;
+
+.activation-link {
+  @include controls.field;
+}
+
+.activation-link__label {
+  @include controls.field-label;
+}
+
+.activation-link__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-2);
+}
+
+.activation-link__field {
+  @include controls.native-select;
+
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-family: monospace;
+  font-size: var(--dga-font-size-sm);
+}
+
+.activation-link__expiry,
+.activation-link__status {
+  margin: 0;
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-sm);
+}

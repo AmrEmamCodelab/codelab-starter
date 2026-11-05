@@ -2,6 +2,7 @@ import { DOCUMENT, DestroyRef, Injectable, computed, inject, signal } from '@ang
 import type { SessionResponse, SessionUser } from '../api/clients/api.models';
 import { AppStorage } from '../session/app-storage';
 import { StorageKeys } from '../session/storage-keys';
+import { SignInMode, parseSignInMode } from './sign-in-mode';
 
 /** The session the browser holds between page loads. */
 export interface StoredSession {
@@ -11,6 +12,8 @@ export interface StoredSession {
   readonly accessTokenExpiresAt: number;
   readonly idleTimeoutMinutes: number;
   readonly user: SessionUser;
+  /** How the session was started; decides how logout ends it. */
+  readonly signInMode: SignInMode;
 }
 
 /** The `storage` DOM event name. */
@@ -52,6 +55,8 @@ export class TokenStore {
   /** The session, or null when signed out. */
   readonly session = this.current.asReadonly();
   readonly user = computed(() => this.current()?.user ?? null);
+  /** How the current session was started, or null when signed out. */
+  readonly signInMode = computed(() => this.current()?.signInMode ?? null);
 
   accessToken(): string | null {
     return this.current()?.accessToken ?? null;
@@ -61,19 +66,25 @@ export class TokenStore {
     return this.current()?.refreshToken ?? null;
   }
 
-  /** Stores a login or refresh response. */
-  save(response: SessionResponse): StoredSession {
+  /**
+   * Stores a login or refresh response.
+   *
+   * @param signInMode how the session was started; a refresh passes the mode of the session it rotates.
+   */
+  save(response: SessionResponse, signInMode: SignInMode): StoredSession {
     const session: StoredSession = {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
       accessTokenExpiresAt: Date.parse(response.accessTokenExpiresAt),
       idleTimeoutMinutes: response.idleTimeoutMinutes,
       user: response.user,
+      signInMode,
     };
     this.storage.write(StorageKeys.AccessToken, session.accessToken);
     this.storage.write(StorageKeys.RefreshToken, session.refreshToken);
     this.storage.write(StorageKeys.IdleTimeoutMinutes, String(session.idleTimeoutMinutes));
     this.storage.write(StorageKeys.SessionUser, JSON.stringify(session.user));
+    this.storage.write(StorageKeys.SignInMode, String(session.signInMode));
     // Last: other tabs adopt the session on this key's storage event, so every other part is in place.
     this.storage.write(StorageKeys.AccessTokenExpiresAt, String(session.accessTokenExpiresAt));
     this.current.set(session);
@@ -85,6 +96,7 @@ export class TokenStore {
     this.storage.remove(StorageKeys.RefreshToken);
     this.storage.remove(StorageKeys.IdleTimeoutMinutes);
     this.storage.remove(StorageKeys.SessionUser);
+    this.storage.remove(StorageKeys.SignInMode);
     this.storage.remove(StorageKeys.AccessTokenExpiresAt);
     this.current.set(null);
   }
@@ -117,7 +129,8 @@ export class TokenStore {
     if (!Number.isFinite(idleTimeoutMinutes)) {
       return null;
     }
-    return { accessToken, refreshToken, accessTokenExpiresAt, idleTimeoutMinutes, user };
+    const signInMode = parseSignInMode(this.storage.read(StorageKeys.SignInMode));
+    return { accessToken, refreshToken, accessTokenExpiresAt, idleTimeoutMinutes, user, signInMode };
   }
 }
 

@@ -3,7 +3,10 @@ namespace Codelab.Security.Signing;
 /// <summary>
 /// Wraps the response body for the response signer. On the first write it decides: a response to a verified request
 /// (a <see cref="SignedRequestBinding"/> exists) is buffered so it can be hashed before the headers go out; any other
-/// response streams straight through and is never buffered.
+/// response streams straight through and is never buffered, and so does the response of an
+/// <see cref="UnsignedResponseAttribute"/> endpoint. While it buffers it is seekable, so <c>HttpResponse.Clear()</c>
+/// (the exception handler calls it) drops what the endpoint wrote before it failed, as it would on an unbuffered body
+/// that has not started.
 /// </summary>
 internal sealed class CapturingResponseBodyStream(HttpContext context, Stream inner) : Stream
 {
@@ -17,17 +20,23 @@ internal sealed class CapturingResponseBodyStream(HttpContext context, Stream in
 
     public override bool CanRead => false;
 
-    public override bool CanSeek => false;
+    public override bool CanSeek => _buffer is not null;
 
     public override bool CanWrite => true;
 
-    public override long Length => throw new NotSupportedException();
+    public override long Length => Buffered.Length;
 
     public override long Position
     {
-        get => throw new NotSupportedException();
-        set => throw new NotSupportedException();
+        get => Buffered.Position;
+        set => Buffered.Position = value;
     }
+
+    private MemoryStream Buffered => _buffer ?? throw new NotSupportedException("The response body is not buffered.");
+
+    /// <summary>True when the request's endpoint opted out of body coverage with <see cref="UnsignedResponseAttribute"/>.</summary>
+    public static bool IsUnsignedResponse(HttpContext context) =>
+        context.GetEndpoint()?.Metadata.GetMetadata<UnsignedResponseAttribute>() is not null;
 
     public string HashCapturedBody() => SignatureCanonicalForm.HashBody(CapturedBytes);
 
@@ -83,9 +92,9 @@ internal sealed class CapturingResponseBodyStream(HttpContext context, Stream in
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+    public override long Seek(long offset, SeekOrigin origin) => Buffered.Seek(offset, origin);
 
-    public override void SetLength(long value) => throw new NotSupportedException();
+    public override void SetLength(long value) => Buffered.SetLength(value);
 
     protected override void Dispose(bool disposing)
     {
@@ -107,7 +116,7 @@ internal sealed class CapturingResponseBodyStream(HttpContext context, Stream in
         }
 
         _decided = true;
-        if (SignedRequestBinding.Find(context) is null)
+        if (SignedRequestBinding.Find(context) is null || IsUnsignedResponse(context))
         {
             _uncovered = true;
         }

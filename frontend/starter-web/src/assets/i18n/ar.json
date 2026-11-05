@@ -11,7 +11,77 @@
     "RETRYABLE": "الخدمة مشغولة حاليًا. حاول بعد قليل.",
     "UPSTREAM_UNAVAILABLE": "إحدى الخدمات المرتبطة لا تستجيب. حاول لاحقًا.",
     "INTERNAL_ERROR": "حدث خطأ ما. حاول مرة أخرى، واذكر الرمز المرجعي إذا تكرر الخطأ.",
-    "NETWORK": "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مرة أخرى."
+    "NETWORK": "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مرة أخرى.",
+    "IDENTITY_LOGIN_MODE_DISABLED": "طريقة تسجيل الدخول هذه غير متاحة. اختر طريقة أخرى.",
+    "IDENTITY_ACTIVATION_REJECTED": "لم يعد بالإمكان استخدام رابط التفعيل هذا. اطلب رابطًا جديدًا من المسؤول.",
+    "IDENTITY_SSO_FAILED": "لم يكتمل الدخول الموحد. حاول مرة أخرى.",
+    "IDENTITY_SSO_TICKET_REJECTED": "انتهت صلاحية تسجيل الدخول أو سبق استخدامه. سجّل الدخول مرة أخرى.",
+    "IDENTITY_SSO_UNAVAILABLE": "خدمة الدخول الموحد غير متاحة حاليًا. حاول لاحقًا.",
+    "ACCESS_SUBJECT_REQUIRED": "لا تحدد جلستك هويتك. سجّل الدخول مرة أخرى.",
+    "ACCESS_ROLE_NOT_FOUND": "لم يُعثر على هذا الدور.",
+    "ACCESS_ROLE_CODE_TAKEN": "يوجد دور آخر يستخدم هذا الرمز.",
+    "ACCESS_ROLE_NAME_TAKEN": "يوجد دور آخر يستخدم هذا الاسم.",
+    "ACCESS_UNKNOWN_PERMISSION": "إحدى الصلاحيات لم تعد متاحة. أعد تحميل الصفحة وحاول مرة أخرى.",
+    "ACCESS_UNKNOWN_ROLE": "أحد الأدوار لم يعد متاحًا. أعد تحميل الصفحة وحاول مرة أخرى.",
+    "ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE": "الأدوار التلقائية تُطبَّق حسب نوع المستخدم ولا يمكن إسنادها.",
+    "ACCESS_USER_NOT_FOUND": "لم يُعثر على هذا المستخدم.",
+    "ACCESS_BREAK_GLASS_NOT_EDITABLE": "يملك مسؤول الطوارئ كل الصلاحيات، ولا يمكن تعديل صلاحياته.",
+    "ACCESS_LAST_MANAGER": "بعد هذا التغيير لن يبقى مستخدم نشط غير مسؤول الطوارئ قادرًا على إدارة الأدوار والصلاحيات.",
+    "ACCESS_SCOPE_EXCEEDS_CALLER": "لا يمكنك منح صلاحيات أوسع مما تملك، ولا توسيع صلاحياتك بنفسك.",
+    "ACCESS_ONLY_BREAK_GLASS_MANAGES": "تم الحفظ. أصبح مسؤول الطوارئ وحده قادرًا على إدارة الأدوار والصلاحيات.",
+    "REQUIRED": "هذا الحقل مطلوب.",
+    "TOO_LONG": "هذه القيمة أطول من المسموح.",
+    "INVALID_FORMAT": "صيغة هذه القيمة غير صحيحة.",
+    "USERS_USER_NOT_FOUND": "لم يُعثر على هذا المستخدم.",
+    "USERS_ORGANIZATION_NOT_FOUND": "لم يُعثر على هذه الجهة.",
+    "USERS_ORGANIZATION_INACTIVE": "هذه الجهة معطّلة ولا تقبل أعضاء جددًا.",
+    "USERS_ORGANIZATION_KIND_MISMATCH": "نوع الجهة لا يطابق نوع المستخدم.",
+    "USERS_ORGANIZATION_CODE_TAKEN": "هذا الرمز مستخدم لجهة أخرى.",
+    "USERS_ORGANIZATION_KIND_IN_USE": "لا يمكن تغيير النوع ما دام للجهة مستخدمون.",
+    "USERS_BREAK_GLASS_PROTECTED": "حساب مدير الطوارئ مُعرّف في الإعدادات ولا يمكن تغييره من هنا.",
+    "USERS_CANNOT_DEACTIVATE_SELF": "لا يمكنك تعطيل حسابك.",
+    "USERS_ACTIVATION_LINK_UNCONFIGURED": "روابط التفعيل غير مهيأة على هذا الخادم. تواصل مع مسؤول النظام.",
+    "USERS_ACTIVATION_NOT_APPLICABLE": "رابط التفعيل خاص بالحسابات التي تدخل بكلمة مرور.",
+    "USERS_ORGANIZATION_OUT_OF_SCOPE": "هذه الجهة خارج نطاق الجهات التي يمكنك إدارتها.",
+    "USERS_TARGET_OUTRANKS_CALLER": "يملك هذا الحساب صلاحيات لا تملكها، لذا لا يمكنك تعديله.",
+    "USERS_CANNOT_CHANGE_OWN_ACCESS": "لا يمكنك تغيير نوع حسابك أو طريقة دخولك أو جهتك.",
+    "USERS_LAST_ACCESS_MANAGER": "هذا آخر مستخدم يستطيع إدارة الأدوار والصلاحيات. امنح هذه الصلاحيات لمستخدم آخر أولًا.",
+    "USERS_IMPORT_FILE_REQUIRED": "اختر ملف Excel لرفعه.",
+    "USERS_IMPORT_FILE_INVALID": "الملف ليس مصنف Excel مقروءًا (.xlsx).",
+    "USERS_IMPORT_FILE_TOO_LARGE": "حجم المصنف أكبر من المسموح.",
+    "USERS_IMPORT_TOO_MANY_ROWS": "عدد صفوف المصنف أكبر مما يقبله الاستيراد الواحد.",
+    "USERS_IMPORT_NO_ROWS": "لا يحتوي المصنف على صفوف مستخدمين.",
+    "USERS_IMPORT_COLUMNS_MISSING": "تنقص المصنف أعمدة مطلوبة.",
+    "USERS_IMPORT_BATCH_NOT_FOUND": "لم يُعثر على هذه المعاينة. ارفع المصنف مرة أخرى.",
+    "USERS_IMPORT_BATCH_EXPIRED": "انتهت صلاحية هذه المعاينة. ارفع المصنف مرة أخرى.",
+    "USERS_IMPORT_BATCH_COMMITTED": "سبق استيراد هذه المعاينة.",
+    "USERS_IMPORT_ROW_USER_NAME_REQUIRED": "اسم المستخدم مفقود.",
+    "USERS_IMPORT_ROW_USER_NAME_TOO_LONG": "اسم المستخدم أطول من المسموح.",
+    "USERS_IMPORT_ROW_USER_NAME_DUPLICATE": "اسم المستخدم مكرر في المصنف.",
+    "USERS_IMPORT_ROW_USER_NAME_TAKEN": "يوجد حساب بهذا الاسم مسبقًا.",
+    "USERS_IMPORT_ROW_DISPLAY_NAME_REQUIRED": "الاسم مفقود.",
+    "USERS_IMPORT_ROW_DISPLAY_NAME_TOO_LONG": "الاسم أطول من المسموح.",
+    "USERS_IMPORT_ROW_EMAIL_INVALID": "البريد الإلكتروني غير صحيح.",
+    "USERS_IMPORT_ROW_EMAIL_DUPLICATE": "البريد الإلكتروني مكرر في المصنف.",
+    "USERS_IMPORT_ROW_DIRECTORY_NAME_TOO_LONG": "اسم الدخول أو اسم المستخدم الأساسي (UPN) أطول من المسموح.",
+    "USERS_IMPORT_ROW_KIND_INVALID": "يجب أن يكون النوع internal أو external.",
+    "USERS_IMPORT_ROW_BINDING_INVALID": "يجب أن تكون طريقة الدخول password أو ad أو sso.",
+    "USERS_IMPORT_ROW_ORGANIZATION_REQUIRED": "المستخدم الخارجي يحتاج إلى رمز جهة.",
+    "USERS_IMPORT_ROW_ORGANIZATION_NOT_FOUND": "لا توجد جهة بهذا الرمز.",
+    "USERS_IMPORT_ROW_ORGANIZATION_INACTIVE": "هذه الجهة معطّلة.",
+    "USERS_IMPORT_ROW_ORGANIZATION_OUT_OF_SCOPE": "هذه الجهة خارج نطاق الجهات التي يمكنك إدارتها.",
+    "USERS_IMPORT_ROW_ORGANIZATION_KIND_MISMATCH": "نوع الجهة لا يطابق نوع المستخدم.",
+    "IDENTITY_ACCOUNT_NOT_FOUND": "لم يُعثر على هذا الحساب.",
+    "IDENTITY_USER_NAME_TAKEN": "اسم المستخدم هذا مستخدم لحساب آخر.",
+    "IDENTITY_EMAIL_TAKEN": "البريد الإلكتروني هذا مستخدم لحساب آخر.",
+    "IDENTITY_LOGIN_NAME_TAKEN": "اسم الدخول هذا مستخدم لحساب آخر.",
+    "IDENTITY_UPN_TAKEN": "اسم المستخدم الأساسي (UPN) هذا مستخدم لحساب آخر.",
+    "IDENTITY_BREAK_GLASS_PROTECTED": "حساب مدير الطوارئ مُعرّف في الإعدادات ولا يمكن تغييره من هنا.",
+    "IDENTITY_ACTIVATION_NOT_APPLICABLE": "رابط التفعيل خاص بالحسابات التي تدخل بكلمة مرور.",
+    "IDENTITY_ACCOUNT_INACTIVE": "هذا الحساب معطّل. فعّله أولًا.",
+    "IDENTITY_ACTIVATION_UNAVAILABLE": "لا يمكن إصدار روابط التفعيل الآن. تواصل مع مسؤول النظام.",
+    "IDENTITY_DIRECTORY_UNAVAILABLE": "تعذّر الوصول إلى الدليل حاليًا. حاول مرة أخرى بعد بضع دقائق.",
+    "IDENTITY_SSO_REJECTED": "تعذّر إكمال الدخول الموحد. ابدأ تسجيل الدخول من جديد."
   },
   "core": {
     "error-dialog": {
@@ -50,7 +120,43 @@
       "submit": "تسجيل الدخول",
       "user-name-required": "أدخل اسم المستخدم.",
       "password-required": "أدخل كلمة المرور.",
-      "invalid-credentials": "اسم المستخدم أو كلمة المرور غير صحيحة."
+      "invalid-credentials": "اسم المستخدم أو كلمة المرور غير صحيحة.",
+      "methods-label": "طريقة تسجيل الدخول",
+      "method-basic": "اسم المستخدم",
+      "method-ad": "حساب الجهة",
+      "method-sso": "الدخول الموحد",
+      "ad-subtitle": "سجّل الدخول باسم المستخدم وكلمة المرور الخاصين بحساب جهتك (Active Directory).",
+      "sso-subtitle": "سجّل الدخول عبر صفحة الدخول الموحد الخاصة بجهتك.",
+      "sso-submit": "المتابعة بالدخول الموحد",
+      "modes-loading": "جارٍ تحميل خيارات تسجيل الدخول...",
+      "modes-failed": "تعذّر تحميل خيارات تسجيل الدخول.",
+      "modes-retry": "إعادة المحاولة",
+      "no-methods": "تسجيل الدخول غير متاح حاليًا. تواصل مع الدعم.",
+      "activated-notice": "تم تعيين كلمة المرور. سجّل الدخول للمتابعة."
+    },
+    "sso": {
+      "title": "جارٍ إكمال تسجيل الدخول",
+      "completing": "جارٍ تسجيل دخولك، يرجى الانتظار...",
+      "failed-title": "لم يكتمل تسجيل الدخول",
+      "back-to-login": "العودة إلى تسجيل الدخول",
+      "start-failed": "تعذّر بدء الدخول الموحد. حاول مرة أخرى.",
+      "account-refused": "حساب جهتك غير مرتبط بحساب نشط في هذا النظام."
+    },
+    "activate": {
+      "title": "تعيين كلمة المرور",
+      "subtitle": "اختر كلمة المرور التي ستسجّل الدخول بها.",
+      "password-label": "كلمة المرور الجديدة",
+      "confirm-label": "تأكيد كلمة المرور",
+      "password-hint": "استخدم {{min}} أحرف على الأقل، مع تنويع الأحرف.",
+      "submit": "تعيين كلمة المرور",
+      "password-required": "أدخل كلمة المرور.",
+      "password-too-short": "كلمة المرور قصيرة جدًا. استخدم {{min}} أحرف على الأقل.",
+      "password-too-long": "كلمة المرور طويلة جدًا.",
+      "password-too-simple": "كلمة المرور بسيطة جدًا. استخدم أحرفًا أكثر تنوعًا.",
+      "confirm-required": "أدخل كلمة المرور مرة أخرى.",
+      "confirm-mismatch": "كلمتا المرور غير متطابقتين.",
+      "missing-ticket": "رابط التفعيل هذا غير صالح. اطلب رابطًا جديدًا من المسؤول.",
+      "back-to-login": "الانتقال إلى تسجيل الدخول"
     }
   },
   "dashboard": {
@@ -60,9 +166,317 @@
   },
   "admin": {
     "title": "الإدارة",
-    "placeholder": {
-      "heading": "إدارة الصلاحيات",
-      "text": "ستظهر هنا إدارة المستخدمين والأدوار."
+    "access": {
+      "loading": "جارٍ التحميل…",
+      "scope": {
+        "global": "جميع الجهات",
+        "own-organization": "جهة المستخدم فقط",
+        "label-for": "نطاق {{name}}"
+      },
+      "virtual-kind": {
+        "all-internal-users": "كل مستخدم داخلي",
+        "all-external-users": "كل مستخدم خارجي",
+        "all-authenticated-users": "كل مستخدم مسجّل الدخول"
+      },
+      "roles": {
+        "title": "الأدوار",
+        "search": "البحث في الأدوار",
+        "empty": "لا يوجد دور مطابق.",
+        "new": "دور جديد",
+        "columns": {
+          "name": "الاسم",
+          "code": "الرمز",
+          "type": "النوع",
+          "status": "الحالة",
+          "permissions": "الصلاحيات"
+        },
+        "virtual": "يُطبَّق تلقائيًا",
+        "assigned": "يُسند إلى المستخدمين",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "deactivate": "إيقاف",
+        "reactivate": "إعادة تفعيل",
+        "create": {
+          "title": "دور جديد",
+          "confirm": "إنشاء واختيار الصلاحيات",
+          "code": "الرمز",
+          "code-hint": "أحرف إنجليزية صغيرة وأرقام وشرطات، مثل case-reviewer. لا يتغير الرمز بعد الإنشاء.",
+          "name-en": "الاسم بالإنجليزية",
+          "name-ar": "الاسم بالعربية"
+        }
+      },
+      "editor": {
+        "back": "العودة إلى الأدوار",
+        "names": "الأسماء",
+        "name-en": "الاسم بالإنجليزية",
+        "name-ar": "الاسم بالعربية",
+        "permissions": "الصلاحيات",
+        "virtual-notice": "يُطبَّق هذا الدور تلقائيًا على {{audience}}. يمكنك تعديل اسميه وصلاحياته، ولا يمكن إسناده.",
+        "inactive-notice": "هذا الدور غير نشط، فلا يمنح أي صلاحية حتى يُعاد تفعيله.",
+        "read-only-notice": "يمكنك عرض هذا الدور دون تعديله.",
+        "retired-title": "صلاحيات ملغاة",
+        "retired-hint": "أُزيلت هذه الصلاحيات من النظام، فلا تمنح شيئًا وتُحذف عند الحفظ.",
+        "save": "حفظ التغييرات",
+        "discard": "تجاهل التغييرات",
+        "saved": "تم الحفظ.",
+        "unsaved": "لديك تغييرات غير محفوظة."
+      },
+      "leave": {
+        "title": "المغادرة دون حفظ؟",
+        "text": "ستفقد التغييرات التي أجريتها في هذه الصفحة.",
+        "confirm": "مغادرة",
+        "cancel": "البقاء"
+      },
+      "last-manager": {
+        "title": "سيبقى مسؤول الطوارئ وحده قادرًا على إدارة الوصول",
+        "text": "تابع فقط إذا كان هذا مقصودًا. يستطيع مسؤول الطوارئ منح الوصول مرة أخرى لاحقًا.",
+        "confirm": "الحفظ على أي حال"
+      },
+      "grants": {
+        "back": "العودة إلى الإدارة",
+        "title": "صلاحيات {{name}}",
+        "break-glass": "مسؤول الطوارئ",
+        "active": "نشط",
+        "inactive": "موقوف",
+        "kind-internal": "مستخدم داخلي",
+        "kind-external": "مستخدم خارجي",
+        "break-glass-notice": "هذا حساب مسؤول الطوارئ. يملك كل الصلاحيات ولا يمكن تعديل صلاحياته.",
+        "read-only-notice": "يمكنك عرض هذه الصلاحيات دون تعديلها.",
+        "inactive-notice": "هذا الحساب موقوف، فلا يملك أي صلاحية حتى يُعاد تفعيله.",
+        "roles": "الأدوار المسندة",
+        "roles-hint": "اختر الأدوار التي يحملها هذا المستخدم ونطاق كل منها.",
+        "no-roles": "لا توجد أدوار لإسنادها بعد.",
+        "direct": "الصلاحيات المباشرة",
+        "direct-scopes": "نطاق كل صلاحية مباشرة",
+        "no-direct": "لا توجد صلاحيات ممنوحة مباشرة.",
+        "virtual": "تُطبَّق تلقائيًا",
+        "no-virtual": "لا ينطبق أي دور تلقائي على هذا المستخدم.",
+        "effective": "الصلاحيات الفعلية",
+        "effective-hint": "ما يملكه المستخدم الآن ومصدر كل صلاحية.",
+        "no-effective": "لا يملك هذا المستخدم أي صلاحية.",
+        "source": {
+          "direct": "منح مباشر",
+          "role": "دور: {{name}}",
+          "virtual-role": "تلقائي: {{name}}",
+          "break-glass": "مسؤول الطوارئ"
+        },
+        "save": "حفظ الصلاحيات",
+        "discard": "تجاهل التغييرات",
+        "saved": "تم الحفظ. يرى المستخدم التغيير في طلبه التالي دون إعادة تسجيل الدخول."
+      },
+      "permission-groups": {
+        "access": "إدارة الوصول",
+        "access.admin": "منطقة الإدارة",
+        "access.grants": "صلاحيات المستخدمين",
+        "access.roles": "الأدوار",
+        "dashboard": "لوحة المعلومات",
+        "organizations": "الجهات",
+        "users": "المستخدمون"
+      }
+    },
+    "common": {
+      "unknown": "غير معروف",
+      "actions": {
+        "edit": "تعديل",
+        "deactivate": "تعطيل",
+        "reactivate": "إعادة التفعيل"
+      },
+      "filters": {
+        "status": "الحالة",
+        "all-statuses": "كل الحالات",
+        "active": "نشط",
+        "inactive": "معطّل",
+        "all-kinds": "كل الأنواع"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "معطّل"
+      }
+    },
+    "activation": {
+      "link": "رابط التفعيل",
+      "copy": "نسخ الرابط",
+      "copied": "تم نسخ الرابط.",
+      "copy-failed": "تعذّر نسخ الرابط. حدّده وانسخه يدويًا.",
+      "expires": "صالح حتى {{at}}."
+    },
+    "home": {
+      "intro": "اختر ما تريد إدارته.",
+      "empty": "ليس لديك أي قسم إداري بعد. اطلب الصلاحية من أحد المسؤولين.",
+      "users": {
+        "title": "المستخدمون",
+        "text": "إنشاء الحسابات وتعديل بياناتها وتعطيلها وفك قفلها وإرسال روابط التفعيل."
+      },
+      "organizations": {
+        "title": "الجهات",
+        "text": "الإدارات والجهات الشريكة التي ينتمي إليها المستخدمون."
+      },
+      "import": {
+        "title": "استيراد المستخدمين",
+        "text": "إنشاء عدة حسابات دفعة واحدة من مصنف Excel."
+      },
+      "roles": {
+        "title": "الأدوار والصلاحيات",
+        "text": "تعريف الأدوار ومنح الصلاحيات للمستخدمين."
+      }
+    },
+    "users": {
+      "title": "المستخدمون",
+      "search": "البحث في المستخدمين",
+      "empty": "لا يوجد مستخدمون مطابقون.",
+      "organizations-unavailable": "تعذّر تحميل الجهات. أعد تحميل الصفحة للمحاولة مجددًا.",
+      "actions": {
+        "create": "مستخدم جديد",
+        "unlock": "فك القفل",
+        "issue-activation": "رابط تفعيل جديد",
+        "grants": "الصلاحيات"
+      },
+      "filters": {
+        "organization": "الجهة",
+        "all-organizations": "كل الجهات",
+        "kind": "نوع المستخدم"
+      },
+      "columns": {
+        "user-name": "اسم المستخدم",
+        "display-name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "organization": "الجهة",
+        "kind": "النوع",
+        "binding": "طريقة الدخول",
+        "status": "الحالة"
+      },
+      "kinds": {
+        "internal-user": "داخلي",
+        "external-user": "خارجي"
+      },
+      "bindings": {
+        "password-binding": "كلمة مرور",
+        "active-directory": "الدليل النشط (Active Directory)",
+        "sso": "الدخول الموحد"
+      },
+      "status": {
+        "locked": "مقفل",
+        "awaiting-activation": "بانتظار التفعيل",
+        "break-glass": "مدير الطوارئ"
+      },
+      "editor": {
+        "create-title": "مستخدم جديد",
+        "edit-title": "تعديل المستخدم"
+      },
+      "fields": {
+        "user-name": "اسم المستخدم",
+        "user-name-fixed": "اسم المستخدم: {{userName}} (لا يمكن تغييره)",
+        "display-name": "الاسم",
+        "email": "البريد الإلكتروني (اختياري)",
+        "kind": "نوع المستخدم",
+        "organization": "الجهة",
+        "no-organization": "بدون جهة",
+        "organizations-hidden": "لا تملك صلاحية عرض الجهات، لذا لا يمكن اختيار جهة هنا.",
+        "binding": "طريقة الدخول",
+        "binding-hint": "يحصل حساب كلمة المرور على رابط تفعيل ليضع كلمة مروره بنفسه، ولا يراها أحد غيره.",
+        "login-name": "اسم الدخول في الدليل (اختياري)",
+        "upn": "اسم المستخدم الأساسي UPN (اختياري)"
+      },
+      "confirm": {
+        "deactivate-title": "تعطيل المستخدم",
+        "deactivate-text": "تعطيل {{userName}}؟ سيُسجَّل خروجه فورًا ولن يتمكن من الدخول حتى يُعاد تفعيله.",
+        "reactivate-title": "إعادة تفعيل المستخدم",
+        "reactivate-text": "إعادة تفعيل {{userName}}؟ سيتمكن من الدخول مجددًا.",
+        "unlock-title": "فك قفل المستخدم",
+        "unlock-text": "فك قفل {{userName}}؟ يبدأ عدّ محاولات الدخول الفاشلة من الصفر.",
+        "activation-title": "رابط تفعيل جديد",
+        "activation-text": "إصدار رابط تفعيل جديد لـ {{userName}}؟ تتوقف كلمة المرور الحالية، ويُسجَّل خروجه، وتتوقف الروابط السابقة."
+      },
+      "issued": {
+        "title": "رابط التفعيل",
+        "text": "أرسل هذا الرابط إلى {{userName}}. يعمل مرة واحدة ليضع به المستخدم كلمة مروره.",
+        "done": "تم"
+      }
+    },
+    "organizations": {
+      "title": "الجهات",
+      "search": "البحث في الجهات",
+      "empty": "لا توجد جهات مطابقة.",
+      "actions": {
+        "create": "جهة جديدة"
+      },
+      "filters": {
+        "kind": "نوع الجهة"
+      },
+      "columns": {
+        "code": "الرمز",
+        "name-ar": "الاسم بالعربية",
+        "name-en": "الاسم بالإنجليزية",
+        "kind": "النوع",
+        "status": "الحالة"
+      },
+      "kinds": {
+        "internal-organization": "داخلية",
+        "external-organization": "خارجية"
+      },
+      "editor": {
+        "create-title": "جهة جديدة",
+        "edit-title": "تعديل الجهة"
+      },
+      "fields": {
+        "code": "الرمز",
+        "code-hint": "حروف وأرقام وشرطات وشرطات سفلية؛ يُحفظ بالأحرف الكبيرة.",
+        "name-ar": "الاسم بالعربية",
+        "name-en": "الاسم بالإنجليزية",
+        "kind": "نوع الجهة",
+        "active": "نشطة",
+        "active-hint": "الجهة المعطّلة لا تقبل مستخدمين جددًا، ويبقى مستخدموها الحاليون فيها."
+      },
+      "status": {
+        "deactivate-title": "تعطيل الجهة",
+        "deactivate-text": "تعطيل {{code}}؟ لن تقبل مستخدمين جددًا، ويبقى مستخدموها الحاليون فيها.",
+        "reactivate-title": "إعادة تفعيل الجهة",
+        "reactivate-text": "إعادة تفعيل {{code}}؟ ستقبل مستخدمين جددًا مرة أخرى."
+      }
+    },
+    "import": {
+      "title": "استيراد المستخدمين",
+      "intro": "ارفع مصنف Excel، وراجع المعاينة، ثم أنشئ الصفوف الصحيحة.",
+      "error-detail": "{{field}}: {{message}}",
+      "file": {
+        "heading": "المصنف",
+        "columns": "الأعمدة: UserName و DisplayName و Email و LoginName و Upn و Kind (internal أو external) و Binding (password أو ad أو sso) و OrganizationCode.",
+        "label": "مصنف Excel ‏(.xlsx)",
+        "hint": "ملف .xlsx واحد، بحد أقصى {{max}} ميغابايت.",
+        "wrong-type": "اختر مصنف Excel ‏(.xlsx).",
+        "empty": "الملف فارغ.",
+        "too-large": "حجم الملف أكبر من {{max}} ميغابايت."
+      },
+      "actions": {
+        "preview": "معاينة",
+        "commit": "إنشاء {{count}} حساب",
+        "start-over": "البدء من جديد"
+      },
+      "columns": {
+        "row": "الصف",
+        "user-name": "اسم المستخدم",
+        "display-name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "kind": "النوع",
+        "binding": "طريقة الدخول",
+        "organization": "رمز الجهة",
+        "verdict": "النتيجة",
+        "activation": "رابط التفعيل",
+        "reasons": "الأسباب"
+      },
+      "preview": {
+        "title": "المعاينة",
+        "empty": "لا يحتوي المصنف على صفوف.",
+        "summary": "سيُنشأ {{valid}} صف، و{{invalid}} صف فيها أخطاء.",
+        "valid": "جاهز",
+        "invalid": "لن يُستورد"
+      },
+      "result": {
+        "created-title": "الحسابات المنشأة",
+        "created-empty": "لم يُنشأ أي حساب.",
+        "rejected-title": "الصفوف المستبعدة",
+        "no-link": "يدخل عبر الدليل أو الدخول الموحد، ولا يحتاج إلى رابط."
+      }
     }
   },
   "error-pages": {
@@ -77,5 +491,63 @@
       "sign-in": "تسجيل الدخول",
       "sign-in-as-another-user": "تسجيل الدخول بمستخدم آخر"
     }
+  },
+  "patterns": {
+    "common": {
+      "reference-code": "الرمز المرجعي: {{code}}"
+    },
+    "list": {
+      "search": "بحث",
+      "search-placeholder": "اكتب للبحث",
+      "loading": "جارٍ التحميل…",
+      "empty": "لا توجد عناصر لعرضها بعد.",
+      "error": "تعذّر تحميل القائمة.",
+      "retry": "إعادة المحاولة",
+      "actions": "الإجراءات"
+    },
+    "pager": {
+      "label": "الصفحات",
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "page": "الصفحة {{page}}",
+      "summary": "{{from}}–{{to}} من {{total}}"
+    },
+    "dialog": {
+      "confirm": "حفظ",
+      "cancel": "إلغاء",
+      "close": "إغلاق",
+      "errors-title": "راجع ما يلي ثم حاول مرة أخرى:"
+    },
+    "tree": {
+      "search": "تصفية",
+      "expand-all": "توسيع الكل",
+      "collapse-all": "طي الكل",
+      "select-all": "تحديد الكل",
+      "clear-all": "إلغاء تحديد الكل",
+      "expand": "توسيع {{label}}",
+      "collapse": "طي {{label}}",
+      "selected-count": "تم تحديد {{selected}} من {{total}}",
+      "no-match": "لا يوجد ما يطابق التصفية.",
+      "empty": "لا يوجد ما يُعرض."
+    }
+  },
+  "shared": {
+    "file-picker": {
+      "choose": "اختيار ملف",
+      "none": "لم يُختر أي ملف"
+    }
+  },
+  "permissions": {
+    "access.admin.view": "فتح منطقة إدارة الوصول",
+    "access.grants.manage": "إسناد الأدوار ومنح الصلاحيات للمستخدمين",
+    "access.grants.view": "عرض صلاحيات المستخدمين الممنوحة والفعلية",
+    "access.roles.manage": "إنشاء الأدوار وتعديلها",
+    "access.roles.view": "عرض الأدوار وقائمة الصلاحيات",
+    "dashboard.view": "فتح لوحة المعلومات",
+    "organizations.manage": "إنشاء الجهات وتعديلها",
+    "organizations.view": "عرض الجهات",
+    "users.import": "استيراد المستخدمين من ملف Excel",
+    "users.manage": "إنشاء حسابات المستخدمين وتعديلها",
+    "users.view": "عرض حسابات المستخدمين"
   }
 }

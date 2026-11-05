@@ -81,11 +81,23 @@ required:
     statement: Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.
     enforcedBy: [stylelint, hook]
     availableFrom: P2
-  # No lint rule checks route or button gating yet; the app's route spec (frontend/starter-web/src/app/app.spec.ts)
-  # asserts the shipped routes, and review enforces the rule for new ones.
+  # Since P3 two @codelab/ng-tools checks enforce the gating rule (both run in CI; recipe docs/recipes/add-permission.md):
+  # the route-table test (assertRoutesGated, in frontend/starter-web/src/app/route-gates.spec.ts) and the template check
+  # (codelab-ng-tools permission-gates, run by frontend/starter-web/tools/permission-gates.mjs in `npm run lint`).
   - id: base.fe-permission-gated
-    statement: Every route and every action button is gated by a typed permission key.
-    enforcedBy: [review]
+    statement: Every route and every action button is gated by a typed permission key (base.fe-routes-gated, base.fe-buttons-gated); the backend endpoint behind it carries [HasPermission] with the same key. Recipe docs/recipes/add-permission.md.
+    enforcedBy: [contract-test, scaffold, review]
+    availableFrom: P3
+  - id: base.fe-routes-gated
+    statement: "Every route that renders a page (component or loadComponent) carries data.permission (RouteDataKeys.Permission, a generated PermissionKeys value) on itself or an ancestor, with permissionGuard() (tagged with Symbol.for('codelab.ng-tools.permission-guard'); an untagged guard fails as missing-guard) on itself or an ancestor, or its full path is in PUBLIC_ROUTE_PATHS (src/app/public-routes.ts); redirects are exempt and every lazily loaded child table is passed to the route-gates spec. Fix: add data: { [RouteDataKeys.Permission]: PermissionKeys.<Key> } or, for a page every visitor may open, the public path. Recipe docs/recipes/add-permission.md."
+    enforcedBy: [contract-test, review]
+    availableFrom: P3
+    appliesTo: ["frontend/starter-web/src/app/**/*.routes.ts", "frontend/starter-web/src/app/app.routes.ts"]
+  - id: base.fe-buttons-gated
+    statement: "Every action element (a <dga-button>; a <button> with any event binding, a submit button or a typeless one in a submitting form; a role=button element with an event binding; any element binding (click) or (confirm), such as a dialog host) in features/**/*.html and in the inline templates of features/**/*.ts carries *hasPermission=\"PermissionKeys.<Key>\" (on itself, on an ancestor element, or [hasPermission] on an <ng-template> wrapper) or an explicit data-public-action for an action every visitor may take. Fix: add the directive with a generated key, or data-public-action. Recipe docs/recipes/add-permission.md."
+    enforcedBy: [contract-test, review]
+    availableFrom: P3
+    appliesTo: ["frontend/starter-web/src/app/features/**/*.html", "frontend/starter-web/src/app/features/**/*.ts"]
 
 forbidden:
   # --- Time ----------------------------------------------------------------------------------------
@@ -292,6 +304,12 @@ forbidden:
     appliesTo: ["**/*.ts"]
     excludes: ["**/showcase/**", "**/*.spec.ts"]
     fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.
+  - id: base.fe-no-string-permission-key-in-template
+    description: A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too).
+    pattern: '\[?\*?hasPermission\]?\s*=\s*"\s*[''`]'
+    appliesTo: ["**/*.html", "**/*.ts"]
+    excludes: ["**/*.spec.ts"]
+    fix: Use the generated key, *hasPermission="PermissionKeys.<Key>" (docs/recipes/add-permission.md).
   - id: base.fe-logical-css
     description: Physical left/right properties break RTL.
     pattern: '\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:|\btext-align\s*:\s*(?:left|right)\b|\bfloat\s*:\s*(?:left|right)\b'

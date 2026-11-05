@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
 import { TokenStore } from '../auth/token.store';
+import { UNSIGNED_REQUEST } from '../http/http-context';
 
 /** The bearer scheme ApiService writes into the Authorization header. */
 export const AUTHORIZATION_HEADER = 'Authorization';
@@ -14,7 +15,10 @@ export interface ApiOptions {
   readonly headers?: Readonly<Record<string, string>>;
   /** Per-request context for the response-phase interceptors, such as `SKIP_ERROR_DIALOG`. */
   readonly context?: HttpContext;
-  /** Send no Authorization header (login, refresh). */
+  /**
+   * Send no Authorization header (login, refresh). An anonymous call is also sent unsigned (`UNSIGNED_REQUEST`): the
+   * server checks proofs only on authenticated requests and never signs the answer to an anonymous one.
+   */
   readonly anonymous?: boolean;
 }
 
@@ -63,7 +67,16 @@ export class ApiService {
         ...(options?.headers ?? {}),
       },
       params: options?.params,
-      context: options?.context,
+      context: options?.anonymous ? unsignedCopy(options.context) : options?.context,
     };
   }
+}
+
+/** A copy of `context` (the caller's object is left untouched) that also carries `UNSIGNED_REQUEST`. */
+function unsignedCopy(context: HttpContext | undefined): HttpContext {
+  const copy = new HttpContext();
+  for (const token of context?.keys() ?? []) {
+    copy.set(token, context?.get(token));
+  }
+  return copy.set(UNSIGNED_REQUEST, true);
 }

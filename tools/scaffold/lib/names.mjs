@@ -15,6 +15,8 @@ import {
 const WORD_BOUNDARY = /(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g;
 const KEBAB_SEPARATOR = '-';
 const SNAKE_SEPARATOR = '_';
+/** Separates the segments of a dotted permission key. */
+const PERMISSION_KEY_SEGMENT_SEPARATOR = '.';
 
 /** "ServiceRequests" -> "service-requests". */
 export function toKebabCase(name) {
@@ -84,6 +86,14 @@ export function refusalForPermissionKey(key) {
   if (key.length > PERMISSION_KEY_MAX_LENGTH) return `The permission key '${key}' is longer than ${PERMISSION_KEY_MAX_LENGTH} characters.`;
   if (!PERMISSION_KEY_PATTERN.test(key)) return `The permission key '${key}' does not match the permission key format.`;
   return null;
+}
+
+/**
+ * The frontend constant name api:gen gives a permission key (PascalCase of every dotted and dashed word):
+ * "demo.approve-request" -> "DemoApproveRequest", read as PermissionKeys.DemoApproveRequest.
+ */
+export function frontendPermissionKeyName(key) {
+  return key.split(PERMISSION_KEY_SEGMENT_SEPARATOR).map(toPascalCase).join('');
 }
 
 /** The permission key of a module action: Demo + approve-request -> "demo.approve-request". */

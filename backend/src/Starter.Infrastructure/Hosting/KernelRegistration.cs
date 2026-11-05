@@ -9,6 +9,7 @@ using Starter.Application.Users;
 using Starter.Infrastructure.Authorization;
 using Starter.Infrastructure.Features;
 using Starter.Infrastructure.Localization;
+using Starter.Infrastructure.Messaging;
 using Starter.Infrastructure.Persistence;
 using Starter.Infrastructure.Users;
 
@@ -22,7 +23,8 @@ public static class KernelRegistration
     /// <c>AddCodelabSecurity</c> so migrations run before the security stores ensure their tables), authentication
     /// with a no-credentials default scheme (the Identity module adds the bearer scheme), the HTTP adapters of the
     /// kernel ports (current user, audit context, language), the authorization fallback (authenticated), the feature
-    /// switches (<c>Features</c>, validated on start) with the MVC feature gate, <see cref="TimeProvider"/> and MVC's
+    /// switches (<c>Features</c>, validated on start) with the MVC feature gate, the outbox (<c>IOutbox</c> on the
+    /// <c>messaging</c> schema, migrated on start with the module contexts), <see cref="TimeProvider"/> and MVC's
     /// request-binding defaults (validators own validation).
     /// </summary>
     public static IServiceCollection AddStarterKernel(this IServiceCollection services, IConfiguration configuration)
@@ -34,6 +36,7 @@ public static class KernelRegistration
         services.TryAddScoped<IAuditContextAccessor, HttpAuditContextAccessor>();
         services.TryAddScoped<ICurrentLanguage, HttpCurrentLanguage>();
         services.AddStarterPersistence(configuration);
+        services.AddStarterMessaging();
         services.AddStarterAuthorization();
         AddFeatures(services, configuration);
         services.Configure<MvcOptions>(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);

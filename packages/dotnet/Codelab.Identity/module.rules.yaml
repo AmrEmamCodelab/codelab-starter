@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../rules/rules.schema.json
+# Rules for the Codelab.Identity package (inherits rules/base.rules.yaml). Platform-owner review (CODEOWNERS covers packages/).
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: CodelabIdentity
+kind: dotnet
+description: "External sign-in providers 0.5: Active Directory over LDAPS (bind then search, cert reader, connection probe) and generic OIDC (code + PKCE, JWKS or pinned keys, end_session), with fail-fast deployment guards and login matching."
+mayDependOn: []
+mustNotDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIntegration, CodelabTesting]

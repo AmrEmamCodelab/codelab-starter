@@ -64,7 +64,7 @@ public sealed class RefreshSessionUseCaseTests
         harness.Store.AddAccount("alice", Passphrase);
         var token = (await harness.SignInAsync("alice", Passphrase)).RefreshToken;
         var step = TimeSpan.FromMinutes(25);
-        Outcome<SignedInSession> outcome;
+        Outcome<LoginResult> outcome;
         do
         {
             harness.Clock.Advance(step);
@@ -131,7 +131,7 @@ public sealed class RefreshSessionUseCaseTests
         Assert.Equal(PlatformErrorCodes.Validation, outcome.Refusal?.Code);
     }
 
-    private static void AssertRejected(Outcome<SignedInSession> outcome)
+    private static void AssertRejected(Outcome<LoginResult> outcome)
     {
         Assert.False(outcome.IsSuccess);
         Assert.Equal(RefusalCategory.Invalid, outcome.Refusal.Category);

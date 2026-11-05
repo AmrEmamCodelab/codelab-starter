@@ -26,6 +26,9 @@ falls through to the 404 page.
 
 - No raw text; no physical CSS; links come from `appLink(RoutePaths.X)`, never path literals.
 - The 403 page never reveals which permission was missing.
+- Both routes are in `PUBLIC_ROUTE_PATHS` (`src/app/public-routes.ts`): they render without a permission key. Their
+  buttons carry `data-public-action` (the template permission gate, `base.fe-buttons-gated`), because every visitor
+  may take them: "sign in as another user" is a logout.
 
 ## Gotchas
 

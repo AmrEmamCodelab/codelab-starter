@@ -1,0 +1,153 @@
+<app-admin-list-pattern
+  [translatedCodes]="translatedCodes"
+  titleKey="admin.organizations.title"
+  searchLabelKey="admin.organizations.search"
+  emptyKey="admin.organizations.empty"
+  [columns]="columns"
+  [rows]="store.list.items()"
+  [rowId]="rowId"
+  [total]="store.list.total()"
+  [pageSize]="store.pageSize"
+  [loading]="store.list.loading()"
+  [error]="store.list.error()"
+  [(page)]="store.page"
+  [(search)]="store.search"
+  (retry)="store.reload()"
+>
+  <dga-button
+    listToolbar
+    *hasPermission="PermissionKeys.OrganizationsManage"
+    size="md"
+    data-testid="organization-create"
+    (click)="store.openCreate()"
+  >
+    {{ 'admin.organizations.actions.create' | t }}
+  </dga-button>
+
+  <div listFilters class="filters">
+    <label class="filter">
+      <span class="filter__label">{{ 'admin.organizations.filters.kind' | t }}</span>
+      <select class="filter__select" data-testid="filter-kind" (change)="store.filterKind(selectValue($event))">
+        <option value="">{{ 'admin.common.filters.all-kinds' | t }}</option>
+        @for (kind of kinds; track kind) {
+          <option [value]="kind" [selected]="store.kindFilter() === kind">{{ kindLabelKeys[kind] | t }}</option>
+        }
+      </select>
+    </label>
+    <label class="filter">
+      <span class="filter__label">{{ 'admin.common.filters.status' | t }}</span>
+      <select class="filter__select" data-testid="filter-status" (change)="store.filterActive(selectValue($event))">
+        @for (filter of activeFilters; track filter) {
+          <option [value]="filter" [selected]="store.activeFilter() === filter">{{ activeFilterLabelKeys[filter] | t }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <ng-template listCell="kind" let-row [listCellOf]="store.list.items()">
+    {{ kindLabelKey(row.kind) | t }}
+  </ng-template>
+
+  <ng-template listCell="isActive" let-row [listCellOf]="store.list.items()">
+    <dga-status-tag [tone]="row.isActive ? 'success' : 'neutral'">
+      {{ (row.isActive ? 'admin.common.status.active' : 'admin.common.status.inactive') | t }}
+    </dga-status-tag>
+  </ng-template>
+
+  <ng-template listRowActions let-row [listRowActionsOf]="store.list.items()">
+    <div class="row-actions">
+      <dga-button
+        *hasPermission="PermissionKeys.OrganizationsManage"
+        variant="subtle"
+        size="sm"
+        data-testid="organization-edit"
+        (click)="store.openEdit(row)"
+      >
+        {{ 'admin.common.actions.edit' | t }}
+      </dga-button>
+      <dga-button
+        *hasPermission="PermissionKeys.OrganizationsManage"
+        variant="subtle"
+        size="sm"
+        data-testid="organization-status"
+        [destructive]="row.isActive"
+        (click)="store.askStatusChange(row)"
+      >
+        {{ (row.isActive ? 'admin.common.actions.deactivate' : 'admin.common.actions.reactivate') | t }}
+      </dga-button>
+    </div>
+  </ng-template>
+</app-admin-list-pattern>
+
+<app-editor-dialog-pattern
+  *hasPermission="PermissionKeys.OrganizationsManage"
+  [translatedCodes]="translatedCodes"
+  [open]="store.editor() !== null"
+  [titleKey]="store.editor()?.mode === EditorMode.Edit ? 'admin.organizations.editor.edit-title' : 'admin.organizations.editor.create-title'"
+  [busy]="store.saving()"
+  [error]="store.saveError()"
+  (confirm)="store.save()"
+  (cancel)="store.closeEditor()"
+>
+  @if (store.editor(); as form) {
+    <div class="editor-fields">
+      <dga-text-input
+        autofocus
+        required
+        [label]="'admin.organizations.fields.code' | t"
+        [hint]="'admin.organizations.fields.code-hint' | t"
+        [error]="store.saveError() | fieldError: 'code'"
+        [(value)]="form.code"
+      />
+      <dga-text-input
+        required
+        [label]="'admin.organizations.fields.name-ar' | t"
+        [error]="store.saveError() | fieldError: 'nameAr'"
+        [(value)]="form.nameAr"
+      />
+      <dga-text-input
+        required
+        [label]="'admin.organizations.fields.name-en' | t"
+        [error]="store.saveError() | fieldError: 'nameEn'"
+        [(value)]="form.nameEn"
+      />
+      <dga-radio-group
+        required
+        orientation="horizontal"
+        [label]="'admin.organizations.fields.kind' | t"
+        [options]="kindOptions()"
+        [error]="store.saveError() | fieldError: 'kind'"
+        [(value)]="form.kind"
+      />
+      @if (form.mode === EditorMode.Edit) {
+        <dga-checkbox
+          [label]="'admin.organizations.fields.active' | t"
+          [hint]="'admin.organizations.fields.active-hint' | t"
+          [(checked)]="form.isActive"
+        />
+      }
+    </div>
+  }
+</app-editor-dialog-pattern>
+
+<app-editor-dialog-pattern
+  *hasPermission="PermissionKeys.OrganizationsManage"
+  [translatedCodes]="translatedCodes"
+  [open]="store.statusChange() !== null"
+  [titleKey]="store.statusChange()?.activate ? 'admin.organizations.status.reactivate-title' : 'admin.organizations.status.deactivate-title'"
+  [confirmKey]="store.statusChange()?.activate ? 'admin.common.actions.reactivate' : 'admin.common.actions.deactivate'"
+  [destructive]="!store.statusChange()?.activate"
+  [busy]="store.statusBusy()"
+  [error]="store.statusError()"
+  (confirm)="store.confirmStatusChange()"
+  (cancel)="store.cancelStatusChange()"
+>
+  @if (store.statusChange(); as change) {
+    <p class="confirm-text">
+      {{
+        (change.activate ? 'admin.organizations.status.reactivate-text' : 'admin.organizations.status.deactivate-text')
+          | t: { code: change.organization.code }
+      }}
+    </p>
+  }
+</app-editor-dialog-pattern>

@@ -1,0 +1,13 @@
+@use '../common/access-page';
+
+.role-list__code {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.role-list__audience {
+  display: block;
+  margin-block-start: var(--dga-space-1);
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-xs);
+}

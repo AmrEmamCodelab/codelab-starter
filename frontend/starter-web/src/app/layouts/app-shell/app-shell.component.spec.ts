@@ -3,8 +3,28 @@ import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { PermissionKeys } from '../../core/permissions/permission-keys.generated';
 import { PermissionStore } from '../../core/permissions/permission.store';
+import { RoutePaths } from '../../core/routing/route-paths';
 import { fakeAuth, layoutTestProviders } from '../layout.testing';
 import { AppShellComponent } from './app-shell.component';
+import { SHELL_NAV_ITEMS, type ShellNavItem } from './shell-nav';
+
+const NAV_ITEMS: readonly ShellNavItem[] = [
+  {
+    path: RoutePaths.Dashboard,
+    labelKey: 'layout.nav.dashboard',
+    icon: 'dashboard',
+    targets: [{ permission: PermissionKeys.DashboardView, link: ['/'] }],
+  },
+  {
+    path: RoutePaths.Admin,
+    labelKey: 'layout.nav.admin',
+    icon: 'lock',
+    targets: [
+      { permission: PermissionKeys.AccessAdminView, link: ['/', 'admin'] },
+      { permission: PermissionKeys.UsersView, link: ['/', 'admin', 'users'] },
+    ],
+  },
+];
 
 describe('AppShellComponent', () => {
   let store: PermissionStore;
@@ -12,7 +32,7 @@ describe('AppShellComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [AppShellComponent],
-      providers: [provideRouter([]), ...layoutTestProviders(fakeAuth())],
+      providers: [provideRouter([]), ...layoutTestProviders(fakeAuth()), { provide: SHELL_NAV_ITEMS, useValue: NAV_ITEMS }],
     });
     store = TestBed.inject(PermissionStore);
   });
@@ -35,6 +55,13 @@ describe('AppShellComponent', () => {
   it('shows every entry to a user holding all keys', () => {
     store.set([PermissionKeys.DashboardView, PermissionKeys.AccessAdminView]);
     expect(navLabels(render())).toEqual(['layout.nav.dashboard', 'layout.nav.admin']);
+  });
+
+  it('offers the admin entry to a users.view-only user, linking to the users page', () => {
+    store.set([PermissionKeys.UsersView]);
+    const host = render();
+    expect(navLabels(host)).toEqual(['layout.nav.admin']);
+    expect(host.querySelector('.shell__nav a')?.getAttribute('href')).toBe('/admin/users');
   });
 
   it('follows a permission change without a reload', async () => {

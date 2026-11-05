@@ -38,4 +38,34 @@ public static class IdentityLimits
 
     /// <summary>The longest refresh token a refresh request accepts, in characters.</summary>
     public const int RefreshTokenMaxLength = 128;
+
+    /// <summary>The longest e-mail address, in characters.</summary>
+    public const int EmailMaxLength = 256;
+
+    /// <summary>The longest directory login name (sAMAccountName style), in characters.</summary>
+    public const int LoginNameMaxLength = 256;
+
+    /// <summary>The longest user principal name, in characters.</summary>
+    public const int UpnMaxLength = 256;
+
+    /// <summary>The longest identity-provider id_token kept as a logout hint, in characters (ASCII).</summary>
+    public const int IdTokenHintMaxLength = 8000;
+
+    /// <summary>The longest activation ticket id, in characters (22 for 16 random bytes in base64url).</summary>
+    public const int ActivationTicketIdMaxLength = 64;
+
+    /// <summary>The number of random bytes in an activation ticket id.</summary>
+    public const int ActivationTicketIdBytes = 16;
+
+    /// <summary>The longest sealed activation ticket an activation request accepts, in characters.</summary>
+    public const int ActivationTicketMaxLength = 2048;
+
+    /// <summary>The shortest password an activation may set, in every configuration (the configured minimum may only be higher).</summary>
+    public const int PasswordMinLengthFloor = 8;
+
+    /// <summary>The longest pseudonymous user-name hash an auth event stores, in characters.</summary>
+    public const int UserNameHashMaxLength = 64;
+
+    /// <summary>The longest correlation id an auth event stores, in characters.</summary>
+    public const int CorrelationIdMaxLength = 128;
 }

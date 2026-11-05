@@ -8,8 +8,8 @@ import { SessionTimeoutService } from './session-timeout.service';
 
 /**
  * The start-up sequence, run by `provideAppInitializer` in `app.config.ts`: apply the language (so the
- * first paint has its labels and direction), load the feature flags, start the session watchers and,
- * for a restored session, sync the permissions. Nothing here fails start-up: each step degrades on its
+ * first paint has its labels and direction), load the feature flags, start the session watchers (idle
+ * timeout, live permission refresh) and, for a restored session, sync the permissions. Nothing here fails start-up: each step degrades on its
  * own (keys show, flags off, guards re-sync).
  */
 export async function initializeCore(): Promise<void> {
@@ -18,6 +18,7 @@ export async function initializeCore(): Promise<void> {
   const auth = inject(AuthService);
   const permissions = inject(PermissionSyncService);
   inject(SessionTimeoutService).start();
+  permissions.start();
   inject(ProtectedTranslationsService).start();
   await Promise.all([language.init(), features.load()]);
   if (auth.isAuthenticated()) {

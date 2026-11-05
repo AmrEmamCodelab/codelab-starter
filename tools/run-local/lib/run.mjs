@@ -32,8 +32,10 @@ import {
   Timeouts,
   Urls,
   WEB_HEALTH_PATH,
+  CONNECTION_STRING_ENV,
 } from './constants.mjs';
 import {
+  usesDefaultLocalDb,
   apiAssemblyPath,
   apiEnvironment,
   breakGlassUser,
@@ -87,6 +89,10 @@ function ensureSecrets(system, root) {
 }
 
 function startLocalDb(system) {
+  if (!usesDefaultLocalDb(system.env)) {
+    system.log(`${CONNECTION_STRING_ENV} is set to another server: LocalDB ${LOCALDB_INSTANCE} is not started.`);
+    return;
+  }
   const result = system.runSync(SQL_LOCALDB, ['start', LOCALDB_INSTANCE]);
   if (result.code === 0) system.log(`LocalDB ${LOCALDB_INSTANCE} is running.`);
   else system.warn(`could not start LocalDB ${LOCALDB_INSTANCE} (${result.output.trim()}); the API needs it for its database.`);

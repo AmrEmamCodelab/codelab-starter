@@ -10,9 +10,9 @@ its calls with `@codelab/ng-security`. It is an npm workspace of the repository 
 | --- | --- | --- |
 | `src/app/core/` | core | config, API, session, permissions, i18n, routing constants ([MODULE.md](src/app/core/MODULE.md)) |
 | `src/app/layouts/` | features | the app shell and other page frames |
-| `src/app/features/` | features | `auth`, `dashboard`, `admin`, `errors` screens |
-| `src/app/shared/` | shared | empty for now ([README](src/app/shared/README.md)) |
-| `src/app/patterns/` | patterns | reserved for the page patterns |
+| `src/app/features/` | features | `auth`, `dashboard`, `admin` (users, organizations, import and access; routes in `features/admin/admin.routes.ts`), `errors` screens |
+| `src/app/shared/` | shared | the `*hasPermission` directive ([MODULE.md](src/app/shared/MODULE.md)) |
+| `src/app/patterns/` | patterns | page patterns: admin list + pager, editor dialog, tree editor ([MODULE.md](src/app/patterns/MODULE.md)) |
 | `public/` | core | `config.json` (runtime configuration, strict JSON) |
 | `src/assets/i18n/` | features | the public `ar` and `en` translation bundles |
 
@@ -65,5 +65,8 @@ The API runs on `http://localhost:5180` (see `public/config.json`). Each environ
   bundle the fonts and icon font into `media/`. The licence texts stay in the package (ADR-009).
 - Specs compile components in JIT; `vitest.config.mts` inlines `templateUrl` files and drops style files, and
   enables legacy decorators. Production builds are AOT and unaffected.
+- Specs run the Angular CLI JIT transform (`vitest.config.mts` plugin `starter-angular-signal-metadata`, from
+  `@angular/compiler-cli/private/tooling`, a private CLI API that can change on an Angular major) so
+  `input()`/`model()`/`output()`/signal queries work in JIT; without it bindings to them are silently ignored.
 - `openapi-typescript` declares a TypeScript 5 peer; the root `package.json` overrides it to the repo's TypeScript.
 - Angular 22 needs Node 24.15 or newer; an older Node refuses to install (`engine-strict`).

@@ -1,0 +1,50 @@
+<nav class="list-pager" [attr.aria-label]="keys.Label | t">
+  <p class="list-pager__summary" aria-live="polite">
+    {{ keys.Summary | t: { from: range().from, to: range().to, total: total() } }}
+  </p>
+  @if (count() > 1) {
+    <div class="list-pager__controls">
+      <dga-button
+        variant="subtle"
+        size="sm"
+        iconOnly
+        leadIcon="chevron-start"
+        data-public-action
+        [label]="keys.Previous | t"
+        [disabled]="isFirst()"
+        (click)="previous()"
+      />
+      <ol class="list-pager__pages">
+        @for (item of items(); track $index) {
+          <li>
+            @if (item === gap) {
+              <span class="list-pager__gap" aria-hidden="true">…</span>
+            } @else {
+              <button
+                type="button"
+                class="list-pager__page"
+                data-public-action
+                [class.list-pager__page--current]="item === current()"
+                [attr.aria-current]="item === current() ? 'page' : null"
+                [attr.aria-label]="keys.Page | t: { page: item }"
+                (click)="goTo(item)"
+              >
+                {{ item }}
+              </button>
+            }
+          </li>
+        }
+      </ol>
+      <dga-button
+        variant="subtle"
+        size="sm"
+        iconOnly
+        leadIcon="chevron-end"
+        data-public-action
+        [label]="keys.Next | t"
+        [disabled]="isLast()"
+        (click)="next()"
+      />
+    </div>
+  }
+</nav>

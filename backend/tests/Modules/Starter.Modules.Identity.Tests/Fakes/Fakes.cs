@@ -30,6 +30,43 @@ internal sealed class InMemoryIdentityStore : IUserAccountRepository, IUserSessi
 
     public void Add(UserAccount account) => _accounts.Add(account);
 
+    public Task<UserAccount?> FindByMatchAsync(AccountMatchField field, string value, CancellationToken cancellationToken)
+    {
+        var normalized = UserNames.NormalizeOptional(value);
+        return Task.FromResult(normalized is null ? null : _accounts.SingleOrDefault(account => field switch
+        {
+            AccountMatchField.Email => account.NormalizedEmail == normalized,
+            AccountMatchField.LoginName => account.NormalizedLoginName == normalized,
+            _ => account.NormalizedUpn == normalized,
+        }));
+    }
+
+    public Task<AccountIdentifier?> FindTakenIdentifierAsync(AccountIdentifiers identifiers, long? exceptUserId, CancellationToken cancellationToken)
+    {
+        var others = _accounts.Where(account => account.Id != exceptUserId).ToList();
+        AccountIdentifier? taken =
+            identifiers.NormalizedUserName is { } userName && others.Any(account => account.NormalizedUserName == userName) ? AccountIdentifier.UserName
+            : identifiers.NormalizedEmail is { } email && others.Any(account => account.NormalizedEmail == email) ? AccountIdentifier.Email
+            : identifiers.NormalizedLoginName is { } loginName && others.Any(account => account.NormalizedLoginName == loginName) ? AccountIdentifier.LoginName
+            : identifiers.NormalizedUpn is { } upn && others.Any(account => account.NormalizedUpn == upn) ? AccountIdentifier.Upn
+            : null;
+        return Task.FromResult(taken);
+    }
+
+    public AccountListRequest? LastListRequest { get; private set; }
+
+    public Task<AccountListPage> ListAsync(AccountListRequest request, CancellationToken cancellationToken)
+    {
+        LastListRequest = request;
+        var matching = _accounts
+            .Where(account => request.Kind is null || account.Kind == request.Kind)
+            .Where(account => request.IsActive is null || account.IsActive == request.IsActive)
+            .Where(account => request.OrganizationId is null || account.OrganizationId == request.OrganizationId)
+            .OrderBy(account => account.NormalizedUserName, StringComparer.Ordinal)
+            .ToList();
+        return Task.FromResult(new AccountListPage([.. matching.Skip(request.Skip).Take(request.Take)], matching.Count));
+    }
+
     public Task<UserSession?> FindBySessionIdAsync(string sessionId, CancellationToken cancellationToken) =>
         Task.FromResult(_sessions.SingleOrDefault(session => session.SessionId == sessionId));
 

@@ -12,5 +12,6 @@
     <CodelabErrorsVersion Condition="'$(CodelabErrorsVersion)' == ''">0.5.1</CodelabErrorsVersion>
     <CodelabTestingVersion Condition="'$(CodelabTestingVersion)' == ''">0.5.0</CodelabTestingVersion>
     <CodelabIntegrationVersion Condition="'$(CodelabIntegrationVersion)' == ''">0.1.0</CodelabIntegrationVersion>
+    <CodelabIdentityVersion Condition="'$(CodelabIdentityVersion)' == ''">0.5.0</CodelabIdentityVersion>
   </PropertyGroup>
 </Project>

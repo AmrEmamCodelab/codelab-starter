@@ -1,5 +1,7 @@
 ﻿import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { constructorParametersDownlevelTransform } from '@angular/compiler-cli/private/tooling';
+import ts from 'typescript';
 import { defineConfig, type Plugin } from 'vitest/config';
 
 /**
@@ -32,8 +34,49 @@ function inlineAngularResources(): Plugin {
   };
 }
 
+/**
+ * Signal inputs, models, outputs and signal queries (`input()`, `model()`, `output()`, `viewChild()`...) exist only
+ * through the Angular compiler: plain JIT sees no input and silently ignores the binding. This plugin runs the
+ * Angular CLI's own JIT transform (`@angular/compiler-cli/private/tooling`, the one `ng test` uses) on each source
+ * file that calls one of those APIs, which adds the matching `propDecorators` metadata. TypeScript in, TypeScript out
+ * (oxc still compiles it), one file per program with no type resolution, so it stays fast.
+ */
+const SIGNAL_INITIALIZER_API = /\b(?:input|model|output|viewChild|viewChildren|contentChild|contentChildren)\s*[<(.]/;
+const JIT_TRANSFORM_OPTIONS: ts.CompilerOptions = {
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.Preserve,
+  experimentalDecorators: true,
+  isolatedModules: true,
+  noResolve: true,
+  noLib: true,
+  types: [],
+};
+
+function angularSignalMetadata(): Plugin {
+  return {
+    name: 'starter-angular-signal-metadata',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!SOURCE_FILE.test(id) || !code.includes('@angular/core') || !SIGNAL_INITIALIZER_API.test(code)) {
+        return null;
+      }
+      const source = ts.createSourceFile(id, code, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS);
+      const host = ts.createCompilerHost(JIT_TRANSFORM_OPTIONS);
+      host.getSourceFile = () => source;
+      host.fileExists = () => true;
+      host.readFile = () => code;
+      const program = ts.createProgram({ rootNames: [id], options: JIT_TRANSFORM_OPTIONS, host });
+      const transform = constructorParametersDownlevelTransform(program);
+      const result = ts.transform(program.getSourceFile(id) ?? source, [transform], JIT_TRANSFORM_OPTIONS);
+      const transformed = ts.createPrinter().printFile(result.transformed[0]);
+      result.dispose();
+      return { code: transformed, map: null };
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [inlineAngularResources()],
+  plugins: [inlineAngularResources(), angularSignalMetadata()],
   // Angular's decorators are the legacy (experimentalDecorators) kind; JIT reads their metadata at runtime.
   oxc: { decorator: { legacy: true } },
   test: {

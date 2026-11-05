@@ -6,9 +6,54 @@
       "description": "Open the access administration area."
     },
     {
+      "key": "access.grants.manage",
+      "module": "Access",
+      "description": "Assign roles to users and grant permissions to them directly, with a scope."
+    },
+    {
+      "key": "access.grants.view",
+      "module": "Access",
+      "description": "See a user's roles, direct grants, virtual roles and effective permissions."
+    },
+    {
+      "key": "access.roles.manage",
+      "module": "Access",
+      "description": "Create roles and change their names, permissions and active state."
+    },
+    {
+      "key": "access.roles.view",
+      "module": "Access",
+      "description": "See the roles, their permissions and the permission catalog."
+    },
+    {
       "key": "dashboard.view",
       "module": "Access",
       "description": "Open the dashboard."
+    },
+    {
+      "key": "organizations.manage",
+      "module": "Users",
+      "description": "Create, edit, deactivate and reactivate organizations."
+    },
+    {
+      "key": "organizations.view",
+      "module": "Users",
+      "description": "List and open organizations."
+    },
+    {
+      "key": "users.import",
+      "module": "Users",
+      "description": "Preview and commit an Excel user import."
+    },
+    {
+      "key": "users.manage",
+      "module": "Users",
+      "description": "Create, edit, deactivate, reactivate and unlock user accounts, and issue activation links."
+    },
+    {
+      "key": "users.view",
+      "module": "Users",
+      "description": "List and open user accounts."
     }
   ]
 }

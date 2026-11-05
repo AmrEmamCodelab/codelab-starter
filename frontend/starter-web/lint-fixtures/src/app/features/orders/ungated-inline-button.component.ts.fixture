@@ -1,0 +1,14 @@
+// Lint fixture case: an inline template whose dga-button has no gate (must fail on line 8); the commented and
+// quoted buttons below are not markup and must not be reported.
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-ungated-inline-button',
+  template: `<p>{{ 'orders.title' | t }}</p>
+    <dga-button (click)="approve()">{{ 'orders.approve' | t }}</dga-button>`,
+})
+export class UngatedInlineButtonComponent {
+  // template: '<dga-button></dga-button>'
+  readonly hint = "template: '<dga-button></dga-button>'";
+  approve(): void {}
+}

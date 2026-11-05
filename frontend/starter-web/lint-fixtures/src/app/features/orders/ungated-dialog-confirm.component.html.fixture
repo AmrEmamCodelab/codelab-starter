@@ -1,0 +1,4 @@
+<!-- Lint fixture case: a dialog host that binds (confirm) (must fail on line 3). -->
+<section class="orders">
+  <app-editor-dialog-pattern titleKey="orders.cancel" (confirm)="cancel()"></app-editor-dialog-pattern>
+</section>

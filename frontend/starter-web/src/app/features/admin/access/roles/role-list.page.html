@@ -1,0 +1,106 @@
+<div class="access-page">
+  <app-access-warnings [codes]="store.warnings()" />
+  @if (store.actionError(); as failure) {
+    <p class="access-page__error role-list__action-error" role="alert">{{ errorMessageKey(failure.code) | t }}</p>
+  }
+
+  <app-admin-list-pattern
+    titleKey="admin.access.roles.title"
+    searchLabelKey="admin.access.roles.search"
+    emptyKey="admin.access.roles.empty"
+    [columns]="columns"
+    [rows]="store.rows()"
+    [rowId]="rowId"
+    [total]="store.total()"
+    [pageSize]="store.pageSize"
+    [loading]="store.loading()"
+    [error]="store.loadError()"
+    [(page)]="store.page"
+    [(search)]="store.search"
+    (retry)="store.load()"
+  >
+    <dga-button listToolbar *hasPermission="PermissionKeys.AccessRolesManage" class="role-list__new" (click)="openCreate()">
+      {{ 'admin.access.roles.new' | t }}
+    </dga-button>
+
+    <ng-template listCell="name" [listCellOf]="store.rows()" let-row>
+      <a class="access-page__link role-list__name" [routerLink]="AccessPaths.roleDetail(row.id)">{{ roleName(row) }}</a>
+    </ng-template>
+    <ng-template listCell="code" [listCellOf]="store.rows()" let-row>
+      <code class="role-list__code">{{ row.code }}</code>
+    </ng-template>
+    <ng-template listCell="isVirtual" [listCellOf]="store.rows()" let-row>
+      @if (row.isVirtual) {
+        <dga-tag tone="info" class="role-list__virtual">{{ 'admin.access.roles.virtual' | t }}</dga-tag>
+        <span class="role-list__audience">{{ virtualKindLabelKey(row.virtualKind) | t }}</span>
+      } @else {
+        <dga-tag tone="neutral">{{ 'admin.access.roles.assigned' | t }}</dga-tag>
+      }
+    </ng-template>
+    <ng-template listCell="isActive" [listCellOf]="store.rows()" let-row>
+      <dga-status-tag [tone]="row.isActive ? 'success' : 'neutral'">
+        {{ (row.isActive ? 'admin.access.roles.active' : 'admin.access.roles.inactive') | t }}
+      </dga-status-tag>
+    </ng-template>
+    <ng-template listRowActions [listRowActionsOf]="store.rows()" let-row>
+      <dga-button
+        *hasPermission="PermissionKeys.AccessRolesManage"
+        variant="subtle"
+        size="sm"
+        class="role-list__toggle"
+        [destructive]="row.isActive"
+        [loading]="store.busyRoleId() === row.id"
+        (click)="toggleActive(row)"
+      >
+        {{ (row.isActive ? 'admin.access.roles.deactivate' : 'admin.access.roles.reactivate') | t }}
+      </dga-button>
+    </ng-template>
+  </app-admin-list-pattern>
+</div>
+
+<app-editor-dialog-pattern
+  *hasPermission="PermissionKeys.AccessRolesManage"
+  titleKey="admin.access.roles.create.title"
+  confirmKey="admin.access.roles.create.confirm"
+  [open]="createOpen()"
+  [busy]="store.creating()"
+  [error]="store.createError()"
+  (confirm)="submitCreate()"
+  (cancel)="cancelCreate()"
+>
+  <dga-text-input
+    autofocus
+    class="role-list__draft-code"
+    name="code"
+    autocomplete="off"
+    required
+    [label]="'admin.access.roles.create.code' | t"
+    [hint]="'admin.access.roles.create.code-hint' | t"
+    [error]="store.createError() | fieldError: 'code'"
+    [(value)]="draftCode"
+  />
+  <dga-text-input
+    class="role-list__draft-name-en"
+    name="nameEn"
+    required
+    [label]="'admin.access.roles.create.name-en' | t"
+    [error]="store.createError() | fieldError: 'nameEn'"
+    [(value)]="draftNameEn"
+  />
+  <dga-text-input
+    class="role-list__draft-name-ar"
+    name="nameAr"
+    required
+    [label]="'admin.access.roles.create.name-ar' | t"
+    [error]="store.createError() | fieldError: 'nameAr'"
+    [(value)]="draftNameAr"
+  />
+</app-editor-dialog-pattern>
+
+<app-last-manager-dialog
+  *hasPermission="PermissionKeys.AccessRolesManage"
+  [open]="store.pendingActivation() !== null"
+  [busy]="store.busyRoleId() !== null"
+  (confirm)="store.confirmPending()"
+  (cancel)="store.cancelPending()"
+/>

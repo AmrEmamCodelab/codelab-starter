@@ -1,6 +1,6 @@
 # CONTEXT.md
 
-Status: **phase 2** (walking skeleton). The backend kernel and host (`Starter.Api`), two modules (Identity: login, refresh and logout; Access: the permission catalog, grants and the live per-user resolve), the Angular 22 app `frontend/starter-web` (login, staff shell, dashboard, admin placeholder, 403 and 404 pages, Arabic-first), the owned component library `@codelab/ng-dga` 0.1.0, generated docs and client, the scaffold generators, the fork model (`init.ps1`, `tools/remove-module.ps1`, `tools/upstream-merge.ps1`) and the local runner exist. The versioned security core from phase 1 is consumed from source in the starter and from the feed in a fork. This file grows with every phase. Sections marked *planned* describe the target from the platform team's build plan (kept outside the repository; its decisions are in [docs/adr/](docs/adr/README.md)).
+Status: **phase 3** (identity, users and access). The backend kernel and host (`Starter.Api`), three modules (Identity: basic, Active Directory and SSO login, refresh, logout, lockout and activation; Users: users, organizations and the Excel import; Access: the permission catalog, roles, virtual roles, direct grants, org scope and the live per-user resolve), the `Codelab.Identity` 0.5 package, the Angular 22 app `frontend/starter-web` (login, staff shell, dashboard, the admin screens for users, organizations, import and access, 403 and 404 pages, Arabic-first), 3 of the 8 page patterns, the owned component library `@codelab/ng-dga` 0.1.0, generated docs and client, the scaffold generators, the fork model (`init.ps1`, `tools/remove-module.ps1`, `tools/upstream-merge.ps1`) and the local runner exist. The versioned security core from phase 1 is consumed from source in the starter and from the feed in a fork. This file grows with every phase. Sections marked *planned* describe the target from the platform team's build plan (kept outside the repository; its decisions are in [docs/adr/](docs/adr/README.md)).
 
 ## Business context
 
@@ -30,7 +30,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | Reference code | The short code shown to a user on an error, linking to the log entry. | `referenceCode` in problem+json |
 | Feed | Where packages are published: a local folder now, GitHub Packages later. | `feed/nuget`, `feed/npm` |
 
-## Repo map (what exists after phase 2)
+## Repo map (what exists after phase 3)
 
 | Path | What it is | Owner doc |
 | --- | --- | --- |
@@ -55,11 +55,14 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | `backend/tests/Starter.Contract.Tests` | The endpoint contract over the real host without a database: a permission or an allowlist entry (`EndpointAllowlist.cs`), PublicIds, validators, problem+json. | [README.md](backend/tests/Starter.Contract.Tests/README.md) |
 | `backend/tests/Starter.Integration.Tests` | The real host on a throwaway `StarterIt_<guid>` LocalDB database: login, refresh, logout then 401, 403 for the dev user, seeding per environment. | [README.md](backend/tests/Starter.Integration.Tests/README.md) |
 | `backend/tools/Starter.DocsGen` (+ `.Tests`) | Starts the host in process (no SQL, no secrets) and writes `docs/generated`; `--check` fails on drift. | [MODULE.md](backend/tools/Starter.DocsGen/MODULE.md) |
+| `backend/tools/Starter.DevIdp` (+ `.Tests`) | Dev-only OpenID Connect issuer (code + PKCE S256, RS256 id_token, JWKS, userinfo, end-session) on :5190 and in process for tests (`DevIdpInProcessServer`); refuses any environment but Development, never deployed. | [MODULE.md](backend/tools/Starter.DevIdp/MODULE.md) |
+| `backend/src/Modules/{Identity,Access,Users}/` | Module 1 identity and login (basic, AD, SSO via `Auth:Modes`; lockout, activation, auth event trail), module 3 roles and permissions (roles, virtual roles, direct grants, org scope, live resolve) and module 2 users, organizations and the Excel import. | the module's `MODULE.md` |
 | `docs/generated/` | DERIVED: `openapi.v1.json`, `permissions.json/.md`, `endpoints.md`, `error-codes.md`, `config-keys.md`. Never hand-edited. | [README.md](docs/generated/README.md) |
-| `frontend/starter-web/` | Angular 22 app (standalone, signals, Vitest, an npm workspace): `src/app/core` (ApiService, auth, permissions, i18n, session), `layouts/`, `features/{auth,dashboard,admin,errors}`, `shared/` (empty) and `patterns/` (reserved for P4). | [MODULE.md](frontend/starter-web/MODULE.md) |
+| `frontend/starter-web/` | Angular 22 app (standalone, signals, Vitest, an npm workspace): `src/app/core` (ApiService, auth, permissions, i18n, session), `layouts/`, `features/{auth,dashboard,admin,errors}` (admin: users, organizations, import, and access: roles list, role editor, user grants, see `features/admin/access/README.md`), `shared/` (WebShared: the `*hasPermission` directive) and `patterns/` (WebPatterns: admin list + pager, editor dialog, tree editor). | [MODULE.md](frontend/starter-web/MODULE.md) |
 | `frontend/starter-web/tools/` | ESLint and Stylelint config, `i18n-parity.mjs`, `api-gen` (the generated client and `permission-keys.generated.ts`), the lint-fixture spec. | [README.md](frontend/starter-web/tools/README.md) |
 | `packages/npm/ng-dga/` | `@codelab/ng-dga` 0.1.0: 12 standalone OnPush components, `--dga-*` tokens, the IBM Plex fonts and the owned icon font (ADR-009). | [MODULE.md](packages/npm/ng-dga/MODULE.md) |
 | `packages/dotnet/Codelab.Build.Sdk/`, `Codelab.Build.Analyzers/` | MSBuild SDK (analyzers, banned APIs, release stamping) and the clean-code analyzers CLB1001 to CLB1005 (ADR-012). | the folder's README or `MODULE.md` |
+| `packages/dotnet/Codelab.Identity/` | Codelab.Identity 0.5: Active Directory over LDAPS, generic OIDC code + PKCE, deployment guards, login matching. | [MODULE.md](packages/dotnet/Codelab.Identity/MODULE.md) |
 | `packages/dotnet/Codelab.{Security,Observability,Errors,Integration,Testing}/` | The versioned core: signing, PublicIds, replay and sid-revocation stores; Serilog, correlation and health; problem+json; the outbound engine; architecture and contract checks. | `MODULE.md` in each folder |
 | `packages/npm/ng-security/`, `packages/npm/ng-tools/` | `@codelab/ng-security` (signing interceptors, `WireId<T>`, the problem+json parser) and `@codelab/ng-tools` (ESLint and Stylelint presets). | `MODULE.md` in each folder |
 | `packages/vectors/`, `packages/samples/` | Golden vectors over TEST-ONLY fixture keys; the feed-only package integration test (CI step 13). | `README.md` in each folder |
@@ -69,7 +72,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | `tools/scaffold/` | `new-module.mjs`, `new-endpoint.mjs`, `new-permission.mjs`: deterministic generators, and the only sanctioned editor of the slnx and the host's module list. | [README.md](tools/scaffold/README.md) |
 | `tools/devseed/` | `New-LocalSecrets.ps1` writes the gitignored `backend/src/Starter.Api/appsettings.Development.local.json` with fresh random values (`-Force` replaces it). | [MODULE.md](backend/src/Starter.Api/MODULE.md) |
 | `run-local.ps1`, `tools/run-local/` | The one-command local stack: API :5180, web :4280, Seq :5341 when available; `-Stop` stops only what it started. | [README.md](tools/run-local/README.md) |
-| `docs/recipes/` | Step-by-step recipes (add an endpoint). | [README.md](docs/recipes/README.md) |
+| `docs/recipes/` | Step-by-step recipes (add an endpoint, add a permission). | [README.md](docs/recipes/README.md) |
 | `tools/extract/` | Allowlist extraction from the harvest copy, scrub sweep, secret scan, provenance (`generate-source.mjs`, `check-origins.mjs`). | `README.md` in the folder |
 | `tools/rules-engine/`, `rules/` | Rules schema, base rules, the compiler to `rules/rules.compiled.json`, `rules/codelab.globalconfig` and the per-module files, the content check. | `README.md` in the folder |
 | `tools/docs-gate/`, `tools/ci/`, `tools/vectors/` | The MODULE.md and dead-reference gate; host-neutral CI checks and the pack planner; the C# against TS vector check. | `README.md` in each folder |
@@ -83,8 +86,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 
 | Path | Phase | What it will hold |
 | --- | --- | --- |
-| `packages/dotnet/Codelab.Identity` | P3 | AD (LDAP) and OIDC SSO providers and guards. |
-| `frontend/starter-web/src/app/patterns/`, `showcase/` | P4 | The 8 page patterns and the component showcase. |
+| `frontend/starter-web/src/app/patterns/` (the other 5), `showcase/` | P4 | `patterns/` is partly delivered (3 of the 8 page patterns: admin list + pager, editor dialog, tree editor); P4 adds the other 5 and the component showcase. |
 | `services/{attachment-service,integration-gateway,ops-console}` | P6, P8 | Separately released deployables. |
 | `deploy/` | P6, P8, P10 | IIS kits, security headers, SQL scripts for the DBA, Seq; the handover kit is finished in P10. |
 | `docs/{runbooks,design}` | P4 onward | Runbooks and the design catalog. |
@@ -93,9 +95,9 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 
 | # | Module | Code | Phase |
 | --- | --- | --- | --- |
-| 1 | Identity and login: basic login; the single session issuer (JWT with `sub`, `sid` and `sver`, a rotated refresh token); logout revokes the sid; idle timeout; break-glass and Development-only dev accounts; `IUserDirectory`. AD and SSO come in P3. | [Starter.Modules.Identity](backend/src/Modules/Identity/MODULE.md), schema `identity` | P2, P3 |
-| 2 | Users and organizations | planned | P3, P5 |
-| 3 | Roles and permissions: the catalog in code (`AccessPermissionKeys`), the `[HasPermission]` handler, the live per-user resolve, direct grants, the catalog synchronizer. The role tree and org scope come in P3. | [Starter.Modules.Access](backend/src/Modules/Access/MODULE.md), schema `access` | P2, P3 |
+| 1 | Identity and login: basic login; the single session issuer (JWT with `sub`, `sid` and `sver`, a rotated refresh token); logout revokes the sid; idle timeout; break-glass and Development-only dev accounts; `IUserDirectory`; Active Directory and SSO via `Auth:Modes`, lockout, activation links, the auth event trail; `IAccountAdministration` for the Users module. | [Starter.Modules.Identity](backend/src/Modules/Identity/MODULE.md), schema `identity` | P2, P3 |
+| 2 | Users and organizations: organizations (internal or external), the user admin endpoints over `IAccountAdministration`, the Excel user import (preview, then commit), activation links. | [Starter.Modules.Users](backend/src/Modules/Users/MODULE.md), schema `users` | P3, P5 |
+| 3 | Roles and permissions: the catalog in code (`AccessPermissionKeys`), the `[HasPermission]` handler, the live per-user resolve, direct grants, the catalog synchronizer; roles, virtual roles, assignments and grants at a `PermissionScope` (global or own organization), `IOrganizationScope`, the self-lockout guard. | [Starter.Modules.Access](backend/src/Modules/Access/MODULE.md), schema `access` | P2, P3 |
 | 4 | Lookups (bilingual, seeded by migrations) | planned | P5 |
 | 5 | Audit and record history (personal data masked) | planned | P5 |
 | 6 | Settings and background jobs | planned | P5 |
@@ -111,7 +113,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | 16 | Logs, error reference codes, ops console | packages since P1; console planned | P1, P8 |
 | sample | Service requests (Draft → Submitted → Under Review → Approved/Rejected), deleted or renamed per project | planned | P7 |
 
-Frontend features: [auth](frontend/starter-web/src/app/features/auth/MODULE.md) (login), [dashboard](frontend/starter-web/src/app/features/dashboard/MODULE.md), [admin](frontend/starter-web/src/app/features/admin/MODULE.md) (placeholder) and [errors](frontend/starter-web/src/app/features/errors/MODULE.md) (403, 404). The shell is in [layouts](frontend/starter-web/src/app/layouts/MODULE.md) and the core in [core](frontend/starter-web/src/app/core/MODULE.md).
+Frontend features: [auth](frontend/starter-web/src/app/features/auth/MODULE.md) (login), [dashboard](frontend/starter-web/src/app/features/dashboard/MODULE.md), [admin](frontend/starter-web/src/app/features/admin/MODULE.md) (users, organizations, import and access: roles, role editor, user grants) and [errors](frontend/starter-web/src/app/features/errors/MODULE.md) (403, 404). The shell is in [layouts](frontend/starter-web/src/app/layouts/MODULE.md) the core in [core](frontend/starter-web/src/app/core/MODULE.md) and the page patterns in [patterns](frontend/starter-web/src/app/patterns/MODULE.md).
 
 ## Commands
 
@@ -123,6 +125,7 @@ Run from the repo root. Put `E:\codelab-tools\node24` first on PATH in any shell
 | Local secrets (once; `-Force` replaces them) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1` |
 | Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`) |
 | API only | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend\src\Starter.Api` (http://localhost:5180) |
+| Dev IdP for local SSO | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend/tools/Starter.DevIdp` (http://localhost:5190) |
 | Web only | `npm start --workspace frontend/starter-web` (http://localhost:4280) |
 | Full CI | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI` |
 | Build and test .NET | `E:\codelab-tools\dotnet10\dotnet.exe build codelab-starter.slnx -warnaserror` then `... test codelab-starter.slnx` |
@@ -171,8 +174,10 @@ The permission, endpoint, error-code and config-key lists are generated into `do
 | --- | --- | --- |
 | `IUserDirectory` (`FindBySubjectAsync` returns a `DirectoryUser`) | Identity | Access (the resolver and the handler) |
 | `IUserPermissionGrants` (`EnsureGrantedAsync`) | Access | Identity (Development dev-user seeding) |
-| `IPermissionCatalogSource` | every module with permissions (Access in P2) | Access `PermissionCatalog`, the union of all sources |
+| `IPermissionCatalogSource` | every module with permissions (Access, Users) | Access `PermissionCatalog`, the union of all sources |
+| `IAccountAdministration` | Identity | Users (the user admin endpoints and the import) |
+| `IOrganizationScope` | Access (`CurrentUserOrganizationScope`) | no module yet; for modules that filter records by the caller's organization (P7) |
 | `ICurrentUserContext` (`IsAuthenticated`, `SubjectId`, `SessionId`) | the kernel (`HttpCurrentUserContext`) | every module |
 | `IStartupTask` (`ReferenceData` = 1, then `Accounts` = 2) | Access (catalog sync), Identity (account seeding) | the kernel `StartupTaskRunner` |
 
-Identity and Access never reference each other (`mustNotDependOn` in each `module.rules.yaml`); they meet only through these ports.
+Identity, Access and Users never reference each other (`mustNotDependOn` in each `module.rules.yaml`); they meet only through these ports.

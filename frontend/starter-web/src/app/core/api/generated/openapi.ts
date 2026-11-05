@@ -40,6 +40,1258 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/access/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every catalog permission, retired ones included, sorted by key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PermissionResponse"][];
+                        "text/json": components["schemas"]["PermissionResponse"][];
+                        "text/plain": components["schemas"]["PermissionResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/access/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every role, virtual roles first. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleSummaryResponse"][];
+                        "text/json": components["schemas"]["RoleSummaryResponse"][];
+                        "text/plain": components["schemas"]["RoleSummaryResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates an active, ordinary role (201). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["CreateRoleCommand"];
+                    "application/json": components["schemas"]["CreateRoleCommand"];
+                    "text/json": components["schemas"]["CreateRoleCommand"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleResponse"];
+                        "text/json": components["schemas"]["RoleResponse"];
+                        "text/plain": components["schemas"]["RoleResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/access/roles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One role with its permissions. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleResponse"];
+                        "text/json": components["schemas"]["RoleResponse"];
+                        "text/plain": components["schemas"]["RoleResponse"];
+                    };
+                };
+            };
+        };
+        /** Changes a role's names, permissions and active state. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["UpdateRoleCommand"];
+                    "application/json": components["schemas"]["UpdateRoleCommand"];
+                    "text/json": components["schemas"]["UpdateRoleCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleResponse"];
+                        "text/json": components["schemas"]["RoleResponse"];
+                        "text/plain": components["schemas"]["RoleResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/access/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Up to 20 accounts matching the search (active and deactivated). */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccessUserResponse"][];
+                        "text/json": components["schemas"]["AccessUserResponse"][];
+                        "text/plain": components["schemas"]["AccessUserResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/access/users/{userId}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One user's roles, direct grants, virtual roles and effective permissions. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserGrantsResponse"];
+                        "text/json": components["schemas"]["UserGrantsResponse"];
+                        "text/plain": components["schemas"]["UserGrantsResponse"];
+                    };
+                };
+            };
+        };
+        /** Replaces one user's roles and direct grants (live on the user's next request, no relogin). */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["PutUserGrantsCommand"];
+                    "application/json": components["schemas"]["PutUserGrantsCommand"];
+                    "text/json": components["schemas"]["PutUserGrantsCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserGrantsResponse"];
+                        "text/json": components["schemas"]["UserGrantsResponse"];
+                        "text/plain": components["schemas"]["UserGrantsResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page of organizations, ordered by code. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Only active or deactivated organizations. */
+                    IsActive?: boolean;
+                    /** @description Only this kind. */
+                    Kind?: components["schemas"]["OrganizationKind"];
+                    /** @description The 1-based page (default 1). */
+                    Page?: number | string;
+                    /** @description The page size (default int UsersLimits.DefaultPageSize, at most int UsersLimits.MaxPageSize). */
+                    PageSize?: number | string;
+                    /** @description Matched against the code and both names. */
+                    Search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrganizationPageResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates an active organization. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["CreateOrganizationCommand"];
+                    "application/json": components["schemas"]["CreateOrganizationCommand"];
+                    "text/json": components["schemas"]["CreateOrganizationCommand"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrganizationResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/organizations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One organization. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrganizationResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        /** Changes an organization's code, names and kind. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["UpdateOrganizationCommand"];
+                    "application/json": components["schemas"]["UpdateOrganizationCommand"];
+                    "text/json": components["schemas"]["UpdateOrganizationCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrganizationResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/organizations/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivates an organization (its accounts stay; it accepts no new member). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/organizations/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivates an organization. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/user-import/{batchId}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Creates the accounts of the batch's valid rows (no passwords; activation links for password-bound rows). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    batchId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImportCommitResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/user-import/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reads and validates the sheet and stores the batch; nothing is created yet. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        ContentDisposition?: string;
+                        ContentType?: string;
+                        FileName?: string;
+                        Headers?: {
+                            [key: string]: string[];
+                        };
+                        /** Format: int64 */
+                        Length?: number | string;
+                        Name?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImportPreviewResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page of accounts with their organization names. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Only active or deactivated accounts. */
+                    IsActive?: boolean;
+                    /** @description Only this kind. */
+                    Kind?: components["schemas"]["UserKind"];
+                    /** @description Only this organization's accounts. */
+                    OrganizationId?: string;
+                    /** @description The 1-based page (default 1). */
+                    Page?: number | string;
+                    /** @description The page size (default int UsersLimits.DefaultPageSize, at most int UsersLimits.MaxPageSize). */
+                    PageSize?: number | string;
+                    /** @description Matched against the user name, display name and e-mail address. */
+                    Search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserPageResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates an account without a password; a password-bound one comes back with its activation link. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["CreateUserCommand"];
+                    "application/json": components["schemas"]["CreateUserCommand"];
+                    "text/json": components["schemas"]["CreateUserCommand"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedUserResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One account. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        /** Changes an account's editable fields. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["UpdateUserCommand"];
+                    "application/json": components["schemas"]["UpdateUserCommand"];
+                    "text/json": components["schemas"]["UpdateUserCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/activation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Issues a new activation link (password binding only); the current password stops working. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ActivationResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivates the account; its open sessions answer 401 from their next call. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivates the account. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/unlock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ends a lockout. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sets the account's password from an activation link; the link is spent. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["ActivateAccountCommand"];
+                    "application/json": components["schemas"]["ActivateAccountCommand"];
+                    "text/json": components["schemas"]["ActivateAccountCommand"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/ad/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Signs in with a directory user name and password. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["DirectoryLoginCommand"];
+                    "application/json": components["schemas"]["DirectoryLoginCommand"];
+                    "text/json": components["schemas"]["DirectoryLoginCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SessionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -136,6 +1388,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/modes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The switched-on login modes (`Auth:Modes`). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LoginModesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/refresh": {
         parameters: {
             query?: never;
@@ -181,6 +1469,246 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sso/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trades the one-time ticket for the session (the same body as `/api/auth/login`). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["SsoExchangeCommand"];
+                    "application/json": components["schemas"]["SsoExchangeCommand"];
+                    "text/json": components["schemas"]["SsoExchangeCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SessionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sso/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Starts a sign-in: 302 to the identity provider. */
+        get: {
+            parameters: {
+                query?: {
+                    binding?: string;
+                    returnUrl?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Found */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sso/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ends the caller's session: 200 with the provider's end_session URL for an SSO session, else 204. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SsoLogoutResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sso/signin-oidc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The provider's redirect back: 302 to the SPA callback with `#ticket=` or `#error=`. */
+        get: {
+            parameters: {
+                query?: {
+                    code?: string;
+                    error?: string;
+                    state?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Found */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -349,16 +1877,233 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description The body of `GET /api/access/admin` (an empty placeholder in phase 2). */
+        /** @description The body of `GET /api/access/admin` (an empty placeholder). */
         AccessAdminResponse: Record<string, never>;
+        /** @description One account of the user picker (`GET /api/admin/access/users`). */
+        AccessUserResponse: {
+            /** @description The display name. */
+            displayName: string;
+            /** @description The user's PublicId (label `users`). */
+            id: components["schemas"]["PublicIdOfUserIds"];
+            /** @description False for a deactivated account. */
+            isActive: boolean;
+            /** @description The sign-in name. */
+            userName: string;
+        };
+        /**
+         * @description How an account proves who it is: the one sign-in mode the account accepts. Stored and sent as the integer value;
+         *     labels come from the client's i18n bundles, never from the member names.
+         */
+        AccountBinding: number;
+        /** @description The account fields a create and an update share, as sent. */
+        AccountFields: {
+            binding: null | components["schemas"]["AccountBinding"];
+            /** @description The display name. */
+            displayName: null | string;
+            /** @description The e-mail address, or null. */
+            email: null | string;
+            kind: null | components["schemas"]["UserKind"];
+            /** @description The directory login name, or null. */
+            loginName: null | string;
+            organizationId: null | components["schemas"]["PublicIdOfOrganizationIds"];
+            /**
+             * Format: int64
+             * @description The organization's internal id, or null.
+             */
+            organizationValue?: null | number | string;
+            /** @description The user principal name, or null. */
+            upn: null | string;
+        };
+        /** @description The body of `POST /api/auth/activate`. */
+        ActivateAccountCommand: {
+            /** @description The password the user chooses. */
+            password: null | string;
+            /** @description The sealed ticket from the activation link's fragment. */
+            ticket: null | string;
+        };
+        /** @description An activation link to hand to the user. */
+        ActivationResponse: {
+            /** @description The link (the sealed one-time ticket is in its fragment). */
+            activationLink: string;
+            /**
+             * Format: date-time
+             * @description When it stops working.
+             */
+            expiresAt: string;
+        };
+        /** @description An assigned role of a grants response. */
+        AssignedRoleResponse: {
+            /** @description The stable code. */
+            code: string;
+            /** @description False when the role grants nothing. */
+            isActive: boolean;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /** @description The role's PublicId. */
+            roleId: components["schemas"]["PublicIdOfRoleIds"];
+            /** @description Global (1) or own organization (2). */
+            scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description The body of a successful `POST /api/admin/users` (201). */
+        CreatedUserResponse: {
+            activation: null | components["schemas"]["ActivationResponse"];
+            /** @description The account. */
+            user: components["schemas"]["UserResponse"];
+        };
+        /** @description The body of `POST /api/admin/organizations`. */
+        CreateOrganizationCommand: {
+            /** @description The unique code (letters, digits, `_`, `-`; stored upper-case). */
+            code: null | string;
+            kind: null | components["schemas"]["OrganizationKind"];
+            /** @description The Arabic name. */
+            nameAr: null | string;
+            /** @description The English name. */
+            nameEn: null | string;
+        };
+        /** @description The body of `POST /api/admin/access/roles`, validated by CreateRoleValidator. */
+        CreateRoleCommand: {
+            /** @description The stable code (lower-case kebab, RoleCodeFormat); it never changes. */
+            code: string;
+            /** @description The Arabic name (unique). */
+            nameAr: string;
+            /** @description The English name (unique). */
+            nameEn: string;
+            /** @description The permission keys the role grants (each in the live catalog). */
+            permissions: string[];
+        };
+        /**
+         * @description The body of `POST /api/admin/users`. There is no password field: a password-bound account gets an activation
+         *     link, an Active Directory or SSO account signs in through its directory or identity provider.
+         */
+        CreateUserCommand: {
+            binding: null | components["schemas"]["AccountBinding"];
+            /** @description The name shown in the shell and the lists. */
+            displayName: null | string;
+            /** @description The e-mail address (unique when given), or null. */
+            email: null | string;
+            /** @description The fields a create shares with an update. */
+            fields?: components["schemas"]["AccountFields"];
+            kind: null | components["schemas"]["UserKind"];
+            /** @description The directory login name (unique when given), or null. */
+            loginName: null | string;
+            organizationId: null | components["schemas"]["PublicIdOfOrganizationIds"];
+            /** @description The user principal name (unique when given), or null. */
+            upn: null | string;
+            /** @description The sign-in name (unique). */
+            userName: null | string;
+        };
         /** @description The body of `GET /api/dashboard` (empty in phase 2). */
         DashboardResponse: Record<string, never>;
+        /** @description A direct grant of a grants response. */
+        DirectGrantResponse: {
+            /** @description The permission key. */
+            key: string;
+            /** @description Global (1) or own organization (2). */
+            scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description The body of `POST /api/auth/ad/login`. */
+        DirectoryLoginCommand: {
+            /** @description The directory password. */
+            password: null | string;
+            /** @description The directory user name as the user types it (`user`, `DOMAIN\user` or `user@domain`). */
+            userName: null | string;
+        };
+        /** @description One effective permission. */
+        EffectivePermissionResponse: {
+            /** @description The key. */
+            key: string;
+            /** @description The widest scope (global wins). */
+            scope: components["schemas"]["PermissionScope"];
+            /** @description Every source. */
+            sources: components["schemas"]["PermissionSourceResponse"][];
+        };
         /** @description The feature flags of this deployment, as the client reads them. */
         FeaturesResponse: {
             /** @description Every declared flag name to its effective value. Flags only: never an identity or a setting. */
             flags: {
                 [key: string]: boolean;
             };
+        };
+        /** @description The user of a grants response. */
+        GrantUserResponse: {
+            /** @description The display name. */
+            displayName: string;
+            /** @description The user's PublicId. */
+            id: components["schemas"]["PublicIdOfUserIds"];
+            /** @description False for a deactivated account (it holds nothing). */
+            isActive: boolean;
+            /** @description True for the break-glass administrator (holds everything; not editable). */
+            isBreakGlass: boolean;
+            /** @description Internal (1) or external (2): selects the virtual roles. */
+            kind: components["schemas"]["UserKind"];
+            /** @description The sign-in name. */
+            userName: string;
+        };
+        /** @description The body of `POST /api/admin/user-import/{batchId}/commit`. */
+        ImportCommitResponse: {
+            /** @description The accounts created. */
+            created: components["schemas"]["ImportedUserResponse"][];
+            /** @description The rows left out. */
+            rejected: components["schemas"]["RejectedImportRowResponse"][];
+        };
+        /** @description An account the commit created. */
+        ImportedUserResponse: {
+            /** @description Why a password-bound account got no link (rare; issue one from the users list), or null. */
+            activationErrorCode: null | string;
+            /** @description The activation link of a password-bound account, or null. */
+            activationLink: null | string;
+            /** @description Password (1), Active Directory (2) or SSO (3). */
+            binding: components["schemas"]["AccountBinding"];
+            /**
+             * Format: date-time
+             * @description When that link stops working, or null.
+             */
+            expiresAt: null | string;
+            /** @description The account's PublicId. */
+            id: components["schemas"]["PublicIdOfUsersIds"];
+            /** @description The sign-in name. */
+            userName: string;
+        };
+        /** @description The body of `POST /api/admin/user-import/preview`. */
+        ImportPreviewResponse: {
+            /** @description The batch to commit. */
+            batchId: components["schemas"]["PublicIdOfUserImportIds"];
+            /**
+             * Format: int32
+             * @description The number of rows with an error.
+             */
+            invalidCount: number | string;
+            /** @description Every data row with its verdict. */
+            rows: components["schemas"]["ImportPreviewRowResponse"][];
+            /**
+             * Format: int32
+             * @description The number of valid rows.
+             */
+            validCount: number | string;
+        };
+        /** @description One row of an import preview. */
+        ImportPreviewRowResponse: {
+            binding: null | components["schemas"]["AccountBinding"];
+            /** @description The display name, as read. */
+            displayName: null | string;
+            /** @description The e-mail address, as read. */
+            email: null | string;
+            /** @description The row's error codes (`errors.&lt;CODE&gt;` on the client); empty when valid. */
+            errors: string[];
+            kind: null | components["schemas"]["UserKind"];
+            /** @description The organization code, as read. */
+            organizationCode: null | string;
+            /**
+             * Format: int32
+             * @description The sheet row number.
+             */
+            rowNumber: number | string;
+            /** @description The sign-in name, as read. */
+            userName: null | string;
+            /** @description True when the row will become an account. */
+            valid: boolean;
         };
         /** @description The body of `POST /api/auth/login`. */
         LoginCommand: {
@@ -367,10 +2112,82 @@ export interface components {
             /** @description The user name. */
             userName: null | string;
         };
+        /** @description The login methods the login page offers. */
+        LoginModesResponse: {
+            /** @description Directory user name and password. */
+            activeDirectory: boolean;
+            /** @description User name and password. */
+            basic: boolean;
+            /** @description The organization's identity provider. */
+            sso: boolean;
+        };
         /** @description The body of `GET /api/me/permissions`. */
         MyPermissionsResponse: {
             /** @description The permission keys the caller holds now, sorted. */
             permissions: string[];
+        };
+        /**
+         * @description Whose organization it is: the one running the portal (its departments) or an outside one (a partner entity).
+         *     Stored and sent as the integer value; labels come from the client's i18n bundles, never from the member names.
+         */
+        OrganizationKind: number;
+        /** @description The body of `GET /api/admin/organizations`. */
+        OrganizationPageResponse: {
+            /** @description The organizations of the page. */
+            items: components["schemas"]["OrganizationResponse"][];
+            /**
+             * Format: int32
+             * @description The number of matches on every page.
+             */
+            total: number | string;
+        };
+        /** @description An organization. */
+        OrganizationResponse: {
+            /** @description The unique code (upper-case). */
+            code: string;
+            /** @description The organization's PublicId. */
+            id: components["schemas"]["PublicIdOfOrganizationIds"];
+            /** @description False once deactivated. */
+            isActive: boolean;
+            /** @description Internal (1) or external (2). */
+            kind: components["schemas"]["OrganizationKind"];
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+        };
+        /** @description One permission to grant directly. */
+        PermissionGrantInput: {
+            /** @description The permission key (in the live catalog). */
+            key: string;
+            /** @description How far the grant reaches. */
+            scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description One catalog permission (`GET /api/admin/access/permissions`). */
+        PermissionResponse: {
+            /** @description The English description. */
+            description: string;
+            /** @description True when the key left the code (grants nothing, cannot be granted). */
+            isRetired: boolean;
+            /** @description The key; the editors build their tree from its dotted segments. */
+            key: string;
+            /** @description The owner segment. */
+            module: string;
+        };
+        /**
+         * @description How far a held permission reaches. Stored and sent as the integer value. When a user holds the same permission at
+         *     both scopes, PermissionScope.Global wins.
+         */
+        PermissionScope: number;
+        /** @description Where an effective permission comes from. Stored nowhere; sent as the integer value. */
+        PermissionSourceKind: number;
+        /** @description One source of an effective permission. */
+        PermissionSourceResponse: {
+            /** @description Direct (1), role (2), virtual role (3) or break-glass (4). */
+            kind: components["schemas"]["PermissionSourceKind"];
+            roleId: null | components["schemas"]["PublicIdOfRoleIds"];
+            /** @description The scope this source grants. */
+            scope: components["schemas"]["PermissionScope"];
         };
         ProblemDetails: {
             detail?: null | string;
@@ -384,11 +2201,111 @@ export interface components {
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
          */
+        PublicIdOfOrganizationIds: WireId<'public-id-of-organization'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfRoleIds: WireId<'public-id-of-role'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfUserIds: WireId<'public-id-of-user'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfUserImportIds: WireId<'public-id-of-user-import'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
         PublicIdOfUsers: WireId<'public-id-of-users'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfUsersIds: WireId<'public-id-of-users'>;
+        /**
+         * @description The body of `PUT /api/admin/access/users/{userId}/grants`: the user's complete set of roles and direct grants
+         *     (replaces both), validated by PutUserGrantsValidator. A role or key listed twice keeps its widest
+         *     scope.
+         */
+        PutUserGrantsCommand: {
+            /**
+             * @description True accepts that the write leaves only the break-glass administrator able to manage access (otherwise refused
+             *     with string AccessErrorCodes.LastManager).
+             * @default false
+             */
+            confirmBreakGlassOnly: boolean;
+            /** @description The direct grants the user holds after the write. */
+            permissions: components["schemas"]["PermissionGrantInput"][];
+            /** @description The ordinary roles the user holds after the write. */
+            roles: components["schemas"]["RoleAssignmentInput"][];
+        };
         /** @description The body of `POST /api/auth/refresh`. */
         RefreshCommand: {
             /** @description The refresh token from the login or the previous refresh. */
             refreshToken: null | string;
+        };
+        /** @description A row the commit left out. */
+        RejectedImportRowResponse: {
+            /** @description Why (error codes). */
+            errors: string[];
+            /**
+             * Format: int32
+             * @description The sheet row number.
+             */
+            rowNumber: number | string;
+        };
+        /** @description One role to assign. */
+        RoleAssignmentInput: {
+            /** @description The role's PublicId (an ordinary role; a virtual role is refused). */
+            roleId: components["schemas"]["PublicIdOfRoleIds"];
+            /** @description How far the role's permissions reach for the user. */
+            scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description One role with its permissions (GET, POST and PUT of the roles routes). */
+        RoleResponse: {
+            /** @description The stable code. */
+            code: string;
+            /** @description The role's PublicId. */
+            id: components["schemas"]["PublicIdOfRoleIds"];
+            /** @description False when the role grants nothing. */
+            isActive: boolean;
+            /** @description True for a virtual role. */
+            isVirtual: boolean;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /** @description The keys the role grants, sorted. */
+            permissions: string[];
+            virtualKind: null | components["schemas"]["VirtualRoleKind"];
+            /** @description Warning codes of the write (`ACCESS_ONLY_BREAK_GLASS_MANAGES`); empty on a read. */
+            warnings: string[];
+        };
+        /** @description One row of `GET /api/admin/access/roles`. */
+        RoleSummaryResponse: {
+            /** @description The stable code. */
+            code: string;
+            /** @description The role's PublicId. */
+            id: components["schemas"]["PublicIdOfRoleIds"];
+            /** @description False when the role grants nothing. */
+            isActive: boolean;
+            /** @description True for a virtual role (never assignable). */
+            isVirtual: boolean;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /**
+             * Format: int32
+             * @description How many permissions the role grants.
+             */
+            permissionCount: number | string;
+            virtualKind: null | components["schemas"]["VirtualRoleKind"];
         };
         /** @description The body of a successful login or refresh. */
         SessionResponse: {
@@ -431,6 +2348,140 @@ export interface components {
             displayName: string;
             /** @description The user's PublicId. */
             id: components["schemas"]["PublicIdOfUsers"];
+        };
+        /** @description The body of `POST /api/auth/sso/exchange`. */
+        SsoExchangeCommand: {
+            /** @description The binding secret whose hash started the sign-in (required: without it the ticket is rejected). */
+            bindingProof: null | string;
+            /** @description The one-time ticket from the callback's URL fragment. */
+            ticket: null | string;
+        };
+        /** @description The end of an SSO logout. */
+        SsoLogoutResponse: {
+            /** @description The identity provider's end_session URL; open it with a top-level GET (not fetch). */
+            endSessionUrl: string;
+        };
+        /** @description The body of `PUT /api/admin/organizations/{id}` (the same fields as a create). */
+        UpdateOrganizationCommand: {
+            /** @description The unique code. */
+            code: null | string;
+            kind: null | components["schemas"]["OrganizationKind"];
+            /** @description The Arabic name. */
+            nameAr: null | string;
+            /** @description The English name. */
+            nameEn: null | string;
+        };
+        /** @description The body of `PUT /api/admin/access/roles/{id}`, validated by UpdateRoleValidator. */
+        UpdateRoleCommand: {
+            /**
+             * @description True accepts that the write leaves only the break-glass administrator able to manage access (otherwise refused
+             *     with string AccessErrorCodes.LastManager).
+             * @default false
+             */
+            confirmBreakGlassOnly: boolean;
+            /** @description False deactivates the role (it then grants nothing; assignments stay). */
+            isActive: boolean;
+            /** @description The Arabic name (unique). */
+            nameAr: string;
+            /** @description The English name (unique). */
+            nameEn: string;
+            /** @description The permission keys the role grants after the write (replaces the set). */
+            permissions: string[];
+        };
+        /** @description The body of `PUT /api/admin/users/{id}` (the user name never changes). */
+        UpdateUserCommand: {
+            binding: null | components["schemas"]["AccountBinding"];
+            /** @description The name shown in the shell and the lists. */
+            displayName: null | string;
+            /** @description The e-mail address (unique when given), or null. */
+            email: null | string;
+            /** @description The fields of the update. */
+            fields?: components["schemas"]["AccountFields"];
+            kind: null | components["schemas"]["UserKind"];
+            /** @description The directory login name (unique when given), or null. */
+            loginName: null | string;
+            organizationId: null | components["schemas"]["PublicIdOfOrganizationIds"];
+            /** @description The user principal name (unique when given), or null. */
+            upn: null | string;
+        };
+        /**
+         * @description The body of `GET` and `PUT /api/admin/access/users/{userId}/grants`: the editable rows (roles and direct
+         *     permissions), the virtual roles that reach the user, and what the user holds now with every source.
+         */
+        UserGrantsResponse: {
+            /** @description The live effective permissions. */
+            effective: components["schemas"]["EffectivePermissionResponse"][];
+            /** @description The direct grants with their scopes. */
+            permissions: components["schemas"]["DirectGrantResponse"][];
+            /** @description The assigned ordinary roles with their scopes. */
+            roles: components["schemas"]["AssignedRoleResponse"][];
+            /** @description The user. */
+            user: components["schemas"]["GrantUserResponse"];
+            /** @description The virtual roles that match the user's kind. */
+            virtualRoles: components["schemas"]["VirtualRoleResponse"][];
+            /** @description Warning codes of the write; empty on a read. */
+            warnings: string[];
+        };
+        /**
+         * @description Who a user is to the organization running the portal. Stored and sent as the integer value; labels come from the
+         *     client's i18n bundles, never from the member names.
+         */
+        UserKind: number;
+        /** @description The body of `GET /api/admin/users`. */
+        UserPageResponse: {
+            /** @description The accounts of the page. */
+            items: components["schemas"]["UserResponse"][];
+            /**
+             * Format: int32
+             * @description The number of matches on every page.
+             */
+            total: number | string;
+        };
+        /** @description An account as the admin screens see it (never a password, hash or ticket). */
+        UserResponse: {
+            /** @description Password (1), Active Directory (2) or SSO (3). */
+            binding: components["schemas"]["AccountBinding"];
+            /** @description The display name. */
+            displayName: string;
+            /** @description The e-mail address, or null. */
+            email: null | string;
+            /** @description True once a password-bound account has set its password through the activation link. */
+            hasPassword: boolean;
+            /** @description The account's PublicId. */
+            id: components["schemas"]["PublicIdOfUsersIds"];
+            /** @description False for a deactivated account. */
+            isActive: boolean;
+            /** @description True for the configured break-glass administrator. */
+            isBreakGlass: boolean;
+            /** @description True while failed sign-ins keep it locked. */
+            isLockedOut: boolean;
+            /** @description Internal (1) or external (2). */
+            kind: components["schemas"]["UserKind"];
+            /** @description The directory login name, or null. */
+            loginName: null | string;
+            organizationId: null | components["schemas"]["PublicIdOfOrganizationIds"];
+            /** @description The organization's name in the request language, or null. */
+            organizationName: null | string;
+            /** @description The user principal name, or null. */
+            upn: null | string;
+            /** @description The sign-in name. */
+            userName: string;
+        };
+        VirtualRoleKind: number;
+        /** @description A virtual role that reaches the user. */
+        VirtualRoleResponse: {
+            /** @description The stable code. */
+            code: string;
+            /** @description False when the role grants nothing. */
+            isActive: boolean;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /** @description The role's PublicId. */
+            roleId: components["schemas"]["PublicIdOfRoleIds"];
+            /** @description Which users it reaches (int). */
+            virtualKind: components["schemas"]["VirtualRoleKind"];
         };
     };
     responses: never;

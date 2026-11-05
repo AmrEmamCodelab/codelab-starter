@@ -17,11 +17,14 @@ public sealed class PermissionCatalogTests
         ]);
 
         Assert.Equal(
-            [AccessPermissionKeys.AccessAdminView, AccessPermissionKeys.DashboardView, TestCatalogs.ReportsView],
+            [
+                AccessPermissionKeys.AccessAdminView, AccessPermissionKeys.GrantsManage, AccessPermissionKeys.GrantsView,
+                AccessPermissionKeys.RolesManage, AccessPermissionKeys.RolesView, AccessPermissionKeys.DashboardView, TestCatalogs.ReportsView,
+            ],
             catalog.Definitions.Select(definition => definition.Key));
         Assert.True(catalog.Contains(TestCatalogs.ReportsView));
         Assert.False(catalog.Contains("reports.delete"));
-        Assert.Equal(3, catalog.Keys.Count);
+        Assert.Equal(7, catalog.Keys.Count);
     }
 
     [Fact]
@@ -65,11 +68,11 @@ public sealed class PermissionCatalogTests
     }
 
     [Fact]
-    public void The_access_source_declares_the_phase_two_keys()
+    public void The_access_source_declares_the_phase_three_keys()
     {
         var keys = new AccessPermissionCatalogSource().Permissions.Select(permission => permission.Key);
 
-        Assert.Equal(["dashboard.view", "access.admin.view"], keys);
+        Assert.Equal(["dashboard.view", "access.admin.view", "access.roles.view", "access.roles.manage", "access.grants.view", "access.grants.manage"], keys);
     }
 
     [Fact]

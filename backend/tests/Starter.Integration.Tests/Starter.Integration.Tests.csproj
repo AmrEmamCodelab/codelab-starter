@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Starter.Api\Starter.Api.csproj" />
+    <ProjectReference Include="..\..\tools\Starter.DevIdp\Starter.DevIdp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

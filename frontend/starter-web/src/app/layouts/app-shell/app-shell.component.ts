@@ -29,12 +29,8 @@ import { SHELL_NAV_ITEMS, appLink, visibleNavItems } from './shell-nav';
 })
 export class AppShellComponent {
   private readonly permissions = inject(PermissionStore);
+  private readonly items = inject(SHELL_NAV_ITEMS);
 
   readonly homeLink = appLink(RoutePaths.Dashboard);
-  readonly navItems = computed(() => {
-    return visibleNavItems(SHELL_NAV_ITEMS, key => this.permissions.has(key)).map(item => ({
-      ...item,
-      link: appLink(item.path),
-    }));
-  });
+  readonly navItems = computed(() => visibleNavItems(this.items, key => this.permissions.has(key)));
 }

@@ -3,9 +3,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTestAppConfig, TEST_API_BASE_URL } from '../config/app-config.testing';
-import { quietContext, SKIP_ERROR_DIALOG } from '../http/http-context';
+import { quietContext, SKIP_ERROR_DIALOG, UNSIGNED_REQUEST } from '../http/http-context';
 import { BROWSER_STORAGE } from '../session/app-storage';
 import { MemoryStorage } from '../session/memory-storage';
+import { SignInMode } from '../auth/sign-in-mode';
 import { TokenStore } from '../auth/token.store';
 import { ApiService, AUTHORIZATION_HEADER } from './api.service';
 
@@ -46,7 +47,7 @@ describe('ApiService', () => {
   });
 
   it('attaches the bearer token of the current session', () => {
-    TestBed.inject(TokenStore).save(SESSION);
+    TestBed.inject(TokenStore).save(SESSION, SignInMode.Basic);
     api.post('api/x', { a: 1 }).subscribe();
     const request = http.expectOne(`${TEST_API_BASE_URL}/api/x`);
     expect(request.request.method).toBe('POST');
@@ -56,7 +57,7 @@ describe('ApiService', () => {
   });
 
   it('omits the token for anonymous calls and passes params, headers and context', () => {
-    TestBed.inject(TokenStore).save(SESSION);
+    TestBed.inject(TokenStore).save(SESSION, SignInMode.Basic);
     api
       .get('api/x', {
         anonymous: true,
@@ -70,6 +71,15 @@ describe('ApiService', () => {
     expect(request.request.headers.get('X-Extra')).toBe('y');
     expect(request.request.context.get(SKIP_ERROR_DIALOG)).toBe(true);
     request.flush({});
+  });
+
+  it('sends anonymous calls unsigned without changing the caller context', () => {
+    const context = quietContext();
+    api.post('api/x', null, { anonymous: true, context }).subscribe();
+    api.post('api/y', null).subscribe();
+    expect(http.expectOne(`${TEST_API_BASE_URL}/api/x`).request.context.get(UNSIGNED_REQUEST)).toBe(true);
+    expect(http.expectOne(`${TEST_API_BASE_URL}/api/y`).request.context.get(UNSIGNED_REQUEST)).toBe(false);
+    expect(context.get(UNSIGNED_REQUEST)).toBe(false);
   });
 
   it('issues PUT and DELETE', () => {

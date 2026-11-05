@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Starter.Application.Authorization;
+using Starter.Application.Validation;
 using Starter.Infrastructure.Authorization;
 using Starter.Infrastructure.Persistence;
 using Starter.Infrastructure.Startup;
@@ -56,6 +57,56 @@ public sealed class ModuleSurfaceTests
         AssertRegistered<IAuthorizationHandler, PermissionHandler>(services);
         AssertRegistered<IStartupTask, PermissionCatalogStartupTask>(services);
         AssertRegistered<IModuleDatabase, ModuleDatabase<AccessDbContext>>(services);
+        AssertRegistered<IOrganizationScope, CurrentUserOrganizationScope>(services);
+        AssertRegistered<IAdministrationGuard, AdministrationGuard>(services);
+        AssertRegistered<IRoleRepository, RoleRepository>(services);
+        AssertRegistered<IUserGrantReader, UserGrantReader>(services);
+        AssertRegistered<IManagerGraphReader, ManagerGraphReader>(services);
+        AssertRegistered<IValidator<CreateRoleCommand>, CreateRoleValidator>(services);
+        AssertRegistered<IValidator<UpdateRoleCommand>, UpdateRoleValidator>(services);
+        AssertRegistered<IValidator<PutUserGrantsCommand>, PutUserGrantsValidator>(services);
+        Assert.All(
+            [typeof(ListPermissions), typeof(ListRoles), typeof(GetRole), typeof(CreateRole), typeof(UpdateRole), typeof(GetUserGrants), typeof(PutUserGrants), typeof(SearchAccessUsers)],
+            useCase => Assert.Contains(services, descriptor => descriptor.ServiceType == useCase));
+    }
+
+    [Theory]
+    [InlineData(typeof(AccessPermissionsController), nameof(AccessPermissionsController.List), AccessPermissionKeys.RolesView)]
+    [InlineData(typeof(AccessRolesController), nameof(AccessRolesController.List), AccessPermissionKeys.RolesView)]
+    [InlineData(typeof(AccessRolesController), nameof(AccessRolesController.Get), AccessPermissionKeys.RolesView)]
+    [InlineData(typeof(AccessRolesController), nameof(AccessRolesController.Create), AccessPermissionKeys.RolesManage)]
+    [InlineData(typeof(AccessRolesController), nameof(AccessRolesController.Update), AccessPermissionKeys.RolesManage)]
+    [InlineData(typeof(AccessUsersController), nameof(AccessUsersController.Search), AccessPermissionKeys.GrantsView)]
+    [InlineData(typeof(AccessUsersController), nameof(AccessUsersController.GetGrants), AccessPermissionKeys.GrantsView)]
+    [InlineData(typeof(AccessUsersController), nameof(AccessUsersController.PutGrants), AccessPermissionKeys.GrantsManage)]
+    public void Editor_actions_require_their_permission(Type controller, string action, string permission) =>
+        Assert.Equal(permission, Assert.Single(controller.GetMethod(action)!.GetCustomAttributes<HasPermissionAttribute>()).Permission);
+
+    [Theory]
+    [InlineData(typeof(AccessPermissionsController), "api/admin/access/permissions")]
+    [InlineData(typeof(AccessRolesController), "api/admin/access/roles")]
+    [InlineData(typeof(AccessUsersController), "api/admin/access/users")]
+    public void Editor_controllers_live_under_the_admin_access_root(Type controller, string route) =>
+        Assert.Equal(route, controller.GetCustomAttribute<RouteAttribute>()!.Template);
+
+    [Fact]
+    public void Id_routes_use_the_publicid_constraint()
+    {
+        Assert.Equal("{id:publicid}", AccessRoutes.RoleIdTemplate);
+        Assert.Equal("{userId:publicid}/grants", AccessRoutes.UserGrantsTemplate);
+        Assert.Equal("roles", RoleIds.Domain);
+        Assert.Equal("users", UserIds.Domain);
+    }
+
+    [Fact]
+    public void The_catalog_source_describes_every_access_key()
+    {
+        var keys = new AccessPermissionCatalogSource().Permissions.Select(definition => definition.Key).ToList();
+
+        Assert.Equal(
+            [AccessPermissionKeys.DashboardView, AccessPermissionKeys.AccessAdminView, AccessPermissionKeys.RolesView, AccessPermissionKeys.RolesManage, AccessPermissionKeys.GrantsView, AccessPermissionKeys.GrantsManage],
+            keys);
+        Assert.All(keys, key => Assert.True(PermissionKeyFormat.IsValid(key)));
     }
 
     [Fact]

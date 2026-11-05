@@ -11,7 +11,77 @@
     "RETRYABLE": "The service is busy. Try again in a moment.",
     "UPSTREAM_UNAVAILABLE": "A connected service is not responding. Try again later.",
     "INTERNAL_ERROR": "Something went wrong. Try again, and quote the reference code if it keeps happening.",
-    "NETWORK": "The server could not be reached. Check your connection and try again."
+    "NETWORK": "The server could not be reached. Check your connection and try again.",
+    "IDENTITY_LOGIN_MODE_DISABLED": "This sign-in method is not available. Choose another one.",
+    "IDENTITY_ACTIVATION_REJECTED": "This activation link can no longer be used. Ask your administrator for a new one.",
+    "IDENTITY_SSO_FAILED": "Single sign-on did not complete. Try again.",
+    "IDENTITY_SSO_TICKET_REJECTED": "The sign-in has expired or was already used. Sign in again.",
+    "IDENTITY_SSO_UNAVAILABLE": "The single sign-on service is not reachable right now. Try again later.",
+    "ACCESS_SUBJECT_REQUIRED": "Your session does not identify you. Sign in again.",
+    "ACCESS_ROLE_NOT_FOUND": "This role was not found.",
+    "ACCESS_ROLE_CODE_TAKEN": "Another role already uses this code.",
+    "ACCESS_ROLE_NAME_TAKEN": "Another role already uses this name.",
+    "ACCESS_UNKNOWN_PERMISSION": "One of the permissions is no longer available. Reload the page and try again.",
+    "ACCESS_UNKNOWN_ROLE": "One of the roles is no longer available. Reload the page and try again.",
+    "ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE": "Automatic roles apply by user type and cannot be assigned.",
+    "ACCESS_USER_NOT_FOUND": "This user was not found.",
+    "ACCESS_BREAK_GLASS_NOT_EDITABLE": "The break-glass administrator holds every permission; its grants cannot be changed.",
+    "ACCESS_LAST_MANAGER": "After this change, no active user other than the break-glass administrator could manage roles and grants.",
+    "ACCESS_SCOPE_EXCEEDS_CALLER": "You cannot grant more access than you hold yourself, or widen your own grants.",
+    "ACCESS_ONLY_BREAK_GLASS_MANAGES": "Saved. Only the break-glass administrator can now manage roles and grants.",
+    "REQUIRED": "This field is required.",
+    "TOO_LONG": "This value is too long.",
+    "INVALID_FORMAT": "This value is not in a valid format.",
+    "USERS_USER_NOT_FOUND": "This user was not found.",
+    "USERS_ORGANIZATION_NOT_FOUND": "This organization was not found.",
+    "USERS_ORGANIZATION_INACTIVE": "This organization is deactivated and accepts no new members.",
+    "USERS_ORGANIZATION_KIND_MISMATCH": "The organization's type does not match the user's type.",
+    "USERS_ORGANIZATION_CODE_TAKEN": "Another organization already uses this code.",
+    "USERS_ORGANIZATION_KIND_IN_USE": "The type cannot change while users belong to this organization.",
+    "USERS_BREAK_GLASS_PROTECTED": "The break-glass administrator is set in the configuration and cannot be changed here.",
+    "USERS_CANNOT_DEACTIVATE_SELF": "You cannot deactivate your own account.",
+    "USERS_ACTIVATION_LINK_UNCONFIGURED": "Activation links are not set up on this server. Ask the system administrator.",
+    "USERS_ACTIVATION_NOT_APPLICABLE": "Only an account that signs in with a password gets an activation link.",
+    "USERS_ORGANIZATION_OUT_OF_SCOPE": "This organization is outside the organizations you may manage.",
+    "USERS_TARGET_OUTRANKS_CALLER": "This account holds permissions you do not have, so you cannot change it.",
+    "USERS_CANNOT_CHANGE_OWN_ACCESS": "You cannot change your own user type, sign-in method or organization.",
+    "USERS_LAST_ACCESS_MANAGER": "This is the last user who can manage roles and grants. Give another user those permissions first.",
+    "USERS_IMPORT_FILE_REQUIRED": "Choose a workbook to upload.",
+    "USERS_IMPORT_FILE_INVALID": "The file is not a readable Excel workbook (.xlsx).",
+    "USERS_IMPORT_FILE_TOO_LARGE": "The workbook is too large.",
+    "USERS_IMPORT_TOO_MANY_ROWS": "The workbook has more rows than one import accepts.",
+    "USERS_IMPORT_NO_ROWS": "The workbook has no user rows.",
+    "USERS_IMPORT_COLUMNS_MISSING": "The workbook is missing required columns.",
+    "USERS_IMPORT_BATCH_NOT_FOUND": "This preview was not found. Upload the workbook again.",
+    "USERS_IMPORT_BATCH_EXPIRED": "This preview has expired. Upload the workbook again.",
+    "USERS_IMPORT_BATCH_COMMITTED": "This preview was already imported.",
+    "USERS_IMPORT_ROW_USER_NAME_REQUIRED": "The user name is missing.",
+    "USERS_IMPORT_ROW_USER_NAME_TOO_LONG": "The user name is too long.",
+    "USERS_IMPORT_ROW_USER_NAME_DUPLICATE": "The user name appears more than once in the workbook.",
+    "USERS_IMPORT_ROW_USER_NAME_TAKEN": "An account with this user name already exists.",
+    "USERS_IMPORT_ROW_DISPLAY_NAME_REQUIRED": "The display name is missing.",
+    "USERS_IMPORT_ROW_DISPLAY_NAME_TOO_LONG": "The display name is too long.",
+    "USERS_IMPORT_ROW_EMAIL_INVALID": "The e-mail address is not valid.",
+    "USERS_IMPORT_ROW_EMAIL_DUPLICATE": "The e-mail address appears more than once in the workbook.",
+    "USERS_IMPORT_ROW_DIRECTORY_NAME_TOO_LONG": "The login name or UPN is too long.",
+    "USERS_IMPORT_ROW_KIND_INVALID": "The kind must be internal or external.",
+    "USERS_IMPORT_ROW_BINDING_INVALID": "The sign-in method must be password, ad or sso.",
+    "USERS_IMPORT_ROW_ORGANIZATION_REQUIRED": "An external user needs an organization code.",
+    "USERS_IMPORT_ROW_ORGANIZATION_NOT_FOUND": "No organization has this code.",
+    "USERS_IMPORT_ROW_ORGANIZATION_INACTIVE": "This organization is deactivated.",
+    "USERS_IMPORT_ROW_ORGANIZATION_OUT_OF_SCOPE": "This organization is outside the organizations you may manage.",
+    "USERS_IMPORT_ROW_ORGANIZATION_KIND_MISMATCH": "The organization's type does not match the user's type.",
+    "IDENTITY_ACCOUNT_NOT_FOUND": "This account was not found.",
+    "IDENTITY_USER_NAME_TAKEN": "Another account already uses this user name.",
+    "IDENTITY_EMAIL_TAKEN": "Another account already uses this e-mail address.",
+    "IDENTITY_LOGIN_NAME_TAKEN": "Another account already uses this login name.",
+    "IDENTITY_UPN_TAKEN": "Another account already uses this user principal name.",
+    "IDENTITY_BREAK_GLASS_PROTECTED": "The break-glass administrator is set in the configuration and cannot be changed here.",
+    "IDENTITY_ACTIVATION_NOT_APPLICABLE": "Only an account that signs in with a password gets an activation link.",
+    "IDENTITY_ACCOUNT_INACTIVE": "This account is deactivated. Reactivate it first.",
+    "IDENTITY_ACTIVATION_UNAVAILABLE": "Activation links cannot be issued right now. Ask the system administrator.",
+    "IDENTITY_DIRECTORY_UNAVAILABLE": "The directory cannot be reached right now. Try again in a few minutes.",
+    "IDENTITY_SSO_REJECTED": "Single sign-on could not be completed. Start the sign-in again."
   },
   "core": {
     "error-dialog": {
@@ -50,7 +120,43 @@
       "submit": "Sign in",
       "user-name-required": "Enter your user name.",
       "password-required": "Enter your password.",
-      "invalid-credentials": "The user name or password is not correct."
+      "invalid-credentials": "The user name or password is not correct.",
+      "methods-label": "Sign-in method",
+      "method-basic": "User name",
+      "method-ad": "Organization account",
+      "method-sso": "Single sign-on",
+      "ad-subtitle": "Sign in with your organization (Active Directory) user name and password.",
+      "sso-subtitle": "Sign in through your organization's single sign-on page.",
+      "sso-submit": "Continue with single sign-on",
+      "modes-loading": "Loading the sign-in options...",
+      "modes-failed": "The sign-in options could not be loaded.",
+      "modes-retry": "Try again",
+      "no-methods": "Sign-in is not available right now. Contact support.",
+      "activated-notice": "Your password is set. Sign in to continue."
+    },
+    "sso": {
+      "title": "Completing sign-in",
+      "completing": "Signing you in, please wait...",
+      "failed-title": "Sign-in did not complete",
+      "back-to-login": "Back to sign in",
+      "start-failed": "Single sign-on could not be started. Try again.",
+      "account-refused": "Your organization account is not linked to an active account in this system."
+    },
+    "activate": {
+      "title": "Set your password",
+      "subtitle": "Choose the password you will sign in with.",
+      "password-label": "New password",
+      "confirm-label": "Confirm the password",
+      "password-hint": "Use at least {{min}} characters, with a mix of different characters.",
+      "submit": "Set password",
+      "password-required": "Enter a password.",
+      "password-too-short": "The password is too short. Use at least {{min}} characters.",
+      "password-too-long": "The password is too long.",
+      "password-too-simple": "The password is too simple. Use more different characters.",
+      "confirm-required": "Enter the password again.",
+      "confirm-mismatch": "The two passwords do not match.",
+      "missing-ticket": "This activation link is not valid. Ask your administrator for a new one.",
+      "back-to-login": "Go to sign in"
     }
   },
   "dashboard": {
@@ -60,9 +166,317 @@
   },
   "admin": {
     "title": "Administration",
-    "placeholder": {
-      "heading": "Access administration",
-      "text": "User and role management will appear here."
+    "access": {
+      "loading": "Loading…",
+      "scope": {
+        "global": "All organizations",
+        "own-organization": "Own organization",
+        "label-for": "Scope of {{name}}"
+      },
+      "virtual-kind": {
+        "all-internal-users": "Every internal user",
+        "all-external-users": "Every external user",
+        "all-authenticated-users": "Every signed-in user"
+      },
+      "roles": {
+        "title": "Roles",
+        "search": "Search roles",
+        "empty": "No role matches.",
+        "new": "New role",
+        "columns": {
+          "name": "Name",
+          "code": "Code",
+          "type": "Type",
+          "status": "Status",
+          "permissions": "Permissions"
+        },
+        "virtual": "Applied automatically",
+        "assigned": "Assigned to users",
+        "active": "Active",
+        "inactive": "Inactive",
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate",
+        "create": {
+          "title": "New role",
+          "confirm": "Create and choose permissions",
+          "code": "Code",
+          "code-hint": "Lower-case letters, digits and hyphens, for example case-reviewer. The code never changes.",
+          "name-en": "English name",
+          "name-ar": "Arabic name"
+        }
+      },
+      "editor": {
+        "back": "Back to roles",
+        "names": "Names",
+        "name-en": "English name",
+        "name-ar": "Arabic name",
+        "permissions": "Permissions",
+        "virtual-notice": "This role applies automatically to {{audience}}. You can change its names and permissions; it cannot be assigned.",
+        "inactive-notice": "This role is inactive: it grants nothing until it is reactivated.",
+        "read-only-notice": "You can view this role but not change it.",
+        "retired-title": "Retired permissions",
+        "retired-hint": "These permissions were removed from the system. They grant nothing and are dropped when you save.",
+        "save": "Save changes",
+        "discard": "Discard changes",
+        "saved": "Saved.",
+        "unsaved": "You have unsaved changes."
+      },
+      "leave": {
+        "title": "Leave without saving?",
+        "text": "Your changes on this page will be lost.",
+        "confirm": "Leave",
+        "cancel": "Stay"
+      },
+      "last-manager": {
+        "title": "Only the break-glass administrator will manage access",
+        "text": "Continue only if this is intended. The break-glass administrator can grant access again later.",
+        "confirm": "Save anyway"
+      },
+      "grants": {
+        "back": "Back to administration",
+        "title": "Access for {{name}}",
+        "break-glass": "Break-glass administrator",
+        "active": "Active",
+        "inactive": "Deactivated",
+        "kind-internal": "Internal user",
+        "kind-external": "External user",
+        "break-glass-notice": "This is the break-glass administrator. It holds every permission and its grants cannot be changed.",
+        "read-only-notice": "You can view these grants but not change them.",
+        "inactive-notice": "This account is deactivated, so it holds no permission until it is reactivated.",
+        "roles": "Assigned roles",
+        "roles-hint": "Choose the roles this user holds and how far each one reaches.",
+        "no-roles": "There are no roles to assign yet.",
+        "direct": "Direct permissions",
+        "direct-scopes": "Scope of each direct permission",
+        "no-direct": "No permission is granted directly.",
+        "virtual": "Applied automatically",
+        "no-virtual": "No automatic role applies to this user.",
+        "effective": "Effective permissions",
+        "effective-hint": "What the user holds now, and where each permission comes from.",
+        "no-effective": "This user holds no permission.",
+        "source": {
+          "direct": "Direct grant",
+          "role": "Role: {{name}}",
+          "virtual-role": "Automatic: {{name}}",
+          "break-glass": "Break-glass"
+        },
+        "save": "Save grants",
+        "discard": "Discard changes",
+        "saved": "Saved. The user sees the change on their next request, without signing in again."
+      },
+      "permission-groups": {
+        "access": "Access administration",
+        "access.admin": "Administration area",
+        "access.grants": "User grants",
+        "access.roles": "Roles",
+        "dashboard": "Dashboard",
+        "organizations": "Organizations",
+        "users": "Users"
+      }
+    },
+    "common": {
+      "unknown": "Unknown",
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate"
+      },
+      "filters": {
+        "status": "Status",
+        "all-statuses": "All statuses",
+        "active": "Active",
+        "inactive": "Deactivated",
+        "all-kinds": "All types"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Deactivated"
+      }
+    },
+    "activation": {
+      "link": "Activation link",
+      "copy": "Copy link",
+      "copied": "The link was copied.",
+      "copy-failed": "The link could not be copied. Select it and copy it by hand.",
+      "expires": "Works until {{at}}."
+    },
+    "home": {
+      "intro": "Choose what to manage.",
+      "empty": "You have no administration areas yet. Ask an administrator for access.",
+      "users": {
+        "title": "Users",
+        "text": "Create accounts, change their details, deactivate, unlock and send activation links."
+      },
+      "organizations": {
+        "title": "Organizations",
+        "text": "The departments and partner entities that users belong to."
+      },
+      "import": {
+        "title": "Import users",
+        "text": "Create many accounts at once from an Excel workbook."
+      },
+      "roles": {
+        "title": "Roles and permissions",
+        "text": "Define roles and grant permissions to users."
+      }
+    },
+    "users": {
+      "title": "Users",
+      "search": "Search users",
+      "empty": "No users match.",
+      "organizations-unavailable": "The organizations could not be loaded. Reload the page to try again.",
+      "actions": {
+        "create": "New user",
+        "unlock": "Unlock",
+        "issue-activation": "New activation link",
+        "grants": "Permissions"
+      },
+      "filters": {
+        "organization": "Organization",
+        "all-organizations": "All organizations",
+        "kind": "User type"
+      },
+      "columns": {
+        "user-name": "User name",
+        "display-name": "Name",
+        "email": "E-mail",
+        "organization": "Organization",
+        "kind": "Type",
+        "binding": "Sign-in method",
+        "status": "Status"
+      },
+      "kinds": {
+        "internal-user": "Internal",
+        "external-user": "External"
+      },
+      "bindings": {
+        "password-binding": "Password",
+        "active-directory": "Active Directory",
+        "sso": "Single sign-on"
+      },
+      "status": {
+        "locked": "Locked",
+        "awaiting-activation": "Awaiting activation",
+        "break-glass": "Break-glass"
+      },
+      "editor": {
+        "create-title": "New user",
+        "edit-title": "Edit user"
+      },
+      "fields": {
+        "user-name": "User name",
+        "user-name-fixed": "User name: {{userName}} (it cannot be changed)",
+        "display-name": "Name",
+        "email": "E-mail (optional)",
+        "kind": "User type",
+        "organization": "Organization",
+        "no-organization": "No organization",
+        "organizations-hidden": "You cannot view organizations, so none can be chosen here.",
+        "binding": "Sign-in method",
+        "binding-hint": "A password account gets an activation link to set its own password. Nobody else ever sees it.",
+        "login-name": "Directory login name (optional)",
+        "upn": "User principal name (optional)"
+      },
+      "confirm": {
+        "deactivate-title": "Deactivate user",
+        "deactivate-text": "Deactivate {{userName}}? The user is signed out at once and cannot sign in until reactivated.",
+        "reactivate-title": "Reactivate user",
+        "reactivate-text": "Reactivate {{userName}}? The user can sign in again.",
+        "unlock-title": "Unlock user",
+        "unlock-text": "Unlock {{userName}}? The failed sign-in count starts again from zero.",
+        "activation-title": "New activation link",
+        "activation-text": "Issue a new activation link for {{userName}}? The current password stops working, the user is signed out, and earlier links stop working."
+      },
+      "issued": {
+        "title": "Activation link",
+        "text": "Send this link to {{userName}}. It works once; the user sets a password with it.",
+        "done": "Done"
+      }
+    },
+    "organizations": {
+      "title": "Organizations",
+      "search": "Search organizations",
+      "empty": "No organizations match.",
+      "actions": {
+        "create": "New organization"
+      },
+      "filters": {
+        "kind": "Organization type"
+      },
+      "columns": {
+        "code": "Code",
+        "name-ar": "Arabic name",
+        "name-en": "English name",
+        "kind": "Type",
+        "status": "Status"
+      },
+      "kinds": {
+        "internal-organization": "Internal",
+        "external-organization": "External"
+      },
+      "editor": {
+        "create-title": "New organization",
+        "edit-title": "Edit organization"
+      },
+      "fields": {
+        "code": "Code",
+        "code-hint": "Letters, digits, hyphens and underscores; stored in capitals.",
+        "name-ar": "Arabic name",
+        "name-en": "English name",
+        "kind": "Organization type",
+        "active": "Active",
+        "active-hint": "A deactivated organization accepts no new users; its users keep it."
+      },
+      "status": {
+        "deactivate-title": "Deactivate organization",
+        "deactivate-text": "Deactivate {{code}}? It accepts no new users; current users keep it.",
+        "reactivate-title": "Reactivate organization",
+        "reactivate-text": "Reactivate {{code}}? It accepts new users again."
+      }
+    },
+    "import": {
+      "title": "Import users",
+      "intro": "Upload an Excel workbook, check the preview, then create the valid rows.",
+      "error-detail": "{{field}}: {{message}}",
+      "file": {
+        "heading": "Workbook",
+        "columns": "Columns: UserName, DisplayName, Email, LoginName, Upn, Kind (internal or external), Binding (password, ad or sso), OrganizationCode.",
+        "label": "Excel workbook (.xlsx)",
+        "hint": "One .xlsx file, at most {{max}} MB.",
+        "wrong-type": "Choose an Excel workbook (.xlsx).",
+        "empty": "The file is empty.",
+        "too-large": "The file is larger than {{max}} MB."
+      },
+      "actions": {
+        "preview": "Preview",
+        "commit": "Create {{count}} accounts",
+        "start-over": "Start over"
+      },
+      "columns": {
+        "row": "Row",
+        "user-name": "User name",
+        "display-name": "Name",
+        "email": "E-mail",
+        "kind": "Type",
+        "binding": "Sign-in method",
+        "organization": "Organization code",
+        "verdict": "Result",
+        "activation": "Activation link",
+        "reasons": "Reasons"
+      },
+      "preview": {
+        "title": "Preview",
+        "empty": "The workbook has no rows.",
+        "summary": "{{valid}} rows will be created, {{invalid}} have errors.",
+        "valid": "Ready",
+        "invalid": "Not imported"
+      },
+      "result": {
+        "created-title": "Created accounts",
+        "created-empty": "No accounts were created.",
+        "rejected-title": "Rows left out",
+        "no-link": "Signs in through the directory or single sign-on; no link needed."
+      }
     }
   },
   "error-pages": {
@@ -77,5 +491,63 @@
       "sign-in": "Sign in",
       "sign-in-as-another-user": "Sign in as another user"
     }
+  },
+  "patterns": {
+    "common": {
+      "reference-code": "Reference code: {{code}}"
+    },
+    "list": {
+      "search": "Search",
+      "search-placeholder": "Type to search",
+      "loading": "Loading…",
+      "empty": "There is nothing to show yet.",
+      "error": "The list could not be loaded.",
+      "retry": "Try again",
+      "actions": "Actions"
+    },
+    "pager": {
+      "label": "Pages",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{page}}",
+      "summary": "{{from}}–{{to}} of {{total}}"
+    },
+    "dialog": {
+      "confirm": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "errors-title": "Check the following and try again:"
+    },
+    "tree": {
+      "search": "Filter",
+      "expand-all": "Expand all",
+      "collapse-all": "Collapse all",
+      "select-all": "Select all",
+      "clear-all": "Clear all",
+      "expand": "Expand {{label}}",
+      "collapse": "Collapse {{label}}",
+      "selected-count": "{{selected}} of {{total}} selected",
+      "no-match": "Nothing matches the filter.",
+      "empty": "There is nothing to show."
+    }
+  },
+  "shared": {
+    "file-picker": {
+      "choose": "Choose file",
+      "none": "No file chosen"
+    }
+  },
+  "permissions": {
+    "access.admin.view": "Open the access administration area",
+    "access.grants.manage": "Assign roles and grant permissions to users",
+    "access.grants.view": "View user grants and effective permissions",
+    "access.roles.manage": "Create and change roles",
+    "access.roles.view": "View roles and the permission catalog",
+    "dashboard.view": "Open the dashboard",
+    "organizations.manage": "Create and change organizations",
+    "organizations.view": "View organizations",
+    "users.import": "Import users from Excel",
+    "users.manage": "Create and change user accounts",
+    "users.view": "View user accounts"
   }
 }

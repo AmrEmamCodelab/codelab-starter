@@ -119,6 +119,7 @@ export const Flags = Object.freeze({
   permission: '--permission',
   description: '--description',
   skipGenerate: '--skip-generate',
+  noGenerate: '--no-gen',
   help: '--help',
 });
 
@@ -132,6 +133,10 @@ export const Report = Object.freeze({
   unchanged: 'unchanged',
   ran: 'ran',
   skipped: 'skipped',
+  /** A command the user runs next (new-permission --no-gen). */
+  next: 'next:',
+  /** The frontend constant a new permission key gets from api:gen. */
+  frontendKey: 'frontend key:',
 });
 
 export const UTF8 = 'utf8';

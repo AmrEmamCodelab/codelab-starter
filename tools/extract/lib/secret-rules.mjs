@@ -100,6 +100,7 @@ const COMMAND_LINE_PASSWORD_TOOLS = /\b(?:sqlcmd|bcp|osql|mysql|psql|mongo\w*)\b
 /** @returns {SecretRule[]} */
 export function secretRules() {
   const valueIsPlaceholder = (group) => (match) => isPlaceholder(match[group] ?? '');
+  const ENUM_MEMBER_VALUE = /^\d{1,3},?$/;
   return [
     {
       id: 'private-key',
@@ -129,7 +130,8 @@ export function secretRules() {
       pattern: /\b(?:Password|Pwd)\s*=\s*([^;"'\s]+)/gi,
       message: 'password inside a connection string (supply it from the environment)',
       valueGroup: 1,
-      isAllowedMatch: valueIsPlaceholder(1),
+      // An enum member declaration (a password-named member set to a small integer) stores no secret.
+      isAllowedMatch: (match) => valueIsPlaceholder(1)(match) || ENUM_MEMBER_VALUE.test(match[1] ?? ''),
     },
     {
       id: 'url-credentials',

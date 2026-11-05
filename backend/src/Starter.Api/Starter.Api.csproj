@@ -25,5 +25,6 @@
   <ItemGroup Label="Modules">
     <ProjectReference Include="..\Modules\Identity\Starter.Modules.Identity.csproj" />
     <ProjectReference Include="..\Modules\Access\Starter.Modules.Access.csproj" />
+    <ProjectReference Include="..\Modules\Users\Starter.Modules.Users.csproj" />
   </ItemGroup>
 </Project>

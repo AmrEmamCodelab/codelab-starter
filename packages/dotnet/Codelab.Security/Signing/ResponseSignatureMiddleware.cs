@@ -7,6 +7,11 @@ namespace Codelab.Security.Signing;
 /// Signs responses to verified requests with <c>X-{Prefix}-Response-Signature</c>: HMAC under the request's session
 /// key over (request nonce, status, content type, body hash). The body is buffered only for verified requests, and
 /// not at all for <see cref="UnsignedResponseAttribute"/> endpoints (their body field is <c>UNSIGNED-BODY</c>).
+/// <para>
+/// <c>AddCodelabSecurity</c> puts it OUTSIDE the host's pipeline (a startup filter, next to the security
+/// headers), so the hash covers what is actually sent: the problem body that the host's status-code pages write for
+/// an empty 401/403 and the body its exception handler writes for a 500 run inside it, not after it.
+/// </para>
 /// A signing failure sends the response unsigned and logs it; a verifying client refuses such a response.
 /// </summary>
 public sealed class ResponseSignatureMiddleware(
@@ -19,8 +24,7 @@ public sealed class ResponseSignatureMiddleware(
     {
         ArgumentNullException.ThrowIfNull(context);
         var settings = options.CurrentValue;
-        var endpoint = context.GetEndpoint();
-        if (settings.Mode is SecurityEnforcementMode.Off || endpoint is null)
+        if (settings.Mode is SecurityEnforcementMode.Off)
         {
             await next(context);
             return;
@@ -28,17 +32,10 @@ public sealed class ResponseSignatureMiddleware(
 
         var state = new ResponseSignatureState(context, logger);
         context.Response.OnStarting(static s => ((ResponseSignatureState)s).WriteSignature(), state);
-        if (endpoint.Metadata.GetMetadata<UnsignedResponseAttribute>() is not null)
-        {
-            state.BodyHash = SignatureCanonicalForm.UnsignedBody;
-            await next(context);
-            return;
-        }
-
-        await CaptureAndSignAsync(context, state, settings, endpoint.DisplayName ?? string.Empty);
+        await CaptureAndSignAsync(context, state, settings);
     }
 
-    private async Task CaptureAndSignAsync(HttpContext context, ResponseSignatureState state, ResponseSigningOptions settings, string endpointName)
+    private async Task CaptureAndSignAsync(HttpContext context, ResponseSignatureState state, ResponseSigningOptions settings)
     {
         var originalFeature = context.Features.Get<IHttpResponseBodyFeature>()!;
         var originalBody = originalFeature.Stream;
@@ -49,7 +46,7 @@ public sealed class ResponseSignatureMiddleware(
         {
             await next(context);
 
-            // Flushes whatever the endpoint wrote through the PipeWriter into the capture.
+            // Flushes whatever the pipeline wrote through the PipeWriter into the capture.
             await captureFeature.CompleteAsync();
         }
         finally
@@ -57,7 +54,7 @@ public sealed class ResponseSignatureMiddleware(
             context.Features.Set(originalFeature);
         }
 
-        if (!capture.IsCovering)
+        if (!capture.IsCovering || CapturingResponseBodyStream.IsUnsignedResponse(context))
         {
             return;
         }
@@ -65,7 +62,7 @@ public sealed class ResponseSignatureMiddleware(
         state.BodyHash = capture.HashCapturedBody();
         if (capture.CapturedLength >= settings.LargeBodyWarningBytes)
         {
-            SecurityLog.LargeSignedResponse(logger, endpointName, capture.CapturedLength);
+            SecurityLog.LargeSignedResponse(logger, context.GetEndpoint()?.DisplayName ?? string.Empty, capture.CapturedLength);
         }
 
         await capture.CopyCapturedToAsync(originalBody, context.RequestAborted);
@@ -83,6 +80,7 @@ public sealed class ResponseSignatureMiddleware(
                 return Task.CompletedTask;
             }
 
+            BodyHash ??= CapturingResponseBodyStream.IsUnsignedResponse(context) ? SignatureCanonicalForm.UnsignedBody : null;
             if (BodyHash is null)
             {
                 SecurityLog.ResponseUnsignable(logger, context.Request.Path);
