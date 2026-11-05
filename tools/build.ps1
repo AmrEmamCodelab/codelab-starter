@@ -99,6 +99,10 @@ param(
     # Prerelease number for -Pack. Default: $env:CODELAB_CI_NUMBER, else one above the highest ci.<n> in feed\.
     [int] $CiNumber = 0,
 
+    # Inner-loop CI: skip the heavy end-of-phase steps (13 package integration, 14 handover offline, 18 fork-model).
+    # Run the full -Target CI once at the end of a phase; -Quick is for the checks in between.
+    [switch] $Quick,
+
     # Stop at the first failing CI step instead of running all of them.
     [switch] $FailFast,
 
@@ -701,22 +705,27 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/devseed/user-import/tests', 'tools/run-local') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local' } },
         @{ Name = '11 npm build+lint+test';  Run = { Invoke-NpmStep } },
         @{ Name = '12 vectors verify';  Run = { Invoke-VectorsStep } },
-        @{ Name = '13 package integration test'; Run = { Invoke-PackageIntegrationStep $Dotnet } },
-        @{ Name = '14 handover offline'; Run = { Invoke-HandoverStep } },
+        @{ Name = '13 package integration test'; Heavy = $true; Run = { Invoke-PackageIntegrationStep $Dotnet } },
+        @{ Name = '14 handover offline'; Heavy = $true; Run = { Invoke-HandoverStep } },
         @{ Name = '15 provenance origins'; Run = { Invoke-NodeScriptStep $CheckOriginsScript @('--root', '.') 'tools/extract' } },
         @{ Name = '16 generated drift'; Run = { Invoke-GeneratedDriftStep $Dotnet } },
         @{ Name = '17 frontend lint';   Run = { Invoke-FrontendLintStep } },
-        @{ Name = '18 fork-model test'; Run = { Invoke-ForkModelStep } }
+        @{ Name = '18 fork-model test'; Heavy = $true; Run = { Invoke-ForkModelStep } }
     )
 
     $results = New-Object System.Collections.Generic.List[object]
     try {
         foreach ($step in $steps) {
+            if ($Quick -and $step.ContainsKey('Heavy') -and $step.Heavy) {
+                $results.Add([pscustomobject]@{ Step = $step.Name; Result = 'SKIP (-Quick)'; Seconds = 0 })
+                continue
+            }
             Write-Banner "CI step $($step.Name)"
             $passed = $false
+            $watch = [Diagnostics.Stopwatch]::StartNew()
             try { $passed = [bool](& $step.Run | Select-Object -Last 1) }
             catch { Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red }
-            $results.Add([pscustomobject]@{ Step = $step.Name; Result = $(if ($passed) { 'PASS' } else { 'FAIL' }) })
+            $results.Add([pscustomobject]@{ Step = $step.Name; Result = $(if ($passed) { 'PASS' } else { 'FAIL' }); Seconds = [int] $watch.Elapsed.TotalSeconds })
             if (-not $passed -and $FailFast) { break }
         }
     }
@@ -973,7 +982,7 @@ try {
             Write-Host 'CI FAILED.' -ForegroundColor Red
             exit $ExitFailure
         }
-        Write-Host 'CI PASSED.' -ForegroundColor Green
+        Write-Host $(if ($Quick) { 'CI PASSED (quick: steps 13, 14, 18 skipped).' } else { 'CI PASSED.' }) -ForegroundColor Green
     }
     if ($Pack) { Invoke-PackTarget $dotnet $Release.IsPresent }
     exit $ExitSuccess
