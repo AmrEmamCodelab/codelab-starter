@@ -47,6 +47,38 @@ export const ADMIN_TILES: readonly AdminTile[] = [
     link: AccessPaths.roles(),
     permission: PermissionKeys.AccessRolesView,
   },
+  {
+    id: 'lookups',
+    icon: 'menu',
+    titleKey: 'admin.home.lookups.title',
+    textKey: 'admin.home.lookups.text',
+    link: AdminPaths.lookups(),
+    permission: PermissionKeys.LookupsView,
+  },
+  {
+    id: 'portal-content',
+    icon: 'file',
+    titleKey: 'admin.home.portal-content.title',
+    textKey: 'admin.home.portal-content.text',
+    link: AdminPaths.portalContent(),
+    permission: PermissionKeys.PortalContentView,
+  },
+  {
+    id: 'settings',
+    icon: 'filter',
+    titleKey: 'admin.home.settings.title',
+    textKey: 'admin.home.settings.text',
+    link: AdminPaths.settings(),
+    permission: PermissionKeys.SettingsView,
+  },
+  {
+    id: 'jobs',
+    icon: 'clock',
+    titleKey: 'admin.home.jobs.title',
+    textKey: 'admin.home.jobs.text',
+    link: AdminPaths.jobs(),
+    permission: PermissionKeys.JobsView,
+  },
 ];
 
 /** The tiles a holder of `has` sees. */

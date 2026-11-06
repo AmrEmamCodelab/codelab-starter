@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../../rules/rules.schema.json
+# Rules for the starter web app's features/notifications (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebNotifications
+kind: angular
+description: "Starter web in-app notifications (module 12 UI): ApiNotificationsSource, the API-backed NotificationsSource behind the header bell and the feed (GET api/notifications cursor paging, unread-count polling while signed in, mark-read), and the /notifications page inside the staff shell. Texts arrive already translated from the server; the layouts render them."
+mayDependOn: []
+mustNotDependOn: []

@@ -9,13 +9,13 @@ export interface AdminEntry {
 }
 
 /**
- * The ways into the admin area, in order of preference: the admin home for a holder of `access.admin.view`, else
- * the first admin page whose own key the user holds (the same pages, in the same order, as the home's tiles). So a
- * role granted only `users.view` reaches the users page without also needing `access.admin.view`.
+ * The ways into the admin area: `access.admin.view` and the key of every admin home tile, each leading to the admin
+ * home. The home opens to a holder of any of these keys and lists only the tiles they hold, so a role granted only
+ * `lookups.view` and `settings.view` reaches both pages from it without also needing `access.admin.view`.
  */
 export const ADMIN_ENTRIES: readonly AdminEntry[] = [
   { permission: PermissionKeys.AccessAdminView, link: AdminPaths.home() },
-  ...ADMIN_TILES.map((tile) => ({ permission: tile.permission, link: tile.link })),
+  ...ADMIN_TILES.map((tile) => ({ permission: tile.permission, link: AdminPaths.home() })),
 ];
 
 /**
@@ -24,7 +24,7 @@ export const ADMIN_ENTRIES: readonly AdminEntry[] = [
  */
 export const ADMIN_AREA_PERMISSIONS: readonly PermissionKey[] = ADMIN_ENTRIES.map((entry) => entry.permission);
 
-/** Where the admin entry leads a holder of `has`: the first entry whose key they hold, or null when none. */
+/** Where the admin entry leads a holder of `has`: the admin home when they hold any admin key, else null. */
 export function adminEntryLink(has: (key: PermissionKey) => boolean): readonly string[] | null {
   return ADMIN_ENTRIES.find((entry) => has(entry.permission))?.link ?? null;
 }

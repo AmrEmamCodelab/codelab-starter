@@ -1,0 +1,69 @@
+<div class="lookups-page">
+  <a class="lookups-page__link lookups-page__back" data-testid="lookups-back" [routerLink]="LookupsPaths.types()">
+    {{ 'admin.lookups.items.back' | t }}
+  </a>
+  <h2 class="lookups-page__type" data-testid="lookup-type-name">{{ 'admin.lookups.items.type' | t: { name: typeName() } }}</h2>
+  <p class="lookups-page__notice" data-testid="lookups-structure-note">{{ 'admin.lookups.structure-note' | t }}</p>
+
+  <app-admin-list-pattern
+    [translatedCodes]="translatedCodes"
+    titleKey="admin.lookups.items.title"
+    searchLabelKey="admin.lookups.items.search"
+    emptyKey="admin.lookups.items.empty"
+    [columns]="columns"
+    [rows]="store.rows()"
+    [rowId]="rowId"
+    [total]="store.total()"
+    [pageSize]="store.pageSize"
+    [loading]="store.list.loading()"
+    [error]="store.list.error()"
+    [(page)]="store.page"
+    [(search)]="store.search"
+    (retry)="store.reload()"
+  >
+    <ng-template listCell="code" let-row [listCellOf]="store.rows()">
+      <code>{{ row.code }}</code>
+    </ng-template>
+
+    <ng-template listCell="isActive" let-row [listCellOf]="store.rows()">
+      <dga-status-tag [tone]="row.isActive ? 'success' : 'neutral'">
+        {{ (row.isActive ? 'admin.common.status.active' : 'admin.common.status.inactive') | t }}
+      </dga-status-tag>
+    </ng-template>
+
+    <ng-template listRowActions let-row [listRowActionsOf]="store.rows()">
+      <dga-button
+        *hasPermission="LookupsPermissionKeys.Manage"
+        variant="subtle"
+        size="sm"
+        data-testid="lookup-item-status"
+        [destructive]="row.isActive"
+        (click)="store.askStatusChange(row)"
+      >
+        {{ (row.isActive ? 'admin.lookups.items.deactivate' : 'admin.lookups.items.activate') | t }}
+      </dga-button>
+    </ng-template>
+  </app-admin-list-pattern>
+</div>
+
+<app-editor-dialog-pattern
+  *hasPermission="LookupsPermissionKeys.Manage"
+  [translatedCodes]="translatedCodes"
+  [open]="store.statusChange() !== null"
+  [titleKey]="store.statusChange()?.activate ? 'admin.lookups.items.activate-title' : 'admin.lookups.items.deactivate-title'"
+  [confirmKey]="store.statusChange()?.activate ? 'admin.lookups.items.activate' : 'admin.lookups.items.deactivate'"
+  [destructive]="!store.statusChange()?.activate"
+  [busy]="store.statusBusy()"
+  [error]="store.statusError()"
+  (confirm)="store.confirmStatusChange()"
+  (cancel)="store.cancelStatusChange()"
+>
+  @if (store.statusChange(); as change) {
+    <p class="lookups-page__confirm-text" data-testid="lookup-status-text">
+      {{
+        (change.activate ? 'admin.lookups.items.activate-text' : 'admin.lookups.items.deactivate-text')
+          | t: { code: change.item.code }
+      }}
+    </p>
+  }
+</app-editor-dialog-pattern>

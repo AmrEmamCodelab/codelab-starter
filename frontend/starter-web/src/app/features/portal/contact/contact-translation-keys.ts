@@ -37,6 +37,7 @@ export const ContactTranslationKeys = {
   Offline: 'portal.contact.offline',
   Failed: 'portal.contact.failed',
   FailedWithReference: 'portal.contact.failed-with-reference',
+  ClosedTitle: 'portal.contact.closed-title',
   Dismiss: 'portal.contact.dismiss',
   InfoTitle: 'portal.contact.info-title',
   InfoHoursLabel: 'portal.contact.info-hours-label',

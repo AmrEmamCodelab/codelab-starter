@@ -200,7 +200,9 @@ describe('new-permission', () => {
 
 describe('templates and downstream generators', () => {
   it('renders every template set without an unknown token', () => {
-    const values = { Module: 'Demo', ModuleKebab: 'demo', ModuleUpper: 'DEMO', Name: 'GetWidget', Route: 'widgets', PermissionConst: 'View', ErrorConst: 'GetWidgetNotFound', HttpRoute: 'GET /api/demo/widgets/{id}' };
+    const values = { Module: 'Demo', ModuleKebab: 'demo', ModuleUpper: 'DEMO', Name: 'GetWidget', Route: 'widgets', PermissionConst: 'View', ErrorConst: 'GetWidgetNotFound', HttpRoute: 'GET /api/demo/widgets/{id}',
+      IdsClass: 'KindIds', TypeConst: 'Kinds', MigrationClass: 'AddKindsLookup', MigrationFile: '20261106090100_AddKindsLookup', MigrationId: '20261106090100_AddKindsLookup',
+      TypeNameEn: 'Kinds', TypeNameAr: 'أنواع', IdConstants: '    public const int A = 1;', SeedRows: '        new(Id: KindIds.A, Code: "a", Names: new(Ar: "أ", En: "A"), SortOrder: 10),' };
     for (const set of fs.readdirSync(TEMPLATES_ROOT)) {
       const files = renderTemplateSet(set, values);
       assert.ok(files.length > 0, set);

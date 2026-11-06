@@ -1,0 +1,10 @@
+@use '../organizations/admin-controls' as controls;
+@use 'jobs' as jobs;
+
+@include controls.row-actions;
+@include controls.editor-fields;
+@include jobs.jobs-texts;
+
+.runs-back {
+  margin-block-end: var(--dga-space-3);
+}

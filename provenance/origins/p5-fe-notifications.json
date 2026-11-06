@@ -1,0 +1,60 @@
+{
+  "batch": "p5-fe-notifications",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-fe-notifications -Manifest <scratch copy with the p5-fe-notifications batch> -Clean (staging %TEMP%/codelab-extract/p5-fe-notifications, outside the repo; 8 scrub findings in the staged files were expected before the rewrite, secret scan clean)",
+  "promotion": "Each staged file was read as a reference only and the starter code was written fresh on the P4 layouts contract (NotificationsSource, app-notifications-feed) and @codelab/ng-dga with starter names; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256.",
+  "origins": [
+    {
+      "batch": "p5-fe-notifications",
+      "entryId": "notifications-feed",
+      "source": "frontend/modhs-web/src/app/shared/notifications-feed/notifications-feed.component.html",
+      "target": "frontend/starter-web/src/app/features/notifications/notifications-page/notifications-page.component.html",
+      "mode": "copy",
+      "sourceGitBlob": "5a9dab7f9e9664e82ea4cc75039446655b3af27a",
+      "sourceSha256": "5c18c77d4cde51fc33f9440ea8a4b5c210968ddf86ec696f7252e3dc584ef73c",
+      "stagedSha256": "5c18c77d4cde51fc33f9440ea8a4b5c210968ddf86ec696f7252e3dc584ef73c",
+      "stagedTarget": "reference/p5/p5-fe-notifications/notifications-feed/notifications-feed.component.html",
+      "note": "Informed the page frame: a heading, loading and load-failed states with a retry, then the list. Rebuilt on dga-page-feedback and the P4 layouts feed (app-notifications-feed); every text a notifications.page.* key; no row-level role=button.",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p5-fe-notifications",
+      "entryId": "notifications-feed",
+      "source": "frontend/modhs-web/src/app/shared/notifications-feed/notifications-feed.component.scss",
+      "target": "frontend/starter-web/src/app/features/notifications/notifications-page/notifications-page.component.scss",
+      "mode": "copy",
+      "sourceGitBlob": "f23f3f61f06f2ff9306a298ee10ce46f99ac2c33",
+      "sourceSha256": "998ffde8f085e7f231c16bcae57ac2c25f81b85e8198a4d110e759b9e63088ef",
+      "stagedSha256": "998ffde8f085e7f231c16bcae57ac2c25f81b85e8198a4d110e759b9e63088ef",
+      "stagedTarget": "reference/p5/p5-fe-notifications/notifications-feed/notifications-feed.component.scss",
+      "note": "Only the page layout idea was kept (stacked heading, state, list); rewritten on design tokens and logical properties. Row styles live in the P4 layouts feed.",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p5-fe-notifications",
+      "entryId": "notifications-feed",
+      "source": "frontend/modhs-web/src/app/shared/notifications-feed/notifications-feed.component.spec.ts",
+      "target": "frontend/starter-web/src/app/features/notifications/notifications-page/notifications-page.component.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "061f9d2748d982c4ec5d0bca199d8d47dc4bbcef",
+      "sourceSha256": "0056179f5f2b1e8757aad6a44e29634bc32eeadf2b5f919755d0c2c78a0a57f3",
+      "stagedSha256": "0056179f5f2b1e8757aad6a44e29634bc32eeadf2b5f919755d0c2c78a0a57f3",
+      "stagedTarget": "reference/p5/p5-fe-notifications/notifications-feed/notifications-feed.component.spec.ts",
+      "note": "Test ideas kept (loads on open, failure state with retry, mark-read reaches the API); rewritten as starter specs over ApiNotificationsSource with both text directions; no product roles or deep-link targets.",
+      "promotion": "rewritten"
+    },
+    {
+      "batch": "p5-fe-notifications",
+      "entryId": "notifications-feed",
+      "source": "frontend/modhs-web/src/app/shared/notifications-feed/notifications-feed.component.ts",
+      "target": "frontend/starter-web/src/app/features/notifications/data/api-notifications.source.ts",
+      "mode": "copy",
+      "sourceGitBlob": "4d8b6589db5ce20e16dbe0bb6a1885360755b227",
+      "sourceSha256": "76b95560cf6eeadd4f8da720144c4167dddad96e1679d48e4d63fc3d25148300",
+      "stagedSha256": "76b95560cf6eeadd4f8da720144c4167dddad96e1679d48e4d63fc3d25148300",
+      "stagedTarget": "reference/p5/p5-fe-notifications/notifications-feed/notifications-feed.component.ts",
+      "note": "Informed the data flow: list + unread count, refresh the count after mark-read, loading/failed states. Rebuilt as ApiNotificationsSource (the layouts NotificationsSource contract): cursor paging (before/take, page size 20) instead of page numbers, server-localized texts instead of client i18n keys, unread-count polling that stops on sign-out, language-aware reload, never-rejecting markRead/loadMore; no mark-all-read, no product deep-link rules.",
+      "promotion": "rewritten"
+    }
+  ]
+}

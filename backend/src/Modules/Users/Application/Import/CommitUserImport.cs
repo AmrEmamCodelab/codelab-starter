@@ -10,7 +10,7 @@ namespace Starter.Modules.Users.Application.Import;
 /// <param name="UserId">The new account's id.</param>
 /// <param name="UserName">The sign-in name.</param>
 /// <param name="Binding">The binding.</param>
-/// <param name="Activation">The activation link of a password-bound account, or null (Active Directory or SSO).</param>
+/// <param name="Activation">The activation of a password-bound account (a link, or an e-mail on its way), or null (Active Directory or SSO).</param>
 /// <param name="ActivationErrorCode">Why a password-bound account got no link (Identity's refusal code), or null.</param>
 public sealed record ImportedUser(long UserId, string UserName, AccountBinding Binding, IssuedActivation? Activation, string? ActivationErrorCode);
 
@@ -27,7 +27,8 @@ public sealed record ImportCommitResult(IReadOnlyList<ImportedUser> Created, IRe
 /// <summary>
 /// <c>POST /api/admin/user-import/{batchId}/commit</c>: re-validates the stored rows, claims the batch once, then creates
 /// one account per valid row, none with a password. Every password-bound account gets a sealed one-time activation
-/// ticket (its link in the result, a Pending account-activation outbox message by ticket id); Active Directory and SSO
+/// ticket: an account with an e-mail address gets a Pending account-activation outbox message by ticket id (the link is
+/// e-mailed at delivery), one without gets its link in the result; Active Directory and SSO
 /// accounts get neither. A row Identity refuses (a duplicate that appeared since the preview) is rejected, the others
 /// go on.
 /// </summary>
@@ -95,7 +96,7 @@ public sealed class CommitUserImport(ImportBatches batches, ImportRowValidator v
 
         // The account exists either way; when Identity refuses the ticket the row carries the refusal code instead of a
         // link, and the administrator issues one from the users list.
-        var activation = await activations.IssueAsync(account.UserId, cancellationToken);
+        var activation = await activations.IssueAsync(account, cancellationToken);
         return activation.IsSuccess
             ? new ImportedUser(account.UserId, account.UserName, account.Binding, activation.Value, ActivationErrorCode: null)
             : new ImportedUser(account.UserId, account.UserName, account.Binding, Activation: null, activation.Refusal.Code);

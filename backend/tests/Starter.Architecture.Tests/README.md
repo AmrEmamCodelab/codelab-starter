@@ -12,6 +12,7 @@ reads `rules/rules.compiled.json`, so the rules have one source.
 | `ControllerTests` | `base.thin-controllers`: sealed, in `.Api`, constructor takes only Application use cases (never a port, repository or DbContext), every action names its HTTP method |
 | `EnumTests` | `base.enums-as-int`: every enum under `backend/src` (parsed with Roslyn) has no non-int underlying type and an explicit value on every member; every compiled enum is `int` |
 | `ProgramTests` | `ProgramCs_HasAtMost150Lines` |
+| `DataBoundaryTests` | ADR-004 at the database: every string a module builds (literals, `const` concatenations and interpolations, folded with Roslyn across files) names no other owner's schema (`[schema].` or `FROM schema.`); owners come from every `public const string SchemaName`. Rules `base.no-scheduler-dashboard-mapping` and `base.no-static-scheduler-storage` over all of `backend/src`, at any dashboard path (Roslyn names, so comments and strings do not count) |
 
 ## Use
 
@@ -34,3 +35,7 @@ E:\codelab-tools\dotnet10\dotnet.exe test backend/tests/Starter.Architecture.Tes
 - A layer with no types makes the Codelab.Testing layer check vacuous, and a vacuous check fails. A scaffolded module
   must have at least one type in each layer it declares.
 - The enum scan reads source, so it also covers enums the compiler never sees in the test's assembly set.
+- The cross-schema scan has no exemption list. A module that needs another module's data calls that module's port
+  (or a kernel port); a schema owner declares `public const string SchemaName` so the scan knows it.
+- Test samples that would match a content rule are built at run time (see `DataBoundaryTests`), so the rule does not
+  flag the test file itself.

@@ -1,0 +1,31 @@
+<section class="page" aria-labelledby="notifications-page-title">
+  <h1 class="page__title" id="notifications-page-title">{{ keys.Title | t }}</h1>
+  <dga-button
+    *hasPermission="sendTestPermission"
+    class="page__send-test"
+    variant="secondary-outline"
+    data-testid="notifications-send-test"
+    (click)="sendTest()"
+  >{{ keys.SendTest | t }}</dga-button>
+
+  <dga-page-feedback [state]="feedback()" [moveFocus]="false" />
+  @if (failed()) {
+    <dga-button
+      class="page__retry"
+      variant="secondary-outline"
+      data-public-action
+      data-testid="notifications-retry"
+      (click)="retry()"
+    >{{ keys.Retry | t }}</dga-button>
+  }
+
+  @if (showFeed()) {
+    <app-notifications-feed
+      [items]="source.items()"
+      [hasMore]="source.hasMore()"
+      [loading]="source.loadingMore()"
+      (markRead)="markRead($event)"
+      (loadMore)="loadMore()"
+    />
+  }
+</section>

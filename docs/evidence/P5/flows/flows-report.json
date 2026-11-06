@@ -1,0 +1,190 @@
+{
+  "kind": "codelab-flows",
+  "baseUrl": "http://localhost:4280",
+  "browserVersion": "156.0.4314.58",
+  "startedAt": "2026-11-06T17:28:37.830Z",
+  "finishedAt": "2026-11-06T17:29:54.850Z",
+  "passed": false,
+  "flows": [
+    {
+      "name": "settings-jobs",
+      "status": "passed",
+      "steps": [
+        {
+          "title": "Admin signs in",
+          "status": "passed",
+          "detail": "signed in as breakglass",
+          "screenshot": "settings-jobs-01.png"
+        },
+        {
+          "title": "Settings screen lists notifications.page-size",
+          "status": "passed",
+          "detail": "current value 20",
+          "screenshot": "settings-jobs-02.png"
+        },
+        {
+          "title": "Admin changes it to 21 and saves",
+          "status": "passed",
+          "detail": "the list shows 21",
+          "screenshot": "settings-jobs-03.png"
+        },
+        {
+          "title": "Admin runs outbox-drain (\"Run now\") and its run history opens",
+          "status": "passed",
+          "detail": "http://localhost:4280/admin/jobs/outbox-drain/runs",
+          "screenshot": "settings-jobs-04.png"
+        },
+        {
+          "title": "The newest run succeeded and ran as the system account",
+          "status": "passed",
+          "detail": "Succeeded Manual System Administrator Nov 6, 2026, 7:28 PM Nov 6, 2026, 7:28 PM",
+          "screenshot": "settings-jobs-05.png"
+        },
+        {
+          "title": "Clean-up: the setting is reset to its default",
+          "status": "passed",
+          "detail": "reset",
+          "screenshot": "settings-jobs-06.png"
+        }
+      ]
+    },
+    {
+      "name": "notification-bell",
+      "status": "failed",
+      "steps": [
+        {
+          "title": "Admin signs in (en)",
+          "status": "passed",
+          "detail": "signed in as breakglass",
+          "screenshot": "notification-bell-01.png"
+        },
+        {
+          "title": "Admin sends a test notification from the notifications page",
+          "status": "passed",
+          "detail": "accepted (202)",
+          "screenshot": "notification-bell-02.png"
+        },
+        {
+          "title": "The bell shows it with the English template wording",
+          "status": "passed",
+          "detail": "the bell lists \"Test notification\"",
+          "screenshot": "notification-bell-03.png"
+        },
+        {
+          "title": "The bell shows it with the Arabic template wording",
+          "status": "passed",
+          "detail": "the bell lists \"إشعار تجريبي\"",
+          "screenshot": "notification-bell-04.png"
+        },
+        {
+          "title": "Its e-mail is dropped in the pickup folder",
+          "status": "failed",
+          "detail": "No e-mail in C:\\Users\\AMR\\AppData\\Local\\Temp\\starter-mail matching {\"subjectIncludes\":[\"إشعار تجريبي\",\"Test notification\"],\"notBeforeMs\":1793986120915} within 60000 ms.",
+          "screenshot": "notification-bell-05.png"
+        }
+      ]
+    },
+    {
+      "name": "activation",
+      "status": "passed",
+      "steps": [
+        {
+          "title": "Admin signs in",
+          "status": "passed",
+          "detail": "signed in as breakglass",
+          "screenshot": "activation-01.png"
+        },
+        {
+          "title": "Admin imports e2e-6t172836977z from an Excel sheet (preview)",
+          "status": "passed",
+          "detail": "1 rows will be created, 0 have errors.",
+          "screenshot": "activation-02.png"
+        },
+        {
+          "title": "Admin commits the import",
+          "status": "passed",
+          "detail": "committed",
+          "screenshot": "activation-03.png"
+        },
+        {
+          "title": "The activation e-mail is dropped for the new user",
+          "status": "passed",
+          "detail": "to e2e-6t172836977z@example.test: \"تفعيل حسابك\" with an activation link",
+          "screenshot": "activation-04.png"
+        },
+        {
+          "title": "The user opens the link and sets a password",
+          "status": "passed",
+          "detail": "activated; the login page shows the activation notice",
+          "screenshot": "activation-05.png"
+        },
+        {
+          "title": "The user signs in with the new password",
+          "status": "passed",
+          "detail": "signed in as e2e-6t172836977z; now at /unauthorized",
+          "screenshot": "activation-06.png"
+        },
+        {
+          "title": "Opening the same link again is refused",
+          "status": "passed",
+          "detail": "This activation link can no longer be used. Ask your administrator for a new one.",
+          "screenshot": "activation-07.png"
+        }
+      ]
+    },
+    {
+      "name": "contact-faq",
+      "status": "passed",
+      "steps": [
+        {
+          "title": "A visitor submits the contact form",
+          "status": "passed",
+          "detail": "accepted",
+          "screenshot": "contact-faq-01.png"
+        },
+        {
+          "title": "The page shows a CU-YYYY-NNN reference number of this year",
+          "status": "passed",
+          "detail": "CU-2026-002",
+          "screenshot": "contact-faq-02.png"
+        },
+        {
+          "title": "Admin signs in",
+          "status": "passed",
+          "detail": "signed in as breakglass",
+          "screenshot": "contact-faq-03.png"
+        },
+        {
+          "title": "The contact inbox is notified (e-mail naming the reference number)",
+          "status": "passed",
+          "detail": "to contact@example.invalid: \"رسالة تواصل جديدة CU-2026-002\"",
+          "screenshot": "contact-faq-04.png"
+        },
+        {
+          "title": "Admin edits the first FAQ title in ar and en and saves",
+          "status": "passed",
+          "detail": "ar \"E2E FAQ 6t172836977z عربي\", en \"E2E FAQ 6t172836977z English\"",
+          "screenshot": "contact-faq-05.png"
+        },
+        {
+          "title": "The public FAQ shows the edit (ar)",
+          "status": "passed",
+          "detail": "E2E FAQ 6t172836977z عربي",
+          "screenshot": "contact-faq-06.png"
+        },
+        {
+          "title": "The public FAQ shows the edit (en)",
+          "status": "passed",
+          "detail": "E2E FAQ 6t172836977z English",
+          "screenshot": "contact-faq-07.png"
+        },
+        {
+          "title": "Clean-up: the FAQ titles are put back",
+          "status": "passed",
+          "detail": "restored",
+          "screenshot": "contact-faq-08.png"
+        }
+      ]
+    }
+  ]
+}

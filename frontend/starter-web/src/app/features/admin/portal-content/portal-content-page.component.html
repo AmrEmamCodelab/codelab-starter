@@ -1,0 +1,204 @@
+<div class="content-editor">
+  <header class="content-editor__header">
+    <h1 class="content-editor__title">{{ 'admin.portal-content.title' | t }}</h1>
+    <p class="content-editor__hint">{{ 'admin.portal-content.intro' | t }}</p>
+  </header>
+
+  <dga-tabs
+    data-testid="content-page-tabs"
+    [tabs]="tabs()"
+    [label]="'admin.portal-content.pages.label' | t"
+    [panelIdPrefix]="panelIdPrefix"
+    [(value)]="tab"
+    (valueChange)="choosePage($event)"
+  />
+
+  @if (!canManage()) {
+    <p class="content-editor__notice" data-testid="content-read-only">{{ 'admin.portal-content.read-only-notice' | t }}</p>
+  }
+
+  <app-admin-list-pattern
+    [translatedCodes]="translatedCodes"
+    [searchable]="false"
+    titleKey="admin.portal-content.sections-title"
+    emptyKey="admin.portal-content.empty"
+    [columns]="columns"
+    [rows]="store.sections()"
+    [rowId]="rowId"
+    [total]="store.sections().length"
+    [pageSize]="limits.MaxSections"
+    [loading]="store.loading()"
+    [error]="store.loadError()"
+    (retry)="store.load(store.page())"
+  >
+    <dga-button
+      listToolbar
+      *hasPermission="PermissionKeys.Manage"
+      size="md"
+      data-testid="content-section-add"
+      [disabled]="!store.canAdd() || store.loading() || store.loadError() !== null"
+      (click)="store.openAdd()"
+    >
+      {{ 'admin.portal-content.actions.add' | t }}
+    </dga-button>
+
+    <ng-template listCell="state" let-row [listCellOf]="store.sections()">
+      @if (hasError(row)) {
+        <dga-status-tag tone="error" data-testid="content-section-invalid">{{ 'admin.portal-content.section-invalid' | t }}</dga-status-tag>
+      } @else if (row.id === null) {
+        <dga-status-tag tone="info">{{ 'admin.portal-content.section-new' | t }}</dga-status-tag>
+      }
+    </ng-template>
+
+    <ng-template listRowActions let-row [listRowActionsOf]="store.sections()">
+      <div class="content-editor__row-actions">
+        <dga-button
+          *hasPermission="PermissionKeys.View"
+          variant="subtle"
+          size="sm"
+          data-testid="content-section-open"
+          (click)="store.openEdit(row)"
+        >
+          {{ (canManage() ? 'admin.common.actions.edit' : 'admin.portal-content.actions.view') | t }}
+        </dga-button>
+        <dga-button
+          *hasPermission="PermissionKeys.Manage"
+          variant="subtle"
+          size="sm"
+          data-testid="content-section-up"
+          [disabled]="positionOf(row) === 1"
+          (click)="store.moveUp(positionOf(row) - 1)"
+        >
+          {{ 'admin.portal-content.actions.move-up' | t }}
+        </dga-button>
+        <dga-button
+          *hasPermission="PermissionKeys.Manage"
+          variant="subtle"
+          size="sm"
+          data-testid="content-section-down"
+          [disabled]="isLast(row)"
+          (click)="store.moveDown(positionOf(row) - 1)"
+        >
+          {{ 'admin.portal-content.actions.move-down' | t }}
+        </dga-button>
+        <dga-button
+          *hasPermission="PermissionKeys.Manage"
+          variant="subtle"
+          size="sm"
+          destructive
+          data-testid="content-section-remove"
+          (click)="store.remove(row)"
+        >
+          {{ 'admin.portal-content.actions.remove' | t }}
+        </dga-button>
+      </div>
+    </ng-template>
+  </app-admin-list-pattern>
+
+  @if (saveErrorKey(); as key) {
+    <p class="content-editor__error" role="alert" data-testid="content-save-error">
+      {{ key | t }}
+      @if (store.saveError()?.referenceCode; as reference) {
+        <span class="content-editor__reference">{{ 'admin.portal-content.reference' | t: { code: reference } }}</span>
+      }
+    </p>
+  }
+
+  <div class="content-editor__save-bar" *hasPermission="PermissionKeys.Manage">
+    <dga-button
+      data-testid="content-save"
+      [disabled]="!store.dirty()"
+      [loading]="store.saving()"
+      (click)="store.save()"
+    >
+      {{ 'admin.portal-content.actions.save' | t }}
+    </dga-button>
+    <dga-button
+      variant="secondary-outline"
+      data-testid="content-discard"
+      [disabled]="!store.dirty() || store.saving()"
+      (click)="store.discard()"
+    >
+      {{ 'admin.portal-content.actions.discard' | t }}
+    </dga-button>
+    @if (store.dirty()) {
+      <span class="content-editor__hint" role="status" data-testid="content-unsaved">{{ 'admin.portal-content.unsaved' | t }}</span>
+    } @else if (store.saved()) {
+      <span class="content-editor__hint" role="status" data-testid="content-saved">{{ 'admin.portal-content.saved' | t }}</span>
+    }
+  </div>
+
+  @if (updatedAtText(); as at) {
+    <p class="content-editor__hint" data-testid="content-updated-at">{{ 'admin.portal-content.updated-at' | t: { at: at } }}</p>
+  }
+</div>
+
+<app-editor-dialog-pattern
+  *hasPermission="PermissionKeys.View"
+  [translatedCodes]="translatedCodes"
+  [open]="store.editor() !== null"
+  [titleKey]="
+    !canManage()
+      ? 'admin.portal-content.editor.view-title'
+      : store.editor()?.isNew
+        ? 'admin.portal-content.editor.add-title'
+        : 'admin.portal-content.editor.edit-title'
+  "
+  [confirmKey]="canManage() ? 'admin.portal-content.editor.apply' : 'admin.portal-content.editor.close'"
+  [fieldErrors]="store.editorErrors()"
+  (confirm)="confirmSection()"
+  (cancel)="store.closeEditor()"
+>
+  @if (store.editor(); as form) {
+    <div class="content-editor__fields">
+      <p class="content-editor__hint">{{ 'admin.portal-content.editor.body-hint' | t }}</p>
+      <dga-text-input
+        autofocus
+        required
+        name="titleAr"
+        data-testid="section-title-ar"
+        [readonly]="!canManage()"
+        [maxLength]="limits.TitleMaxLength"
+        [label]="'admin.portal-content.fields.title-ar' | t"
+        [error]="store.editorErrors() | fieldError: Fields.TitleAr"
+        [(value)]="form.titleAr"
+      />
+      <dga-text-input
+        required
+        name="titleEn"
+        data-testid="section-title-en"
+        [readonly]="!canManage()"
+        [maxLength]="limits.TitleMaxLength"
+        [label]="'admin.portal-content.fields.title-en' | t"
+        [error]="store.editorErrors() | fieldError: Fields.TitleEn"
+        [(value)]="form.titleEn"
+      />
+      <dga-textarea
+        required
+        autoResize
+        name="bodyAr"
+        data-testid="section-body-ar"
+        [readonly]="!canManage()"
+        [rows]="bodyRows"
+        [maxLength]="limits.BodyMaxLength"
+        [label]="'admin.portal-content.fields.body-ar' | t"
+        [error]="store.editorErrors() | fieldError: Fields.BodyAr"
+        [(value)]="form.bodyAr"
+      />
+      <dga-textarea
+        required
+        autoResize
+        name="bodyEn"
+        data-testid="section-body-en"
+        [readonly]="!canManage()"
+        [rows]="bodyRows"
+        [maxLength]="limits.BodyMaxLength"
+        [label]="'admin.portal-content.fields.body-en' | t"
+        [error]="store.editorErrors() | fieldError: Fields.BodyEn"
+        [(value)]="form.bodyEn"
+      />
+    </div>
+  }
+</app-editor-dialog-pattern>
+
+<app-leave-dialog [open]="leave.open()" (answer)="leave.answer($event)" />

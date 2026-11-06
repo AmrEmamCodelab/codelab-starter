@@ -81,6 +81,17 @@ describe.each(BOTH_DIRECTIONS)('NotificationsMenuComponent (%s)', direction => {
     expect(host.querySelector('[aria-live="polite"]')?.textContent?.trim()).toBe('');
   });
 
+  it('shows the unread total when the source gives one, beyond the loaded items', () => {
+    fixture.componentRef.setInput('unreadTotal', 140);
+    fixture.detectChanges();
+    expect(host.querySelector('.notifications__badge')?.textContent?.trim()).toBe('99+');
+    expect(bell().getAttribute('aria-label')).toBe(`${Keys.Bell}|count=140`);
+
+    fixture.componentRef.setInput('unreadTotal', 0);
+    fixture.detectChanges();
+    expect(host.querySelector('.notifications__badge')).toBeNull();
+  });
+
   it('opens a labelled panel the bell controls', () => {
     openPanel();
     expect(bell().getAttribute('aria-expanded')).toBe('true');

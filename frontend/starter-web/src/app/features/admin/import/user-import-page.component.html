@@ -134,6 +134,8 @@
       <ng-template listCell="activationLink" let-row [listCellOf]="result.created">
         @if (row.activationLink && row.expiresAt) {
           <app-activation-link [link]="row.activationLink" [expiresAt]="row.expiresAt" />
+        } @else if (row.activationDelivery === ActivationDelivery.Email) {
+          <span class="import-page__hint">{{ 'admin.import.result.emailed' | t }}</span>
         } @else if (row.activationErrorCode) {
           <span class="import-page__problem">{{ errorCodeKey(row.activationErrorCode) | t }}</span>
         } @else {

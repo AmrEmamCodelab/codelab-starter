@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Audit module (inherits rules/base.rules.yaml). Created by hand from tools/scaffold/templates/module.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Audit
+kind: dotnet
+description: "Audit and record history: the read-only audit trail viewer over the kernel IAuditTrailQueries port (the trail, its interceptor and the record history mapping are kernel code in Starter.Infrastructure/Auditing)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users]
+required:
+  - id: audit.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with an AuditPermissionKeys constant and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: audit.data-through-ports
+    statement: The module reads the trail only through the kernel IAuditTrailQueries port; it has no DbContext and no schema of its own.
+    enforcedBy: [architecture-test, review]
+  - id: audit.read-only
+    statement: The trail is append-only. The module never writes, updates or deletes an audit row, and no endpoint changes one; the DBA script denies UPDATE and DELETE on audit.AuditEntries.
+    enforcedBy: [review]
+  - id: audit.no-raw-ids
+    statement: Every internal id the viewer returns (the entry, the audited row, a key or foreign key inside the changes) is a PublicId token, never a number.
+    enforcedBy: [contract-test, review]
+forbidden:
+  - id: audit.no-module-reference
+    description: The viewer reads every module's trail through the kernel port; a reference to a module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Read through Starter.Application.Auditing.IAuditTrailQueries.
+  - id: audit.no-trail-writes
+    description: The trail is written only by the kernel AuditSaveChangesInterceptor; the module must not touch AuditDbContext or AuditEntry.
+    pattern: '(?<![A-Za-z0-9_])(?:AuditDbContext|AuditEntry)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs"]
+    fix: Use IAuditTrailQueries (read) and let the interceptor record changes.
+recipes: [docs/recipes/add-endpoint.md]

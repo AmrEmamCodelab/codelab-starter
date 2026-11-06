@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of the Notifications module: the renderer (Arabic and English, HTML encoding, missing placeholders), the
+    composer over the seeded templates, the channel fan-out of the writer, the outbox handlers (idempotency, no address,
+    sender failure), the immediate e-mail, the feed use cases (paging, mark-read, unread count), the test send, the file
+    senders (.eml drop, JSON-lines SMS), the options validators and the EF model against its InitialCreate migration.
+    Fakes stand behind the module's ports (INotificationRecipients is faked; the real one comes from Identity). No
+    database and no network.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Notifications\Starter.Modules.Notifications.csproj" />
+  </ItemGroup>
+</Project>

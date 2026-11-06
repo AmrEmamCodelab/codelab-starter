@@ -18,7 +18,7 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 | A new page (description, DGA screenshot or Figma frame) | `new-screen` (+ the 8 page patterns, [docs/design/](docs/design/README.md)) | ready |
 | A new permission | `new-permission` | ready |
 | A new status or status flow | `new-transition` | planned (phase 7) |
-| A new reference-data list | `new-lookup` | planned (phase 5) |
+| A new reference-data list | `new-lookup` | ready |
 | A time limit, deadline or SLA | recipe in `docs/recipes/` (deadline) | planned (phase 7) |
 | Any implementation or review | `coding-standards` | ready |
 | Executing a planned unit of work or a plan phase | `do-work` | ready |

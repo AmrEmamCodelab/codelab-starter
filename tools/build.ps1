@@ -172,7 +172,7 @@ $PackageSourceSwitch   = 'UseCodelabPackageSource'
 $BaseRefScript         = 'tools/ci/base-ref.mjs'
 $NoBaseRef             = 'NONE'
 # Platform-owned paths (CODEOWNERS); kept in step with .claude/hooks/lib/constants.mjs PlatformOwnedGlobs.
-$ProtectedPathPattern  = '^(rules/|packages/|\.claude/|deploy/|\.github/|docs/adr/|docs/standards/|provenance/|tools/extract/|tools/build\.ps1$|frontend/starter-web/(eslint\.config\.mjs$|stylelint\.config\.mjs$|tools/lint/)|(.*/)?(Directory\.Build\.[^/]*$|Directory\.Packages\.props$|global\.json$|nuget\.config$|\.editorconfig$|module\.rules\.yaml$))'
+$ProtectedPathPattern  = '^(rules/|packages/|\.claude/|deploy/|\.github/|docs/adr/|docs/standards/|provenance/|tools/extract/|tools/build\.ps1$|backend/tests/Starter\.Contract\.Tests/EndpointAllowlist\.cs$|backend/tests/Starter\.Architecture\.Tests/|frontend/starter-web/(eslint\.config\.mjs$|stylelint\.config\.mjs$|tools/lint/)|(.*/)?(Directory\.Build\.[^/]*$|Directory\.Packages\.props$|global\.json$|nuget\.config$|\.editorconfig$|module\.rules\.yaml$))'
 # Step 6: the integration tier must run (counted from the TRX results); it is never skipped silently.
 $IntegrationTestsProject = 'backend/tests/Starter.Integration.Tests/Starter.Integration.Tests.csproj'
 $IntegrationTestAssembly = 'Starter.Integration.Tests.dll'

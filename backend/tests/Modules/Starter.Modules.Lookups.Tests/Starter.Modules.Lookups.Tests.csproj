@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of the Lookups module: the LookupEntity rules and the key shape, every use case and the validator over
+    an in-memory repository, the memory cache (TTL and invalidation on a FakeTimeProvider, two nodes), the wire
+    mapping, the permission catalog and the registrations, and the EF model against its migrations (no pending change,
+    Restrict foreign key, the seed migrations and their ids constants). No database and no network.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Lookups\Starter.Modules.Lookups.csproj" />
+  </ItemGroup>
+</Project>

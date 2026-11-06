@@ -1,0 +1,112 @@
+{
+  "batch": "p5-fe-admin-settings-jobs",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-fe-admin-settings-jobs -Manifest <scratch copy with the batch> (staging outside the repo; scrub findings expected before the rewrite)",
+  "promotion": "Each staged file was read as a pattern reference only and the starter screens were written fresh on the page patterns (admin-list, editor-dialog) and @codelab/ng-dga with starter names; target is the repo file it informed, stagedTarget the staging path. Content is a rewrite, so repo hashes differ from stagedSha256.",
+  "origins": [
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "configuration",
+      "source": "frontend/modhs-web/src/app/features/admin/configuration/configuration.component.html",
+      "target": "frontend/starter-web/src/app/features/admin/settings/settings-page.component.html",
+      "mode": "copy",
+      "sourceGitBlob": "a631b5db50b81430f5af884f56e37583fb7b4a76",
+      "sourceSha256": "58d878b3dad2836a46240363a88fda8370814b94d7112c2f8c33a72eb223930c",
+      "stagedSha256": "58d878b3dad2836a46240363a88fda8370814b94d7112c2f8c33a72eb223930c",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/configuration/configuration.component.html",
+      "promotion": "rewritten",
+      "note": "Rewritten as app-admin-list-pattern + app-editor-dialog-pattern over every runtime setting (grouped, filter, search) with a value-type-aware field; the single-value form and its markup were not carried."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "configuration",
+      "source": "frontend/modhs-web/src/app/features/admin/configuration/configuration.component.scss",
+      "target": "frontend/starter-web/src/app/features/admin/settings/settings-page.component.scss",
+      "mode": "copy",
+      "sourceGitBlob": "932442d33ca3fd965098697414744000e4d6a7ad",
+      "sourceSha256": "2ac150e665320483703ab4847bd2932ec5afad8b1b6230d9a86c2a6821cf634a",
+      "stagedSha256": "2ac150e665320483703ab4847bd2932ec5afad8b1b6230d9a86c2a6821cf634a",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/configuration/configuration.component.scss",
+      "promotion": "rewritten",
+      "note": "Rewritten with --dga-* tokens and logical properties on the shared admin-controls partial."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "configuration",
+      "source": "frontend/modhs-web/src/app/features/admin/configuration/configuration.component.spec.ts",
+      "target": "frontend/starter-web/src/app/features/admin/settings/settings-page.component.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "3704a735fc84a0781d1ad099133994965d98d3d5",
+      "sourceSha256": "ac3ba754c2ac121a44fd2bcaa37ee5afebef365456d3aaad91224b3d44cce823",
+      "stagedSha256": "ac3ba754c2ac121a44fd2bcaa37ee5afebef365456d3aaad91224b3d44cce823",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/configuration/configuration.component.spec.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as Vitest specs over a fake AdminSettingsClient (typed values, group filter, gated editing, client check, server field error)."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "configuration",
+      "source": "frontend/modhs-web/src/app/features/admin/configuration/configuration.component.ts",
+      "target": "frontend/starter-web/src/app/features/admin/settings/settings-page.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "50f00608f98f52fb512610da99262af467729ab0",
+      "sourceSha256": "85acde24302d8b1a7823c5467a8ad7e8af62a18ae1dec797706d49a5b0d57165",
+      "stagedSha256": "85acde24302d8b1a7823c5467a8ad7e8af62a18ae1dec797706d49a5b0d57165",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/configuration/configuration.component.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as a thin OnPush component over SettingsPageStore and SettingDraft; the hard-coded single tunable and its bounds were replaced by the generic typed settings contract."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "jobs",
+      "source": "frontend/modhs-web/src/app/features/admin/jobs/jobs.component.html",
+      "target": "frontend/starter-web/src/app/features/admin/jobs/jobs-page.component.html",
+      "mode": "copy",
+      "sourceGitBlob": "83ae88402c3909a262a14a14028e3fb19833c511",
+      "sourceSha256": "96f8e84ae5de003c2e0944c4259e4fc96ef46dffa7bbdab8ac4d2b2e3fcc6eff",
+      "stagedSha256": "96f8e84ae5de003c2e0944c4259e4fc96ef46dffa7bbdab8ac4d2b2e3fcc6eff",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/jobs/jobs.component.html",
+      "promotion": "rewritten",
+      "note": "Rewritten as the admin-list job catalog with status tags, history link and a confirmed Run now; the follow-up-cases testing aid was not carried."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "jobs",
+      "source": "frontend/modhs-web/src/app/features/admin/jobs/jobs.component.scss",
+      "target": "frontend/starter-web/src/app/features/admin/jobs/_jobs.scss",
+      "mode": "copy",
+      "sourceGitBlob": "ac0851e224afca0cb4aa41b4cc04496f398f925a",
+      "sourceSha256": "061bd22db7f08c3fb07d687402d1cd406022a9c45475cfe8e2078e7378937d07",
+      "stagedSha256": "061bd22db7f08c3fb07d687402d1cd406022a9c45475cfe8e2078e7378937d07",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/jobs/jobs.component.scss",
+      "promotion": "rewritten",
+      "note": "Rewritten as a token/logical-property partial shared by the catalog and run-history screens."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "jobs",
+      "source": "frontend/modhs-web/src/app/features/admin/jobs/jobs.component.spec.ts",
+      "target": "frontend/starter-web/src/app/features/admin/jobs/jobs-pages.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "16713c9d6984fb64ae0258587c711eecd542b623",
+      "sourceSha256": "12d12dc1110819d04a4c84b1081de32c555fc53336f7ced2dd3cbb3328644c5f",
+      "stagedSha256": "12d12dc1110819d04a4c84b1081de32c555fc53336f7ced2dd3cbb3328644c5f",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/jobs/jobs.component.spec.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as Vitest specs over a fake AdminJobsClient for the catalog and run-history screens."
+    },
+    {
+      "batch": "p5-fe-admin-settings-jobs",
+      "entryId": "jobs",
+      "source": "frontend/modhs-web/src/app/features/admin/jobs/jobs.component.ts",
+      "target": "frontend/starter-web/src/app/features/admin/jobs/jobs-page.component.ts",
+      "mode": "copy",
+      "sourceGitBlob": "30f2de84298c7e855cf382d37dd70a539ac598e0",
+      "sourceSha256": "ccd96ecf59fad31e78e5a4445127410a87dd4df11a3e8cfd8ba3b47af8c6cd01",
+      "stagedSha256": "ccd96ecf59fad31e78e5a4445127410a87dd4df11a3e8cfd8ba3b47af8c6cd01",
+      "stagedTarget": "reference/p5/fe-admin-settings-jobs/jobs/jobs.component.ts",
+      "promotion": "rewritten",
+      "note": "Pattern only (poll while a run is unfinished): rewritten as JobsPageStore/JobRunsPageStore with JobRunTrigger and RunPoller; the follow-up date override and the config read were not carried."
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import type { Route, Routes } from '@angular/router';
 import { NOT_FOUND_PATH, PORTAL_ROUTE, SHELL_ROUTE } from './app.routes';
 import { authGuard } from './core/auth/auth.guard';
 import { RoutePaths } from './core/routing/route-paths';
+import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
 import { PORTAL_PUBLIC_PATHS } from './features/portal/portal.routes';
 import { SHOWCASE_PUBLIC_PATHS } from './showcase/showcase.routes';
 
@@ -24,6 +25,13 @@ export const PUBLIC_ROUTE_PATHS: readonly string[] = [
   ...PORTAL_PUBLIC_PATHS,
   ...SHOWCASE_PUBLIC_PATHS,
 ];
+
+/**
+ * The full paths of staff-shell pages every signed-in user may open without a permission key (the API answers them
+ * with [AuthenticatedUser]). Each is a child of SHELL_ROUTE, so the shell's authGuard still applies; the route gate
+ * treats them like public paths. Never list a page outside the shell here.
+ */
+export const SIGNED_IN_ROUTE_PATHS: readonly string[] = [NOTIFICATIONS_ROUTE_PATH];
 
 /**
  * The public layout routes, matched by object identity at the top level: each renders a public frame (no session)

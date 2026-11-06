@@ -8,4 +8,7 @@ public sealed class UserPublicIds : IUserPublicIds
 {
     /// <inheritdoc />
     public string TokenOf(long userId) => PublicId<UsersIds>.From(userId).ToToken();
+
+    /// <inheritdoc />
+    public long? IdOf(string? token) => PublicId<UsersIds>.TryParse(token, out var id) ? id.Value : null;
 }

@@ -1,4 +1,4 @@
-import type { FaqCategory } from './faq-content';
+import type { LocalizedSection } from '../content/portal-content';
 
 /** Arabic short vowels, tanween, shadda, sukun and the superscript alef: ignored when matching. */
 const ARABIC_DIACRITICS = /[ً-ْٰ]/g;
@@ -38,28 +38,17 @@ export function searchTerms(query: string): string[] {
 }
 
 /**
- * The categories with only the questions that match the query, in the same order; a category left with no question
- * is dropped. A question matches when every word of the query appears in its translated question or answer (any
- * order, part of a word is enough). No words means no filter: the categories come back as given.
- *
- * @param translate resolves a translation key in the active language.
+ * The questions that match the query, in the same order. A question (a content section: title = question, paragraphs =
+ * answer) matches when every word of the query appears in its question or answer text (any order, part of a word is
+ * enough). No words means no filter: the questions come back as given.
  */
-export function filterFaq(
-  categories: readonly FaqCategory[],
-  query: string,
-  translate: (key: string) => string,
-): readonly FaqCategory[] {
+export function filterFaq(questions: readonly LocalizedSection[], query: string): readonly LocalizedSection[] {
   const terms = searchTerms(query);
   if (terms.length === 0) {
-    return categories;
+    return questions;
   }
-  return categories
-    .map((category) => ({
-      ...category,
-      entries: category.entries.filter((entry) => {
-        const text = normalizeSearchText(`${translate(entry.questionKey)} ${translate(entry.answerKey)}`);
-        return terms.every((term) => text.includes(term));
-      }),
-    }))
-    .filter((category) => category.entries.length > 0);
+  return questions.filter((question) => {
+    const text = normalizeSearchText(`${question.title} ${question.paragraphs.join(SPACE)}`);
+    return terms.every((term) => text.includes(term));
+  });
 }

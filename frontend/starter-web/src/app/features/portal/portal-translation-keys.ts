@@ -1,4 +1,5 @@
 import { ContactTranslationKeys } from './contact/contact-translation-keys';
+import { PortalContentTranslationKeys } from './content/portal-content-translation-keys';
 import { FaqTranslationKeys } from './faq/faq-translation-keys';
 import { LandingTranslationKeys } from './landing/landing-translation-keys';
 import { PrivacyTranslationKeys, TermsTranslationKeys } from './legal/legal-translation-keys';
@@ -15,6 +16,7 @@ export const PortalCommonTranslationKeys = {
 /** Every `portal.*` key the feature renders, for the bundle check (`portal-translations.spec.ts`). */
 export const PORTAL_TRANSLATION_KEYS: readonly string[] = [
   PortalCommonTranslationKeys,
+  PortalContentTranslationKeys,
   LandingTranslationKeys,
   ServiceGuideTranslationKeys,
   FaqTranslationKeys,

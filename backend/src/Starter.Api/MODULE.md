@@ -33,7 +33,12 @@ powershell -File tools\devseed\New-LocalSecrets.ps1          # once: appsettings
 - `AddStarterKernel` must stay before `AddCodelabSecurity` (startup order: migrations, then the security store schema).
 - Without the local secrets file the start fails on the Codelab.Security key rings; run `New-LocalSecrets.ps1`.
 - `Database:ApplyMigrationsOnStartup` is true only in `appsettings.Development.json`; any other environment refuses it.
-- Modules referenced today: Identity, Access and Users (each a ProjectReference in `Starter.Api.csproj`). The Users
+- Modules referenced today: Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications and Portal (each a
+  ProjectReference in `Starter.Api.csproj`). `appsettings.json` documents the Phase 5 defaults: `Messaging:Outbox`
+  (on), `Numbering:TimeZoneId`, `Settings:CheckStampPerScope`, `Jobs` (job server on per node), `Notifications` (e-mail
+  Smtp with no relay host, so a server fails at start until `Notifications:Email:Smtp:Host` is set; SMS off) and
+  `Portal:Contact` (the inbox, required on start: every deployment sets its own); Development switches e-mail to the
+  FileDrop folder and turns the file SMS sink on (both refused outside Development). The Users
   module needs `Users:Activation:LinkBaseUrl` to issue activation links, and SSO needs `Auth:WebBaseUrl` plus sealed
   tickets (`Codelab:Security:Tickets`); `New-LocalSecrets.ps1` writes the local ticket ring.
 - The OpenAPI document lists the request's host under `servers`; DocsGen generates `docs/generated/openapi.v1.json`.

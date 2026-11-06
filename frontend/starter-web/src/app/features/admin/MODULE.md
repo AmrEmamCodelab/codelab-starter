@@ -2,19 +2,24 @@
 
 ## Purpose
 
-The administration area under `/admin`: the admin home, user accounts, organizations, the Excel user import, and
-the access screens (roles and per-user grants). `app.routes.ts` mounts `ADMIN_ROUTES` (`admin.routes.ts`) with
+The administration area under `/admin`: the admin home, user accounts, organizations, the Excel user import,
+the access screens (roles and per-user grants), the lookups screens, the portal content editor, the runtime settings
+screen and the background jobs screens. `app.routes.ts` mounts `ADMIN_ROUTES` (`admin.routes.ts`) with
 `loadChildren`, open at the mount to a holder of any key in `ADMIN_AREA_PERMISSIONS` (`access.admin.view` or any
 page key below), so a role granted only `users.view` reaches the users page without `access.admin.view`; every page
 is gated again by its own key.
 
 | Area | Route (`AdminPaths` / `AccessPaths`) | Page key | Folder |
 | --- | --- | --- | --- |
-| Admin home: a tile per area, each under `*hasPermission` | `/admin` | `access.admin.view` | `admin-page/` |
+| Admin home: a tile per area, each under `*hasPermission` | `/admin` | any key in `ADMIN_AREA_PERMISSIONS` (`access.admin.view` or a tile's key) | `admin-page/` |
 | Users: list (search; organization, kind and status filters; status tags), create / edit dialog, deactivate / reactivate / unlock / new activation link (confirmed), link to the user's grants | `/admin/users` | `users.view` (writes `users.manage`) | `users/` |
 | Organizations: list (kind and status filters), create / edit dialog with the active toggle, deactivate / reactivate (confirmed) | `/admin/organizations` | `organizations.view` (writes `organizations.manage`) | `organizations/` |
 | Excel import: pick one .xlsx (the shared `app-file-picker`), preview every row with its reasons, commit the valid rows, hand over the activation links | `/admin/import` | `users.import` | `import/` |
 | Access (owned by `features/admin/access`, see its own docs): roles list and editor, a user's grants | `/admin/access/roles`, `/admin/access/roles/:roleId`, `/admin/access/users/:userId/grants` | `access.roles.view`, `access.grants.view` | `access/` |
+| Lookups: types list (name, key, value count) -> values of a type (code, ar/en names, sort order, active tag) with a confirmed activate / deactivate; structure changes only by migration (/new-lookup) | /admin/lookups, /admin/lookups/:type | lookups.view (writes lookups.manage) | lookups/ ([README](lookups/README.md)) |
+| Portal content: page tabs (FAQ, service guide, privacy, terms), ordered sections, section dialog (ar/en title and plain body), add / edit / remove / reorder, save = one PUT replacing the page; unsaved-changes guard | /admin/portal-content | portal.content.view (writes portal.content.manage) | portal-content/ ([README](portal-content/README.md)) |
+| Runtime settings: every setting grouped (group, key) with group filter and search, value by type, description in the current language, last change; type-aware edit dialog (text, whole number, on/off, seconds) with "Use the default" | /admin/settings | settings.view (edit settings.manage) | settings/ ([README](settings/README.md)) |
+| Background jobs: catalog with schedule and last-run status tag, confirmed "Run now" (runs as SYSTEM) that opens the run history; run history (status, trigger, actor, triggered by, started/finished, reference code), auto-refresh while a run is unfinished | /admin/jobs, /admin/jobs/:jobKey/runs | jobs.view (run jobs.run) | jobs/ ([README](jobs/README.md)) |
 
 Screens are built on the page patterns (`app-admin-list-pattern`, `app-editor-dialog-pattern`) and `@codelab/ng-dga`.
 Each screen has a store provided per page (state, rules, API calls) and a component that renders it.
@@ -27,7 +32,7 @@ Each screen has a store provided per page (state, rules, API calls) and a compon
 | `PagedListState`, `ActiveFilter` | Rows / total / loading / error of one paged list; only the latest request's answer is kept, and a failed load clears the rows (an unverifiable 403 becomes a `FORBIDDEN` error) | `organizations/data/paged-list.ts` |
 | `apiErrorFrom`, `adminErrorMessageKey`, the error-code constants | problem+json parsing, the `errors.<CODE>` texts the area has | `organizations/data/admin-api-error.ts` |
 | `app-activation-link` | A one-time activation link: read-only field, copy button, expiry in the current language | `users/activation-link/` |
-| `ADMIN_ENTRIES`, `ADMIN_AREA_PERMISSIONS`, `adminEntryLink()` | The ways into the area: the home for `access.admin.view`, else the first tile page whose key the user holds (the shell's admin entry leads there); the keys that open the mount | `admin-entry.ts` |
+| `ADMIN_ENTRIES`, `ADMIN_AREA_PERMISSIONS`, `adminEntryLink()` | The ways into the area: every admin key leads to the home (the shell's admin entry), which lists only the tiles the user holds, so a scoped admin without `access.admin.view` finds every page they hold; the keys that open the mount and the home | `admin-entry.ts` |
 | `importFileProblem` + limits | The client check of a workbook (.xlsx, not empty, at most 5 MiB like the server) | `import/import-file.ts` |
 
 ## Use
@@ -57,7 +62,8 @@ Each screen has a store provided per page (state, rules, API calls) and a compon
 - **A new error code the area renders:** add it to the matching constants in `admin-api-error.ts` (mirroring the
   backend) and `errors.<CODE>` to both bundles; `admin-translations.spec.ts` fails until both have it.
 - **A new text:** a key under `admin.users.*`, `admin.organizations.*`, `admin.import.*`, `admin.home.*`,
-  `admin.common.*` or `admin.activation.*` in both `ar.json` and `en.json` (the translations spec scans the templates).
+  `admin.common.*`, `admin.activation.*`, `admin.lookups.*`, `admin.portal-content.*`, `admin.settings.*` or
+  `admin.jobs.*` in both `ar.json` and `en.json` (the translations spec scans the templates).
 
 ## Rules
 
@@ -73,6 +79,8 @@ Each screen has a store provided per page (state, rules, API calls) and a compon
 
 ## Gotchas
 
+- settings/, jobs/, lookups/ and portal-content/ each keep a small `*PermissionKeys` const (View/Manage/Run) for their
+  templates; its values are the generated `PermissionKeys` (no cast), so a renamed key breaks the build.
 - The enum members are `InternalUser` / `InternalOrganization` (not a bare `Internal`): the scrub sweep reads a dotted
   name ending in "internal" as an internal host name, so translation keys avoid that ending too. Likewise the secret scan
   reads an enum member named after a password, assigned a value, and a JSON pair keyed by that word as secrets: the

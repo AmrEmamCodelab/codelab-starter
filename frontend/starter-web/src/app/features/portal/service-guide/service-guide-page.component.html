@@ -1,4 +1,4 @@
-<app-portal-content-pattern [sections]="sections">
+<app-portal-content-pattern [sections]="tocSections()">
   <dga-portal-page-header
     portalHeader
     [title]="keys.Title | t"
@@ -7,60 +7,16 @@
     [breadcrumbLabel]="common.BreadcrumbLabel | t"
   />
 
-  <section class="guide__section" [portalSection]="ids.Overview" aria-labelledby="guide-overview">
-    <h2 class="guide__heading" id="guide-overview">{{ keys.OverviewTitle | t }}</h2>
-    @for (paragraph of overview; track paragraph) {
-      <p class="guide__paragraph">{{ paragraph | t }}</p>
-    }
-  </section>
+  <app-portal-content-state [status]="content.status()" [empty]="content.empty()" (retry)="content.retry()" />
 
-  <section class="guide__section" [portalSection]="ids.Eligibility" aria-labelledby="guide-eligibility">
-    <h2 class="guide__heading" id="guide-eligibility">{{ keys.EligibilityTitle | t }}</h2>
-    <p class="guide__paragraph">{{ keys.EligibilityIntro | t }}</p>
-    <ul class="guide__checklist">
-      @for (item of eligibility; track item) {
-        <li class="guide__check">
-          <dga-icon class="guide__check-icon" name="check" size="sm" />
-          <span>{{ item | t }}</span>
-        </li>
+  @for (section of content.sections(); track section.id) {
+    <section class="guide__section" [portalSection]="section.anchor" [attr.aria-labelledby]="'guide-' + section.anchor">
+      <h2 class="guide__heading" [id]="'guide-' + section.anchor">{{ section.title }}</h2>
+      @for (paragraph of section.paragraphs; track $index) {
+        <p class="guide__paragraph">{{ paragraph }}</p>
       }
-    </ul>
-  </section>
-
-  <section class="guide__section" [portalSection]="ids.Documents" aria-labelledby="guide-documents">
-    <h2 class="guide__heading" id="guide-documents">{{ keys.DocumentsTitle | t }}</h2>
-    <p class="guide__paragraph">{{ keys.DocumentsIntro | t }}</p>
-    <ul class="guide__checklist">
-      @for (item of documents; track item) {
-        <li class="guide__check">
-          <dga-icon class="guide__check-icon" name="file" size="sm" />
-          <span>{{ item | t }}</span>
-        </li>
-      }
-    </ul>
-  </section>
-
-  <section class="guide__section" [portalSection]="ids.Steps" aria-labelledby="guide-steps">
-    <h2 class="guide__heading" id="guide-steps">{{ keys.StepsTitle | t }}</h2>
-    <p class="guide__paragraph">{{ keys.StepsIntro | t }}</p>
-    <ol class="guide__steps">
-      @for (step of steps; track step.titleKey; let index = $index) {
-        <li class="guide__step">
-          <span class="guide__step-number" aria-hidden="true">{{ numberOf(index) }}</span>
-          <div class="guide__step-text">
-            <h3 class="guide__step-title">
-              <span class="guide__visually-hidden">{{ keys.StepNumber | t: { number: numberOf(index) } }}</span>
-              {{ step.titleKey | t }}
-            </h3>
-            <p class="guide__paragraph">{{ step.bodyKey | t }}</p>
-          </div>
-        </li>
-      }
-    </ol>
-    <dga-alert class="guide__note" [variant]="alertVariant" [title]="keys.NoteTitle | t">
-      {{ keys.NoteBody | t }}
-    </dga-alert>
-  </section>
+    </section>
+  }
 
   <section class="guide__section guide__help" [portalSection]="ids.Help" aria-labelledby="guide-help">
     <h2 class="guide__heading" id="guide-help">{{ keys.HelpTitle | t }}</h2>

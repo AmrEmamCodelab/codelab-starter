@@ -56,8 +56,42 @@ showcase).
 **Unit tests** (pure logic: arguments, routes, diff ratio, masking, verdict, report):
 `npx vitest run --config e2e/vitest.config.mjs`.
 
+## Scripted user flows (`flows.mjs`)
+
+The phase-5 exit criteria as runnable scripts, one per flow, in the same installed Edge (no download). Each step is
+logged with its result and a screenshot; the run writes `flows-report.json`, `flows-report.md` and `screenshots/` to
+`--out-dir`, so the report is the phase evidence.
+
+| Flow (`--flows`) | What it proves |
+| --- | --- |
+| `settings-jobs` | The admin edits `notifications.page-size`, runs `outbox-drain` with "Run now", and the run history shows a succeeded run by the system actor. The setting is reset to its default at the end. |
+| `notification-bell` | The admin sends a test notification from the notifications page; the bell shows the template title in en and in ar, and its e-mail lands in the pickup folder. |
+| `activation` | An Excel-imported user (a generated `.xlsx`) gets the activation e-mail, opens the link, sets a password and signs in; the reused link is refused. |
+| `contact-faq` | A contact message returns a `CU-YYYY-NNN` number of this year and the contact inbox gets the e-mail; an admin edit of the first FAQ title shows on `/portal/faq` in en and ar. The titles are put back at the end. |
+
+```powershell
+# App running (run-local.ps1); private Node first on PATH; from frontend/starter-web
+node e2e/flows.mjs --base-url http://localhost:4280 --out-dir ../../docs/evidence/P5/flows
+node e2e/flows.mjs --base-url http://localhost:4280 --flows activation,contact-faq --headed
+node e2e/flows.mjs --help
+```
+
+- **Sign-in:** the break-glass user from the local secrets file (`--secrets-file`, default the API's
+  `appsettings.Development.local.json`), or `STARTER_E2E_USER` / `STARTER_E2E_PASSWORD`. The password, the activation
+  link and the new user's password are redacted from every step detail.
+- **E-mail:** the API's `FileDrop` mode writes `.eml` files to `%TEMP%\starter-mail` (`--mail-dir` for another
+  `Notifications:Email:PickupDirectory`). This folder is the local SMTP sink. When the mail is not there yet, the flow
+  runs `outbox-drain` from the jobs screen instead of waiting for the 5-minute schedule.
+- **Exit codes:** `0` all flows passed, `1` a step failed, `2` usage, `3` environment (no credentials, Edge not starting,
+  app unreachable).
+- **Pure parts** (arguments, credentials, step log, `.eml` parsing, `.xlsx` building, reference numbers and run data)
+  are unit-tested under `tests/`. `lib/flow-runtime.mjs` and `flows/*.mjs` are the only files that drive the browser.
+
 ## Extend
 
+- **A new flow** goes in `flows/<name>.mjs` and exports `run<Name>({ recorder, credentials, options })`. Add its name
+  to `FlowNames` and its runner to `FLOW_RUNNERS` in `flows.mjs`. Put each selector, key and expected text in
+  `lib/flow-constants.mjs`, prefer `data-testid` hooks, and undo every change with `recorder.cleanup(...)`.
 - **A new check** goes in a pure module under `lib/` with its test under `tests/`, and is called from `judge.mjs`
   (per screenshot) or `report.mjs` (per run). `runtime.mjs` stays the only file that touches the browser, the
   packages and PNG bytes.
@@ -86,6 +120,11 @@ showcase).
   with a size note), not as a shifted image.
 - Fonts render slightly differently between machines and Edge versions. Compare baselines on the machine (or the
   build agent image) that recorded them; re-record after an Edge or font update.
+- Flows change real data in the local database: each run imports one new `e2e-<token>` user and files one contact
+  message. They do not delete these records. Run the flows against a local or test database only.
+- `notification-bell` needs a "send test notification" control on the notifications page
+  (`data-testid="notifications-send-test"`, permission `notifications.test`). Until that control exists, the flow
+  fails at that step and names the missing selector.
 - The axe scan runs after the screenshot in the same page, so injected axe styles never appear in the image.
 - Showcase routes (`docs/evidence/P4/showcase/routes.json`, `/showcase` in `e2e/routes/p4-public.json`) render only
   against a development build (`npm start` / `run-local.ps1` on :4280) or a staging config with `"showcase": true`.

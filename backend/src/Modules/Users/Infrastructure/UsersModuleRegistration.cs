@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Starter.Application.Authorization;
 using Starter.Application.Validation;
+using Starter.Infrastructure.Messaging;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Users.Application;
 using Starter.Modules.Users.Application.Accounts;
@@ -21,8 +22,10 @@ public static class UsersModuleRegistration
 {
     /// <summary>
     /// Registers the permission catalog source, the options (validated on start), the DbContext in schema
-    /// <c>users</c> and its repositories, the xlsx reader, the validators and the use cases. The accounts come from the
-    /// kernel <c>IAccountAdministration</c> port (Identity), the outbox from the kernel <c>IOutbox</c>.
+    /// <c>users</c> and its repositories, the xlsx reader, the validators, the use cases and the
+    /// <c>account-activation</c> outbox handler (<see cref="AccountActivationEmailHandler"/>). The accounts come from the
+    /// kernel <c>IAccountAdministration</c> port (Identity), the outbox from the kernel <c>IOutbox</c>, the e-mail from
+    /// the kernel <c>INotificationService</c> (Notifications).
     /// </summary>
     public static IServiceCollection AddUsersModule(this IServiceCollection services, IConfiguration configuration)
     {
@@ -38,6 +41,7 @@ public static class UsersModuleRegistration
         services.AddSingleton<IUserSheetReader, XlsxSheetReader>();
         AddValidators(services);
         AddUseCases(services);
+        services.AddOutboxHandler<AccountActivationEmailHandler>();
         // scaffold:registrations
         return services;
     }

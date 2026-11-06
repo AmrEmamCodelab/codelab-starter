@@ -279,6 +279,17 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Identity:Session:IdleTimeoutMinutes` | int | `30` | How long a session may go without a refresh, in minutes (positive); the client signs out after it too. |
 | `Identity:Session:RefreshTokenDays` | int | `7` | The absolute lifetime of a session, in days (positive); a refresh never extends it. |
 
+## Jobs
+
+### `Jobs`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Jobs:Enabled` | bool | `true` | True (default) to run the job server on this node: it executes scheduled and manual runs and keeps the recurring schedules up to date on start. False on a node that only serves requests; its admin triggers are still queued and run by a node where it is true. At least one node must have it on, or nothing runs (the outbox is not drained). |
+| `Jobs:PrepareSchemaIfNecessary` | bool | `true` | True (default) to let the scheduler create or upgrade its tables in schema `hangfire` when it first connects (needs DDL rights). False where the DBA installs the schema; the scheduler then only uses it. |
+| `Jobs:TimeZoneId` | string | `Arab Standard Time` | The time zone the cron schedules are read in (a Windows or IANA id). Default `DefaultTimeZoneId`. |
+| `Jobs:WorkerCount` | int | `5` | The worker threads of this node's job server (`MinWorkerCount` to `MaxWorkerCount`). |
+
 ## Kernel
 
 ### `ConnectionStrings`
@@ -298,6 +309,61 @@ Every key bound by an options class that declares `public const string SectionNa
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | `Features:<name>` | bool |  | The configured feature switches (section `Features`): flag name to on/off. |
+
+### `Messaging:Outbox`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Messaging:Outbox:BatchSize` | int | `50` | Messages per claim, 1 to `MaxBatchSize`; a pass claims up to `MaxBatchesPerPass` batches. |
+| `Messaging:Outbox:Enabled` | bool | `true` | Deliver outbox messages. On by default; when false a drain pass does nothing and messages stay Pending (they are still written), so switching it back on delivers the backlog. |
+
+### `Numbering`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Numbering:TimeZoneId` | string | `Arab Standard Time` | The time zone whose calendar year a number carries, so a request made at 00:30 on 1 January Riyadh time is numbered in the new year although it is still 31 December in UTC. A Windows or IANA id. |
+
+## Notifications
+
+### `Notifications:Email`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Notifications:Email:AllowFileSink` | bool | `false` | True to allow `FileDrop` outside the Development environment (a CI or test host only). Default false: a production host never writes activation links or personal data to a local folder. |
+| `Notifications:Email:FromAddress` | string | `no-reply@example.test` | The sender address. |
+| `Notifications:Email:FromName` | string | `Starter` | The sender display name. |
+| `Notifications:Email:Mode` | enum EmailDeliveryMode (FileDrop, Smtp) | `Smtp` | SMTP (default: a deployment that names no relay fails at start on the missing `Smtp:Host`) or file drop (Development; elsewhere only with `AllowFileSink`). |
+| `Notifications:Email:PickupDirectory` | string |  | An absolute folder for `FileDrop`; unset means `%TEMP%\starter-mail`. |
+| `Notifications:Email:Smtp:EnableTls` | bool | `true` | STARTTLS on the connection (default true; false only for a relay that offers none). |
+| `Notifications:Email:Smtp:Host` | string |  | The relay host name. |
+| `Notifications:Email:Smtp:Port` | int | `25` | The relay port (1 to 65535). |
+| `Notifications:Email:Smtp:TimeoutSeconds` | int | `30` | The send timeout in seconds (1 to 300). |
+
+### `Notifications:Sms`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Notifications:Sms:AllowFileSink` | bool | `false` | True to allow `File` outside the Development environment while SMS is enabled (a CI or test host only). Default false. |
+| `Notifications:Sms:Enabled` | bool | `false` | Whether SMS is delivered at all (default false: SMS channels end Disabled). |
+| `Notifications:Sms:FilePath` | string |  | An absolute file for `File`; unset means `%TEMP%\starter-sms\sms.jsonl`. |
+| `Notifications:Sms:Mode` | enum SmsDeliveryMode (File, Gateway) | `File` | File (default; Development, elsewhere only with `AllowFileSink`) or the integration gateway (phase 8). |
+
+## Portal
+
+### `Portal:Contact`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Portal:Contact:InboxEmail` | string |  | The address every new contact message is announced to (required). The starter's default is a reserved, undeliverable placeholder; every deployment sets its own team inbox. |
+| `Portal:Contact:InboxLanguage` | enum AppLanguage (Arabic, English) | `Arabic` | The language of the announcement e-mail, as the integer value (default Arabic, 1). |
+
+## Settings
+
+### `Settings`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Settings:CheckStampPerScope` | bool | `true` | True (default): the first settings read of every request scope checks the one-row database stamp, so a change on any node is seen by the next request. False: no per-request query; changes made on another node are seen within `SettingsLimits.CacheTtl` (30 s). |
 
 ## Users
 

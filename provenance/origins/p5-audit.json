@@ -1,0 +1,99 @@
+{
+  "batch": "p5-audit",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-audit -Manifest <scratch copy of allowlist.manifest.yaml with batch p5-audit> -Clean (staging %TEMP%/codelab-extract/p5-audit, outside the repo; scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256.",
+  "origins": [
+    {
+      "batch": "p5-audit",
+      "entryId": "interceptor",
+      "source": "backend/MODHS.Infrastructure/Data/Interceptors/AuditSaveChangesInterceptor.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/AuditSaveChangesInterceptor.cs",
+      "mode": "copy",
+      "sourceGitBlob": "be6005c9d612d4a362a70affe9f0f54bd12b2245",
+      "sourceSha256": "643e363a7edf800b25eff50f226ba26a991ebc1bef611fdb83b029ca2e295f90",
+      "stagedSha256": "643e363a7edf800b25eff50f226ba26a991ebc1bef611fdb83b029ca2e295f90",
+      "stagedTarget": "reference/p5/audit/interceptor",
+      "promotion": "rewritten",
+      "note": "Rewritten: capture before the save (modified and deleted rows) and completion after it (inserts with their database keys) kept; the rows now go to the kernel audit.AuditEntries through IAuditTrailWriter on the module context's connection, inside a transaction the writer opens when the caller has none (the source wrote them with a second, separate save). State is kept per context (ConditionalWeakTable) because one scoped interceptor serves every module context; TimeProvider and the starter IAuditContextAccessor (SYSTEM actor) replace the source's clock and user lookup; values are masked at write time. Left behind: the suppression scope and the source's logging."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "audit-support",
+      "source": "backend/MODHS.Infrastructure/Data/Auditing/AuditModelCache.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/AuditEntityPlan.cs",
+      "mode": "copy",
+      "sourceGitBlob": "43256d0a8ad7c4bd191125be5a4d8179cbd3bffc",
+      "sourceSha256": "eb6071549039c5714cc4e2b18b8d7213f370f29bc69a8b332b51a29e32ea6eaf",
+      "stagedSha256": "eb6071549039c5714cc4e2b18b8d7213f370f29bc69a8b332b51a29e32ea6eaf",
+      "stagedTarget": "reference/p5/audit/support/AuditModelCache.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as AuditPlans: one cached plan per IEntityType with a per-property treatment (Recorded, Identifier, Masked, Excluded) instead of an exclusion set; precedence is attributes, binary, secret names, key/foreign-key identifiers, personal-data names. Left behind: the namespace and central type exclusion lists of the source."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "audit-support",
+      "source": "backend/MODHS.Infrastructure/Data/Auditing/AuditValueFormatter.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/AuditValues.cs",
+      "mode": "copy",
+      "sourceGitBlob": "24de42b26eaf5300a39f4c4dbd71b38dd076c51f",
+      "sourceSha256": "c1d672d675f6a26d672f2078f11669d1011d8e7b7f42ccc1872d713dece08163",
+      "stagedSha256": "c1d672d675f6a26d672f2078f11669d1011d8e7b7f42ccc1872d713dece08163",
+      "stagedTarget": "reference/p5/audit/support/AuditValueFormatter.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten: flat invariant formatting kept (relaxed JSON encoding for Arabic), but enums are recorded as their integer (wire convention), binary is never recorded, masking goes through Codelab.Observability PiiMask, and the catch-all around ToString is dropped (standards: no swallowed failures)."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "audit-domain",
+      "source": "backend/MODHS.Domain/Auditing/AuditExclusions.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/AuditNamingConventions.cs",
+      "mode": "copy",
+      "sourceGitBlob": "7b585fb4268cdea3d34176e89d13346158bd4da6",
+      "sourceSha256": "f35335fe04e7f0277f24701b52b06fcf0558cf88ec4e0934eda13e9b4551de03",
+      "stagedSha256": "f35335fe04e7f0277f24701b52b06fcf0558cf88ec4e0934eda13e9b4551de03",
+      "stagedTarget": "reference/p5/audit/domain/AuditExclusions.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the central list of sensitive property names became generic name-part conventions (secrets excluded, personal data masked) as a safety net under the attributes."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "audit-domain",
+      "source": "backend/MODHS.Domain/Auditing/AuditPiiKeys.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/AuditNamingConventions.cs",
+      "mode": "copy",
+      "sourceGitBlob": "423420ed4450b496377944e3bcdcc41883762d6a",
+      "sourceSha256": "49c32b064123ad361aa40b4eb27d1114393d7f5f143685699a98b38a08bd85ac",
+      "stagedSha256": "49c32b064123ad361aa40b4eb27d1114393d7f5f143685699a98b38a08bd85ac",
+      "stagedTarget": "reference/p5/audit/domain/AuditPiiKeys.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the source's product-specific PII key list is not carried; its rule (generic labels such as Name or Description stay readable, person data is masked) shaped the generic name parts and the PersonalDataKind attribute."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "audit-domain",
+      "source": "backend/MODHS.Domain/Auditing/NotAuditedAttribute.cs",
+      "target": "backend/src/Starter.Domain/Auditing/NotAuditedAttribute.cs",
+      "mode": "copy",
+      "sourceGitBlob": "7b01731c13c370076883c9fb05e7e3010b643110",
+      "sourceSha256": "9b356743ccb4d3785b8d512213a8d2ac255ffe593a875ff84007a27450dc1452",
+      "stagedSha256": "9b356743ccb4d3785b8d512213a8d2ac255ffe593a875ff84007a27450dc1452",
+      "stagedTarget": "reference/p5/audit/domain/NotAuditedAttribute.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten in the kernel Domain with starter wording; class and property targets kept, joined by PersonalDataAttribute/PersonalDataKind."
+    },
+    {
+      "batch": "p5-audit",
+      "entryId": "record-history-mapping",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/RequestHistoryConfiguration.cs",
+      "target": "backend/src/Starter.Infrastructure/Auditing/RecordHistoryMapping.cs",
+      "mode": "copy",
+      "sourceGitBlob": "30f39efee48b1ad6d5da5e9a0ca4c001bfa1cc94",
+      "sourceSha256": "5c4dd63cc52785672a5f98b5ca3226bc14051651e2a4b3cc642c7e66e1756665",
+      "stagedSha256": "5c4dd63cc52785672a5f98b5ca3226bc14051651e2a4b3cc642c7e66e1756665",
+      "stagedTarget": "reference/p5/audit/history",
+      "promotion": "rewritten",
+      "note": "Pattern only (the Restrict fix): the source mapped the history-to-request foreign key with Cascade; HasRecordHistory<TRecord, THistory>() maps it with Restrict (required FK, timeline index RecordId + At) and RecordHistoryMapping.EnsureRestrict refuses a module model whose history foreign key cascades or sets null."
+    }
+  ]
+}

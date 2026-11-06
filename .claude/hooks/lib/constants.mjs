@@ -97,6 +97,8 @@ export const PlatformOwnedGlobs = Object.freeze([
   '**/global.json',
   '**/nuget.config',
   '**/.editorconfig',
+  'backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs',
+  'backend/tests/Starter.Architecture.Tests/**',
 ]);
 
 /** The module rules file: owner-reviewed in CODEOWNERS, but the hooks guard only its exemptions block. */

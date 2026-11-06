@@ -8,7 +8,7 @@ namespace Starter.Modules.Users.Application.Accounts;
 
 /// <summary>An account just created, and its activation when it is password-bound.</summary>
 /// <param name="User">The account.</param>
-/// <param name="Activation">The activation link, or null for an Active Directory or SSO account.</param>
+/// <param name="Activation">The activation (a link for the administrator, or an e-mail on its way), or null for an Active Directory or SSO account.</param>
 public sealed record CreatedUser(UserView User, IssuedActivation? Activation);
 
 /// <summary>
@@ -112,7 +112,7 @@ public sealed class CreateUser(
             return new CreatedUser(view, Activation: null);
         }
 
-        var activation = await activations.IssueAsync(account.UserId, cancellationToken);
+        var activation = await activations.IssueAsync(account, cancellationToken);
         return activation.IsSuccess ? new CreatedUser(view, activation.Value) : activation.Refusal;
     }
 

@@ -20,6 +20,7 @@ public sealed class UserDirectory(IUserAccountRepository accounts) : IUserDirect
                 IsActive: account.IsActive,
                 HoldsAllPermissions: account.IsBreakGlass && account.IsActive,
                 Kind: account.Kind,
-                OrganizationId: account.OrganizationId);
+                OrganizationId: account.OrganizationId,
+                DisplayName: account.DisplayName);
     }
 }

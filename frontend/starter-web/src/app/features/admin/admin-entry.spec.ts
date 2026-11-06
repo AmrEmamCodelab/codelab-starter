@@ -19,12 +19,15 @@ describe('admin entry', () => {
     expect(adminEntryLink(holding(PermissionKeys.UsersImport, PermissionKeys.AccessAdminView))).toEqual(AdminPaths.home());
   });
 
-  it('leads a users.view-only holder to the users page', () => {
-    expect(adminEntryLink(holding(PermissionKeys.UsersView))).toEqual(AdminPaths.users());
+  it('leads a holder of only page keys to the admin home, which lists each of their tiles', () => {
+    expect(adminEntryLink(holding(PermissionKeys.UsersView))).toEqual(AdminPaths.home());
+    expect(
+      adminEntryLink(holding(PermissionKeys.JobsView, PermissionKeys.LookupsView, PermissionKeys.PortalContentView, PermissionKeys.SettingsView)),
+    ).toEqual(AdminPaths.home());
   });
 
-  it('follows the tile order when several page keys are held', () => {
-    expect(adminEntryLink(holding(PermissionKeys.UsersImport, PermissionKeys.OrganizationsView))).toEqual(AdminPaths.organizations());
+  it('leads every admin key to the admin home', () => {
+    expect(ADMIN_ENTRIES.map((entry) => entry.link)).toEqual(ADMIN_ENTRIES.map(() => AdminPaths.home()));
   });
 
   it('leads nowhere without an admin key', () => {

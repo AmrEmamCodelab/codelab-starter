@@ -1,0 +1,27 @@
+// Shared layout of the lookups screens (each page's .scss @uses this partial). Tokens and logical properties only.
+@mixin page {
+  .lookups-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dga-space-4);
+  }
+
+  .lookups-page__notice {
+    margin: 0;
+    padding-block: var(--dga-space-3);
+    padding-inline: var(--dga-space-4);
+    border-radius: var(--dga-radius-md);
+    border-inline-start: var(--dga-border-width-thick) solid var(--dga-color-info-border);
+    background: var(--dga-color-info-surface);
+    color: var(--dga-color-text-paragraph);
+  }
+
+  .lookups-page__link {
+    color: var(--dga-color-text-link);
+    font-weight: var(--dga-font-weight-medium);
+
+    &:hover {
+      color: var(--dga-color-text-link-hover);
+    }
+  }
+}

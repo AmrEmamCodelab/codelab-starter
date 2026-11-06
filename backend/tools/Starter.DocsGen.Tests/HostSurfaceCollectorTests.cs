@@ -27,6 +27,8 @@ public sealed class HostSurfaceCollectorTests
         Assert.Contains(surface.ErrorCodes, code => code.Owner == "Identity");
         Assert.Contains(surface.ConfigKeys, key => key.Key == "Codelab:Security:Protocol:Prefix");
         Assert.Contains(surface.ConfigKeys, key => key.Key == "Identity:Session:IdleTimeoutMinutes");
+        Assert.Contains(surface.Statuses, status => status.Name == "ImportBatchStatus" && status.Owner == "Users");
+        Assert.DoesNotContain(surface.Statuses, status => status.FullName.StartsWith(SolutionAssemblies.PlatformPackagePrefix, StringComparison.Ordinal));
         Assert.DoesNotContain(OpenApiNormalizer.ServersProperty, GeneratedDocSet.Render(surface)[GeneratedFileNames.OpenApi], StringComparison.Ordinal);
     }
 

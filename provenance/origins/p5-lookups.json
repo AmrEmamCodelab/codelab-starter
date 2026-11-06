@@ -1,0 +1,60 @@
+{
+  "batch": "p5-lookups",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-lookups -Manifest <scratch copy of allowlist.manifest.yaml with the p5-lookups batch> -Clean (staging %TEMP%/codelab-extract/p5-lookups, outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Rewrite only: the lookup base entity and its EF configuration base were read as references and rebuilt fresh with starter names in Starter.Domain/Lookups and the Lookups module (generic tables seeded only by migrations, cached read API, activate/deactivate). The reference-data application services are a geo (airport) sync and were not carried: no geo data enters the starter. \"target\" is the repo file an entry informed, \"stagedTarget\" the path in the staging folder; a rewritten file hash differs from stagedSha256.",
+  "origins": [
+    {
+      "batch": "p5-lookups",
+      "entryId": "lookup-entity",
+      "source": "backend/MODHS.Domain/Entities/Lookups/LookupEntity.cs",
+      "target": "backend/src/Starter.Domain/Lookups/LookupEntity.cs",
+      "mode": "copy",
+      "sourceGitBlob": "d4dc0b4b54880c3dc0fe81e4ed35dea8d859e9f0",
+      "sourceSha256": "52f0e34a8e22e027d6c1303af35ebef5ed653641391da00e16fd8114f4c5d659",
+      "stagedSha256": "52f0e34a8e22e027d6c1303af35ebef5ed653641391da00e16fd8114f4c5d659",
+      "stagedTarget": "reference/p5/p5-lookups/domain/LookupEntity.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as the kernel lookup base: the int Id (from a <Name>Ids constants class) and the Arabic and English names were kept as the shape; Code, SortOrder and IsActive (retire, never delete) and SetActive were added; protected setters, no badge colour, starter names."
+    },
+    {
+      "batch": "p5-lookups",
+      "entryId": "lookup-configurations",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/LookupConfigurations.cs",
+      "target": "backend/src/Modules/Lookups/Infrastructure/Persistence/LookupsDbContext.cs",
+      "mode": "copy",
+      "sourceGitBlob": "796d86a98e130890a772fbd6a544c8138de155aa",
+      "sourceSha256": "3f74f0e911dc2e6df38ae89d6cd26f0eb144ef75be3e8224cb363df1cd52ff27",
+      "stagedSha256": "3f74f0e911dc2e6df38ae89d6cd26f0eb144ef75be3e8224cb363df1cd52ff27",
+      "stagedTarget": "reference/p5/p5-lookups/configurations/LookupConfigurations.cs",
+      "promotion": "rewritten",
+      "note": "Read for the configuration pattern only (fixed ids, ValueGeneratedNever, required bilingual names). Replaced by one generic pair of tables (LookupTypes, LookupItems keyed by type and fixed id, unique code per type, Restrict foreign key) with named lengths from LookupLimits; none of the per-type tables, table names or badge columns was carried."
+    },
+    {
+      "batch": "p5-lookups",
+      "entryId": "reference-services",
+      "source": "backend/MODHS.Application/Reference/AirportCityResolution.cs",
+      "target": "reference/p5/p5-lookups/reference/AirportCityResolution.cs",
+      "mode": "copy",
+      "sourceGitBlob": "306851e4d1a9354ef48155e83ef1f3eba05def25",
+      "sourceSha256": "bec91278fb3bbe1827cea24ba346a80e49fdf883a4073a582a373bcbd04fe2fb",
+      "stagedSha256": "bec91278fb3bbe1827cea24ba346a80e49fdf883a4073a582a373bcbd04fe2fb",
+      "stagedTarget": "reference/p5/p5-lookups/reference/AirportCityResolution.cs",
+      "promotion": "staged",
+      "note": "Not carried: an airport and city sync for geo reference data (geo is out of the starter scope; no geo data or source-product names). Read for the upsert-without-overwriting-admin-edits idea only; the starter lookups change only by migration."
+    },
+    {
+      "batch": "p5-lookups",
+      "entryId": "reference-services",
+      "source": "backend/MODHS.Application/Reference/AirportSyncService.cs",
+      "target": "reference/p5/p5-lookups/reference/AirportSyncService.cs",
+      "mode": "copy",
+      "sourceGitBlob": "6a0926ad9e4d1a569114be10a30f9fad634092d0",
+      "sourceSha256": "23a235a04f2449b30b5427095988468a77adfde64d2ea0b119a20138e6ef991b",
+      "stagedSha256": "23a235a04f2449b30b5427095988468a77adfde64d2ea0b119a20138e6ef991b",
+      "stagedTarget": "reference/p5/p5-lookups/reference/AirportSyncService.cs",
+      "promotion": "staged",
+      "note": "Not carried: an airport and city sync for geo reference data (geo is out of the starter scope; no geo data or source-product names). Read for the upsert-without-overwriting-admin-edits idea only; the starter lookups change only by migration."
+    }
+  ]
+}

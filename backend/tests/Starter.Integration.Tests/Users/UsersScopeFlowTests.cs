@@ -57,7 +57,7 @@ public sealed class UsersScopeFlowTests(UsersHost host)
     {
         using var created = await api.PostJsonAsync(
             UsersApi.Users,
-            new { userName, displayName = "Scope User", email = userName + "@example.test", kind = UsersApi.ExternalKind, binding = UsersApi.PasswordBinding, organizationId },
+            new { userName, displayName = "Scope User", email = (string?)null, kind = UsersApi.ExternalKind, binding = UsersApi.PasswordBinding, organizationId },
             adminToken);
         var body = await UsersApi.ReadAsync(created, HttpStatusCode.Created);
         return (body.GetProperty("user").GetProperty(Id).GetString()!, body.GetProperty("activation").GetProperty("activationLink").GetString()!);

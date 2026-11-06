@@ -7,8 +7,8 @@ import { HasPermissionDirective } from '../../../shared/permissions/has-permissi
 import { ADMIN_TILES, visibleTiles } from './admin-tiles';
 
 /**
- * The admin home (`/admin`, `access.admin.view`): a tile per admin area (users, organizations, import, roles), each
- * shown only to a holder of the key of the page it opens. Grants and revokes repaint it live (`PermissionStore`).
+ * The admin home (`/admin`, open to a holder of any key in `ADMIN_AREA_PERMISSIONS`): a tile per admin area, each
+ * shown only to a holder of the key of the page it opens, so a scoped admin finds a link to every page they hold. Grants and revokes repaint it live (`PermissionStore`).
  */
 @Component({
   selector: 'app-admin-page',

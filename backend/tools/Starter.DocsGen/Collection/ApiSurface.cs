@@ -6,12 +6,14 @@ namespace Starter.DocsGen.Collection;
 /// <param name="Endpoints">Every routed endpoint, one row per HTTP method.</param>
 /// <param name="ErrorCodes">Every constant of every <c>*ErrorCodes</c> class.</param>
 /// <param name="ConfigKeys">Every configuration key of every options class with a <c>SectionName</c>.</param>
+/// <param name="Statuses">Every public <c>*Status</c> enum of the host's own assemblies (kernel and modules).</param>
 internal sealed record ApiSurface(
     string OpenApiJson,
     IReadOnlyList<PermissionDoc> Permissions,
     IReadOnlyList<EndpointDoc> Endpoints,
     IReadOnlyList<ErrorCodeDoc> ErrorCodes,
-    IReadOnlyList<ConfigKeyDoc> ConfigKeys);
+    IReadOnlyList<ConfigKeyDoc> ConfigKeys,
+    IReadOnlyList<StatusDoc> Statuses);
 
 /// <summary>One permission of the catalog.</summary>
 /// <param name="Key">The permission key.</param>
@@ -62,6 +64,20 @@ internal sealed record ErrorCodeDoc(string Code, string Constant, string Owner, 
 /// <param name="DefaultValue">The value a fresh options instance carries, or empty when there is none.</param>
 /// <param name="Description">The property's XML doc summary.</param>
 internal sealed record ConfigKeyDoc(string Key, string Type, string Owner, string Section, string DefaultValue, string Description);
+
+/// <summary>One status enum (an int enum whose name ends with <c>Status</c>) with its members.</summary>
+/// <param name="Name">The enum's simple name, for example <c>JobRunStatus</c>.</param>
+/// <param name="FullName">The enum's full name (namespace and nesting), which tells two same-named enums apart.</param>
+/// <param name="Owner">The module or the kernel that declares it.</param>
+/// <param name="Description">The enum's XML doc summary.</param>
+/// <param name="Members">Its members, ordered by value, then name.</param>
+internal sealed record StatusDoc(string Name, string FullName, string Owner, string Description, IReadOnlyList<StatusMemberDoc> Members);
+
+/// <summary>One member of a status enum.</summary>
+/// <param name="Value">The integer stored and sent on the wire.</param>
+/// <param name="Name">The member name (never a label: labels come from i18n).</param>
+/// <param name="Description">The member's XML doc summary.</param>
+internal sealed record StatusMemberDoc(int Value, string Name, string Description);
 
 /// <summary>Where the surface comes from: the real host in the tool, a fixture in tests.</summary>
 internal interface IApiSurfaceSource

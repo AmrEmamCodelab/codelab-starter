@@ -78,6 +78,9 @@ internal static class DocsHostSettings
     /// <summary>The first Development user's password key (see <see cref="JwtSigningKeyPath"/>).</summary>
     public const string DevUserPasswordPath = "Identity:DevUsers:0:Password";
 
+    /// <summary>The jobs module's job-server switch; off, so the host never opens SQL (see <see cref="JwtSigningKeyPath"/>).</summary>
+    public const string JobsEnabledPath = "Jobs:Enabled";
+
     private const string Separator = ":";
     private const string KeyId = "docsgen";
     private const string DevUser = "docsgen-user";
@@ -104,6 +107,7 @@ internal static class DocsHostSettings
             [BreakGlassPasswordPath] = RandomKey(),
             [DevUserNamePath] = DevUser,
             [DevUserPasswordPath] = RandomKey(),
+            [JobsEnabledPath] = bool.FalseString,
         };
         AddKeyRing(settings, SecuritySections.PublicIds);
         AddKeyRing(settings, SecuritySections.RequestSigning);

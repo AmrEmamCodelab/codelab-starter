@@ -38,6 +38,7 @@
 
 .faq__answer {
   margin: 0;
+  white-space: pre-line;
   color: var(--dga-color-text-paragraph);
   line-height: var(--dga-line-height-lg);
 }

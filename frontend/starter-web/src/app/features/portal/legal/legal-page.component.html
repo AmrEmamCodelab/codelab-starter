@@ -7,18 +7,13 @@
     [breadcrumbLabel]="common.BreadcrumbLabel | t"
   />
 
-  @for (section of document().sections; track section.id) {
-    <section class="legal__section" [portalSection]="section.id" [attr.aria-labelledby]="'legal-' + section.id">
-      <h2 class="legal__heading" [id]="'legal-' + section.id">{{ section.titleKey | t }}</h2>
-      @for (paragraph of section.paragraphKeys; track paragraph) {
-        <p class="legal__paragraph">{{ paragraph | t }}</p>
-      }
-      @if (section.itemKeys?.length) {
-        <ul class="legal__list">
-          @for (item of section.itemKeys; track item) {
-            <li>{{ item | t }}</li>
-          }
-        </ul>
+  <app-portal-content-state [status]="content.status()" [empty]="content.empty()" (retry)="content.retry()" />
+
+  @for (section of content.sections(); track section.id) {
+    <section class="legal__section" [portalSection]="section.anchor" [attr.aria-labelledby]="'legal-' + section.anchor">
+      <h2 class="legal__heading" [id]="'legal-' + section.anchor">{{ section.title }}</h2>
+      @for (paragraph of section.paragraphs; track $index) {
+        <p class="legal__paragraph">{{ paragraph }}</p>
       }
     </section>
   }

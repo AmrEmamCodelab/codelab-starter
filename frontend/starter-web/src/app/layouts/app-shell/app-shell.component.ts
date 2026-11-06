@@ -5,6 +5,7 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { PermissionStore } from '../../core/permissions/permission.store';
 import { RoutePaths } from '../../core/routing/route-paths';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
+import { NotificationsBellComponent } from '../notifications-menu/notifications-bell.component';
 import { UserProfileMenuComponent } from '../user-profile-menu/user-profile-menu.component';
 import { SHELL_NAV_ITEMS, appLink, visibleNavItems } from './shell-nav';
 
@@ -21,6 +22,7 @@ import { SHELL_NAV_ITEMS, appLink, visibleNavItems } from './shell-nav';
     DgaIconComponent,
     TranslatePipe,
     LanguageSwitcherComponent,
+    NotificationsBellComponent,
     UserProfileMenuComponent,
   ],
   templateUrl: './app-shell.component.html',

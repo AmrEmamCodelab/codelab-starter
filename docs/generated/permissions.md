@@ -11,9 +11,19 @@ The permission catalog: the union of every module's `IPermissionCatalogSource`. 
 | `access.grants.view` | Access | See a user's roles, direct grants, virtual roles and effective permissions. | `GET /api/admin/access/users`, `GET /api/admin/access/users/{userId:publicid}/grants` |
 | `access.roles.manage` | Access | Create roles and change their names, permissions and active state. | `POST /api/admin/access/roles`, `PUT /api/admin/access/roles/{id:publicid}` |
 | `access.roles.view` | Access | See the roles, their permissions and the permission catalog. | `GET /api/admin/access/permissions`, `GET /api/admin/access/roles`, `GET /api/admin/access/roles/{id:publicid}` |
+| `audit.view` | Audit | Read the audit trail of every audited table (personal data masked). | `GET /api/admin/audit` |
 | `dashboard.view` | Access | Open the dashboard. | `GET /api/dashboard` |
+| `jobs.run` | Jobs | Run a background job now. | `POST /api/admin/jobs/{key}/runs` |
+| `jobs.view` | Jobs | List the background jobs and their run history. | `GET /api/admin/jobs`, `GET /api/admin/jobs/{key}/runs` |
+| `lookups.manage` | Lookups | Activate and deactivate lookup values. | `PUT /api/admin/lookups/{type}/items/{id:publicid}/active` |
+| `lookups.view` | Lookups | List the lookup types and every value of a type, active or not. | `GET /api/admin/lookups`, `GET /api/admin/lookups/{type}` |
+| `notifications.test` | Notifications | Send oneself a test notification to check the bell, e-mail and SMS delivery. | `POST /api/admin/notifications/test` |
 | `organizations.manage` | Users | Create, edit, deactivate and reactivate organizations. | `POST /api/admin/organizations`, `PUT /api/admin/organizations/{id:publicid}`, `POST /api/admin/organizations/{id:publicid}/deactivate`, `POST /api/admin/organizations/{id:publicid}/reactivate` |
 | `organizations.view` | Users | List and open organizations. | `GET /api/admin/organizations`, `GET /api/admin/organizations/{id:publicid}` |
+| `portal.content.manage` | Portal | Replace the sections of the FAQ, service guide, privacy and terms pages. | `PUT /api/admin/portal/content/{page}` |
+| `portal.content.view` | Portal | Read the FAQ, service guide, privacy and terms content in the admin editor. | `GET /api/admin/portal/content/{page}` |
+| `settings.manage` | Settings | Change the value of a runtime setting. | `PUT /api/admin/settings/{key}` |
+| `settings.view` | Settings | List the runtime settings with their values and defaults. | `GET /api/admin/settings` |
 | `users.import` | Users | Preview and commit an Excel user import. | `POST /api/admin/user-import/preview`, `POST /api/admin/user-import/{batchId:publicid}/commit` |
 | `users.manage` | Users | Create, edit, deactivate, reactivate and unlock user accounts, and issue activation links. | `POST /api/admin/users`, `PUT /api/admin/users/{id:publicid}`, `POST /api/admin/users/{id:publicid}/activation`, `POST /api/admin/users/{id:publicid}/deactivate`, `POST /api/admin/users/{id:publicid}/reactivate`, `POST /api/admin/users/{id:publicid}/unlock` |
 | `users.view` | Users | List and open user accounts. | `GET /api/admin/users`, `GET /api/admin/users/{id:publicid}` |

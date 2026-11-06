@@ -1,0 +1,61 @@
+{
+  "batch": "p5-outbox-numbering",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-outbox-numbering -Manifest <scratch copy of allowlist.manifest.yaml with the p5-outbox-numbering batch> -Clean (staging %TEMP%/codelab-extract/p5-outbox-numbering, outside the repo; scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. A \"staged\" entry stays in staging with its reason.",
+  "origins": [
+    {
+      "batch": "p5-outbox-numbering",
+      "entryId": "outbox",
+      "source": "backend/MODHS.Infrastructure/Outbox/OutboxStore.cs",
+      "target": "backend/src/Starter.Infrastructure/Messaging/SqlOutboxStore.cs",
+      "mode": "copy",
+      "sourceGitBlob": "40f3c155ed1900748334a5287a0f115a4c45b68d",
+      "sourceSha256": "91b02d4e1380505cb1d7134713dabeee86e69f0e3aa51b403449da63c5028472",
+      "stagedSha256": "91b02d4e1380505cb1d7134713dabeee86e69f0e3aa51b403449da63c5028472",
+      "stagedTarget": "reference/p5/p5-outbox-numbering/outbox/OutboxStore.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten behind the IOutboxStore port on the messaging schema: an explicit Status column (Pending/Processing/Sent/Failed as int) instead of a processed timestamp, the READPAST/UPDLOCK/ROWLOCK claim kept as one CTE UPDATE ... OUTPUT ordered by id, attempts counted on claim, outcome updates guarded by status and attempt, a final-attempt abandoned lease marked Failed instead of left pending, and only a classified error code stored (never the exception message). The 1/5/15/60-minute back-off and 5-minute lease moved to OutboxDrainSchedule; the attempt limit is OutboxLimits.MaxAttempts."
+    },
+    {
+      "batch": "p5-outbox-numbering",
+      "entryId": "outbox",
+      "source": "backend/MODHS.Infrastructure/Outbox/EfOutbox.cs",
+      "target": "reference/p5/p5-outbox-numbering/outbox/EfOutbox.cs",
+      "mode": "copy",
+      "sourceGitBlob": "cf3ac3a30292f97d197813f560269d095841ba2e",
+      "sourceSha256": "8593c75f4fafb51c3d2773c3c87e65a6d309121f685351f821ae02c28f42e385",
+      "stagedSha256": "8593c75f4fafb51c3d2773c3c87e65a6d309121f685351f821ae02c28f42e385",
+      "stagedTarget": "reference/p5/p5-outbox-numbering/outbox/EfOutbox.cs",
+      "promotion": "staged",
+      "deferred": "Enlisting the outbox row in the caller's unit of work (add, never save) needs a shared transaction across module contexts; the starter EfOutbox (phase 2) keeps saving on its own context and documents the ordering rule.",
+      "note": "Kept in staging only."
+    },
+    {
+      "batch": "p5-outbox-numbering",
+      "entryId": "drain-runner",
+      "source": "backend/MODHS.Api/Services/OutboxDrainRunner.cs",
+      "target": "backend/src/Starter.Infrastructure/Messaging/OutboxDrainRunner.cs",
+      "mode": "copy",
+      "sourceGitBlob": "18b3749f8f5b9ebb909fb15a0e9e37524dc993d3",
+      "sourceSha256": "93cce26714038b29bafadc81126e356ca7ed959b679f72e1b59733aa42f06b08",
+      "stagedSha256": "93cce26714038b29bafadc81126e356ca7ed959b679f72e1b59733aa42f06b08",
+      "stagedTarget": "reference/p5/p5-outbox-numbering/drain/",
+      "promotion": "rewritten",
+      "note": "Rewritten as IOutboxDrainRunner.DrainOnceAsync (no scheduler attribute; the jobs module schedules it) plus OutboxDispatcher: routing by type to the single registered IOutboxHandler in a DI scope per delivery, per-message failure isolation, a no-handler type failed at once, the Messaging:Outbox:Enabled switch (on by default) and bounded batches per pass. Left behind: the follow-up scheduling kinds, the notification replay and dedup frame (handlers are idempotent per MessageId instead), the log-context correlation push and the fingerprint sites."
+    },
+    {
+      "batch": "p5-outbox-numbering",
+      "entryId": "numbering",
+      "source": "backend/MODHS.Infrastructure/Numbering/SqlRequestNumberAllocator.cs",
+      "target": "backend/src/Starter.Infrastructure/Numbering/SqlNumberSequences.cs",
+      "mode": "copy",
+      "sourceGitBlob": "1eda4b4395c46cd35c47f2c69046cbc1ab78ccc3",
+      "sourceSha256": "5dd6a80fb58d379c164502feecd6dfa83a8973b559df975a2f9c930daf1abac3",
+      "stagedSha256": "5dd6a80fb58d379c164502feecd6dfa83a8973b559df975a2f9c930daf1abac3",
+      "stagedTarget": "reference/p5/p5-outbox-numbering/numbering/",
+      "promotion": "rewritten",
+      "note": "Rewritten from a MERGE WITH (HOLDLOCK) counter table to one SQL SEQUENCE per prefix and year in schema numbering, created on demand (2714 race swallowed in SQL, NO CACHE). Formatting and the 2-6 uppercase-letter prefix rule moved to Application RequestNumberFormat; the year comes from TimeProvider in Numbering:TimeZoneId (RequestNumberAllocator) instead of a caller-supplied Gregorian year."
+    }
+  ]
+}

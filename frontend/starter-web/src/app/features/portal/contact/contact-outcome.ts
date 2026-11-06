@@ -17,7 +17,17 @@ export enum ContactFailureKind {
   Offline = 3,
   /** Anything else (5xx, an unexpected status, a client-side failure). */
   Failed = 4,
+  /** 409 `PORTAL_CONTACT_DISABLED`: an administrator closed the form; nothing is wrong, the reader comes back later. */
+  Closed = 5,
 }
+
+/**
+ * The portal error codes the page branches on. Mirrors `PortalErrorCodes`
+ * (backend/src/Modules/Portal/Application/PortalErrorCodes.cs); the contract is the code string.
+ */
+export const PortalErrorCodes = {
+  ContactDisabled: 'PORTAL_CONTACT_DISABLED',
+} as const;
 
 /** The server's message keys (`errors.<CODE>`) of each form field it refused. */
 export type ContactServerFieldErrors = Partial<Record<ContactField, readonly string[]>>;
@@ -60,6 +70,9 @@ export function contactFailureFrom(error: unknown): ContactFailure {
   if (VALIDATION_STATUSES.has(parsed.status) && parsed.fieldErrors.length > 0) {
     return { kind: ContactFailureKind.Validation, referenceCode, fieldErrors: groupFieldErrors(parsed.fieldErrors) };
   }
+  if (parsed.status === HttpStatusCode.Conflict && parsed.serverCode === PortalErrorCodes.ContactDisabled) {
+    return { kind: ContactFailureKind.Closed, referenceCode, fieldErrors: {} };
+  }
   if (parsed.status === HttpStatusCode.TooManyRequests) {
     return { kind: ContactFailureKind.RateLimited, referenceCode, fieldErrors: {} };
   }
@@ -87,10 +100,17 @@ const FAILURE_MESSAGE_KEYS: Readonly<Record<ContactFailureKind, string>> = {
   [ContactFailureKind.RateLimited]: Keys.RateLimited,
   [ContactFailureKind.Offline]: Keys.Offline,
   [ContactFailureKind.Failed]: Keys.Failed,
+  [ContactFailureKind.Closed]: fieldMessageKey(PortalErrorCodes.ContactDisabled),
 };
 
-/** The banner for a failure; a general failure with a reference code asks the reader to quote it. */
+/**
+ * The banner for a failure; a general failure with a reference code asks the reader to quote it. A closed form is
+ * information, not a fault: an info banner with no reference code to quote.
+ */
 export function failureOutcome(failure: ContactFailure): ContactOutcome {
+  if (failure.kind === ContactFailureKind.Closed) {
+    return { kind: DgaPageFeedbackKind.Info, titleKey: Keys.ClosedTitle, messageKey: FAILURE_MESSAGE_KEYS[failure.kind] };
+  }
   const base = { kind: DgaPageFeedbackKind.Error, titleKey: Keys.FailureTitle };
   if (failure.kind === ContactFailureKind.Failed && failure.referenceCode !== null) {
     return { ...base, messageKey: Keys.FailedWithReference, params: { reference: failure.referenceCode } };

@@ -25,6 +25,9 @@ public static class StarterHostSettings
     private const string Separator = ":";
     private const string FirstItem = "0";
 
+    // The jobs module's job-server switch as a plain key, so the support code does not reference the module.
+    private const string JobsEnabledKey = "Jobs:Enabled";
+
     /// <summary>The settings for <paramref name="options"/> and <paramref name="accounts"/>.</summary>
     public static IReadOnlyDictionary<string, string?> For(StarterHostOptions options, StarterTestAccounts accounts)
     {
@@ -47,6 +50,8 @@ public static class StarterHostSettings
             [Key(SeqSettings.KeyPrefix, nameof(SeqSettings.ServerUrl))] = string.Empty,
             // Sealed tickets on, so account activation links can be issued like in a real deployment.
             [Key(SealedTicketOptions.SectionName, nameof(SealedTicketOptions.Enabled))] = Flag(true),
+            // No background job server: it would open SQL on start and run jobs against a throwaway database.
+            [JobsEnabledKey] = Flag(false),
         };
         AddKeyRing(settings, PublicIdKeyringOptions.SectionName);
         AddKeyRing(settings, RequestSigningOptions.SectionName);

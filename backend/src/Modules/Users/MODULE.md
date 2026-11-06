@@ -13,10 +13,17 @@ Users and organizations (module 2). The Users module owns:
 - **The Excel user import** (`users.ImportBatches`): preview one `.xlsx`, then commit the previewed batch. Rebuilt
   without any shared or default password: every password-bound account gets a sealed one-time activation ticket
   instead, every Active Directory or SSO account gets none.
-- **Activation links.** `AccountActivations` asks Identity to issue a ticket, builds the link
-  (`Users:Activation:LinkBaseUrl` + `/activate#ticket=` + ticket) and writes a Pending `account-activation` outbox
-  message whose payload names the ticket by id only (`AccountActivationPayload`: `userPublicId`, `ticketId`,
-  `expiresAt`). The administrator copies the link from the response; e-mail delivery is phase 5.
+- **Activation links and the activation e-mail.** `AccountActivations` asks Identity to issue a ticket at once (an
+  administrator's reset takes effect immediately: the password is cleared and every older link superseded). Then
+  `ActivationDeliveryRules.DeliveryFor` decides (`ActivationDelivery`: `AdministratorLink = 1`, `Email = 2`):
+  - **the account has an e-mail address:** a Pending `account-activation` outbox message whose payload names the
+    ticket by id only (`AccountActivationPayload`: `userPublicId`, `ticketId`, `expiresAt`); the response carries no
+    link. At drain time `AccountActivationEmailHandler` (the one `IOutboxHandler` of that type) asks Identity for a
+    **fresh** ticket, builds the link (`Users:Activation:LinkBaseUrl` + `/activate#ticket=` + ticket) and sends it at
+    once through `INotificationService.SendImmediateEmailAsync` (template `account-activation`, placeholders
+    `activationLink` and `expiresAt` as `yyyy-MM-dd HH:mm UTC`, in the recipient's language from Identity's
+    `INotificationRecipients`). The ticket exists only in that e-mail.
+  - **no e-mail address:** the administrator receives the link in the response and hands it over; no outbox message.
 
 ## Use
 
@@ -29,21 +36,23 @@ as integers. Every error is problem+json with a `code`; the client renders `erro
 | --- | --- | --- |
 | `GET /api/admin/users?search&organizationId&kind&isActive&page&pageSize` | `users.view` | `{items:[user], total}` |
 | `GET /api/admin/users/{id}` | `users.view` | `user` |
-| `POST /api/admin/users` | `users.manage` | `{userName, displayName, email?, loginName?, upn?, kind, binding, organizationId?}` -> 201 `{user, activation?:{activationLink, expiresAt}}` |
+| `POST /api/admin/users` | `users.manage` | `{userName, displayName, email?, loginName?, upn?, kind, binding, organizationId?}` -> 201 `{user, activation?}` |
 | `PUT /api/admin/users/{id}` | `users.manage` | `{displayName, email?, loginName?, upn?, kind, binding, organizationId?}` -> `user` |
 | `POST /api/admin/users/{id}/deactivate` / `reactivate` / `unlock` | `users.manage` | 204 |
-| `POST /api/admin/users/{id}/activation` | `users.manage` | `{activationLink, expiresAt}` (password binding; an admin password reset) |
+| `POST /api/admin/users/{id}/activation` | `users.manage` | `activation` (password binding; an admin password reset) |
 | `GET /api/admin/organizations?search&kind&isActive&page&pageSize` | `organizations.view` | `{items:[organization], total}` |
 | `GET /api/admin/organizations/{id}` | `organizations.view` | `organization` |
 | `POST /api/admin/organizations` | `organizations.manage` | `{code, nameEn, nameAr, kind}` -> 201 `organization` |
 | `PUT /api/admin/organizations/{id}` | `organizations.manage` | `{code, nameEn, nameAr, kind}` -> `organization` |
 | `POST /api/admin/organizations/{id}/deactivate` / `reactivate` | `organizations.manage` | 204 |
 | `POST /api/admin/user-import/preview` (multipart field `file`, one `.xlsx`) | `users.import` | `{batchId, rows:[{rowNumber, userName, displayName, email, kind, binding, organizationCode, valid, errors}], validCount, invalidCount}` |
-| `POST /api/admin/user-import/{batchId}/commit` | `users.import` | `{created:[{id, userName, binding, activationLink?, expiresAt?, activationErrorCode?}], rejected:[{rowNumber, errors}]}` |
+| `POST /api/admin/user-import/{batchId}/commit` | `users.import` | `{created:[{id, userName, binding, activationLink?, expiresAt?, activationDelivery?, activationErrorCode?}], rejected:[{rowNumber, errors}]}` |
 
 `user` is `{id, userName, displayName, email, loginName, upn, kind, binding, organizationId, organizationName,
 isActive, hasPassword, isLockedOut, isBreakGlass}` (`organizationName` in the request language, Arabic by default);
-`organization` is `{id, code, nameEn, nameAr, kind, isActive}`. Lists are 1-based pages of at most 100 (default 20).
+`organization` is `{id, code, nameEn, nameAr, kind, isActive}`; `activation` is `{activationLink: string|null, expiresAt,
+delivery}` with `delivery` 1 (AdministratorLink: `activationLink` set) or 2 (Email: `activationLink` null, the user
+receives it by e-mail). Lists are 1-based pages of at most 100 (default 20).
 
 The import sheet: the first worksheet, the first row with text is the header, matched ignoring case, spaces, `_` and
 `-` in any order: `UserName`, `DisplayName`, `Kind` (`internal`|`external`), `Binding` (`password`|`ad`|`sso`;
@@ -58,6 +67,10 @@ Configuration: `Users:Activation:LinkBaseUrl` (`ActivationOptions`; the web orig
 
 ## Extend
 
+- Activation delivery: the rules (who is e-mailed, when a queued e-mail is stale) live only in
+  `ActivationDeliveryRules`; the payload shape only in `ActivationPayloads`. A new stale state is a new
+  `ActivationEmailSkip` member with the next explicit value. The e-mail text is the Notifications module's
+  `account-activation` template (a Notifications migration), never a string here.
 - New endpoint: `node tools/scaffold/new-endpoint.mjs --module Users ...`, then a use case in `Application/` with its
   unit tests; account data only through `IAccountAdministration` (extend the kernel port, implemented by Identity,
   when a screen needs more).
@@ -71,9 +84,18 @@ Configuration: `Users:Activation:LinkBaseUrl` (`ActivationOptions`; the web orig
 
 - **No default, shared or generated password, ever.** No body, sheet column or response carries a password. A
   password-bound account gets an activation link; an AD or SSO account none.
-- **The sealed ticket stays out of storage.** It goes only into the link returned to the administrator; the outbox
-  payload names it by id; no table, log or error message here holds it. The import batch stores the rows as read
-  (names, e-mail addresses), never a ticket.
+- **The sealed ticket stays out of storage.** It goes only into the link returned to the administrator (an account
+  without an e-mail address) or into the e-mail `AccountActivationEmailHandler` sends at drain time; the outbox
+  payload names it by id; no table, log or error message here holds it (the handler logs the message id and the fresh
+  ticket id only). It is passed only to `SendImmediateEmailAsync`, which stores nothing, never to `NotifyUserAsync`.
+  The import batch stores the rows as read (names, e-mail addresses), never a ticket.
+- **Supersede semantics.** Every issue (the request-time one and the drain-time one) supersedes the account's older
+  links, so the newest e-mailed link is the valid one; one-time use is enforced by Identity at redemption
+  (`IDENTITY_ACTIVATION_REJECTED` for a used or superseded link).
+- **A queued activation e-mail is idempotent against activation.** At drain time the handler re-reads the account and
+  completes without issuing anything when `ActivationDeliveryRules.SkipReasonOf` says it is stale (not found, no longer
+  password bound, break-glass, deactivated, password already set, address removed), so a redelivery never clears a
+  password the user just set.
 - **Membership** (`OrganizationMembership`, one owner for the form and the import): an external user belongs to an
   active external organization (required); an internal user to an active internal organization or none. An edit that
   keeps the current organization is allowed after it was deactivated. An organization's kind cannot change while
@@ -107,11 +129,21 @@ Configuration: `Users:Activation:LinkBaseUrl` (`ActivationOptions`; the web orig
 
 ## Gotchas
 
-- **The outbox is not transactional with Identity's save** until phase 5: the account and its ticket are written by
-  Identity, then the outbox row by the kernel outbox, in separate saves. A crash in between leaves an account whose
-  activation has no outbox row; the administrator still has the link and can issue a new one.
-- **E-mail delivery is phase 5.** Until then the activation link is shown to the administrator only (create response,
-  re-issue response, commit result) and the outbox row stays Pending.
+- **The outbox is not transactional with Identity's save:** the account and its ticket are written by Identity, then
+  the outbox row by the kernel outbox, in separate saves. A crash in between leaves an account whose activation has no
+  outbox row (and, for an e-mailed account, no link anywhere): the administrator issues the activation again from the
+  users list.
+- **Delivery is at least once.** A drain that sends the e-mail and crashes before the outbox marks it Sent delivers it
+  again; while the user has not activated yet, that sends a second e-mail whose link supersedes the first. Two
+  administrator re-issues in a row likewise send two e-mails; only the newest link works.
+- **An e-mailed activation waits for the drain** (the `outbox-drain` job, every 5 minutes, `Messaging:Outbox:Enabled`).
+  The `expiresAt` in the response is the request-time ticket's; the e-mailed link is issued later and expires later by
+  that delay. Where e-mail is not delivered (outbox off, `Notifications:Email` still the FileDrop default in a real
+  deployment) the user receives nothing: the deployment kit must configure the relay.
+- **Failures retry, then fail.** A missing link base at drain time, an Identity refusal (for example sealed tickets
+  switched off) or a send failure throws, so the outbox retries with back-off and marks the row Failed after
+  `OutboxLimits.MaxAttempts`; the administrator then issues the activation again. A payload that cannot be read is
+  logged and completed (retrying cannot fix it).
 - Without `Users:Activation:LinkBaseUrl` the host still starts; creating or committing a password-bound account then
   answers `USERS_ACTIVATION_LINK_UNCONFIGURED` (422) before anything is created. Every deployment kit sets it.
 - If Identity refuses the ticket after an account was created, the create answers that refusal (the account exists;

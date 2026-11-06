@@ -40,6 +40,14 @@ internal sealed class FakeAccounts : IAccountAdministration
         return account;
     }
 
+    /// <summary>Adds an account with an e-mail address (an activation then goes by e-mail).</summary>
+    public AccountSummary AddWithEmail(string userName, string email, AccountBinding binding = AccountBinding.Password)
+    {
+        var account = Add(userName, binding) with { Email = email };
+        Accounts[^1] = account;
+        return account;
+    }
+
     public Task<Outcome<AccountSummary>> CreateAsync(NewAccount account, CancellationToken cancellationToken)
     {
         Calls.Add($"create:{account.UserName}");
@@ -213,7 +221,15 @@ internal sealed class FakeUnitOfWork : IUsersUnitOfWork
 
 internal sealed class FakePublicIds : IUserPublicIds
 {
-    public string TokenOf(long userId) => $"m1_users_{userId}";
+    public const string Prefix = "m1_users_";
+
+    public string TokenOf(long userId) => Prefix + userId.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    public long? IdOf(string? token) =>
+        token is not null && token.StartsWith(Prefix, StringComparison.Ordinal)
+        && long.TryParse(token.AsSpan(Prefix.Length), System.Globalization.CultureInfo.InvariantCulture, out var id)
+            ? id
+            : null;
 }
 
 internal sealed class FakeCurrentUser : ICurrentUserContext

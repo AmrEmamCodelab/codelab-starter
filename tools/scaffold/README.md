@@ -2,10 +2,10 @@
 
 ## Purpose
 
-Deterministic Node generators for the backend module anatomy (ADR-004): a new module, a new endpoint and a new
-permission. Every later module is created with them. They are the only sanctioned path that edits the solution
+Deterministic Node generators for the backend module anatomy (ADR-004): a new module, a new endpoint, a new
+permission and a new lookup (module 4). Every later module is created with them. They are the only sanctioned path that edits the solution
 (`codelab-starter.slnx`) and the host project's module list (`backend/src/Starter.Api/Starter.Api.csproj`). The
-scaffold skills (`.claude/skills/new-module`, `new-endpoint`, `new-permission`) and the fork-model test
+scaffold skills (`.claude/skills/new-module`, `new-endpoint`, `new-permission`, `new-lookup`) and the fork-model test
 (`tools/fork/Test-ForkModel.ps1`) call them.
 
 ## Use
@@ -16,6 +16,7 @@ Run from the repo root with the private Node (`E:\codelab-tools\node24` first on
 node tools/scaffold/new-module.mjs --name <Pascal>
 node tools/scaffold/new-endpoint.mjs --module <Name> --name <Pascal> --method <GET|POST|PUT|DELETE> --route <segment> [--permission <kebab>]
 node tools/scaffold/new-permission.mjs --module <Name> --action <kebab> [--description <text>] [--no-gen]
+node tools/scaffold/new-lookup.mjs --type <kebab> --name <Pascal> --codes <a,b,...> --name-ar <text> --names-ar <a;b;...> [--name-en <text>] [--names-en <a;b;...>]
 ```
 
 Every command also takes `--root <dir>` (default: the repo this script lives in) and `--skip-generate` (skip the
@@ -35,6 +36,16 @@ prints the exact two commands instead (`next: <dotnet> run --project backend/too
 docs/generated` and `next: npm run api:gen --workspace frontend/starter-web`; `catalogCommands` in
 `lib/workspace.mjs`, the same two `regenerate` runs). Recipe: [docs/recipes/add-permission.md](../../docs/recipes/add-permission.md).
 
+`new-lookup` adds a lookup type to module 4 (recipe [docs/recipes/add-lookup.md](../../docs/recipes/add-lookup.md)): the
+`LookupTypes` constant (above `// scaffold:lookup-types` in `backend/src/Starter.Domain/Lookups/LookupTypes.cs`), the
+`<Name>Ids` constants class next to it (ids 1..n in `--codes` order) and the seed migration
+`<timestamp>_Add<Type>Lookup.cs` in `backend/src/Modules/Lookups/Infrastructure/Persistence/Migrations` (rows through
+`LookupSeed`, sort orders 10, 20, ...). The timestamp is one minute after the newest migration in that folder, never
+the clock, so the output is deterministic. Codes are comma-separated; names are `;`-separated, one per code; Arabic
+names are required, English ones default to the code in words. A second run for a type whose three outputs exist is
+`unchanged` (exit 0, even after the names were edited by hand); a partial earlier run is refused. It runs no
+downstream generator: a lookup adds no permission, endpoint, i18n key or configuration key (its last lines say so).
+
 Downstream generators, each only when it exists: `node tools/rules-engine/compile.mjs` (needs `node_modules` at the
 root), `Starter.DocsGen --out docs/generated` (`backend/tools/Starter.DocsGen`), and for endpoints and permissions
 `npm run api:gen --workspace frontend/starter-web` (needs `docs/generated/openapi.v1.json`).
@@ -47,10 +58,11 @@ Architecture, Contract and Demo tests; set `CODELAB_SKIP_DOGFOOD=1` to skip it i
 
 - Templates live in `templates/<set>/`, laid out as repo-relative paths. File names carry path tokens
   (`__Module__`, `__Name__`), contents carry `{{Token}}`s; an unknown token fails the render. Sets: `module`,
-  `endpoint-get`, `endpoint-post`, `endpoint-put`, `endpoint-delete`.
+  `endpoint-get`, `endpoint-post`, `endpoint-put`, `endpoint-delete`, `lookup`.
 - Every name, path, pattern and message is in `lib/constants.mjs`; `lib/names.mjs` validates and converts names;
   `lib/project-files.mjs` edits the slnx and the host csproj; `lib/csharp-edit.mjs` inserts constants, catalog
-  entries, registrations and usings; `lib/scaffold.mjs` holds the three plans; `lib/workspace.mjs` writes the
+  entries, registrations and usings; `lib/scaffold.mjs` holds the module, endpoint and permission plans and `lib/lookup.mjs` the
+  lookup plan; `lib/workspace.mjs` writes the
   change set and runs the downstream generators.
 - A new template token: add it to the values in `lib/scaffold.mjs` and to the render test in
   `tests/generators.test.mjs`.
@@ -66,7 +78,7 @@ Architecture, Contract and Demo tests; set `CODELAB_SKIP_DOGFOOD=1` to skip it i
 ## Gotchas
 
 - Generated files carry `// scaffold:permission-keys`, `// scaffold:permission-catalog`, `// scaffold:error-codes`
-  and `// scaffold:registrations` markers. Hand-written modules without them use fallbacks (before the class's
+  and `// scaffold:registrations` markers (and `LookupTypes.cs` carries `// scaffold:lookup-types`). Hand-written modules without them use fallbacks (before the class's
   closing brace, before `];`, before `return services;`).
 - The generated `<Name>Store` classes are placeholders (a read finds nothing, a create is refused) so the module
   builds and its endpoints answer with a refusal until the data access is written.

@@ -73,7 +73,7 @@ public sealed class GrantCeilingFlowTests(UsersHost host)
     {
         using var created = await users.PostJsonAsync(
             UsersApi.Users,
-            new { userName, displayName = "Ceiling User", email = userName + "@example.test", kind = UsersApi.ExternalKind, binding = UsersApi.PasswordBinding, organizationId },
+            new { userName, displayName = "Ceiling User", email = (string?)null, kind = UsersApi.ExternalKind, binding = UsersApi.PasswordBinding, organizationId },
             adminToken);
         var body = await UsersApi.ReadAsync(created, HttpStatusCode.Created);
         return (body.GetProperty("user").GetProperty(Id).GetString()!, body.GetProperty("activation").GetProperty("activationLink").GetString()!);

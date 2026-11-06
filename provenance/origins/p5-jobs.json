@@ -1,0 +1,99 @@
+{
+  "batch": "p5-jobs",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-jobs -Manifest <scratch copy of allowlist.manifest.yaml with the p5-jobs batch> -Clean (staging %TEMP%/codelab-extract/p5-jobs, outside the repo; scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. The source jobs and the role-bearing actor were not carried. The job failure log filter was harvested in phase 1 (Codelab.Observability JobFailureLogFilter) and is reused, not re-extracted.",
+  "origins": [
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-application",
+      "source": "backend/MODHS.Application/Jobs/IJob.cs",
+      "target": "backend/src/Starter.Application/Jobs/IJob.cs",
+      "mode": "copy",
+      "sourceGitBlob": "fb7e2222b9244fe7d003ecaf6ea816925a7f605d",
+      "sourceSha256": "f4363d829be8be0a501e45e8c933f6551da5ff01f7fb138c650b985e76d1a212",
+      "stagedSha256": "f4363d829be8be0a501e45e8c933f6551da5ff01f7fb138c650b985e76d1a212",
+      "stagedTarget": "reference/p5/p5-jobs/application/IJob.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as the kernel IJob port: Key, bilingual name and a nullable cron from constants, and RunAsync(JobRunContext) with no acting-user parameter; the description and display-only schedule strings were dropped (the cron is the schedule). The returned item count became a log line of the job."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-application",
+      "source": "backend/MODHS.Application/Jobs/IJobService.cs",
+      "target": "backend/src/Modules/Jobs/Application/Admin/JobUseCases.cs",
+      "mode": "copy",
+      "sourceGitBlob": "53f71088e6d541182a84b148a375e4debdc1d851",
+      "sourceSha256": "3b2a5422d4c941094865717bf80a49c4e4ee6cb5545704c4537532b0d421da85",
+      "stagedSha256": "3b2a5422d4c941094865717bf80a49c4e4ee6cb5545704c4537532b0d421da85",
+      "stagedTarget": "reference/p5/p5-jobs/application/IJobService.cs",
+      "promotion": "rewritten",
+      "note": "Split into one use case per endpoint (ListJobs, TriggerJobRun, ListJobRuns) returning Outcome<T>/Refusal (404 JOBS_JOB_NOT_FOUND, 409 JOBS_RUN_IN_PROGRESS) instead of an outcome enum; the poll-one-run call became the run history list."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-application",
+      "source": "backend/MODHS.Application/Jobs/JobModels.cs",
+      "target": "backend/src/Modules/Jobs/Api/JobsResponses.cs",
+      "mode": "copy",
+      "sourceGitBlob": "2378829da5d57e9ae18661b17e35032b46045620",
+      "sourceSha256": "17414807100cf405ac518fb42b6e7cb0cca5c64c5bff9d7faf7355fdcb4e23d7",
+      "stagedSha256": "17414807100cf405ac518fb42b6e7cb0cca5c64c5bff9d7faf7355fdcb4e23d7",
+      "stagedTarget": "reference/p5/p5-jobs/application/JobModels.cs",
+      "promotion": "rewritten",
+      "note": "The summary/run projections became JobSummary and the wire records JobResponse/JobRunResponse with a PublicId run id, int enums (JobRunStatus Queued/Running/Succeeded/Failed, JobTrigger Schedule/Manual with explicit values) instead of enum names, the SYSTEM actor, triggeredBy and a reference code instead of an error text."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-application",
+      "source": "backend/MODHS.Application/Jobs/JobService.cs",
+      "target": "backend/src/Modules/Jobs/Application/Admin/JobUseCases.cs",
+      "mode": "copy",
+      "sourceGitBlob": "02a0fe9f6714f2956654bf1e5626deae80c4ddf3",
+      "sourceSha256": "007c4ff1e0fa1e0e25b5765c8e3200c92b10614b5b1bf5ebae0e917479dbbbfa",
+      "stagedSha256": "007c4ff1e0fa1e0e25b5765c8e3200c92b10614b5b1bf5ebae0e917479dbbbfa",
+      "stagedTarget": "reference/p5/p5-jobs/application/JobService.cs",
+      "promotion": "rewritten",
+      "note": "Kept the catalog-from-DI and the one-active-run guard (now bounded by JobsLimits.ActiveRunWindow so a lost run never locks a job out); a manual run is recorded Queued (not Running) with the caller subject, and a dispatch failure closes the row (JOBS_ENQUEUE_FAILED). Scheduled runs are recorded too (the source wrote rows for manual runs only)."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-hangfire",
+      "source": "backend/MODHS.Api/Services/HangfireJobRunQueue.cs",
+      "target": "backend/src/Modules/Jobs/Infrastructure/Scheduling/HangfireAdapters.cs",
+      "mode": "copy",
+      "sourceGitBlob": "5f20b59ca8291cf07df88505564d895e00ad845d",
+      "sourceSha256": "224c28232d4d999fc1312b381648d86ac60831708c7d8ea56fb2d04570ca5634",
+      "stagedSha256": "224c28232d4d999fc1312b381648d86ac60831708c7d8ea56fb2d04570ca5634",
+      "stagedTarget": "reference/p5/p5-jobs/hangfire/HangfireJobRunQueue.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as HangfireJobRunDispatcher (IJobRunDispatcher) enqueuing HangfireJobEntry.RunManualAsync(runId); the same file adds the per-key distributed run lock and the stable Hangfire entry methods with AutomaticRetry 0."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-hangfire",
+      "source": "backend/MODHS.Api/Services/JobRunExecutor.cs",
+      "target": "backend/src/Modules/Jobs/Application/Execution/JobExecution.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ca3d76350643eacfce62ade2c90b285e3d86bd64",
+      "sourceSha256": "fc78554161890b2fbab7c07d1500dc88c555e8ae57f7b1c6fd7ec2cd010c5fe0",
+      "stagedSha256": "fc78554161890b2fbab7c07d1500dc88c555e8ae57f7b1c6fd7ec2cd010c5fe0",
+      "stagedTarget": "reference/p5/p5-jobs/hangfire/JobRunExecutor.cs",
+      "promotion": "rewritten",
+      "note": "The load-bearing catch and the classified code (never ex.Message) were kept; the seeded user acting in a clinical role was removed entirely: runs execute inside ISystemActorScope with actor SYSTEM, a fresh correlation scope and a reference code from Codelab.Observability; abandoned Running rows are closed, overlap is refused through the run lock, and cancellation of the node propagates (JobRunner holds the entry logic)."
+    },
+    {
+      "batch": "p5-jobs",
+      "entryId": "jobs-context",
+      "source": "ProjectContext/10-background-jobs-hangfire.md",
+      "target": "backend/src/Modules/Jobs/MODULE.md",
+      "mode": "copy",
+      "sourceGitBlob": "1907d5909762aa1a225c9d4a64eacfc054b7fb2a",
+      "sourceSha256": "509b988fd378be310453607e5afe10d91efd7f1399264a62e5c9df72ad57a32d",
+      "stagedSha256": "509b988fd378be310453607e5afe10d91efd7f1399264a62e5c9df72ad57a32d",
+      "stagedTarget": "reference/p5/p5-jobs/context/10-background-jobs-hangfire.md",
+      "promotion": "rewritten",
+      "note": "Read as the reference for the module docs: the flows, the gotchas (schema not EF-owned, static Hangfire state, arguments serialized by name) and the add-a-job recipe were rewritten for the starter; the dashboard, the per-request follow-up scheduling and the source jobs are not carried."
+    }
+  ]
+}

@@ -7,7 +7,7 @@ stores and forward user intent to core services or to an injected source.
 
 | Piece | What it does | Files |
 | --- | --- | --- |
-| `app-shell` | Staff layout: brand link, the main navigation filtered by the user's permission keys, the language switcher, the user menu and the page outlet. Mirrors with `<html dir>` through logical CSS | `app-shell/` |
+| `app-shell` | Staff layout: brand link, the main navigation filtered by the user's permission keys, the notifications bell, the language switcher, the user menu and the page outlet. Mirrors with `<html dir>` through logical CSS | `app-shell/` |
 | Shell navigation | `SHELL_NAV_ITEMS` (an injection token: path, label key, icon, and the targets the entry may open, each a permission key and a link), `visibleNavItems()` and `appLink()`. The app provides the items (`APP_NAV_ITEMS` in `src/app/app-nav.ts`) on `SHELL_ROUTE`, since they point into features | `app-shell/shell-nav.ts` |
 | `app-portal-shell` | Public frame of the portal pages: `dga-stamp-strip`, `dga-header` (brand, the portal navigation: landing, service guide, FAQ, contact; language switcher; a sign-in link for a visitor, the user menu once signed in), a skip link, the page outlet and the footer. Needs no session | `portal-shell/` |
 | Portal navigation | `PORTAL_NAV_ENTRIES`, `portalLink(PortalPaths.X)` (`/portal`, `/portal/faq`), `rootLink(RoutePaths.X)`, `toDgaNavItems()` | `portal-shell/portal-nav.ts` |
@@ -16,8 +16,9 @@ stores and forward user intent to core services or to an injected source.
 | Requester navigation | `RequesterNavItem` (label key, link, icon, optional `permission` + `permissionMode`, children), `visibleRequesterNav()`, `REQUESTER_SHELL_OPTIONS` (nav items, brand link, notifications feed link; empty default) | `requester-shell/requester-nav.ts` |
 | `app-footer` | Brand logo and name, links to the portal privacy, terms and contact pages, the copyright line (year from `APP_CLOCK`, Saudi time). Input-free | `app-footer/` |
 | Brand | `LayoutBrand`: the name in the current language and the logo, from the `branding` block of `config.json`; without one, the `layouts.brand.name` text and no logo | `app-footer/layout-brand.ts` |
-| `app-notifications-menu` | The header bell: unread badge (`99+` cap), a polite live announcement of the unread count, a dropdown of the newest 5 with mark-read, and a "view all" link. Escape closes it, on the bell or inside the panel. Inputs `items`, `viewAllLink`; output `markRead` | `notifications-menu/` |
-| Notifications model | `NotificationItem` `{ id, titleText, bodyText, at, read, link? }`, the `NotificationsSource` interface and `NOTIFICATIONS_SOURCE` (default `EmptyNotificationsSource`; P5 provides the real one), `unreadCount`, `badgeText`, `filterNotifications`, `NotificationFilter` (int enum), `formatNotificationTime` | `notifications-menu/notifications.ts` |
+| `app-notifications-menu` | The header bell: unread badge (`99+` cap), a polite live announcement of the unread count, a dropdown of the newest 5 with mark-read, and a "view all" link. Escape closes it, on the bell or inside the panel. Inputs `items`, `viewAllLink`, optional `unreadTotal` (the server's unread total; else counted from `items`); output `markRead` | `notifications-menu/` |
+| Notifications model | `NotificationItem` `{ id, titleText, bodyText, at, read, link? }`, the `NotificationsSource` interface and `NOTIFICATIONS_SOURCE` (default `EmptyNotificationsSource`; the app provides `ApiNotificationsSource` from features/notifications), the optional `unreadCount` signal, `NOTIFICATIONS_FEED_LINK` (the feed page link the app provides; default null), `unreadCount`, `badgeText`, `filterNotifications`, `NotificationFilter` (int enum), `formatNotificationTime` | `notifications-menu/notifications.ts` |
+| `app-notifications-bell` | The bell wired to the app's notifications: `app-notifications-menu` over `NOTIFICATIONS_SOURCE` (items, server unread total) with the `NOTIFICATIONS_FEED_LINK` "view all" link; input-free, the staff shell places it | `notifications-menu/notifications-bell.component.ts` |
 | `app-notifications-feed` | The full list for a feed page: read/unread filter (`aria-pressed`), empty state per filter, mark-read and load-more. Inputs `items`, `hasMore`, `loading`; outputs `markRead`, `loadMore` | `notifications-feed/` |
 | `app-language-switcher` | One button offering the other language, named in its own script; calls `LanguageService.set()` | `language-switcher/` |
 | `app-user-profile-menu` | The user's display name and a menu with logout (`AuthService.logout()`); closes on Escape and outside click | `user-profile-menu/` |
@@ -79,9 +80,7 @@ above are illustrations of P7 names.)
   `permission` as the route it opens. Leave `permission` out only for a page every visitor may open.
 - **A new portal page in the header:** add its path to core `PortalPaths`, the route to `PORTAL_ROUTES`, then one
   `PORTAL_NAV_ENTRIES` entry with a key in `PortalNavTranslationKeys` and both bundles.
-- **Real notifications (P5):** implement `NotificationsSource` (API-backed; `markRead`/`loadMore` never reject, the
-  HTTP error interceptor reports a refusal) and provide it as `NOTIFICATIONS_SOURCE` in `app.config.ts`. The bell and
-  the feed need no change.
+- **Notifications:** the app wires `provideApiNotifications()` (features/notifications: the API source as `NOTIFICATIONS_SOURCE`, the feed page as `NOTIFICATIONS_FEED_LINK`); a shell shows the bell with `<app-notifications-bell />`. A source implements `NotificationsSource` (`markRead`/`loadMore` never reject; the HTTP error interceptor reports a refusal) and may add `unreadCount` for the badge.
 - **A new layout route** (a frame behind `authGuard`, holding pages as `children`): export the route object and add it
   to `LAYOUT_ROUTES` in `src/app/public-routes.ts`. The route gate exempts a layout by identity (`routesForGate`), never
   by path; never add its path to `PUBLIC_ROUTE_PATHS`. A layout route without pages fails the gate, which is why the

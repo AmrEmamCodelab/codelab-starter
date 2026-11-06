@@ -264,8 +264,12 @@
 >
   @if (store.issued(); as issued) {
     <div class="editor-fields">
-      <p class="confirm-text">{{ 'admin.users.issued.text' | t: { userName: issued.userName } }}</p>
-      <app-activation-link [link]="issued.activation.activationLink" [expiresAt]="issued.activation.expiresAt" />
+      @if (issued.activation.activationLink; as link) {
+        <p class="confirm-text">{{ 'admin.users.issued.text' | t: { userName: issued.userName } }}</p>
+        <app-activation-link [link]="link" [expiresAt]="issued.activation.expiresAt" />
+      } @else {
+        <p class="confirm-text">{{ 'admin.users.issued.emailed' | t: { userName: issued.userName } }}</p>
+      }
     </div>
   }
 </app-editor-dialog-pattern>

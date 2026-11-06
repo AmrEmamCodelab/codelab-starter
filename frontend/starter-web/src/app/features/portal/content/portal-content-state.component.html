@@ -1,0 +1,10 @@
+<dga-page-feedback [state]="feedback()" [moveFocus]="false" />
+@if (failed()) {
+  <dga-button
+    class="portal-content-state__retry"
+    variant="secondary-outline"
+    data-public-action
+    data-testid="portal-content-retry"
+    (click)="retry.emit()"
+  >{{ keys.Retry | t }}</dga-button>
+}

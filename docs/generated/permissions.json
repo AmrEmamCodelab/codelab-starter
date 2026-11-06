@@ -26,9 +26,39 @@
       "description": "See the roles, their permissions and the permission catalog."
     },
     {
+      "key": "audit.view",
+      "module": "Audit",
+      "description": "Read the audit trail of every audited table (personal data masked)."
+    },
+    {
       "key": "dashboard.view",
       "module": "Access",
       "description": "Open the dashboard."
+    },
+    {
+      "key": "jobs.run",
+      "module": "Jobs",
+      "description": "Run a background job now."
+    },
+    {
+      "key": "jobs.view",
+      "module": "Jobs",
+      "description": "List the background jobs and their run history."
+    },
+    {
+      "key": "lookups.manage",
+      "module": "Lookups",
+      "description": "Activate and deactivate lookup values."
+    },
+    {
+      "key": "lookups.view",
+      "module": "Lookups",
+      "description": "List the lookup types and every value of a type, active or not."
+    },
+    {
+      "key": "notifications.test",
+      "module": "Notifications",
+      "description": "Send oneself a test notification to check the bell, e-mail and SMS delivery."
     },
     {
       "key": "organizations.manage",
@@ -39,6 +69,26 @@
       "key": "organizations.view",
       "module": "Users",
       "description": "List and open organizations."
+    },
+    {
+      "key": "portal.content.manage",
+      "module": "Portal",
+      "description": "Replace the sections of the FAQ, service guide, privacy and terms pages."
+    },
+    {
+      "key": "portal.content.view",
+      "module": "Portal",
+      "description": "Read the FAQ, service guide, privacy and terms content in the admin editor."
+    },
+    {
+      "key": "settings.manage",
+      "module": "Settings",
+      "description": "Change the value of a runtime setting."
+    },
+    {
+      "key": "settings.view",
+      "module": "Settings",
+      "description": "List the runtime settings with their values and defaults."
     },
     {
       "key": "users.import",

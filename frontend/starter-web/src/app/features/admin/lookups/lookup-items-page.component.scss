@@ -1,0 +1,18 @@
+@use 'lookups-page';
+
+@include lookups-page.page;
+
+.lookups-page__back {
+  align-self: flex-start;
+}
+
+.lookups-page__type {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-xl);
+}
+
+.lookups-page__confirm-text {
+  margin: 0;
+  color: var(--dga-color-text-paragraph);
+}

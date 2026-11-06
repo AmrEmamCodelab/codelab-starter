@@ -10,21 +10,25 @@ import { PORTAL_ROUTE, SHELL_ROUTE, routes } from './app.routes';
 import { ACCESS_ROUTES } from './features/admin/access/access.routes';
 import { AdminRouteSegments } from './features/admin/admin.paths';
 import { ADMIN_ROUTES } from './features/admin/admin.routes';
+import { JOBS_ROUTES } from './features/admin/jobs/jobs.routes';
+import { SETTINGS_ROUTES } from './features/admin/settings/settings.routes';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
-import { PUBLIC_ROUTE_PATHS, routesForGate } from './public-routes';
+import { PUBLIC_ROUTE_PATHS, SIGNED_IN_ROUTE_PATHS, routesForGate } from './public-routes';
 
 /** Every lazily loaded child table, keyed by the full path of its `loadChildren` route. */
 const LAZY_ROUTE_TABLES: Readonly<Record<string, Routes>> = {
   [RoutePaths.Admin]: ADMIN_ROUTES,
   [`${RoutePaths.Admin}/${AdminRouteSegments.Access}`]: ACCESS_ROUTES,
+  [`${RoutePaths.Admin}/${AdminRouteSegments.Settings}`]: SETTINGS_ROUTES,
+  [`${RoutePaths.Admin}/${AdminRouteSegments.Jobs}`]: JOBS_ROUTES,
 };
 
 const RECIPE = 'docs/recipes/add-permission.md';
 
 const GATE_OPTIONS = {
   permissionDataKey: RouteDataKeys.Permission,
-  publicPaths: PUBLIC_ROUTE_PATHS,
+  publicPaths: [...PUBLIC_ROUTE_PATHS, ...SIGNED_IN_ROUTE_PATHS],
   lazyChildren: LAZY_ROUTE_TABLES,
   knownPermissions: Object.values(PermissionKeys),
   fix: `${ROUTE_GATE_FIX} Recipe: ${RECIPE}.`,
@@ -34,6 +38,13 @@ const UNGATED_PATH = 'reports';
 const page = () => Promise.resolve(class {});
 
 describe('the route-table permission gate', () => {
+  it('lists only staff-shell children as signed-in pages', () => {
+    const shellPaths = (SHELL_ROUTE.children ?? []).map(child => child.path);
+    for (const path of SIGNED_IN_ROUTE_PATHS) {
+      expect(shellPaths).toContain(path);
+    }
+  });
+
   it('passes the app routes: every page is gated by a known key or public', () => {
     expect(() => assertRoutesGated(routesForGate(routes), GATE_OPTIONS)).not.toThrow();
   });

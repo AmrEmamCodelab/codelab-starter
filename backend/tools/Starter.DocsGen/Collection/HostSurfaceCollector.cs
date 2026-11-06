@@ -8,8 +8,8 @@ namespace Starter.DocsGen.Collection;
 
 /// <summary>
 /// Reads the surface from the real host: the served OpenAPI document, the permission catalog sources and the
-/// endpoint data source from its services, and the error codes and options classes by reflection over the solution
-/// and package assemblies.
+/// endpoint data source from its services, the error codes and options classes by reflection over the solution and
+/// package assemblies, and the status enums by reflection over the solution's own assemblies.
 /// </summary>
 internal sealed class HostSurfaceCollector : IApiSurfaceSource
 {
@@ -40,6 +40,7 @@ internal sealed class HostSurfaceCollector : IApiSurfaceSource
             Permissions: ConventionScanner.Permissions(services.GetServices<IPermissionCatalogSource>(), owners),
             Endpoints: EndpointCollector.Collect(services.GetRequiredService<EndpointDataSource>().Endpoints, owners, documentation),
             ErrorCodes: ConventionScanner.ErrorCodes(assemblies, owners, documentation),
-            ConfigKeys: ConfigKeyScanner.Scan(assemblies, owners, documentation));
+            ConfigKeys: ConfigKeyScanner.Scan(assemblies, owners, documentation),
+            Statuses: StatusScanner.Scan(SolutionAssemblies.OwnAssemblies(assemblies, hostAssembly), owners, documentation));
     }
 }

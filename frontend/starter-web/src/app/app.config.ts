@@ -6,6 +6,7 @@ import { provideAppBranding } from './core/config/branding.providers';
 import { provideStarterHttp } from './core/http/http.providers';
 import { provideStarterSecurity } from './core/security/security.providers';
 import { initializeCore } from './core/session/core-initializer';
+import { provideApiNotifications } from './features/notifications/notifications.providers';
 import { routes } from './app.routes';
 
 /**
@@ -20,6 +21,7 @@ export function createAppConfig(config: AppConfig): ApplicationConfig {
       ...provideAppBranding(config),
       provideRouter(routes, withComponentInputBinding()),
       provideStarterHttp(),
+      ...provideApiNotifications(),
       ...provideStarterSecurity(config),
       provideAppInitializer(initializeCore),
     ],

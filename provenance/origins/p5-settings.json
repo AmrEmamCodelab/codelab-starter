@@ -1,0 +1,99 @@
+{
+  "batch": "p5-settings",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-settings -Manifest <scratch copy of allowlist.manifest.yaml plus the p5-settings batch> -Clean (staging %TEMP%/codelab-extract/p5-settings, outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. Source-product settings were dropped; only the patterns were carried.",
+  "origins": [
+    {
+      "batch": "p5-settings",
+      "entryId": "service",
+      "source": "backend/MODHS.Application/Admin/AdminConfigService.cs",
+      "target": "backend/src/Modules/Settings/Application/Admin/SettingUseCases.cs",
+      "mode": "copy",
+      "sourceGitBlob": "d7da0dc25ec0ffa0a4029d62b95928cb2c732859",
+      "sourceSha256": "05b53c0021bfda0f81e017799fc4a7d6732142f9a6c0609d75cd3bc1c5d12ec1",
+      "stagedSha256": "05b53c0021bfda0f81e017799fc4a7d6732142f9a6c0609d75cd3bc1c5d12ec1",
+      "stagedTarget": "reference/p5/settings/service/AdminConfigService.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as the UpdateSetting use case over ISettingsRepository and ISettingsUnitOfWork: the bounded-value validation (now per SettingValueType and per-setting MinValue/MaxValue in Domain/SettingValueFormat) and the UpdatedAt/UpdatedBy audit columns are carried; the in-process static refresh, which updated one node only, is replaced by a stamp version written in the same transaction and a 30 s TimeProvider-driven snapshot TTL (Application/Reading). The single source-product setting was not carried."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "service",
+      "source": "backend/MODHS.Application/Admin/IAdminConfigService.cs",
+      "target": "backend/src/Modules/Settings/Application/Ports.cs",
+      "mode": "copy",
+      "sourceGitBlob": "492f1815792c504134d3cdc06984cf230e2ef308",
+      "sourceSha256": "6608c0934570a7064ff16114a4d37c6b4793cc435d0525d37eb6025e53bccc71",
+      "stagedSha256": "6608c0934570a7064ff16114a4d37c6b4793cc435d0525d37eb6025e53bccc71",
+      "stagedTarget": "reference/p5/settings/service/IAdminConfigService.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the service port became the module ports (ISettingsRepository, ISettingsUnitOfWork, ISettingsSnapshotSource) and the kernel IRuntimeSettings read port; the result-wrapper enum became Outcome/Refusal."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "controller",
+      "source": "backend/MODHS.Api/Contracts/AdminConfigurationContracts.cs",
+      "target": "backend/src/Modules/Settings/Api/SettingResponse.cs",
+      "mode": "copy",
+      "sourceGitBlob": "8b5cf9d9dfab99f4c5ee0835a1409a0e6c03b5ad",
+      "sourceSha256": "03ea44820f1e2056291994a9dfaa5ffc99c6aa593e6c8a1675e4d0029efd126b",
+      "stagedSha256": "03ea44820f1e2056291994a9dfaa5ffc99c6aa593e6c8a1675e4d0029efd126b",
+      "stagedTarget": "reference/p5/settings/controller/Contracts/AdminConfigurationContracts.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as the generic SettingResponse (key, group, valueType as int, value, defaultValue, ar/en descriptions, updatedAt) and UpdateSettingRequest {value}; the source-product field and the updated-by user id on the wire were not carried."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "controller",
+      "source": "backend/MODHS.Api/Controllers/AdminConfigurationController.cs",
+      "target": "backend/src/Modules/Settings/Api/AdminSettingsController.cs",
+      "mode": "copy",
+      "sourceGitBlob": "51c4632203a685c4a4aa5eaea2479670baf34f0d",
+      "sourceSha256": "01c5719ac8d37ee4b6c55cd408f00bdd437d606127c9e385ade3322ca918308d",
+      "stagedSha256": "01c5719ac8d37ee4b6c55cd408f00bdd437d606127c9e385ade3322ca918308d",
+      "stagedTarget": "reference/p5/settings/controller/Controllers/AdminConfigurationController.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as a thin controller over ListSettings and UpdateSetting with SettingsPermissionKeys (settings.view, settings.manage), keyed by setting key instead of a single-row document, mapping problem+json through OutcomeResults. The per-setting POST route and the anonymous-object error bodies were not carried."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "persistence",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/AdminConfigurationConfiguration.cs",
+      "target": "backend/src/Modules/Settings/Infrastructure/Persistence/SettingsDbContext.cs",
+      "mode": "copy",
+      "sourceGitBlob": "8a9b4237ba5cf794ba3e154f30e7e252f654dab0",
+      "sourceSha256": "33fba287b6d33715ee92ef0e1065e352994c07ea06d30c7c255ac13905c136ea",
+      "stagedSha256": "33fba287b6d33715ee92ef0e1065e352994c07ea06d30c7c255ac13905c136ea",
+      "stagedTarget": "reference/p5/settings/persistence/",
+      "promotion": "rewritten",
+      "note": "Rewritten as the settings.Settings (key-value rows) and settings.SettingsStamp (single row) configurations; the single-row typed configuration table was not carried."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "tests",
+      "source": "backend/MODHS.Application.Tests/AdminConfigServiceTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Settings.Tests/Application/AdminUseCaseTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "102ea5aabda146a9fd97be58d7c77451643f20b4",
+      "sourceSha256": "05eeb0e30f4655244fc79c6f89e0db6b11bd06bb0a96f839fc708549c75f275a",
+      "stagedSha256": "05eeb0e30f4655244fc79c6f89e0db6b11bd06bb0a96f839fc708549c75f275a",
+      "stagedTarget": "reference/p5/settings/tests/",
+      "promotion": "rewritten",
+      "note": "Pattern only: the bounds-validation and audit-column tests were rewritten for the generic settings with FakeTimeProvider and fakes; the source-product window tests were not carried."
+    },
+    {
+      "batch": "p5-settings",
+      "entryId": "context-jobs",
+      "source": "ProjectContext/10-background-jobs-hangfire.md",
+      "target": "backend/src/Modules/Settings/MODULE.md",
+      "mode": "copy",
+      "sourceGitBlob": "1907d5909762aa1a225c9d4a64eacfc054b7fb2a",
+      "sourceSha256": "509b988fd378be310453607e5afe10d91efd7f1399264a62e5c9df72ad57a32d",
+      "stagedSha256": "509b988fd378be310453607e5afe10d91efd7f1399264a62e5c9df72ad57a32d",
+      "stagedTarget": "reference/p5/settings/context/",
+      "promotion": "rewritten",
+      "note": "Read for settings consumed by jobs: the only one was a source-product duration held in a static. It informed the MODULE.md guidance to read IRuntimeSettings on every use (never keep a value in a static) and the forbidden rule settings.no-static-setting-state; no job content was carried."
+    }
+  ]
+}

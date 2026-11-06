@@ -3,6 +3,7 @@ using Codelab.Security.Signing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Starter.Application.Authorization;
+using Starter.Application.Messaging;
 using Starter.Application.Validation;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Users.Api;
@@ -67,6 +68,8 @@ public sealed class UsersModuleTests
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IValidator<CreateOrganizationCommand>));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IValidator<UpdateOrganizationCommand>));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(CommitUserImport));
+        Assert.Contains(services, descriptor =>
+            descriptor.ServiceType == typeof(IOutboxHandler) && descriptor.ImplementationType == typeof(AccountActivationEmailHandler));
     }
 
     [Fact]

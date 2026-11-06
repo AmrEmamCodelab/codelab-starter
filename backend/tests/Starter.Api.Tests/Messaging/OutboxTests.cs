@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Starter.Application.Messaging;
 using Starter.Infrastructure.Hosting;
 using Starter.Infrastructure.Messaging;
@@ -16,13 +17,13 @@ namespace Starter.Api.Tests.Messaging;
 public sealed class OutboxModelTests
 {
     [Fact]
-    public void The_model_lives_in_the_messaging_schema_and_matches_the_InitialCreate_migration()
+    public void The_model_lives_in_the_messaging_schema_and_matches_the_latest_migration()
     {
         using var context = OutboxContexts.Offline();
 
         Assert.Equal(OutboxDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(OutboxTableNames.OutboxMessages, context.Model.FindEntityType(typeof(OutboxEntry))!.GetTableName());
-        Assert.Equal([OutboxMigrationIds.InitialCreate], context.Database.GetMigrations());
+        Assert.Equal([OutboxMigrationIds.InitialCreate, OutboxMigrationIds.DeliveryTracking], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -48,6 +49,20 @@ public sealed class OutboxModelTests
         Assert.Contains($"[messaging].[{PersistenceRegistration.MigrationsHistoryTable}]", script, StringComparison.Ordinal);
         Assert.Contains("[PayloadJson] nvarchar(max) NOT NULL", script, StringComparison.Ordinal);
         Assert.Contains("[NotBefore] datetimeoffset NULL", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_delivery_tracking_migration_adds_the_drain_columns_with_existing_rows_at_attempt_zero()
+    {
+        using var context = OutboxContexts.Offline();
+
+        var script = context.GetService<IMigrator>().GenerateScript(
+            fromMigration: OutboxMigrationIds.InitialCreate, toMigration: OutboxMigrationIds.DeliveryTracking);
+
+        Assert.Contains("ALTER TABLE [messaging].[OutboxMessages] ADD [Attempt] int NOT NULL DEFAULT 0", script, StringComparison.Ordinal);
+        Assert.Contains("ADD [LockedUntil] datetimeoffset NULL", script, StringComparison.Ordinal);
+        Assert.Contains("ADD [SentAt] datetimeoffset NULL", script, StringComparison.Ordinal);
+        Assert.Contains($"ADD [LastError] nvarchar({OutboxColumnLimits.LastErrorMaxLength}) NULL", script, StringComparison.Ordinal);
     }
 }
 
@@ -120,6 +135,64 @@ public sealed class MessagingRegistrationTests
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IOutbox) && descriptor.ImplementationType == typeof(EfOutbox));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IModuleDatabase) && descriptor.ImplementationType == typeof(ModuleDatabase<OutboxDbContext>));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(OutboxDbContext));
+        Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IOutboxDrainRunner) && descriptor.ImplementationType == typeof(OutboxDrainRunner));
+        Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IOutboxStore) && descriptor.ImplementationType == typeof(SqlOutboxStore));
+    }
+
+    [Fact]
+    public void The_outbox_is_on_by_default_and_the_drain_resolves_without_a_database()
+    {
+        using var provider = KernelProvider(new Dictionary<string, string?>());
+        using var scope = provider.CreateScope();
+
+        Assert.True(provider.GetRequiredService<IOptions<OutboxOptions>>().Value.Enabled);
+        Assert.Equal(OutboxOptions.DefaultBatchSize, provider.GetRequiredService<IOptions<OutboxOptions>>().Value.BatchSize);
+        Assert.IsType<OutboxDrainRunner>(scope.ServiceProvider.GetRequiredService<IOutboxDrainRunner>());
+    }
+
+    [Fact]
+    public void The_outbox_switch_and_batch_size_bind_from_Messaging_Outbox()
+    {
+        using var provider = KernelProvider(new Dictionary<string, string?>
+        {
+            ["Messaging:Outbox:Enabled"] = "false",
+            ["Messaging:Outbox:BatchSize"] = "10",
+        });
+
+        var options = provider.GetRequiredService<IOptions<OutboxOptions>>().Value;
+        Assert.False(options.Enabled);
+        Assert.Equal(10, options.BatchSize);
+    }
+
+    [Fact]
+    public void A_batch_size_out_of_range_refuses_the_options()
+    {
+        using var provider = KernelProvider(new Dictionary<string, string?> { ["Messaging:Outbox:BatchSize"] = "0" });
+
+        var refused = Assert.Throws<OptionsValidationException>(() => provider.GetRequiredService<IOptions<OutboxOptions>>().Value);
+        Assert.Contains("Messaging:Outbox:BatchSize", refused.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_handler_registered_twice_is_registered_once_and_two_handlers_stay_two()
+    {
+        var services = new ServiceCollection();
+
+        services.AddOutboxHandler<RecordingHandler>().AddOutboxHandler<RecordingHandler>().AddOutboxHandler<OtherTypeHandler>();
+
+        Assert.Equal(2, services.Count(descriptor => descriptor.ServiceType == typeof(IOutboxHandler)));
+        Assert.All(services.Where(descriptor => descriptor.ServiceType == typeof(IOutboxHandler)), descriptor => Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime));
+    }
+
+    private static ServiceProvider KernelProvider(Dictionary<string, string?> settings)
+    {
+        settings["ConnectionStrings:Starter"] = "Server=(localdb)\\unused;Database=never-opened";
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddStarterKernel(configuration);
+        return services.BuildServiceProvider();
     }
 }
 

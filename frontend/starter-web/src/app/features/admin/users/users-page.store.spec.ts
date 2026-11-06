@@ -14,7 +14,7 @@ import { UserKind } from './data/user.models';
 import { UsersAdminClient } from './data/users-api';
 import { UserAction, UsersPageStore } from './users-page.store';
 
-const ACTIVATION = { activationLink: 'http://localhost:4280/activate#ticket=abc', expiresAt: '2026-11-06T10:00:00Z' };
+const ACTIVATION = { activationLink: 'http://localhost:4280/activate#ticket=abc', expiresAt: '2026-11-06T10:00:00Z', delivery: 1 };
 const HQ = organization();
 const PARTNER = organization({ id: 'org-p' as OrganizationId, code: 'PARTNER', nameEn: 'Partner', kind: OrganizationKind.ExternalOrganization });
 const CLOSED = organization({ id: 'org-c' as OrganizationId, code: 'CLOSED', isActive: false });

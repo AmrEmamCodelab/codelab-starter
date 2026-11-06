@@ -114,6 +114,43 @@ public static class TestSqlServer
         return await command.ExecuteScalarAsync();
     }
 
+    /// <summary>Runs a parameterized scalar query against <paramref name="database"/> (parameter names include the <c>@</c>).</summary>
+    public static async Task<object?> ScalarAsync(string database, string sql, IReadOnlyDictionary<string, object> parameters)
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+        await using var connection = new SqlConnection(ConnectionStringFor(RequireTestName(database)));
+        await connection.OpenAsync();
+        await using var command = Command(connection, sql, parameters);
+        return await command.ExecuteScalarAsync();
+    }
+
+    /// <summary>Reads the first column of every row of a parameterized query against <paramref name="database"/> as text.</summary>
+    public static async Task<IReadOnlyList<string>> ReadStringsAsync(string database, string sql, IReadOnlyDictionary<string, object> parameters)
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+        await using var connection = new SqlConnection(ConnectionStringFor(RequireTestName(database)));
+        await connection.OpenAsync();
+        await using var command = Command(connection, sql, parameters);
+        await using var reader = await command.ExecuteReaderAsync();
+        var values = new List<string>();
+        while (await reader.ReadAsync())
+        {
+            values.Add(reader.GetValue(0).ToString() ?? string.Empty);
+        }
+
+        return values;
+    }
+
+    /// <summary>Runs a parameterized statement against <paramref name="database"/>; returns the affected row count.</summary>
+    public static async Task<int> ExecuteAsync(string database, string sql, IReadOnlyDictionary<string, object> parameters)
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+        await using var connection = new SqlConnection(ConnectionStringFor(RequireTestName(database)));
+        await connection.OpenAsync();
+        await using var command = Command(connection, sql, parameters);
+        return await command.ExecuteNonQueryAsync();
+    }
+
     /// <summary>Refuses any name that is not a test database name (letters, digits and underscores, with the marker).</summary>
     public static string RequireTestName(string database)
     {
@@ -123,6 +160,17 @@ public static class TestSqlServer
     }
 
     private static string Quote(string name) => $"[{name}]";
+
+    private static SqlCommand Command(SqlConnection connection, string sql, IReadOnlyDictionary<string, object> parameters)
+    {
+        var command = new SqlCommand(sql, connection);
+        foreach (var (name, value) in parameters)
+        {
+            command.Parameters.AddWithValue(name, value);
+        }
+
+        return command;
+    }
 
     private static async Task ExecuteOnMasterAsync(string sql)
     {

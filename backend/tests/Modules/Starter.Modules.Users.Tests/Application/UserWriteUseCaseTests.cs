@@ -11,7 +11,7 @@ namespace Starter.Modules.Users.Tests.Application;
 public sealed class CreateUserTests
 {
     [Fact]
-    public async Task A_password_bound_user_is_created_without_a_password_and_gets_a_link_and_an_outbox_row()
+    public async Task A_password_bound_user_with_an_email_is_created_without_a_password_and_gets_an_activation_email_in_the_outbox()
     {
         var harness = new UsersHarness();
         var organization = harness.Organizations.Add("FIN", OrganizationKind.External);
@@ -21,7 +21,8 @@ public sealed class CreateUserTests
         Assert.True(outcome.IsSuccess);
         Assert.False(outcome.Value.User.Account.HasPassword);
         Assert.Equal("FIN en", outcome.Value.User.OrganizationName);
-        Assert.StartsWith(UsersHarness.LinkBase + "/activate#ticket=", outcome.Value.Activation!.ActivationLink, StringComparison.Ordinal);
+        Assert.Equal(ActivationDelivery.Email, outcome.Value.Activation!.Delivery);
+        Assert.Null(outcome.Value.Activation.ActivationLink);
         Assert.Single(harness.Outbox.Messages);
         Assert.Equal(["create:amal", $"activation:{outcome.Value.User.Account.UserId}"], harness.Accounts.Calls);
     }
@@ -234,15 +235,28 @@ public sealed class UnlockUserTests
 public sealed class IssueUserActivationTests
 {
     [Fact]
-    public async Task Reissues_for_a_password_bound_account()
+    public async Task Reissues_for_a_password_bound_account_by_email_when_it_has_an_address()
+    {
+        var harness = new UsersHarness();
+        var account = harness.Accounts.AddWithEmail("amal", "amal@example.test");
+
+        var outcome = await harness.IssueUserActivation().ExecuteAsync(PublicId<UsersIds>.From(account.UserId), CancellationToken.None);
+
+        Assert.Equal(ActivationDelivery.Email, outcome.Value.Delivery);
+        Assert.Single(harness.Outbox.Messages);
+    }
+
+    [Fact]
+    public async Task Reissues_a_link_for_the_administrator_when_the_account_has_no_address()
     {
         var harness = new UsersHarness();
         var account = harness.Accounts.Add("amal");
 
         var outcome = await harness.IssueUserActivation().ExecuteAsync(PublicId<UsersIds>.From(account.UserId), CancellationToken.None);
 
-        Assert.True(outcome.IsSuccess);
-        Assert.Single(harness.Outbox.Messages);
+        Assert.Equal(ActivationDelivery.AdministratorLink, outcome.Value.Delivery);
+        Assert.NotNull(outcome.Value.ActivationLink);
+        Assert.Empty(harness.Outbox.Messages);
     }
 
     [Fact]

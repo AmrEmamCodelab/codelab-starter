@@ -15,12 +15,24 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | GET | `/api/admin/access/users` | permission `access.grants.view` | Access | Up to 20 accounts matching the search (active and deactivated). |
 | GET | `/api/admin/access/users/{userId:publicid}/grants` | permission `access.grants.view` | Access | One user's roles, direct grants, virtual roles and effective permissions. |
 | PUT | `/api/admin/access/users/{userId:publicid}/grants` | permission `access.grants.manage` | Access | Replaces one user's roles and direct grants (live on the user's next request, no relogin). |
+| GET | `/api/admin/audit` | permission `audit.view` | Audit | One page of the audit trail, newest first (values already masked). |
+| GET | `/api/admin/jobs` | permission `jobs.view` | Jobs | Every registered job with its newest run, ordered by key. |
+| GET | `/api/admin/jobs/{key}/runs` | permission `jobs.view` | Jobs | The newest runs of the job, newest first. |
+| POST | `/api/admin/jobs/{key}/runs` | permission `jobs.run` | Jobs | Queues a run of the job now; a job server runs it as the system actor. |
+| GET | `/api/admin/lookups` | permission `lookups.view` | Lookups | Every lookup type with its value count, ordered by key. |
+| GET | `/api/admin/lookups/{type}` | permission `lookups.view` | Lookups | Every value of one lookup type, active or not, ordered by sort order. |
+| PUT | `/api/admin/lookups/{type}/items/{id:publicid}/active` | permission `lookups.manage` | Lookups | Activates or deactivates one value (the only run-time change a lookup accepts). |
+| POST | `/api/admin/notifications/test` | permission `notifications.test` | Notifications | Sends the caller a test notification: the bell now, e-mail (and SMS when enabled) through the outbox. |
 | GET | `/api/admin/organizations` | permission `organizations.view` | Users | One page of organizations, ordered by code. |
 | POST | `/api/admin/organizations` | permission `organizations.manage` | Users | Creates an active organization. |
 | GET | `/api/admin/organizations/{id:publicid}` | permission `organizations.view` | Users | One organization. |
 | PUT | `/api/admin/organizations/{id:publicid}` | permission `organizations.manage` | Users | Changes an organization's code, names and kind. |
 | POST | `/api/admin/organizations/{id:publicid}/deactivate` | permission `organizations.manage` | Users | Deactivates an organization (its accounts stay; it accepts no new member). |
 | POST | `/api/admin/organizations/{id:publicid}/reactivate` | permission `organizations.manage` | Users | Reactivates an organization. |
+| GET | `/api/admin/portal/content/{page}` | permission `portal.content.view` | Portal | One page's current content (never cached); 404 for an unknown page key. |
+| PUT | `/api/admin/portal/content/{page}` | permission `portal.content.manage` | Portal | Replaces one page's sections and answers the page as stored; 400, 404 or 409 otherwise. |
+| GET | `/api/admin/settings` | permission `settings.view` | Settings | Every setting, ordered by group, then key. |
+| PUT | `/api/admin/settings/{key}` | permission `settings.manage` | Settings | Changes a setting's value; every node sees it within `SettingsLimits.CacheTtl`. |
 | POST | `/api/admin/user-import/preview` | permission `users.import` | Users | Reads and validates the sheet and stores the batch; nothing is created yet. |
 | POST | `/api/admin/user-import/{batchId:publicid}/commit` | permission `users.import` | Users | Creates the accounts of the batch's valid rows (no passwords; activation links for password-bound rows). |
 | GET | `/api/admin/users` | permission `users.view` | Users | One page of accounts with their organization names. |
@@ -43,7 +55,13 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | GET | `/api/auth/sso/signin-oidc` | anonymous (allowlisted) | Identity | The provider's redirect back: 302 to the SPA callback with `#ticket=` or `#error=`. |
 | GET | `/api/dashboard` | permission `dashboard.view` | Access | The dashboard's data. |
 | GET | `/api/features` | anonymous (allowlisted) | Kernel | Every declared flag and its effective value. |
+| GET | `/api/lookups/{type}` | authenticated (allowlisted) | Lookups | The active values of one lookup type, ordered by sort order (both names; the client picks the language). |
 | GET | `/api/me/permissions` | authenticated (allowlisted) | Access | The permission keys the caller holds now. |
+| GET | `/api/notifications` | authenticated (allowlisted) | Notifications | One page of the caller's notifications, newest first, in the request language. |
+| GET | `/api/notifications/unread-count` | authenticated (allowlisted) | Notifications | How many of the caller's notifications are unread. |
+| POST | `/api/notifications/{id:publicid}/read` | authenticated (allowlisted) | Notifications | Marks one of the caller's notifications read (idempotent). |
+| POST | `/api/portal/contact-messages` | anonymous (allowlisted) | Portal | Stores a contact message and answers its reference number (201), the field errors (400), 409 while an administrator has switched the form off, or 429. |
+| GET | `/api/portal/content/{page}` | anonymous (allowlisted) | Portal | One page's content; 404 for an unknown page key. |
 | GET | `/api/security/session-signing-key` | authenticated (allowlisted) | Codelab.Security |  |
 | ANY | `/health/live` | anonymous (allowlisted) | Platform |  |
 | ANY | `/health/ready` | anonymous (allowlisted) | Platform |  |

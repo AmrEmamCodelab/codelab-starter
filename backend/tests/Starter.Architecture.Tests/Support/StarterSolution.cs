@@ -51,6 +51,28 @@ public static class StarterSolution
         }
     }
 
+    /// <summary>
+    /// The modules that have a Domain layer (types under <c>&lt;root&gt;.Domain</c>), for the Domain-only theories. A module
+    /// whose entities are kernel types (the Audit viewer: <c>Starter.Domain.Auditing</c>) has no Domain layer to check.
+    /// </summary>
+    public static TheoryData<string> ModuleNamesWithDomain
+    {
+        get
+        {
+            var data = new TheoryData<string>();
+            foreach (var assembly in ModuleAssemblies)
+            {
+                var domainRoot = $"{RootNamespaceOf(assembly)}.{LayerNames.Domain}";
+                if (assembly.GetTypes().Any(type => type.Namespace is { } name && LayerPlacement.IsSameOrNested(name, domainRoot)))
+                {
+                    data.Add(ModuleNaming.NameOf(assembly));
+                }
+            }
+
+            return data;
+        }
+    }
+
     /// <summary>The repository root (the folder holding rules/rules.compiled.json).</summary>
     public static string RepositoryRootPath => RepositoryRoot.Find(CompiledRules.RelativePath);
 

@@ -10,7 +10,7 @@ namespace Starter.Integration.Tests.Users;
 /// <summary>
 /// The Users module on a real database through the real host: organizations and accounts created by the break-glass
 /// administrator, an activation link redeemed, a deactivation that ends the user's access on the next call, and the
-/// Excel import (preview 3 rows, commit 2 accounts with activation links and Pending outbox rows, 1 rejected).
+/// Excel import (preview 3 rows, commit 2 accounts whose activation is e-mailed through Pending outbox rows, 1 rejected).
 /// </summary>
 [Collection(UsersHostGroup.Name)]
 public sealed partial class UsersAdminFlowTests(UsersHost host)
@@ -53,7 +53,7 @@ public sealed partial class UsersAdminFlowTests(UsersHost host)
     }
 
     [Fact]
-    public async Task The_import_previews_three_rows_and_commits_two_accounts_with_links_and_pending_outbox_rows()
+    public async Task The_import_previews_three_rows_and_commits_two_accounts_with_pending_activation_emails()
     {
         using var client = host.CreateClient();
         using var api = new UsersApi(host.Factory.CreateClient());
@@ -111,9 +111,9 @@ public sealed partial class UsersAdminFlowTests(UsersHost host)
     private async Task AssertImportedAccountAsync(UsersApi api, JsonElement account, string adminToken)
     {
         var id = account.GetProperty("id").GetString()!;
-        var link = account.GetProperty("activationLink").GetString()!;
         Assert.Equal(1, account.GetProperty("binding").GetInt32());
-        Assert.StartsWith(UsersHost.LinkBase + "/activate" + UsersApi.ActivationFragment, link, StringComparison.Ordinal);
+        Assert.Equal(JsonValueKind.Null, account.GetProperty("activationLink").ValueKind); // e-mailed, never shown to the administrator
+        Assert.Equal(UsersApi.EmailDelivery, account.GetProperty("activationDelivery").GetInt32());
 
         using var detail = await api.GetAsync(UsersApi.UserPath(id), adminToken);
         Assert.False((await UsersApi.ReadAsync(detail, HttpStatusCode.OK)).GetProperty("hasPassword").GetBoolean());
@@ -124,14 +124,15 @@ public sealed partial class UsersAdminFlowTests(UsersHost host)
             $"SELECT COUNT(*) FROM [messaging].[OutboxMessages] WHERE [Type] = '{ActivationType}' AND [Status] = {PendingStatus} AND [PayloadJson] LIKE '%{id}%'");
         Assert.Equal(1, Convert.ToInt32(pending, CultureInfo.InvariantCulture));
         var payload = (string)(await TestSqlServer.ScalarAsync(host.DatabaseName, $"SELECT TOP 1 [PayloadJson] FROM [messaging].[OutboxMessages] WHERE [PayloadJson] LIKE '%{id}%'"))!;
-        Assert.DoesNotContain(UsersApi.TicketOf(link), payload, StringComparison.Ordinal);
+        Assert.DoesNotContain(UsersApi.ActivationFragment, payload, StringComparison.Ordinal);
+        Assert.DoesNotContain("sealed", payload, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object NewUser(string userName, string organizationId) => new
     {
         userName,
         displayName = "Integration User",
-        email = userName + "@example.test",
+        email = (string?)null, // no address: the activation link comes back to the administrator
         kind = UsersApi.ExternalKind,
         binding = UsersApi.PasswordBinding,
         organizationId,

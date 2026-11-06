@@ -7,6 +7,9 @@ export const FaqTranslationKeys = {
   ResultCount: 'portal.faq.result-count',
   NoResults: 'portal.faq.no-results',
   ClearSearch: 'portal.faq.clear-search',
+  /** Heading of the questions list (the questions come from the API). */
+  QuestionsTitle: 'portal.faq.questions-title',
+  // The static questions below feed only the landing page's question count (FAQ_CATEGORIES); the page reads the API.
   GeneralTitle: 'portal.faq.general-title',
   AccountTitle: 'portal.faq.account-title',
   RequestsTitle: 'portal.faq.requests-title',

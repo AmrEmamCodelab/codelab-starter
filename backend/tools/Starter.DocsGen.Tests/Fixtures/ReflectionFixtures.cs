@@ -107,3 +107,30 @@ public abstract class AbstractSectionHolder
     /// <summary>The section.</summary>
     public const string SectionName = "Ignored:Abstract";
 }
+
+/// <summary>A fixture run's state (scanned by the status tests).</summary>
+public enum FixtureRunStatus
+{
+    /// <summary>Done.</summary>
+    Done = 3,
+
+    /// <summary>Waiting to run.</summary>
+    Queued = 1,
+
+    /// <summary>Running.</summary>
+    Running = 2,
+}
+
+/// <summary>Named like a status but not an int enum, so it is ignored.</summary>
+public enum FixtureWideStatus : long
+{
+    /// <summary>Ignored.</summary>
+    Ignored = 1,
+}
+
+/// <summary>A status-like class, not an enum, so it is ignored.</summary>
+public static class FixtureClassStatus
+{
+    /// <summary>Ignored.</summary>
+    public const int Ignored = 1;
+}

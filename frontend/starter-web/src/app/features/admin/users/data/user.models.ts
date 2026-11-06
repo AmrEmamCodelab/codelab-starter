@@ -15,6 +15,12 @@ export type UserPage = Schemas['UserPageResponse'];
 export type CreatedUser = Schemas['CreatedUserResponse'];
 /** An activation link and when it stops working. */
 export type Activation = Schemas['ActivationResponse'];
+
+/** How an activation reaches the user (the API's int enum): a link shown to the administrator, or an e-mail. */
+export enum ActivationDelivery {
+  AdministratorLink = 1,
+  Email = 2,
+}
 /** `fields` is a server-side view of the same values; the client sends the flat members only. */
 export type CreateUserBody = Omit<Schemas['CreateUserCommand'], 'fields'>;
 export type UpdateUserBody = Omit<Schemas['UpdateUserCommand'], 'fields'>;

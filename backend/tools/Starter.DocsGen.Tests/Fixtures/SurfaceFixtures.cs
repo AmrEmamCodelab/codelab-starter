@@ -40,9 +40,18 @@ internal static class SurfaceFixtures
             new ConfigKeyDoc("Sample:Limit", "int", "Sample", "Sample", "5", "The limit."),
             new ConfigKeyDoc("Sample:Name", "string", "Sample", "Sample", string.Empty, "The name."),
             new ConfigKeyDoc("Database:Apply", "bool", "Kernel", "Database", "false", "Apply."),
+        ],
+        Statuses:
+        [
+            new StatusDoc("RunStatus", "Sample.Domain.RunStatus", "Sample", "A run's | state.",
+            [
+                new StatusMemberDoc(3, "Done", "Finished."),
+                new StatusMemberDoc(1, "Queued", "Waiting."),
+            ]),
+            new StatusDoc("EmptyStatus", "Alpha.EmptyStatus", "Alpha", string.Empty, []),
         ]);
 
-    public static ApiSurface Empty() => new(OpenApi, [], [], [], []);
+    public static ApiSurface Empty() => new(OpenApi, [], [], [], [], []);
 }
 
 /// <summary>An <see cref="IApiSurfaceSource"/> that returns a fixed surface or throws.</summary>

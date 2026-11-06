@@ -24,6 +24,7 @@ public sealed class KernelPortContractTests
         { OutboxMessageStatus.Pending, 1 },
         { OutboxMessageStatus.Sent, 2 },
         { OutboxMessageStatus.Failed, 3 },
+        { OutboxMessageStatus.Processing, 4 },
     };
 
     [Theory]
@@ -35,7 +36,7 @@ public sealed class KernelPortContractTests
     [InlineData(typeof(UserKind), 2)]
     [InlineData(typeof(AccountBinding), 3)]
     [InlineData(typeof(PermissionScope), 2)]
-    [InlineData(typeof(OutboxMessageStatus), 3)]
+    [InlineData(typeof(OutboxMessageStatus), 4)]
     public void No_enum_gained_an_untested_member(Type enumType, int count) =>
         Assert.Equal(count, Enum.GetValues(enumType).Length);
 

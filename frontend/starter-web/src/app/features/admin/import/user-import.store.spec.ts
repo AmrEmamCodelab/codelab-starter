@@ -17,7 +17,7 @@ const PREVIEW: ImportPreview = {
   invalidCount: '1',
 };
 const COMMIT: ImportCommit = {
-  created: [{ id: 'user-9' as never, userName: 'omar', binding: AccountBinding.Password, activationLink: 'http://x/activate#ticket=t', expiresAt: '2026-11-06T10:00:00Z', activationErrorCode: null }],
+  created: [{ id: 'user-9' as never, userName: 'omar', binding: AccountBinding.Password, activationLink: 'http://x/activate#ticket=t', expiresAt: '2026-11-06T10:00:00Z', activationErrorCode: null, activationDelivery: 1 }],
   rejected: [{ rowNumber: 3, errors: ['USERS_IMPORT_ROW_EMAIL_INVALID'] }],
 };
 

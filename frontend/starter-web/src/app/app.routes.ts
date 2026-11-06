@@ -5,6 +5,7 @@ import { permissionGuard } from './core/auth/permission.guard';
 import { PermissionKeys, type PermissionKey } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
+import { NOTIFICATIONS_ROUTES } from './features/notifications/notifications.routes';
 import { PORTAL_ROUTES } from './features/portal/portal.routes';
 import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
 import { SHOWCASE_ROUTES } from './showcase/showcase.routes';
@@ -45,6 +46,7 @@ export const SHELL_ROUTE: Route = {
       canActivate: [permissionGuard(ADMIN_AREA_PERMISSIONS)],
       loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
     },
+    ...NOTIFICATIONS_ROUTES,
   ],
 };
 

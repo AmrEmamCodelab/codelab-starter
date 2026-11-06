@@ -116,14 +116,15 @@ public sealed class OrganizationMembershipTests
 public sealed class AccountActivationsTests
 {
     [Fact]
-    public async Task Issues_the_link_and_a_pending_outbox_message_that_names_the_ticket_by_id_only()
+    public async Task An_account_with_an_email_gets_a_pending_outbox_message_that_names_the_ticket_by_id_only_and_no_link()
     {
         var harness = new UsersHarness();
-        var account = harness.Accounts.Add("amal");
+        var account = harness.Accounts.AddWithEmail("amal", "amal@example.test");
 
-        var outcome = await harness.Activations.IssueAsync(account.UserId, CancellationToken.None);
+        var outcome = await harness.Activations.IssueAsync(account, CancellationToken.None);
 
-        Assert.Equal($"{UsersHarness.LinkBase}/activate#ticket=sealed-ticket-1", outcome.Value.ActivationLink);
+        Assert.Equal(ActivationDelivery.Email, outcome.Value.Delivery);
+        Assert.Null(outcome.Value.ActivationLink);
         Assert.Equal(FakeAccounts.TicketExpiry, outcome.Value.ExpiresAt);
         var message = Assert.Single(harness.Outbox.Messages);
         Assert.Equal(OutboxMessageTypes.AccountActivation, message.Type);
@@ -136,12 +137,26 @@ public sealed class AccountActivationsTests
     }
 
     [Fact]
+    public async Task An_account_without_an_email_gets_the_link_for_the_administrator_and_no_outbox_message()
+    {
+        var harness = new UsersHarness();
+        var account = harness.Accounts.Add("amal");
+
+        var outcome = await harness.Activations.IssueAsync(account, CancellationToken.None);
+
+        Assert.Equal(ActivationDelivery.AdministratorLink, outcome.Value.Delivery);
+        Assert.Equal($"{UsersHarness.LinkBase}/activate#ticket=sealed-ticket-1", outcome.Value.ActivationLink);
+        Assert.Equal(FakeAccounts.TicketExpiry, outcome.Value.ExpiresAt);
+        Assert.Empty(harness.Outbox.Messages);
+    }
+
+    [Fact]
     public async Task Without_a_link_base_nothing_is_issued()
     {
         var harness = new UsersHarness { Links = new ActivationLinkSettings(LinkBase: null) };
-        var account = harness.Accounts.Add("amal");
+        var account = harness.Accounts.AddWithEmail("amal", "amal@example.test");
 
-        var outcome = await harness.Activations.IssueAsync(account.UserId, CancellationToken.None);
+        var outcome = await harness.Activations.IssueAsync(account, CancellationToken.None);
 
         Assert.Equal(UsersErrorCodes.ActivationLinkUnconfigured, outcome.Refusal!.Code);
         Assert.DoesNotContain(harness.Accounts.Calls, call => call.StartsWith("activation", StringComparison.Ordinal));
@@ -152,9 +167,9 @@ public sealed class AccountActivationsTests
     public async Task An_identity_refusal_passes_through_and_enqueues_nothing()
     {
         var harness = new UsersHarness();
-        var account = harness.Accounts.Add("amal", binding: AccountBinding.Sso);
+        var account = harness.Accounts.AddWithEmail("amal", "amal@example.test", AccountBinding.Sso);
 
-        var outcome = await harness.Activations.IssueAsync(account.UserId, CancellationToken.None);
+        var outcome = await harness.Activations.IssueAsync(account, CancellationToken.None);
 
         Assert.Equal(FakeAccounts.NotPasswordCode, outcome.Refusal!.Code);
         Assert.Empty(harness.Outbox.Messages);

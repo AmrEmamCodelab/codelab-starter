@@ -13,7 +13,7 @@ import { FilePickerComponent } from '../../../shared/file-picker/file-picker.com
 import { HasPermissionDirective } from '../../../shared/permissions/has-permission.directive';
 import { adminErrorMessageKey, errorCodeKey } from '../organizations/data/admin-api-error';
 import { ActivationLinkComponent } from '../users/activation-link/activation-link.component';
-import { bindingLabelKey, userKindLabelKey } from '../users/data/user.models';
+import { ActivationDelivery, bindingLabelKey, userKindLabelKey } from '../users/data/user.models';
 import type { ImportPreviewRow, ImportedUser, RejectedImportRow } from './data/import.models';
 import { IMPORT_FILE_ACCEPT, IMPORT_MAX_UPLOAD_MEBIBYTES, ImportFileProblemKeys } from './import-file';
 import { ImportStep, UserImportStore } from './user-import.store';
@@ -47,6 +47,7 @@ export class UserImportPageComponent {
   protected readonly store = inject(UserImportStore);
   protected readonly PermissionKeys = PermissionKeys;
   protected readonly ImportStep = ImportStep;
+  protected readonly ActivationDelivery = ActivationDelivery;
   protected readonly accept = IMPORT_FILE_ACCEPT;
   protected readonly maxMebibytes = IMPORT_MAX_UPLOAD_MEBIBYTES;
   protected readonly problemKeys = ImportFileProblemKeys;

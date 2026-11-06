@@ -21,7 +21,10 @@ export interface ContactMessageBody {
   readonly language: AppLanguage;
 }
 
-/** The server's receipt: the reference number the reader can quote later (the API may also answer 204, no body). */
+/**
+ * The server's receipt (201 Created): the reference number the reader can quote later, `CU-<year>-<sequence>` such as
+ * `CU-2026-001` (at least three digits). A 204 without a body is still read as sent.
+ */
 export interface ContactMessageReceipt {
   readonly referenceNumber: string;
 }

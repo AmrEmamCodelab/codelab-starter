@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { APP_NAV_ITEMS } from './app-nav';
 import { PermissionKeys, type PermissionKey } from './core/permissions/permission-keys.generated';
 import { RoutePaths } from './core/routing/route-paths';
-import { AccessPaths } from './features/admin/access/access.paths';
 import { AdminPaths } from './features/admin/admin.paths';
 import { visibleNavItems } from './layouts/app-shell/shell-nav';
 
@@ -32,13 +31,17 @@ describe('the staff navigation', () => {
   });
 
   it.each([
-    [PermissionKeys.UsersView, AdminPaths.users()],
-    [PermissionKeys.OrganizationsView, AdminPaths.organizations()],
-    [PermissionKeys.UsersImport, AdminPaths.import()],
-    [PermissionKeys.AccessRolesView, AccessPaths.roles()],
-  ])('offers the admin entry to a holder of only %s, leading to that page', (key, link) => {
+    PermissionKeys.UsersView,
+    PermissionKeys.OrganizationsView,
+    PermissionKeys.UsersImport,
+    PermissionKeys.AccessRolesView,
+    PermissionKeys.LookupsView,
+    PermissionKeys.PortalContentView,
+    PermissionKeys.SettingsView,
+    PermissionKeys.JobsView,
+  ])('offers the admin entry to a holder of only %s, leading to the admin home that lists their tile', key => {
     const visible = visibleNavItems(APP_NAV_ITEMS, holding(key));
     expect(visible.map(item => item.path)).toEqual([RoutePaths.Admin]);
-    expect(visible[0]?.link).toEqual(link);
+    expect(visible[0]?.link).toEqual(AdminPaths.home());
   });
 });

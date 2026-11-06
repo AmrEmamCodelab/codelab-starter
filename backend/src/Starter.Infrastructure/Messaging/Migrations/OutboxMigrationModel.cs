@@ -12,6 +12,9 @@ public static class OutboxMigrationIds
     /// <summary>The id of the first migration.</summary>
     public const string InitialCreate = "20261105090000_InitialCreate";
 
+    /// <summary>The id of the migration that adds the drain's columns (attempts, lease, sent time, last error).</summary>
+    public const string DeliveryTracking = "20261106090000_DeliveryTracking";
+
     /// <summary>The primary key of <c>messaging.OutboxMessages</c>.</summary>
     public const string OutboxMessagesPrimaryKey = "PK_OutboxMessages";
 
@@ -54,9 +57,9 @@ public static class OutboxSqlTypes
 }
 
 /// <summary>
-/// The messaging model as of the latest migration: the target model of <see cref="InitialCreate"/> and the model
-/// snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration freezes its own copy before this one
-/// changes.
+/// The messaging model as of the latest migration: the target model of <see cref="DeliveryTracking"/> and the model
+/// snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration freezes a copy for
+/// <see cref="DeliveryTracking"/> before this one changes (<see cref="InitialCreate"/> has no target model).
 /// </summary>
 public static class OutboxMigrationModel
 {
@@ -75,9 +78,15 @@ public static class OutboxMigrationModel
     private static void BuildOutboxEntry(EntityTypeBuilder entity)
     {
         entity.Property<long>(nameof(OutboxEntry.Id)).ValueGeneratedOnAdd().HasColumnType(OutboxSqlTypes.BigInt).UseIdentityColumn();
+        entity.Property<int>(nameof(OutboxEntry.Attempt)).HasColumnType(OutboxSqlTypes.Int32Column);
         entity.Property<DateTimeOffset>(nameof(OutboxEntry.CreatedAt)).HasColumnType(OutboxSqlTypes.DateTimeOffset);
+        entity.Property<string>(nameof(OutboxEntry.LastError))
+            .HasMaxLength(OutboxColumnLimits.LastErrorMaxLength)
+            .HasColumnType(OutboxSqlTypes.NVarChar(OutboxColumnLimits.LastErrorMaxLength));
+        entity.Property<DateTimeOffset?>(nameof(OutboxEntry.LockedUntil)).HasColumnType(OutboxSqlTypes.DateTimeOffset);
         entity.Property<DateTimeOffset?>(nameof(OutboxEntry.NotBefore)).HasColumnType(OutboxSqlTypes.DateTimeOffset);
         entity.Property<string>(nameof(OutboxEntry.PayloadJson)).IsRequired().HasColumnType(OutboxSqlTypes.NVarCharMax);
+        entity.Property<DateTimeOffset?>(nameof(OutboxEntry.SentAt)).HasColumnType(OutboxSqlTypes.DateTimeOffset);
         entity.Property<int>(nameof(OutboxEntry.Status)).HasColumnType(OutboxSqlTypes.Int32Column);
         entity.Property<string>(nameof(OutboxEntry.Type))
             .IsRequired()

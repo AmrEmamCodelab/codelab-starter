@@ -12,6 +12,10 @@ describe('admin tiles', () => {
       ['organizations', PermissionKeys.OrganizationsView, '//admin/organizations'],
       ['import', PermissionKeys.UsersImport, '//admin/import'],
       ['roles', PermissionKeys.AccessRolesView, '//admin/access/roles'],
+      ['lookups', PermissionKeys.LookupsView, '//admin/lookups'],
+      ['portal-content', PermissionKeys.PortalContentView, '//admin/portal-content'],
+      ['settings', PermissionKeys.SettingsView, '//admin/settings'],
+      ['jobs', PermissionKeys.JobsView, '//admin/jobs'],
     ]);
   });
 

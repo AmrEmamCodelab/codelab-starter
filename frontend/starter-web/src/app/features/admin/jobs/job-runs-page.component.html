@@ -1,0 +1,114 @@
+<nav class="runs-back">
+  <a class="row-link" data-testid="runs-back" [routerLink]="paths.list()">{{ keys.Runs.Back | t }}</a>
+</nav>
+
+<app-admin-list-pattern
+  [translatedCodes]="translatedCodes"
+  [titleKey]="keys.Runs.Title"
+  [emptyKey]="keys.Runs.Empty"
+  [searchable]="false"
+  [columns]="columns"
+  [rows]="store.runs()"
+  [rowId]="rowId"
+  [total]="store.runs().length"
+  [pageSize]="pageSize"
+  [page]="firstPage"
+  [loading]="store.loading()"
+  [error]="store.error()"
+  (retry)="store.refresh()"
+>
+  <div listToolbar class="row-actions">
+    <dga-button
+      *hasPermission="permissions.View"
+      variant="secondary-outline"
+      size="md"
+      data-testid="runs-refresh"
+      [disabled]="store.loading()"
+      (click)="store.refresh()"
+    >
+      {{ keys.Runs.Refresh | t }}
+    </dga-button>
+    <dga-button
+      *hasPermission="permissions.Run"
+      size="md"
+      data-testid="runs-run"
+      [disabled]="store.job() === null"
+      (click)="store.askRun()"
+    >
+      {{ keys.Actions.RunNow | t }}
+    </dga-button>
+  </div>
+
+  <p listFilters class="jobs-intro" data-testid="runs-job">
+    {{ keys.Runs.Job | t: { name: title() } }}
+    @if (store.job(); as job) {
+      @if (job.cron; as cron) {
+        <code class="job-code" dir="ltr" data-fixed-direction>{{ cron }}</code>
+      } @else {
+        <span class="job-muted">{{ keys.Schedule.ManualOnly | t }}</span>
+      }
+    }
+  </p>
+
+  <ng-template listCell="status" let-row [listCellOf]="store.runs()">
+    <dga-status-tag data-testid="run-status" [tone]="statusTone(row.status)">{{ statusLabelKey(row.status) | t }}</dga-status-tag>
+  </ng-template>
+
+  <ng-template listCell="trigger" let-row [listCellOf]="store.runs()">
+    {{ triggerLabelKeys[row.trigger] | t }}
+  </ng-template>
+
+  <ng-template listCell="actor" let-row [listCellOf]="store.runs()">
+    @if (actorKey(row); as key) {
+      {{ key | t }}
+    } @else {
+      {{ row.actor }}
+    }
+  </ng-template>
+
+  <ng-template listCell="triggeredBy" let-row [listCellOf]="store.runs()">
+    @if (row.triggeredBy; as user) {
+      {{ user }}
+    } @else {
+      <span class="job-muted">{{ keys.Runs.NoUser | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listCell="startedAt" let-row [listCellOf]="store.runs()">
+    @if (row.startedAt; as at) {
+      {{ instant(at) }}
+    } @else {
+      <span class="job-muted">{{ keys.Runs.NotYet | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listCell="finishedAt" let-row [listCellOf]="store.runs()">
+    @if (row.finishedAt; as at) {
+      {{ instant(at) }}
+    } @else {
+      <span class="job-muted">{{ keys.Runs.NotYet | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listCell="referenceCode" let-row [listCellOf]="store.runs()">
+    @if (row.referenceCode; as code) {
+      <code class="job-code" dir="ltr" data-fixed-direction data-testid="run-reference">{{ code }}</code>
+    }
+  </ng-template>
+</app-admin-list-pattern>
+
+<app-editor-dialog-pattern
+  *hasPermission="permissions.Run"
+  [translatedCodes]="translatedCodes"
+  [open]="store.runTrigger.pending() !== null"
+  [titleKey]="keys.Run.Title"
+  [confirmKey]="keys.Run.Confirm"
+  [busy]="store.runTrigger.busy()"
+  [error]="store.runTrigger.error()"
+  (confirm)="store.confirmRun()"
+  (cancel)="store.runTrigger.cancel()"
+>
+  @if (store.runTrigger.pending() !== null) {
+    <p class="confirm-text">{{ keys.Run.Text | t: { name: title() } }}</p>
+  }
+</app-editor-dialog-pattern>

@@ -60,11 +60,14 @@ public interface IImportBatchRepository
     void Add(ImportBatch batch);
 }
 
-/// <summary>The PublicId token of a user id, for payloads that leave the request (the outbox).</summary>
+/// <summary>The PublicId token of a user id, for payloads that leave the request (the outbox), and back.</summary>
 public interface IUserPublicIds
 {
     /// <summary>The <c>users</c> PublicId token of <paramref name="userId"/>.</summary>
     string TokenOf(long userId);
+
+    /// <summary>The user id of a <c>users</c> PublicId token, or null when the token is malformed or of another label.</summary>
+    long? IdOf(string? token);
 }
 
 /// <summary>Reads the first worksheet of an .xlsx workbook into text cells, within the import caps.</summary>

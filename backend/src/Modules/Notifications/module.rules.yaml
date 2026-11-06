@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Notifications module (inherits rules/base.rules.yaml). Written by hand to the module anatomy.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Notifications
+kind: dotnet
+description: "Notifications (module 12), in process: bilingual templates seeded by migration in schema notifications, the bell items and feed API, and e-mail and SMS delivery through the outbox (SMTP to the internal relay or .eml file drop; SMS to a JSON-lines file, the integration-gateway SMS sender a stub until phase 8)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users]
+required:
+  - id: notifications.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a NotificationsPermissionKeys constant (or [AuthenticatedUser] for the caller's own feed, allowlisted) and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: notifications.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (INotificationStore, ITemplateStore, IEmailSender, ISmsSender); the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  - id: notifications.templates-by-migration
+    statement: Template texts are inserted and changed only by Notifications migrations, Arabic and English for every channel a key is sent on; nothing writes NotificationTemplates at run time.
+    enforcedBy: [review]
+  - id: notifications.no-raw-placeholder
+    statement: Every text is rendered by TemplateRenderer; a placeholder without a value refuses the send (NOTIFICATIONS_PLACEHOLDER_MISSING), so a raw {{token}} never reaches a recipient. E-mail bodies HTML-encode every value; subjects and titles are one line.
+    enforcedBy: [review]
+  - id: notifications.no-secret-in-storage
+    statement: Outbox payloads carry only the notification id and channel. A secret-bearing link (activation) is sent with SendImmediateEmailAsync from an outbox handler and never stored; logs carry ids only, never addresses, placeholder values or texts.
+    enforcedBy: [review]
+  - id: notifications.idempotent-delivery
+    statement: An outbox handler sends a channel only while its state is Pending and records Sent (or NoAddress) right after, so a re-delivered outbox message is not sent twice once recorded.
+    enforcedBy: [review]
+  - id: notifications.no-egress
+    statement: E-mail goes only to the SMTP relay inside the backend zone or the pickup folder; SMS only to the file sink or (phase 8) the integration gateway. No sender calls an internet host (decision D2).
+    enforcedBy: [review]
+forbidden:
+  - id: notifications.no-module-reference
+    description: The Notifications module reaches users only through kernel ports (INotificationRecipients, IUserDirectory, ICurrentUserContext); a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (INotificationRecipients, IUserDirectory).
+  - id: notifications.no-smtp-credentials
+    description: The internal relay accepts the application server without a login; a NetworkCredential puts a mail secret into configuration.
+    pattern: '\bNetworkCredential\b'
+    appliesTo: ["**/*.cs"]
+    fix: Configure the relay to accept the application server; keep Notifications:Email:Smtp free of credentials.
+recipes: [docs/recipes/add-endpoint.md, docs/recipes/add-notification.md]

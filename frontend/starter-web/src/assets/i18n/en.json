@@ -81,7 +81,25 @@
     "IDENTITY_ACCOUNT_INACTIVE": "This account is deactivated. Reactivate it first.",
     "IDENTITY_ACTIVATION_UNAVAILABLE": "Activation links cannot be issued right now. Ask the system administrator.",
     "IDENTITY_DIRECTORY_UNAVAILABLE": "The directory cannot be reached right now. Try again in a few minutes.",
-    "IDENTITY_SSO_REJECTED": "Single sign-on could not be completed. Start the sign-in again."
+    "IDENTITY_SSO_REJECTED": "Single sign-on could not be completed. Start the sign-in again.",
+    "SETTINGS_SETTING_NOT_FOUND": "This setting was not found.",
+    "SETTINGS_VALUE_OUT_OF_RANGE": "This value is outside the allowed range.",
+    "AUDIT_INVALID_FILTER": "The audit filter is not valid. Check the highlighted fields.",
+    "JOBS_JOB_NOT_FOUND": "This job does not exist.",
+    "JOBS_RUN_IN_PROGRESS": "This job is already queued or running. Its result will appear in the run history.",
+    "JOBS_TAKE_OUT_OF_RANGE": "Choose between 1 and 100 runs.",
+    "NOTIFICATIONS_NOTIFICATION_NOT_FOUND": "This notification was not found.",
+    "NOTIFICATIONS_RECIPIENT_NOT_FOUND": "Your account could not be found to send the notification.",
+    "NOTIFICATIONS_RECIPIENT_HAS_NO_EMAIL": "The recipient has no e-mail address.",
+    "NOTIFICATIONS_TEMPLATE_NOT_FOUND": "The notification text is missing. Contact the administrator.",
+    "NOTIFICATIONS_PLACEHOLDER_MISSING": "The notification could not be prepared. Contact the administrator.",
+    "NOTIFICATIONS_INVALID_NOTIFICATION": "The notification is not valid.",
+    "PORTAL_PAGE_NOT_FOUND": "This page was not found.",
+    "PORTAL_TOPIC_NOT_FOUND": "This topic is no longer available. Choose another one.",
+    "PORTAL_SECTION_NOT_ON_PAGE": "Someone else changed this page. Reload it and try again.",
+    "TOO_SHORT": "This value is too short.",
+    "DUPLICATE": "This value appears more than once.",
+    "PORTAL_CONTACT_DISABLED": "The contact form is closed at the moment. Please try again later."
   },
   "core": {
     "error-dialog": {
@@ -318,6 +336,22 @@
       "roles": {
         "title": "Roles and permissions",
         "text": "Define roles and grant permissions to users."
+      },
+      "lookups": {
+        "title": "Lookups",
+        "text": "Reference lists such as contact topics: see their values and activate or deactivate them."
+      },
+      "portal-content": {
+        "title": "Portal content",
+        "text": "Edit the FAQ, service guide, privacy policy and terms of use in Arabic and English."
+      },
+      "settings": {
+        "title": "Settings",
+        "text": "Change the values the system reads at run time, such as limits and time-outs."
+      },
+      "jobs": {
+        "title": "Background jobs",
+        "text": "See scheduled jobs and their run history, and run a job now."
       }
     },
     "users": {
@@ -390,7 +424,8 @@
       "issued": {
         "title": "Activation link",
         "text": "Send this link to {{userName}}. It works once; the user sets a password with it.",
-        "done": "Done"
+        "done": "Done",
+        "emailed": "An activation e-mail is on its way to {{userName}}. Its link works once; any earlier link stops working."
       }
     },
     "organizations": {
@@ -475,7 +510,187 @@
         "created-title": "Created accounts",
         "created-empty": "No accounts were created.",
         "rejected-title": "Rows left out",
-        "no-link": "Signs in through the directory or single sign-on; no link needed."
+        "no-link": "Signs in through the directory or single sign-on; no link needed.",
+        "emailed": "Activation e-mail on its way."
+      }
+    },
+    "lookups": {
+      "title": "Lookups",
+      "search": "Search lookups",
+      "empty": "There are no lookups.",
+      "structure-note": "Lookup values are added, renamed or removed only through a database migration (the /new-lookup skill). Here you can only activate or deactivate them.",
+      "columns": {
+        "name": "Name",
+        "type": "Key",
+        "item-count": "Values"
+      },
+      "items": {
+        "title": "Values",
+        "type": "Lookup: {{name}}",
+        "back": "Back to lookups",
+        "search": "Search values",
+        "empty": "This lookup has no values.",
+        "columns": {
+          "code": "Code",
+          "name-ar": "Arabic name",
+          "name-en": "English name",
+          "sort-order": "Order",
+          "status": "Status"
+        },
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "activate-title": "Activate value",
+        "deactivate-title": "Deactivate value",
+        "activate-text": "Activate {{code}}? It is offered in lists again.",
+        "deactivate-text": "Deactivate {{code}}? It is no longer offered in lists; records that already use it keep it."
+      }
+    },
+    "portal-content": {
+      "title": "Portal content",
+      "intro": "Each page is a list of sections with an Arabic and an English title and text. Saving publishes the whole page.",
+      "read-only-notice": "You can view the content but not change it.",
+      "sections-title": "Sections",
+      "empty": "This page has no sections yet.",
+      "section-new": "New",
+      "section-invalid": "Check this section",
+      "reference": "Reference code: {{code}}",
+      "unsaved": "You have unsaved changes.",
+      "saved": "Saved. The portal shows the new content.",
+      "updated-at": "Last saved: {{at}}",
+      "pages": {
+        "label": "Portal page",
+        "faq": "FAQ",
+        "service-guide": "Service guide",
+        "privacy": "Privacy policy",
+        "terms": "Terms of use"
+      },
+      "columns": {
+        "position": "Order",
+        "title-ar": "Arabic title",
+        "title-en": "English title",
+        "state": "State"
+      },
+      "actions": {
+        "add": "Add section",
+        "view": "View",
+        "move-up": "Move up",
+        "move-down": "Move down",
+        "remove": "Remove",
+        "save": "Save page",
+        "discard": "Discard changes"
+      },
+      "editor": {
+        "add-title": "Add section",
+        "edit-title": "Edit section",
+        "view-title": "Section",
+        "apply": "Apply",
+        "close": "Close",
+        "body-hint": "Plain text. Separate paragraphs with a blank line. Changes are published when you save the page."
+      },
+      "fields": {
+        "title-ar": "Arabic title",
+        "title-en": "English title",
+        "body-ar": "Arabic text",
+        "body-en": "English text"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "intro": "Changes apply on every server within 30 seconds.",
+      "search": "Search settings",
+      "empty": "No settings match your search.",
+      "groups": {
+        "notifications": "Notifications",
+        "portal": "Public portal",
+        "session": "Sign-in session"
+      },
+      "columns": {
+        "key": "Key",
+        "group": "Group",
+        "value": "Value",
+        "description": "Description",
+        "updated-at": "Last changed"
+      },
+      "filters": {
+        "group": "Group",
+        "all-groups": "All groups"
+      },
+      "values": {
+        "on": "On",
+        "off": "Off",
+        "duration": "{{value}} seconds",
+        "empty": "(empty)",
+        "never-changed": "Default value"
+      },
+      "actions": {
+        "edit": "Edit"
+      },
+      "editor": {
+        "title": "Edit setting",
+        "save": "Save",
+        "value": "Value",
+        "enabled": "On",
+        "text-hint": "Enter the value as the system should read it.",
+        "integer-hint": "A whole number.",
+        "duration-hint": "A whole number of seconds (0 or more).",
+        "default": "Default: {{value}}",
+        "reset-to-default": "Use the default",
+        "integer-invalid": "Enter a whole number.",
+        "duration-invalid": "Enter a whole number of seconds, 0 or more."
+      }
+    },
+    "jobs": {
+      "title": "Background jobs",
+      "intro": "Jobs run on their schedule as the system account. Run one now to start it outside its schedule.",
+      "empty": "No background jobs are registered.",
+      "columns": {
+        "name": "Job",
+        "schedule": "Schedule",
+        "last-run": "Last run"
+      },
+      "schedule": {
+        "manual-only": "On demand only"
+      },
+      "last-run": {
+        "never": "Never run"
+      },
+      "actions": {
+        "run-now": "Run now",
+        "history": "Run history"
+      },
+      "run": {
+        "title": "Run this job now?",
+        "text": "\"{{name}}\" will start now as the system account. You can follow it in the run history.",
+        "confirm": "Run now"
+      },
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Succeeded",
+        "failed": "Failed"
+      },
+      "triggers": {
+        "schedule": "Schedule",
+        "manual": "Manual"
+      },
+      "runs": {
+        "title": "Run history",
+        "job": "Job: {{name}}",
+        "empty": "This job has not run yet.",
+        "back": "Back to background jobs",
+        "refresh": "Refresh",
+        "actor-system": "System",
+        "not-yet": "Not yet",
+        "no-user": "Not applicable",
+        "columns": {
+          "status": "Status",
+          "trigger": "Trigger",
+          "actor": "Runs as",
+          "triggered-by": "Triggered by",
+          "started-at": "Started",
+          "finished-at": "Finished",
+          "reference-code": "Reference code"
+        }
       }
     }
   },
@@ -623,7 +838,17 @@
     "organizations.view": "View organizations",
     "users.import": "Import users from Excel",
     "users.manage": "Create and change user accounts",
-    "users.view": "View user accounts"
+    "users.view": "View user accounts",
+    "lookups.view": "View lookups and their values",
+    "lookups.manage": "Activate and deactivate lookup values",
+    "portal.content.view": "View the portal pages' content",
+    "portal.content.manage": "Edit the portal pages' content",
+    "notifications.test": "Send yourself a test notification",
+    "settings.view": "View the runtime settings",
+    "settings.manage": "Change the runtime settings",
+    "jobs.view": "View the background jobs and their run history",
+    "jobs.run": "Run a background job now",
+    "audit.view": "Read the audit trail"
   },
   "portal": {
     "common": {
@@ -675,24 +900,6 @@
     "service-guide": {
       "title": "Service guide",
       "subtitle": "Everything you need to know before you submit a request.",
-      "overview-title": "About the service",
-      "overview-body-1": "This portal lets you submit a request online and follow it until a decision is made, without visiting an office.",
-      "overview-body-2": "Each request is reviewed by the responsible team, and you are told at every step what happens next.",
-      "eligibility-title": "Who can apply",
-      "eligibility-intro": "You can submit a request if one of the following applies to you:",
-      "eligibility-item-1": "You are a citizen or resident with a valid identity document.",
-      "eligibility-item-2": "You represent a registered organization and are authorised to act for it.",
-      "eligibility-item-3": "You act for another person and hold a valid authorisation.",
-      "eligibility-item-4": "You have an account on this portal, or can create one.",
-      "documents-title": "Documents to prepare",
-      "documents-intro": "Have these ready before you start; you attach them while filling in the request.",
-      "documents-item-1": "A clear copy of your identity document.",
-      "documents-item-2": "Any supporting document your request type asks for.",
-      "documents-item-3": "An authorisation letter when you apply for someone else.",
-      "documents-item-4": "Files in PDF, JPG or PNG format, each within the size shown on the form.",
-      "steps-title": "How to apply",
-      "steps-intro": "A request takes five steps.",
-      "step-number": "Step {{number}}:",
       "step-1-title": "Sign in",
       "step-1-body": "Sign in to the portal, or create an account if you do not have one.",
       "step-2-title": "Fill in the request",
@@ -703,8 +910,6 @@
       "step-4-body": "Check your details, then submit. You receive a reference number at once.",
       "step-5-title": "Follow your request",
       "step-5-body": "Track its status at any time and answer any question the team sends you.",
-      "note-title": "Before you submit",
-      "note-body": "Check that your details and documents are complete and correct. An incomplete request may be returned to you for changes, which takes longer.",
       "help-title": "Need help?",
       "help-body": "Most questions are answered in the FAQ. If yours is not, send us a message.",
       "help-faq": "Read the questions",
@@ -739,7 +944,8 @@
       "duration-answer": "Most requests are decided within a few working days. The status page shows the expected date for your request.",
       "help-title": "Did not find your answer?",
       "help-body": "Send us your question and we will reply by email.",
-      "help-link": "Contact us"
+      "help-link": "Contact us",
+      "questions-title": "Questions and answers"
     },
     "contact": {
       "title": "Contact us",
@@ -779,6 +985,7 @@
       "offline": "The server could not be reached. Check your connection and try again.",
       "failed": "Your message could not be sent. Try again later.",
       "failed-with-reference": "Your message could not be sent. Try again later; if it keeps happening, quote the reference code {{reference}}.",
+      "closed-title": "Contact form closed",
       "dismiss": "Dismiss",
       "info-title": "Before you write",
       "info-hours-label": "Working hours",
@@ -789,44 +996,18 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "subtitle": "How this portal collects, uses and protects your personal information.",
-      "collect-title": "What we collect",
-      "collect-body": "We collect only the information we need to provide the service:",
-      "collect-item-1": "The details you enter in your account and your requests, such as your name and contact details.",
-      "collect-item-2": "The documents you attach to a request.",
-      "collect-item-3": "Technical records of your visits, such as the time of sign-in, kept for security.",
-      "use-title": "How we use it",
-      "use-body": "We use your information to handle your requests, to contact you about them and to keep the portal secure. We do not use it for advertising.",
-      "share-title": "Who we share it with",
-      "share-body": "Your information is seen only by the staff who handle your request. We share it with another party only when the law requires it.",
-      "keep-title": "How long we keep it",
-      "keep-body": "We keep your information for as long as the applicable record-keeping rules require, then delete it securely.",
-      "rights-title": "Your rights",
-      "rights-body": "You can contact us at any time to:",
-      "rights-item-1": "Ask what personal information we hold about you.",
-      "rights-item-2": "Ask us to correct information that is wrong.",
-      "rights-item-3": "Ask how your information has been used.",
-      "cookies-title": "Cookies",
-      "cookies-body": "The portal uses only the cookies it needs to keep you signed in and to remember your language. It uses no tracking cookies."
+      "subtitle": "How this portal collects, uses and protects your personal information."
     },
     "terms": {
       "title": "Terms of use",
-      "subtitle": "The rules for using this portal. Please read them before you submit a request.",
-      "acceptance-title": "Accepting these terms",
-      "acceptance-body": "By using this portal you accept these terms. If you do not accept them, please do not use the portal.",
-      "account-title": "Your account",
-      "account-body": "You are responsible for keeping your sign-in details secret and for everything done with your account. Tell us at once if you think someone else has used it.",
-      "use-title": "Acceptable use",
-      "use-body": "When you use the portal, you agree not to:",
-      "use-item-1": "Enter false information or another person's details without their authorisation.",
-      "use-item-2": "Try to reach parts of the portal or data you are not allowed to see.",
-      "use-item-3": "Disrupt the portal, for example by sending automated or excessive requests.",
-      "content-title": "Information on the portal",
-      "content-body": "We work to keep the information on the portal accurate and up to date. The decision on your request is the one recorded on its status page.",
-      "liability-title": "Limits of responsibility",
-      "liability-body": "The portal may be unavailable at times for maintenance. We are not responsible for losses caused by an interruption beyond our control.",
-      "changes-title": "Changes to these terms",
-      "changes-body": "We may update these terms. The version published on this page is the one that applies."
+      "subtitle": "The rules for using this portal. Please read them before you submit a request."
+    },
+    "content": {
+      "loading": "Loading the content…",
+      "empty": "There is no content on this page yet.",
+      "failed-title": "The content could not be loaded",
+      "failed-body": "Check your connection and try again.",
+      "retry": "Try again"
     }
   },
   "showcase": {
@@ -1253,6 +1434,16 @@
       "reference": "Reference code",
       "copy": "Copy code",
       "copied": "Copied"
+    }
+  },
+  "notifications": {
+    "page": {
+      "title": "Notifications",
+      "loading": "Loading your notifications…",
+      "failed-title": "Your notifications could not be loaded",
+      "failed-body": "Check your connection and try again.",
+      "retry": "Try again",
+      "send-test": "Send me a test notification"
     }
   }
 }

@@ -1,12 +1,7 @@
-import type { PortalSection } from '../../../patterns';
 import { ServiceGuideTranslationKeys as Keys } from './service-guide-translation-keys';
 
-/** The section ids of the service guide (table-of-contents anchors `section-<id>`). */
+/** The section id of the guide's closing help block (table-of-contents anchor `section-help`). */
 export const ServiceGuideSectionIds = {
-  Overview: 'overview',
-  Eligibility: 'eligibility',
-  Documents: 'documents',
-  Steps: 'steps',
   Help: 'help',
 } as const;
 
@@ -16,32 +11,10 @@ export interface GuideStep {
   readonly bodyKey: string;
 }
 
-/** The sections in page order, for the table of contents. */
-export const SERVICE_GUIDE_SECTIONS: readonly PortalSection[] = [
-  { id: ServiceGuideSectionIds.Overview, titleKey: Keys.OverviewTitle },
-  { id: ServiceGuideSectionIds.Eligibility, titleKey: Keys.EligibilityTitle },
-  { id: ServiceGuideSectionIds.Documents, titleKey: Keys.DocumentsTitle },
-  { id: ServiceGuideSectionIds.Steps, titleKey: Keys.StepsTitle },
-  { id: ServiceGuideSectionIds.Help, titleKey: Keys.HelpTitle },
-];
-
-export const OVERVIEW_PARAGRAPH_KEYS: readonly string[] = [Keys.OverviewBody1, Keys.OverviewBody2];
-
-export const ELIGIBILITY_ITEM_KEYS: readonly string[] = [
-  Keys.EligibilityItem1,
-  Keys.EligibilityItem2,
-  Keys.EligibilityItem3,
-  Keys.EligibilityItem4,
-];
-
-export const DOCUMENT_ITEM_KEYS: readonly string[] = [
-  Keys.DocumentsItem1,
-  Keys.DocumentsItem2,
-  Keys.DocumentsItem3,
-  Keys.DocumentsItem4,
-];
-
-/** The application steps, in order. */
+/**
+ * The application steps of the static P4 guide. The guide page reads its sections from the API now
+ * (`GET api/portal/content/service-guide`); this list only feeds the landing page's "steps" tile.
+ */
 export const GUIDE_STEPS: readonly GuideStep[] = [
   { titleKey: Keys.Step1Title, bodyKey: Keys.Step1Body },
   { titleKey: Keys.Step2Title, bodyKey: Keys.Step2Body },
@@ -49,8 +22,3 @@ export const GUIDE_STEPS: readonly GuideStep[] = [
   { titleKey: Keys.Step4Title, bodyKey: Keys.Step4Body },
   { titleKey: Keys.Step5Title, bodyKey: Keys.Step5Body },
 ];
-
-/** The 1-based number a step shows ("Step 2"), formatted for `language` (`ar`, `en`). */
-export function stepNumber(index: number, language: string): string {
-  return new Intl.NumberFormat(language).format(index + 1);
-}

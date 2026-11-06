@@ -8,8 +8,10 @@ using Starter.Application.Localization;
 using Starter.Application.Users;
 using Starter.Infrastructure.Authorization;
 using Starter.Infrastructure.Features;
+using Starter.Infrastructure.Jobs;
 using Starter.Infrastructure.Localization;
 using Starter.Infrastructure.Messaging;
+using Starter.Infrastructure.Numbering;
 using Starter.Infrastructure.Persistence;
 using Starter.Infrastructure.Users;
 
@@ -22,9 +24,12 @@ public static class KernelRegistration
     /// Registers persistence (connection string, database options, the startup runner: call this BEFORE
     /// <c>AddCodelabSecurity</c> so migrations run before the security stores ensure their tables), authentication
     /// with a no-credentials default scheme (the Identity module adds the bearer scheme), the HTTP adapters of the
-    /// kernel ports (current user, audit context, language), the authorization fallback (authenticated), the feature
+    /// kernel ports (current user, audit context, language), the system actor scope (<c>ISystemActorScope</c>: inside it
+    /// the current user is anonymous and the audit actor is SYSTEM), the authorization fallback (authenticated), the feature
     /// switches (<c>Features</c>, validated on start) with the MVC feature gate, the outbox (<c>IOutbox</c> on the
-    /// <c>messaging</c> schema, migrated on start with the module contexts), <see cref="TimeProvider"/> and MVC's
+    /// <c>messaging</c> schema, migrated on start with the module contexts) and its drain (<c>IOutboxDrainRunner</c>,
+    /// <c>Messaging:Outbox</c>, on by default), request numbering (<c>IRequestNumberAllocator</c> on SQL sequences in the
+    /// <c>numbering</c> schema, <c>Numbering</c> options), the audit trail (through <c>AddStarterPersistence</c>), <see cref="TimeProvider"/> and MVC's
     /// request-binding defaults (validators own validation).
     /// </summary>
     public static IServiceCollection AddStarterKernel(this IServiceCollection services, IConfiguration configuration)
@@ -34,9 +39,11 @@ public static class KernelRegistration
         services.AddHttpContextAccessor();
         services.TryAddScoped<ICurrentUserContext, HttpCurrentUserContext>();
         services.TryAddScoped<IAuditContextAccessor, HttpAuditContextAccessor>();
+        services.AddStarterSystemActor();
         services.TryAddScoped<ICurrentLanguage, HttpCurrentLanguage>();
         services.AddStarterPersistence(configuration);
         services.AddStarterMessaging();
+        services.AddStarterNumbering(configuration);
         services.AddStarterAuthorization();
         AddFeatures(services, configuration);
         services.Configure<MvcOptions>(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);

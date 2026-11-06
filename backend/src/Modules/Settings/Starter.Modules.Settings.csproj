@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Module 6a, Runtime settings (ADR-004): settings an administrator changes without a deployment (schema settings),
+    the scoped IRuntimeSettings reader over a node-wide snapshot cache that a single-row version stamp and a 30 s TTL
+    keep fresh across nodes, and the admin list and update endpoints. Layers by namespace: .Domain, .Application,
+    .Infrastructure, .Api. It never references another module. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Modules.Settings</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Starter.Domain\Starter.Domain.csproj" />
+    <ProjectReference Include="..\..\Starter.Application\Starter.Application.csproj" />
+    <ProjectReference Include="..\..\Starter.Infrastructure\Starter.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.Modules.Settings.Tests" />
+  </ItemGroup>
+</Project>

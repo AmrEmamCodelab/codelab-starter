@@ -26,6 +26,23 @@
       ]
     },
     {
+      "module": "Audit",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Audit",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users"
+      ]
+    },
+    {
       "module": "Identity",
       "kind": "dotnet",
       "path": "backend/src/Modules/Identity",
@@ -39,6 +56,97 @@
         "CodelabIdentity"
       ],
       "mustNotDependOn": [
+        "Access",
+        "Users"
+      ]
+    },
+    {
+      "module": "Jobs",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Jobs",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users",
+        "Settings",
+        "Lookups",
+        "Audit"
+      ]
+    },
+    {
+      "module": "Lookups",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Lookups",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Users",
+        "Access"
+      ]
+    },
+    {
+      "module": "Notifications",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Notifications",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users"
+      ]
+    },
+    {
+      "module": "Portal",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Portal",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users",
+        "Notifications",
+        "Lookups"
+      ]
+    },
+    {
+      "module": "Settings",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Settings",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
         "Access",
         "Users"
       ]
@@ -163,6 +271,13 @@
       "module": "WebErrors",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/features/errors",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebNotifications",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/notifications",
       "mayDependOn": [],
       "mustNotDependOn": []
     },

@@ -687,6 +687,156 @@ batches:
         target: 'reference/p4/p4-showcase/showcase/'
         mode: copy
 
+  p5-outbox-numbering:
+    description: 'Phase 5 input (owner: be-outbox-numbering): the outbox claim/lease/backoff store, the drain runner and the SQL request-number allocator (patterns only).'
+    entries:
+      # Pattern extraction only: the follow-up scheduling kinds, the notification replay and the dedup frame are left behind on rewrite.
+      - id: outbox
+        source: 'backend/MODHS.Infrastructure/Outbox/{OutboxStore,EfOutbox}.cs'
+        target: 'reference/p5/p5-outbox-numbering/outbox/'
+        mode: copy
+      - id: drain-runner
+        source: 'backend/MODHS.Api/Services/OutboxDrainRunner.cs'
+        target: 'reference/p5/p5-outbox-numbering/drain/'
+        mode: copy
+      - id: numbering
+        source: 'backend/MODHS.Infrastructure/Numbering/SqlRequestNumberAllocator.cs'
+        target: 'reference/p5/p5-outbox-numbering/numbering/'
+        mode: copy
+
+  p5-settings:
+    description: 'Phase 5 input (owner: be-settings): the runtime settings service and admin configuration endpoints (patterns only; source-product settings are dropped).'
+    entries:
+      # The in-process static refresh (one node only) is the defect the DB stamp + 30 s cache fixes.
+      - id: service
+        source: 'backend/MODHS.Application/Admin/{AdminConfigService,IAdminConfigService}.cs'
+        target: 'reference/p5/settings/service/'
+        mode: copy
+      - id: controller
+        source: 'backend/MODHS.Api/{Controllers/AdminConfigurationController,Contracts/AdminConfigurationContracts}.cs'
+        target: 'reference/p5/settings/controller/'
+        mode: copy
+      - id: persistence
+        source: 'backend/MODHS.Infrastructure/Data/Configurations/AdminConfigurationConfiguration.cs'
+        target: 'reference/p5/settings/persistence/'
+        mode: copy
+      - id: tests
+        source: 'backend/MODHS.Application.Tests/AdminConfigServiceTests.cs'
+        target: 'reference/p5/settings/tests/'
+        mode: copy
+      - id: context-jobs
+        source: 'ProjectContext/10-background-jobs-hangfire.md'
+        target: 'reference/p5/settings/context/'
+        mode: copy
+
+  p5-lookups:
+    description: 'Phase 5 input (owner: be-lookups): the lookup base entity, its EF configuration base and the reference-data application services (patterns only; no geo data).'
+    entries:
+      - id: lookup-entity
+        source: 'backend/MODHS.Domain/Entities/Lookups/LookupEntity.cs'
+        target: 'reference/p5/p5-lookups/domain/LookupEntity.cs'
+        mode: copy
+      - id: lookup-configurations
+        source: 'backend/MODHS.Infrastructure/Data/Configurations/LookupConfigurations.cs'
+        target: 'reference/p5/p5-lookups/configurations/LookupConfigurations.cs'
+        mode: copy
+      - id: reference-services
+        source: 'backend/MODHS.Application/Reference/*'
+        target: 'reference/p5/p5-lookups/reference/'
+        mode: copy
+
+  p5-audit:
+    description: 'Phase 5 input (owner: be-audit): the save-changes audit interceptor, its model cache, value formatter, exclusions and PII keys, the not-audited attribute, the audit row, and the record-history mapping (Restrict fix, patterns only).'
+    entries:
+      - id: interceptor
+        source: 'backend/MODHS.Infrastructure/Data/Interceptors/AuditSaveChangesInterceptor.cs'
+        target: 'reference/p5/audit/interceptor/'
+        mode: copy
+      - id: audit-support
+        source: 'backend/MODHS.Infrastructure/Data/Auditing/{AuditModelCache,AuditValueFormatter}.cs'
+        target: 'reference/p5/audit/support/'
+        mode: copy
+      - id: audit-domain
+        source: 'backend/MODHS.Domain/Auditing/{AuditExclusions,AuditPiiKeys,NotAuditedAttribute}.cs'
+        target: 'reference/p5/audit/domain/'
+        mode: copy
+      - id: record-history-mapping
+        source: 'backend/MODHS.Infrastructure/Data/Configurations/RequestHistoryConfiguration.cs'
+        target: 'reference/p5/audit/history/'
+        mode: copy
+
+  p5-jobs:
+    description: 'Phase 5 input (owner: be-jobs): the job catalog, run history, manual-run executor and Hangfire adapters (patterns only; the source actor-with-a-role is left behind).'
+    entries:
+      # Pattern extraction only: the follow-up and airport jobs and the doctor-role actor are not carried over.
+      - id: jobs-application
+        source: 'backend/MODHS.Application/Jobs/{IJob,IJobService,JobModels,JobService}.cs'
+        target: 'reference/p5/p5-jobs/application/'
+        mode: copy
+      - id: jobs-hangfire
+        source: 'backend/MODHS.Api/Services/{HangfireJobRunQueue,JobRunExecutor}.cs'
+        target: 'reference/p5/p5-jobs/hangfire/'
+        mode: copy
+      - id: jobs-context
+        source: 'ProjectContext/10-background-jobs-hangfire.md'
+        target: 'reference/p5/p5-jobs/context/'
+        mode: copy
+
+  p5-notifications:
+    description: 'Phase 5 input (owner: be-notifications): the in-app notification use cases, the template renderer, the e-mail and SMS sender ports and the template entities (patterns only; folded into the in-process Notifications module).'
+    entries:
+      # Pattern extraction only: the in-app feed paging and mark-read ownership rules.
+      - id: app-notifications
+        source: 'backend/MODHS.Application/Notifications/{INotificationService,NotificationService}.cs'
+        target: 'reference/p5/p5-notifications/application/'
+        mode: copy
+      # The separate notification service is not a v1 deployable: its renderer, sender ports and template entities are folded in. No provider adapters, credentials, hosts or addresses.
+      - id: service-sending
+        source: 'backend/MODHS.Notifications/src/NotificationService.Api/{Services/TemplateRenderer,Sending/Messages,Sending/SmtpEmailSender,Sending/FakeSenders,Options/NotificationOptions,Entities/Template,Entities/TemplateContent}.cs'
+        target: 'reference/p5/p5-notifications/service/'
+        mode: copy
+      - id: context
+        source: 'ProjectContext/11-notifications.md'
+        target: 'reference/p5/p5-notifications/context/'
+        mode: copy
+
+  p5-portal:
+    description: 'Phase 5 input (owner: be-portal): the contact-us use case, controller, contracts and their tests (patterns only; folded into the Portal module).'
+    entries:
+      # Pattern extraction only: validation, reference numbering, store-then-notify and the rate-limited anonymous write. No source-product wording or inbox addresses.
+      - id: contact-application
+        source: 'backend/MODHS.Application/ContactUs/{IContactUsService,ContactUsService}.cs'
+        target: 'reference/p5/p5-portal/application/'
+        mode: copy
+      - id: contact-api
+        source: 'backend/MODHS.Api/{Controllers/ContactUsController,Contracts/ContactUsContracts}.cs'
+        target: 'reference/p5/p5-portal/api/'
+        mode: copy
+      - id: contact-tests
+        source: 'backend/{MODHS.Application.Tests/ContactUsServiceTests,MODHS.Api.Tests/ContactUsControllerTests,MODHS.IntegrationTests/ContactUsRateLimitTests}.cs'
+        target: 'reference/p5/p5-portal/tests/'
+        mode: copy
+
+  p5-fe-admin-settings-jobs:
+    description: 'Phase 5 input (owner: fe-admin-settings-jobs): the admin configuration and background-jobs screens (patterns only).'
+    entries:
+      - id: configuration
+        source: 'frontend/modhs-web/src/app/features/admin/configuration/**'
+        target: 'reference/p5/fe-admin-settings-jobs/configuration/'
+        mode: copy
+      - id: jobs
+        source: 'frontend/modhs-web/src/app/features/admin/jobs/**'
+        target: 'reference/p5/fe-admin-settings-jobs/jobs/'
+        mode: copy
+
+  p5-fe-notifications:
+    description: 'Phase 5 input (owner: fe-notifications-portal): the notifications feed page wired to the API (paging, mark-read, unread count).'
+    entries:
+      - id: notifications-feed
+        source: 'frontend/modhs-web/src/app/shared/notifications-feed/*'
+        target: 'reference/p5/p5-notifications/notifications-feed/'
+        mode: copy
+
 secretDigests:
   # Values found here are hashed (SHA-256) into tools/extract/secret-digests.json; the values are never stored.
   output: 'tools/extract/secret-digests.json'

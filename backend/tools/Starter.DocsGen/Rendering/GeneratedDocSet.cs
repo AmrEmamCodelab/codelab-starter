@@ -23,6 +23,9 @@ internal static class GeneratedFileNames
     /// <summary>Every configuration key.</summary>
     public const string ConfigKeys = "config-keys.md";
 
+    /// <summary>Every status enum with its values.</summary>
+    public const string Statuses = "statuses.md";
+
     /// <summary>What the folder is and how to regenerate it.</summary>
     public const string Readme = "README.md";
 }
@@ -52,6 +55,7 @@ internal static class GeneratedDocSet
             [GeneratedFileNames.Endpoints] = EndpointsRenderer.Render(surface.Endpoints),
             [GeneratedFileNames.ErrorCodes] = ErrorCodesRenderer.Render(surface.ErrorCodes),
             [GeneratedFileNames.ConfigKeys] = ConfigKeysRenderer.Render(surface.ConfigKeys),
+            [GeneratedFileNames.Statuses] = StatusesRenderer.Render(surface.Statuses),
             [GeneratedFileNames.Readme] = ReadmeRenderer.Render(),
         };
     }

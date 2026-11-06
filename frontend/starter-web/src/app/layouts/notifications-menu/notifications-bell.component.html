@@ -1,0 +1,6 @@
+<app-notifications-menu
+  [items]="items()"
+  [unreadTotal]="unreadTotal()"
+  [viewAllLink]="feedLink"
+  (markRead)="markRead($event)"
+/>

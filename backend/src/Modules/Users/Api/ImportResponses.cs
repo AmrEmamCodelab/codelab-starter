@@ -1,6 +1,7 @@
 using Codelab.Security.PublicIds;
 using Starter.Domain.Users;
 using Starter.Modules.Users.Application;
+using Starter.Modules.Users.Application.Accounts;
 using Starter.Modules.Users.Application.Import;
 
 namespace Starter.Modules.Users.Api;
@@ -70,8 +71,9 @@ public sealed record ImportPreviewResponse(
 /// <param name="Id">The account's PublicId.</param>
 /// <param name="UserName">The sign-in name.</param>
 /// <param name="Binding">Password (1), Active Directory (2) or SSO (3).</param>
-/// <param name="ActivationLink">The activation link of a password-bound account, or null.</param>
-/// <param name="ExpiresAt">When that link stops working, or null.</param>
+/// <param name="ActivationLink">The activation link of a password-bound account without an e-mail address, or null.</param>
+/// <param name="ExpiresAt">When the activation stops working, or null.</param>
+/// <param name="ActivationDelivery">AdministratorLink (1), Email (2: the link is e-mailed, no link here), or null.</param>
 /// <param name="ActivationErrorCode">Why a password-bound account got no link (rare; issue one from the users list), or null.</param>
 public sealed record ImportedUserResponse(
     [property: WireId] PublicId<UsersIds> Id,
@@ -79,6 +81,7 @@ public sealed record ImportedUserResponse(
     AccountBinding Binding,
     string? ActivationLink,
     DateTimeOffset? ExpiresAt,
+    ActivationDelivery? ActivationDelivery,
     string? ActivationErrorCode)
 {
     /// <summary>The response of <paramref name="user"/>.</summary>
@@ -91,6 +94,7 @@ public sealed record ImportedUserResponse(
             user.Binding,
             user.Activation?.ActivationLink,
             user.Activation?.ExpiresAt,
+            user.Activation?.Delivery,
             user.ActivationErrorCode);
     }
 }

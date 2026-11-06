@@ -324,6 +324,386 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page of the audit trail, newest first (values already masked). */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Only entries older than this one (the cursor: the last id of the previous page), or null. */
+                    Before?: string;
+                    /** @description One row of EntityType (needs the type), or null for all. */
+                    EntityId?: string;
+                    /** @description The audited entity type name (as the trail lists it), or null for all. */
+                    EntityType?: string;
+                    /** @description The page size, 1 to int AuditPaging.MaxTake; null is int AuditPaging.DefaultTake. */
+                    Take?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuditPageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every registered job with its newest run, ordered by key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JobResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs/{key}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The newest runs of the job, newest first. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description How many runs, newest first: 1 to int JobsLimits.MaxHistoryTake; int JobsLimits.DefaultHistoryTake when absent. */
+                    Take?: number | string;
+                };
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JobRunResponse"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Queues a run of the job now; a job server runs it as the system actor. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TriggeredJobRunResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/lookups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every lookup type with its value count, ordered by key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LookupTypeResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/lookups/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every value of one lookup type, active or not, ordered by sort order. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    type: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LookupItemResponse"][];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/lookups/{type}/items/{id}/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Activates or deactivates one value (the only run-time change a lookup accepts). */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    type: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["SetLookupItemActiveCommand"];
+                    "application/json": components["schemas"]["SetLookupItemActiveCommand"];
+                    "text/json": components["schemas"]["SetLookupItemActiveCommand"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/notifications/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sends the caller a test notification: the bell now, e-mail (and SMS when enabled) through the outbox. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/organizations": {
         parameters: {
             query?: never;
@@ -605,6 +985,206 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/portal/content/{page}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page's current content (never cached); 404 for an unknown page key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    page: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PortalContentResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        /** Replaces one page's sections and answers the page as stored; 400, 404 or 409 otherwise. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    page: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["ReplacePortalContentCommand"];
+                    "application/json": components["schemas"]["ReplacePortalContentCommand"];
+                    "text/json": components["schemas"]["ReplacePortalContentCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PortalContentResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every setting, ordered by group, then key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SettingResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/settings/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Changes a setting's value; every node sees it within `SettingsLimits.CacheTtl`. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["UpdateSettingRequest"];
+                    "application/json": components["schemas"]["UpdateSettingRequest"];
+                    "text/json": components["schemas"]["UpdateSettingRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SettingResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1791,6 +2371,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lookups/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The active values of one lookup type, ordered by sort order (both names; the client picks the language). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    type: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LookupValueResponse"][];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/permissions": {
         parameters: {
             query?: never;
@@ -1817,6 +2444,256 @@ export interface paths {
                         "application/json": components["schemas"]["MyPermissionsResponse"];
                         "text/json": components["schemas"]["MyPermissionsResponse"];
                         "text/plain": components["schemas"]["MyPermissionsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page of the caller's notifications, newest first, in the request language. */
+        get: {
+            parameters: {
+                query?: {
+                    before?: string;
+                    take?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationPageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Marks one of the caller's notifications read (idempotent). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How many of the caller's notifications are unread. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnreadCountResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/contact-messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stores a contact message and answers its reference number (201), the field errors (400), 409 while an
+         *     administrator has switched the form off, or 429.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["SubmitContactMessageCommand"];
+                    "application/json": components["schemas"]["SubmitContactMessageCommand"];
+                    "text/json": components["schemas"]["SubmitContactMessageCommand"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ContactReceiptResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/content/{page}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page's content; 404 for an unknown page key. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    page: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PortalContentResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -1921,13 +2798,20 @@ export interface components {
             /** @description The sealed ticket from the activation link's fragment. */
             ticket: null | string;
         };
-        /** @description An activation link to hand to the user. */
+        /** @description How an activation link reaches the user. Sent on the wire as the integer value. */
+        ActivationDelivery: number;
+        /** @description An activation just issued: e-mailed to the user, or a link to hand over. */
         ActivationResponse: {
-            /** @description The link (the sealed one-time ticket is in its fragment). */
-            activationLink: string;
+            /**
+             * @description The link (the sealed one-time ticket is in its fragment) when Delivery is AdministratorLink (1);
+             *     null when it is Email (2), because the user receives the link by e-mail.
+             */
+            activationLink: null | string;
+            /** @description AdministratorLink (1) or Email (2). */
+            delivery: components["schemas"]["ActivationDelivery"];
             /**
              * Format: date-time
-             * @description When it stops working.
+             * @description When it stops working (an e-mailed link expires a little later, by the outbox delay).
              */
             expiresAt: string;
         };
@@ -1945,6 +2829,48 @@ export interface components {
             roleId: components["schemas"]["PublicIdOfRoleIds"];
             /** @description Global (1) or own organization (2). */
             scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description What happened to an audited row (stored as int; never reorder or renumber). */
+        AuditAction: number;
+        /** @description One recorded value. */
+        AuditChangeResponse: {
+            /** @description The value after, or null. */
+            newValue: null | string;
+            /** @description The value before, or null. */
+            oldValue: null | string;
+            /** @description The property name. */
+            property: string;
+        };
+        /** @description One audited change. */
+        AuditEntryResponse: {
+            /** @description Added = 1, Modified = 2, Deleted = 3. */
+            action: components["schemas"]["AuditAction"];
+            /** @description The acting subject id, or `SYSTEM`. */
+            actor: string;
+            /**
+             * Format: date-time
+             * @description When (UTC).
+             */
+            at: string;
+            /** @description The recorded values (masked where personal; ids are tokens). */
+            changes: components["schemas"]["AuditChangeResponse"][];
+            entityId: null | components["schemas"]["PublicIdOfAuditedEntityIds"];
+            /** @description The audited entity type name. */
+            entityType: string;
+            /** @description The entry. */
+            id: components["schemas"]["PublicIdOfAuditEntryIds"];
+        };
+        /** @description One page of the audit trail. */
+        AuditPageResponse: {
+            /** @description True when older entries exist; ask again with `before` = the last item's id. */
+            hasMore: boolean;
+            /** @description The entries, newest first. */
+            items: components["schemas"]["AuditEntryResponse"][];
+        };
+        /** @description The contact receipt: `{referenceNumber}`. */
+        ContactReceiptResponse: {
+            /** @description The reference number, `CU-YYYY-NNN`. */
+            referenceNumber: string;
         };
         /** @description The body of a successful `POST /api/admin/users` (201). */
         CreatedUserResponse: {
@@ -2050,15 +2976,16 @@ export interface components {
         };
         /** @description An account the commit created. */
         ImportedUserResponse: {
+            activationDelivery: null | components["schemas"]["ActivationDelivery"];
             /** @description Why a password-bound account got no link (rare; issue one from the users list), or null. */
             activationErrorCode: null | string;
-            /** @description The activation link of a password-bound account, or null. */
+            /** @description The activation link of a password-bound account without an e-mail address, or null. */
             activationLink: null | string;
             /** @description Password (1), Active Directory (2) or SSO (3). */
             binding: components["schemas"]["AccountBinding"];
             /**
              * Format: date-time
-             * @description When that link stops working, or null.
+             * @description When the activation stops working, or null.
              */
             expiresAt: null | string;
             /** @description The account's PublicId. */
@@ -2105,6 +3032,50 @@ export interface components {
             /** @description True when the row will become an account. */
             valid: boolean;
         };
+        /** @description One registered job on the wire, with its newest run. */
+        JobResponse: {
+            /** @description The five-field cron schedule (jobs time zone), or null for a manual-only job. */
+            cron: null | string;
+            /** @description The stable key. */
+            key: string;
+            lastRun: null | components["schemas"]["JobRunResponse"];
+            /** @description The name in Arabic. */
+            nameAr: string;
+            /** @description The name in English. */
+            nameEn: string;
+        };
+        /** @description One job run on the wire. Times are ISO 8601 UTC; enums are their integer values. */
+        JobRunResponse: {
+            /** @description The actor the run's work is recorded under: always `SYSTEM`. */
+            actor: string;
+            /**
+             * Format: date-time
+             * @description When it ended, or null.
+             */
+            finishedAt: null | string;
+            /** @description The run's PublicId. */
+            id: components["schemas"]["PublicIdOfJobRunIds"];
+            /** @description The reference code of a failed execution (quote it to find the log line), or null. */
+            referenceCode: null | string;
+            /**
+             * Format: date-time
+             * @description When it started executing, or null while queued.
+             */
+            startedAt: null | string;
+            /** @description Queued = 1, Running = 2, Succeeded = 3, Failed = 4. */
+            status: components["schemas"]["JobRunStatus"];
+            /** @description Schedule = 1, Manual = 2. */
+            trigger: components["schemas"]["JobTrigger"];
+            /**
+             * @description The display name of the administrator who ran it now, or null for a scheduled run (or an account that no longer
+             *     exists). Never the internal subject id.
+             */
+            triggeredBy: null | string;
+        };
+        /** @description The state of one job run (stored and sent as the integer value). */
+        JobRunStatus: number;
+        /** @description Why a job run started (stored and sent as the integer value). */
+        JobTrigger: number;
         /** @description The body of `POST /api/auth/login`. */
         LoginCommand: {
             /** @description The password. */
@@ -2121,10 +3092,83 @@ export interface components {
             /** @description The organization's identity provider. */
             sso: boolean;
         };
+        /** @description One value of `GET /api/admin/lookups/{type}`, active or not. */
+        LookupItemResponse: {
+            /** @description The kebab-case code. */
+            code: string;
+            /** @description The value id (opaque token, family `lookup-items`). */
+            id: components["schemas"]["PublicIdOfLookupItemIds"];
+            /** @description Whether the value is offered. */
+            isActive: boolean;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /**
+             * Format: int32
+             * @description The display order.
+             */
+            sortOrder: number | string;
+        };
+        /** @description One lookup type of `GET /api/admin/lookups`. */
+        LookupTypeResponse: {
+            /**
+             * Format: int32
+             * @description The number of its values, active or not.
+             */
+            itemCount: number | string;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /** @description The type key (the `{type}` route segment). */
+            type: string;
+        };
+        /** @description One active lookup value of `GET /api/lookups/{type}`. */
+        LookupValueResponse: {
+            /** @description The kebab-case code. */
+            code: string;
+            /** @description The value id (opaque token, family `lookup-items`). */
+            id: components["schemas"]["PublicIdOfLookupItemIds"];
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+            /**
+             * Format: int32
+             * @description The display order.
+             */
+            sortOrder: number | string;
+        };
         /** @description The body of `GET /api/me/permissions`. */
         MyPermissionsResponse: {
             /** @description The permission keys the caller holds now, sorted. */
             permissions: string[];
+        };
+        /** @description One feed page: `{items, hasMore}`. */
+        NotificationPageResponse: {
+            /** @description True when older items exist (ask again with `before` = the last item's id). */
+            hasMore: boolean;
+            /** @description The items, newest first. */
+            items: components["schemas"]["NotificationResponse"][];
+        };
+        /** @description One bell item on the wire (texts already in the request language). */
+        NotificationResponse: {
+            /**
+             * Format: date-time
+             * @description When it was created (ISO 8601, UTC).
+             */
+            at: string;
+            /** @description The body (plain text). */
+            bodyText: string;
+            /** @description The notification's PublicId. */
+            id: components["schemas"]["PublicIdOfNotificationIds"];
+            /** @description The app-relative link, or null. */
+            link: null | string;
+            /** @description Whether the caller has read it. */
+            read: boolean;
+            /** @description The title. */
+            titleText: string;
         };
         /**
          * @description Whose organization it is: the one running the portal (its departments) or an outside one (a partner entity).
@@ -2189,6 +3233,36 @@ export interface components {
             /** @description The scope this source grants. */
             scope: components["schemas"]["PermissionScope"];
         };
+        /** @description One page's content: `{page, updatedAt, sections}`. */
+        PortalContentResponse: {
+            /** @description The page key (`faq`, `service-guide`, `privacy`, `terms`). */
+            page: string;
+            /** @description The sections, ordered by sort order. */
+            sections: components["schemas"]["PortalSectionResponse"][];
+            /**
+             * Format: date-time
+             * @description When an administrator last changed it (ISO 8601, UTC), or null for the seeded text.
+             */
+            updatedAt: null | string;
+        };
+        /** @description One bilingual section on the wire (plain text; body paragraphs separated by a blank line). */
+        PortalSectionResponse: {
+            /** @description The Arabic body. */
+            bodyAr: string;
+            /** @description The English body. */
+            bodyEn: string;
+            /** @description The section's PublicId. */
+            id: components["schemas"]["PublicIdOfPortalSectionIds"];
+            /**
+             * Format: int32
+             * @description The display order.
+             */
+            sortOrder: number | string;
+            /** @description The Arabic title. */
+            titleAr: string;
+            /** @description The English title. */
+            titleEn: string;
+        };
         ProblemDetails: {
             detail?: null | string;
             instance?: null | string;
@@ -2201,7 +3275,37 @@ export interface components {
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
          */
+        PublicIdOfAuditedEntityIds: WireId<'public-id-of-audited-entity'> | null;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfAuditEntryIds: WireId<'public-id-of-audit-entry'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfJobRunIds: WireId<'public-id-of-job-run'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfLookupItemIds: WireId<'public-id-of-lookup-item'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfNotificationIds: WireId<'public-id-of-notification'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
         PublicIdOfOrganizationIds: WireId<'public-id-of-organization'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfPortalSectionIds: WireId<'public-id-of-portal-section'>;
         /**
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -2259,6 +3363,14 @@ export interface components {
              */
             rowNumber: number | string;
         };
+        /**
+         * @description The body of `PUT /api/admin/portal/content/{page}`: the page's complete list of sections. A section with an
+         *     id updates that section, one without an id is added, and a section of the page that the list leaves out is removed.
+         */
+        ReplacePortalContentCommand: {
+            /** @description Every section the page should hold (at most int PortalLimits.MaxSectionsPerPage; may be empty). */
+            sections: null | components["schemas"]["SectionInput"][];
+        };
         /** @description One role to assign. */
         RoleAssignmentInput: {
             /** @description The role's PublicId (an ordinary role; a virtual role is refused). */
@@ -2307,6 +3419,23 @@ export interface components {
             permissionCount: number | string;
             virtualKind: null | components["schemas"]["VirtualRoleKind"];
         };
+        /** @description One section of a replace. */
+        SectionInput: {
+            /** @description The Arabic body (plain text, paragraphs separated by a blank line). */
+            bodyAr: null | string;
+            /** @description The English body. */
+            bodyEn: null | string;
+            id: null | components["schemas"]["PublicIdOfPortalSectionIds"];
+            /**
+             * Format: int32
+             * @description The display order, int PortalLimits.SortOrderMin to int PortalLimits.SortOrderMax.
+             */
+            sortOrder: null | number | string;
+            /** @description The Arabic title (plain text). */
+            titleAr: null | string;
+            /** @description The English title (plain text). */
+            titleEn: null | string;
+        };
         /** @description The body of a successful login or refresh. */
         SessionResponse: {
             /** @description The bearer access token. */
@@ -2349,6 +3478,38 @@ export interface components {
             /** @description The user's PublicId. */
             id: components["schemas"]["PublicIdOfUsers"];
         };
+        /** @description The body of `PUT /api/admin/lookups/{type}/items/{id}/active`. */
+        SetLookupItemActiveCommand: {
+            /** @description True to offer the value again, false to retire it. */
+            isActive: null | boolean;
+        };
+        /** @description One runtime setting on the wire (the bounds stay server-side; a value outside them is refused with a field error). */
+        SettingResponse: {
+            /** @description The seeded value, canonical text. */
+            defaultValue: string;
+            /** @description What it controls, in Arabic. */
+            descriptionAr: string;
+            /** @description What it controls, in English. */
+            descriptionEn: string;
+            /** @description The group the screen lists it under. */
+            group: string;
+            /** @description The stable key (`&lt;group&gt;.&lt;kebab-name&gt;`). */
+            key: string;
+            /**
+             * Format: date-time
+             * @description When an administrator last changed it (ISO 8601 UTC), or null.
+             */
+            updatedAt: null | string;
+            /** @description The current value, canonical text. */
+            value: string;
+            /** @description How the value reads (integer on the wire). */
+            valueType: components["schemas"]["SettingValueType"];
+        };
+        /**
+         * @description How a runtime setting's text value is read and validated. Stored and sent on the wire as the integer value; the
+         *     client labels it from its ar and en bundles.
+         */
+        SettingValueType: number;
         /** @description The body of `POST /api/auth/sso/exchange`. */
         SsoExchangeCommand: {
             /** @description The binding secret whose hash started the sign-in (required: without it the ticket is rejected). */
@@ -2360,6 +3521,38 @@ export interface components {
         SsoLogoutResponse: {
             /** @description The identity provider's end_session URL; open it with a top-level GET (not fetch). */
             endSessionUrl: string;
+        };
+        /**
+         * @description The body of `POST /api/portal/contact-messages`. Every member is nullable, so a missing field comes back as a
+         *     field error of the validator rather than as a binding failure in another shape.
+         */
+        SubmitContactMessageCommand: {
+            /** @description The sender's e-mail address. */
+            email: null | string;
+            /** @description The sender's name (1-100 characters after trimming). */
+            fullName: null | string;
+            /** @description The language to reply in: `ar` or `en` (ContactLanguageCodes). */
+            language: null | string;
+            /** @description The message (10-2000 characters after trimming). */
+            message: null | string;
+            /**
+             * Format: int32
+             * @description The contact topic: an active `contact-topics` lookup id (`ContactTopicIds`).
+             */
+            topicId: null | number | string;
+        };
+        /** @description The answer to "run now": the queued run's PublicId (its outcome appears in the run history). */
+        TriggeredJobRunResponse: {
+            /** @description The queued run's PublicId. */
+            runId: components["schemas"]["PublicIdOfJobRunIds"];
+        };
+        /** @description The unread count: `{count}`. */
+        UnreadCountResponse: {
+            /**
+             * Format: int32
+             * @description How many of the caller's notifications are unread.
+             */
+            count: number | string;
         };
         /** @description The body of `PUT /api/admin/organizations/{id}` (the same fields as a create). */
         UpdateOrganizationCommand: {
@@ -2387,6 +3580,11 @@ export interface components {
             nameEn: string;
             /** @description The permission keys the role grants after the write (replaces the set). */
             permissions: string[];
+        };
+        /** @description The body of `PUT /api/admin/settings/{key}`. */
+        UpdateSettingRequest: {
+            /** @description The new value as text, in the setting's format (see SettingValueFormat). */
+            value: null | string;
         };
         /** @description The body of `PUT /api/admin/users/{id}` (the user name never changes). */
         UpdateUserCommand: {

@@ -28,3 +28,6 @@
 /tools/extract/           @platform-owner
 # The standards every review enforces.
 /docs/standards/          @platform-owner
+# The endpoint exemption list and the architecture (module and data boundary) guards.
+/backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs @platform-owner
+/backend/tests/Starter.Architecture.Tests/ @platform-owner

@@ -16,6 +16,10 @@ internal sealed class UsersHarness
 
     public FakeOutbox Outbox { get; } = new();
 
+    public FakeNotifications Notifications { get; } = new();
+
+    public RecordingLogger<AccountActivationEmailHandler> HandlerLog { get; } = new();
+
     public FakeOrganizations Organizations { get; } = new();
 
     public FakeBatches Batches { get; } = new();
@@ -75,4 +79,6 @@ internal sealed class UsersHarness
     public PreviewUserImport Preview() => new(new XlsxSheetReader(), RowValidator, ImportBatches, ImportSettings);
 
     public CommitUserImport Commit() => new(ImportBatches, RowValidator, Accounts, Activations);
+
+    public AccountActivationEmailHandler ActivationEmailHandler() => new(Accounts, Notifications, new FakePublicIds(), Links, HandlerLog);
 }

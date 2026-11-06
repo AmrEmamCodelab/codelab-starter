@@ -2,14 +2,18 @@
 
 ## Purpose
 Generates `docs/generated/` from the code, so the API contract, the permission catalog, the endpoint list, the error
-codes and the configuration keys can never drift from what the host actually runs. It starts the real `Starter.Api`
+codes, the configuration keys and the status enums can never drift from what the host actually runs. It starts the real `Starter.Api`
 host in-process (`WebApplicationFactory<Program>` on TestServer, Development, no database), fetches
 `/openapi/v1.json`, reads the permission catalog sources and the endpoint data source from the host's services, and
 reads every `*ErrorCodes` class and every options class with a `SectionName` by reflection over the host, its modules
-(discovered from `ModuleAssemblyAttribute`, like the host) and the Codelab packages they reference.
+(discovered from `ModuleAssemblyAttribute`, like the host) and the Codelab packages they reference. Status enums
+(`StatusScanner`: every public `int` enum whose name ends with `Status`) are read from the host's own assemblies only
+(the kernel and the modules, `SolutionAssemblies.OwnAssemblies`), never from the packages.
 
-Outputs: `openapi.v1.json`, `permissions.json`, `permissions.md`, `endpoints.md`, `error-codes.md`, `config-keys.md`
-and `README.md`. `openapi.v1.json` and `permissions.json` are the inputs of the frontend `npm run api:gen`.
+Outputs: `openapi.v1.json`, `permissions.json`, `permissions.md`, `endpoints.md`, `error-codes.md`, `config-keys.md`,
+`statuses.md` and `README.md`. `statuses.md` is the phase 5 stub of the statuses doc: each enum with its values,
+names and summaries, grouped by owner; the workflow statuses and transitions join it in phase 7.
+`openapi.v1.json` and `permissions.json` are the inputs of the frontend `npm run api:gen`.
 
 ## Use
 ```powershell
@@ -40,6 +44,9 @@ could not be read. The tool needs no local secrets file and no SQL Server.
 - The writer never deletes: a file it does not generate is reported (and fails `--check`), never removed.
 
 ## Gotchas
+- `statuses.md` lists every public `*Status` int enum, including result enums that never reach the database (for
+  example `SheetReadStatus`); a status that should not be listed needs another name. A non-`int` enum is skipped
+  (and already breaks `base.enums-as-int`).
 - The host starts with `UseContentRoot(AppContext.BaseDirectory)`: the API's `appsettings*.json` are copied into this
   project's output. A copied `appsettings.Development.local.json` is dropped from the configuration sources, so a
   switch set on one machine cannot change the docs; `DocsHostSettings` supplies the secrets instead.

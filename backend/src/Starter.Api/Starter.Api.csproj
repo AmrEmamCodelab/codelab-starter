@@ -26,5 +26,11 @@
     <ProjectReference Include="..\Modules\Identity\Starter.Modules.Identity.csproj" />
     <ProjectReference Include="..\Modules\Access\Starter.Modules.Access.csproj" />
     <ProjectReference Include="..\Modules\Users\Starter.Modules.Users.csproj" />
+    <ProjectReference Include="..\Modules\Lookups\Starter.Modules.Lookups.csproj" />
+    <ProjectReference Include="..\Modules\Audit\Starter.Modules.Audit.csproj" />
+    <ProjectReference Include="..\Modules\Settings\Starter.Modules.Settings.csproj" />
+    <ProjectReference Include="..\Modules\Jobs\Starter.Modules.Jobs.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\Starter.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\Modules\Portal\Starter.Modules.Portal.csproj" />
   </ItemGroup>
 </Project>

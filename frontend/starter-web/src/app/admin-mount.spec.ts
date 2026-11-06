@@ -65,8 +65,17 @@ describe('the /admin mount', () => {
     },
   );
 
+  it('opens the admin home to a scoped admin without access.admin.view, so every page they hold has a link', async () => {
+    const scoped = [PermissionKeys.JobsView, PermissionKeys.LookupsView, PermissionKeys.PortalContentView, PermissionKeys.SettingsView];
+    await expect(passes(mount, scoped)).resolves.toBe(true);
+    await expect(passes(childAt(ADMIN_ROUTES, AdminRouteSegments.Home), scoped)).resolves.toBe(true);
+  });
+
+  it('refuses the admin home to a user with no admin key', async () => {
+    await expect(passes(childAt(ADMIN_ROUTES, AdminRouteSegments.Home), [PermissionKeys.DashboardView])).resolves.toBe(false);
+  });
+
   it('still refuses a users.view-only user the pages of other keys', async () => {
-    await expect(passes(childAt(ADMIN_ROUTES, AdminRouteSegments.Home), [PermissionKeys.UsersView])).resolves.toBe(false);
     await expect(passes(childAt(ADMIN_ROUTES, AdminRouteSegments.Import), [PermissionKeys.UsersView])).resolves.toBe(false);
   });
 

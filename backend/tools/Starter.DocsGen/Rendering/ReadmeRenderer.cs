@@ -20,6 +20,7 @@ internal static class ReadmeRenderer
             .Line($"| `{GeneratedFileNames.Endpoints}` | Every endpoint: method, route, permission or allowlisted access, owner, summary. |")
             .Line($"| `{GeneratedFileNames.ErrorCodes}` | Every `*ErrorCodes` constant, by owner. |")
             .Line($"| `{GeneratedFileNames.ConfigKeys}` | Every configuration key of every options class with a `SectionName`. |")
+            .Line($"| `{GeneratedFileNames.Statuses}` | Every `*Status` int enum of the kernel and the modules, with its values. |")
             .Line()
             .Line("Commands (from the repository root; the .NET 10 SDK is private on the build machine, see `tools/README.md`):")
             .Line()

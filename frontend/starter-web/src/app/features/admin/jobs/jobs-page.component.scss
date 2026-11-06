@@ -1,0 +1,6 @@
+@use '../organizations/admin-controls' as controls;
+@use 'jobs' as jobs;
+
+@include controls.row-actions;
+@include controls.editor-fields;
+@include jobs.jobs-texts;

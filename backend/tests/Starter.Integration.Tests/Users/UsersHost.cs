@@ -60,6 +60,9 @@ internal sealed class UsersApi(HttpClient http) : IDisposable
     public const int ExternalKind = 2;
     public const int PasswordBinding = 1;
 
+    /// <summary>The activation delivery of an account with an e-mail address (ActivationDelivery.Email): the link is e-mailed by the outbox.</summary>
+    public const int EmailDelivery = 2;
+
     private const string BearerScheme = "Bearer";
     private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 

@@ -29,6 +29,11 @@ export interface NotificationsSource {
   readonly items: Signal<readonly NotificationItem[]>;
   /** True while older notifications remain to load. */
   readonly hasMore: Signal<boolean>;
+  /**
+   * Optional: the reader's unread total as the server counts it (every unread notification, not only the loaded
+   * pages). Without it the bell counts the unread ones in `items`.
+   */
+  readonly unreadCount?: Signal<number>;
   markRead(id: string): Promise<void>;
   /** Appends the next page of older notifications. */
   loadMore(): Promise<void>;
@@ -52,6 +57,15 @@ export class EmptyNotificationsSource implements NotificationsSource {
 export const NOTIFICATIONS_SOURCE = new InjectionToken<NotificationsSource>('NOTIFICATIONS_SOURCE', {
   providedIn: 'root',
   factory: () => new EmptyNotificationsSource(),
+});
+
+/**
+ * The absolute router link of the notifications feed page the bell's "view all" opens (`/notifications`), or null for
+ * none. The app provides it next to `NOTIFICATIONS_SOURCE`, since the page lives in a feature.
+ */
+export const NOTIFICATIONS_FEED_LINK = new InjectionToken<string | null>('NOTIFICATIONS_FEED_LINK', {
+  providedIn: 'root',
+  factory: () => null,
 });
 
 /** The largest unread count the badge spells out; above it the badge reads `99+`. */

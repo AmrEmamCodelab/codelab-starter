@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Starter.Application.Notifications;
 using Starter.Application.Users;
 using Starter.Application.Validation;
 using Starter.Infrastructure.Modularity;
@@ -17,6 +18,7 @@ using Starter.Modules.Identity.Application.Activation;
 using Starter.Modules.Identity.Application.Auditing;
 using Starter.Modules.Identity.Infrastructure.Accounts;
 using Starter.Modules.Identity.Infrastructure.Auditing;
+using Starter.Modules.Identity.Infrastructure.Notifications;
 using Starter.Modules.Identity.Infrastructure.Options;
 using Starter.Modules.Identity.Infrastructure.Persistence;
 using Starter.Modules.Identity.Infrastructure.Security;
@@ -31,7 +33,7 @@ public static class IdentityModuleRegistration
     /// <summary>
     /// Registers the options (validated on start), the DbContext in schema <c>identity</c>, the session issuer and
     /// its token adapters, the use cases and validators, <see cref="IUserDirectory"/>, <see cref="IAccountAdministration"/>,
-    /// the activation tickets, the auth event sink, the account seeding task and the JWT bearer scheme (the default
+    /// <see cref="INotificationRecipients"/>, the activation tickets, the auth event sink, the account seeding task and the JWT bearer scheme (the default
     /// authentication scheme) with its per-request <c>sid</c> revocation check.
     /// </summary>
     public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
@@ -117,6 +119,7 @@ public static class IdentityModuleRegistration
         services.AddScoped<ActivationIssuer>();
         services.AddScoped<ActivateAccountUseCase>();
         services.AddScoped<IAccountAdministration, AccountAdministration>();
+        services.AddScoped<INotificationRecipients, NotificationRecipients>();
     }
 
     private static void DefaultIssuerAndAudience(JwtOptions options, IHostEnvironment environment)

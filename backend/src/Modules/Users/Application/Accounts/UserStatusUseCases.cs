@@ -63,7 +63,8 @@ public sealed class UnlockUser(IAccountAdministration accounts, AccountAccess ac
 /// <summary>
 /// <c>POST /api/admin/users/{id}/activation</c>: issues a new activation link for a password-bound account (the
 /// administrator's password reset). Identity clears the current password and bumps the session version, so the user
-/// is signed out everywhere until they set a new password through the link. The link hands its holder the account, so
+/// is signed out everywhere until they set a new password through the link. The link is e-mailed when the account has
+/// an address (<see cref="AccountActivations"/>), otherwise returned. The link hands its holder the account, so
 /// the caller must reach it (<see cref="AccountAccess.FindForChangeAsync"/>: scope, break-glass, privilege).
 /// </summary>
 public sealed class IssueUserActivation(AccountAccess access, AccountActivations activations)
@@ -82,7 +83,7 @@ public sealed class IssueUserActivation(AccountAccess access, AccountActivations
         }
 
         return found.Value.Binding == AccountBinding.Password
-            ? await activations.IssueAsync(found.Value.UserId, cancellationToken)
+            ? await activations.IssueAsync(found.Value, cancellationToken)
             : Refusal.Unprocessable(UsersErrorCodes.ActivationNotApplicable);
     }
 }

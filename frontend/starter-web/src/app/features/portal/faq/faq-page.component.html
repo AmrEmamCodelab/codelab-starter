@@ -1,4 +1,4 @@
-<app-portal-content-pattern [sections]="sections()">
+<app-portal-content-pattern>
   <dga-portal-page-header
     portalHeader
     [title]="keys.Title | t"
@@ -7,48 +7,54 @@
     [breadcrumbLabel]="common.BreadcrumbLabel | t"
   />
 
-  <div class="faq__search" role="search">
-    <dga-text-input
-      class="faq__search-input"
-      type="search"
-      name="faq-search"
-      autocomplete="off"
-      leadIcon="search"
-      [label]="keys.SearchLabel | t"
-      [placeholder]="keys.SearchPlaceholder | t"
-      [(value)]="query"
-    />
-    @if (searching()) {
-      <dga-button
-        class="faq__clear"
-        variant="secondary-outline"
-        size="md"
-        data-public-action
-        data-testid="faq-clear-search"
-        (click)="clearSearch()"
-      >{{ keys.ClearSearch | t }}</dga-button>
-    }
-  </div>
+  <app-portal-content-state [status]="content.status()" [empty]="content.empty()" (retry)="content.retry()" />
 
-  <p class="faq__result-count" aria-live="polite" data-testid="faq-result-count">
-    @if (searching()) {
-      {{ keys.ResultCount | t: { count: matchCount() } }}
-    }
-  </p>
+  @if (ready()) {
+    <div class="faq__search" role="search">
+      <dga-text-input
+        class="faq__search-input"
+        type="search"
+        name="faq-search"
+        autocomplete="off"
+        leadIcon="search"
+        [label]="keys.SearchLabel | t"
+        [placeholder]="keys.SearchPlaceholder | t"
+        [(value)]="query"
+      />
+      @if (searching()) {
+        <dga-button
+          class="faq__clear"
+          variant="secondary-outline"
+          size="md"
+          data-public-action
+          data-testid="faq-clear-search"
+          (click)="clearSearch()"
+        >{{ keys.ClearSearch | t }}</dga-button>
+      }
+    </div>
 
-  @for (category of categories(); track category.id) {
-    <section class="faq__category" [portalSection]="category.id" [attr.aria-labelledby]="'faq-' + category.id">
-      <h2 class="faq__category-title" [id]="'faq-' + category.id">{{ category.titleKey | t }}</h2>
-      <dga-accordion [mode]="accordionMode" [headingLevel]="headingLevel">
-        @for (entry of category.entries; track entry.id) {
-          <dga-accordion-item [label]="entry.questionKey | t" [expanded]="searching()">
-            <p class="faq__answer">{{ entry.answerKey | t }}</p>
-          </dga-accordion-item>
-        }
-      </dga-accordion>
+    <p class="faq__result-count" aria-live="polite" data-testid="faq-result-count">
+      @if (searching()) {
+        {{ keys.ResultCount | t: { count: matchCount() } }}
+      }
+    </p>
+
+    <section class="faq__category" aria-labelledby="faq-questions">
+      <h2 class="faq__category-title" id="faq-questions">{{ keys.QuestionsTitle | t }}</h2>
+      @if (questions().length > 0) {
+        <dga-accordion [mode]="accordionMode" [headingLevel]="headingLevel">
+          @for (question of questions(); track question.id) {
+            <dga-accordion-item [label]="question.title" [expanded]="searching()">
+              @for (paragraph of question.paragraphs; track $index) {
+                <p class="faq__answer">{{ paragraph }}</p>
+              }
+            </dga-accordion-item>
+          }
+        </dga-accordion>
+      } @else {
+        <p class="faq__empty" data-testid="faq-no-results">{{ keys.NoResults | t }}</p>
+      }
     </section>
-  } @empty {
-    <p class="faq__empty" data-testid="faq-no-results">{{ keys.NoResults | t }}</p>
   }
 
   <aside portalLastUpdated class="faq__help" aria-labelledby="faq-help-title">

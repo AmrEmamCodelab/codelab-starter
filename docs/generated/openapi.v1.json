@@ -405,6 +405,378 @@
         }
       }
     },
+    "/api/admin/audit": {
+      "get": {
+        "tags": [
+          "AdminAudit"
+        ],
+        "summary": "One page of the audit trail, newest first (values already masked).",
+        "parameters": [
+          {
+            "name": "EntityType",
+            "in": "query",
+            "description": "The audited entity type name (as the trail lists it), or null for all.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "EntityId",
+            "in": "query",
+            "description": "One row of EntityType (needs the type), or null for all.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Before",
+            "in": "query",
+            "description": "Only entries older than this one (the cursor: the last id of the previous page), or null.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "description": "The page size, 1 to int AuditPaging.MaxTake; null is int AuditPaging.DefaultTake.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/jobs": {
+      "get": {
+        "tags": [
+          "AdminJobs"
+        ],
+        "summary": "Every registered job with its newest run, ordered by key.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/jobs/{key}/runs": {
+      "post": {
+        "tags": [
+          "AdminJobs"
+        ],
+        "summary": "Queues a run of the job now; a job server runs it as the system actor.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggeredJobRunResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "AdminJobs"
+        ],
+        "summary": "The newest runs of the job, newest first.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "description": "How many runs, newest first: 1 to int JobsLimits.MaxHistoryTake; int JobsLimits.DefaultHistoryTake when absent.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRunResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/lookups": {
+      "get": {
+        "tags": [
+          "AdminLookups"
+        ],
+        "summary": "Every lookup type with its value count, ordered by key.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupTypeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/lookups/{type}": {
+      "get": {
+        "tags": [
+          "AdminLookups"
+        ],
+        "summary": "Every value of one lookup type, active or not, ordered by sort order.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/lookups/{type}/items/{id}/active": {
+      "put": {
+        "tags": [
+          "AdminLookups"
+        ],
+        "summary": "Activates or deactivates one value (the only run-time change a lookup accepts).",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLookupItemActiveCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLookupItemActiveCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLookupItemActiveCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/notifications/test": {
+      "post": {
+        "tags": [
+          "AdminNotifications"
+        ],
+        "summary": "Sends the caller a test notification: the bell now, e-mail (and SMS when enabled) through the outbox.",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/organizations": {
       "get": {
         "tags": [
@@ -710,6 +1082,217 @@
             "description": "No Content",
             "content": {
               "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/portal/content/{page}": {
+      "get": {
+        "tags": [
+          "AdminPortalContent"
+        ],
+        "summary": "One page's current content (never cached); 404 for an unknown page key.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortalContentResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AdminPortalContent"
+        ],
+        "summary": "Replaces one page's sections and answers the page as stored; 400, 404 or 409 otherwise.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplacePortalContentCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplacePortalContentCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplacePortalContentCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortalContentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/settings": {
+      "get": {
+        "tags": [
+          "AdminSettings"
+        ],
+        "summary": "Every setting, ordered by group, then key.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/settings/{key}": {
+      "put": {
+        "tags": [
+          "AdminSettings"
+        ],
+        "summary": "Changes a setting's value; every node sees it within `SettingsLimits.CacheTtl`.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
             }
           },
           "404": {
@@ -1875,6 +2458,49 @@
         }
       }
     },
+    "/api/lookups/{type}": {
+      "get": {
+        "tags": [
+          "Lookups"
+        ],
+        "summary": "The active values of one lookup type, ordered by sort order (both names; the client picks the language).",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupValueResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/me/permissions": {
       "get": {
         "tags": [
@@ -1898,6 +2524,223 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyPermissionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "One page of the caller's notifications, newest first, in the request language.",
+        "parameters": [
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "How many of the caller's notifications are unread.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Marks one of the caller's notifications read (idempotent).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portal/contact-messages": {
+      "post": {
+        "tags": [
+          "PortalContact"
+        ],
+        "summary": "Stores a contact message and answers its reference number (201), the field errors (400), 409 while an\r\nadministrator has switched the form off, or 429.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitContactMessageCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitContactMessageCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitContactMessageCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactReceiptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portal/content/{page}": {
+      "get": {
+        "tags": [
+          "PortalContent"
+        ],
+        "summary": "One page's content; 404 for an unknown page key.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortalContentResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -2083,24 +2926,36 @@
         },
         "description": "The body of `POST /api/auth/activate`."
       },
+      "ActivationDelivery": {
+        "type": "integer",
+        "description": "How an activation link reaches the user. Sent on the wire as the integer value."
+      },
       "ActivationResponse": {
         "required": [
           "activationLink",
-          "expiresAt"
+          "expiresAt",
+          "delivery"
         ],
         "type": "object",
         "properties": {
           "activationLink": {
-            "type": "string",
-            "description": "The link (the sealed one-time ticket is in its fragment)."
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The link (the sealed one-time ticket is in its fragment) when Delivery is AdministratorLink (1);\r\nnull when it is Email (2), because the user receives the link by e-mail."
           },
           "expiresAt": {
             "type": "string",
-            "description": "When it stops working.",
+            "description": "When it stops working (an e-mailed link expires a little later, by the outbox delay).",
             "format": "date-time"
+          },
+          "delivery": {
+            "description": "AdministratorLink (1) or Email (2).",
+            "$ref": "#/components/schemas/ActivationDelivery"
           }
         },
-        "description": "An activation link to hand to the user."
+        "description": "An activation just issued: e-mailed to the user, or a link to hand over."
       },
       "AssignedRoleResponse": {
         "required": [
@@ -2139,6 +2994,127 @@
           }
         },
         "description": "An assigned role of a grants response."
+      },
+      "AuditAction": {
+        "type": "integer",
+        "description": "What happened to an audited row (stored as int; never reorder or renumber)."
+      },
+      "AuditChangeResponse": {
+        "required": [
+          "property",
+          "oldValue",
+          "newValue"
+        ],
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "description": "The property name."
+          },
+          "oldValue": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The value before, or null."
+          },
+          "newValue": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The value after, or null."
+          }
+        },
+        "description": "One recorded value."
+      },
+      "AuditEntryResponse": {
+        "required": [
+          "id",
+          "entityType",
+          "entityId",
+          "action",
+          "actor",
+          "at",
+          "changes"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The entry.",
+            "$ref": "#/components/schemas/PublicIdOfAuditEntryIds"
+          },
+          "entityType": {
+            "type": "string",
+            "description": "The audited entity type name."
+          },
+          "entityId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The audited row, or null for a composite key.",
+                "$ref": "#/components/schemas/PublicIdOfAuditedEntityIds"
+              }
+            ]
+          },
+          "action": {
+            "description": "Added = 1, Modified = 2, Deleted = 3.",
+            "$ref": "#/components/schemas/AuditAction"
+          },
+          "actor": {
+            "type": "string",
+            "description": "The acting subject id, or `SYSTEM`."
+          },
+          "at": {
+            "type": "string",
+            "description": "When (UTC).",
+            "format": "date-time"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditChangeResponse"
+            },
+            "description": "The recorded values (masked where personal; ids are tokens)."
+          }
+        },
+        "description": "One audited change."
+      },
+      "AuditPageResponse": {
+        "required": [
+          "items",
+          "hasMore"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntryResponse"
+            },
+            "description": "The entries, newest first."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when older entries exist; ask again with `before` = the last item's id."
+          }
+        },
+        "description": "One page of the audit trail."
+      },
+      "ContactReceiptResponse": {
+        "required": [
+          "referenceNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "referenceNumber": {
+            "type": "string",
+            "description": "The reference number, `CU-YYYY-NNN`."
+          }
+        },
+        "description": "The contact receipt: `{referenceNumber}`."
       },
       "CreateOrganizationCommand": {
         "required": [
@@ -2320,7 +3296,7 @@
                 "type": "null"
               },
               {
-                "description": "Its activation link (password binding only), or null.",
+                "description": "Its activation (password binding only), or null.",
                 "$ref": "#/components/schemas/ActivationResponse"
               }
             ]
@@ -2613,6 +3589,7 @@
           "binding",
           "activationLink",
           "expiresAt",
+          "activationDelivery",
           "activationErrorCode"
         ],
         "type": "object",
@@ -2634,15 +3611,26 @@
               "null",
               "string"
             ],
-            "description": "The activation link of a password-bound account, or null."
+            "description": "The activation link of a password-bound account without an e-mail address, or null."
           },
           "expiresAt": {
             "type": [
               "null",
               "string"
             ],
-            "description": "When that link stops working, or null.",
+            "description": "When the activation stops working, or null.",
             "format": "date-time"
+          },
+          "activationDelivery": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "AdministratorLink (1), Email (2: the link is e-mailed, no link here), or null.",
+                "$ref": "#/components/schemas/ActivationDelivery"
+              }
+            ]
           },
           "activationErrorCode": {
             "type": [
@@ -2653,6 +3641,119 @@
           }
         },
         "description": "An account the commit created."
+      },
+      "JobResponse": {
+        "required": [
+          "key",
+          "nameAr",
+          "nameEn",
+          "cron",
+          "lastRun"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The stable key."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The name in Arabic."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The name in English."
+          },
+          "cron": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The five-field cron schedule (jobs time zone), or null for a manual-only job."
+          },
+          "lastRun": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The newest run, or null when it never ran.",
+                "$ref": "#/components/schemas/JobRunResponse"
+              }
+            ]
+          }
+        },
+        "description": "One registered job on the wire, with its newest run."
+      },
+      "JobRunResponse": {
+        "required": [
+          "id",
+          "status",
+          "trigger",
+          "actor",
+          "triggeredBy",
+          "startedAt",
+          "finishedAt",
+          "referenceCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The run's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfJobRunIds"
+          },
+          "status": {
+            "description": "Queued = 1, Running = 2, Succeeded = 3, Failed = 4.",
+            "$ref": "#/components/schemas/JobRunStatus"
+          },
+          "trigger": {
+            "description": "Schedule = 1, Manual = 2.",
+            "$ref": "#/components/schemas/JobTrigger"
+          },
+          "actor": {
+            "type": "string",
+            "description": "The actor the run's work is recorded under: always `SYSTEM`."
+          },
+          "triggeredBy": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The display name of the administrator who ran it now, or null for a scheduled run (or an account that no longer\r\nexists). Never the internal subject id."
+          },
+          "startedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When it started executing, or null while queued.",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When it ended, or null.",
+            "format": "date-time"
+          },
+          "referenceCode": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reference code of a failed execution (quote it to find the log line), or null."
+          }
+        },
+        "description": "One job run on the wire. Times are ISO 8601 UTC; enums are their integer values."
+      },
+      "JobRunStatus": {
+        "type": "integer",
+        "description": "The state of one job run (stored and sent as the integer value)."
+      },
+      "JobTrigger": {
+        "type": "integer",
+        "description": "Why a job run started (stored and sent as the integer value)."
       },
       "LoginCommand": {
         "required": [
@@ -2701,6 +3802,120 @@
         },
         "description": "The login methods the login page offers."
       },
+      "LookupItemResponse": {
+        "required": [
+          "id",
+          "code",
+          "nameAr",
+          "nameEn",
+          "sortOrder",
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The value id (opaque token, family `lookup-items`).",
+            "$ref": "#/components/schemas/PublicIdOfLookupItemIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The kebab-case code."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The display order.",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the value is offered."
+          }
+        },
+        "description": "One value of `GET /api/admin/lookups/{type}`, active or not."
+      },
+      "LookupTypeResponse": {
+        "required": [
+          "type",
+          "nameAr",
+          "nameEn",
+          "itemCount"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type key (the `{type}` route segment)."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "itemCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of its values, active or not.",
+            "format": "int32"
+          }
+        },
+        "description": "One lookup type of `GET /api/admin/lookups`."
+      },
+      "LookupValueResponse": {
+        "required": [
+          "id",
+          "code",
+          "nameAr",
+          "nameEn",
+          "sortOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The value id (opaque token, family `lookup-items`).",
+            "$ref": "#/components/schemas/PublicIdOfLookupItemIds"
+          },
+          "code": {
+            "type": "string",
+            "description": "The kebab-case code."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The display order.",
+            "format": "int32"
+          }
+        },
+        "description": "One active lookup value of `GET /api/lookups/{type}`."
+      },
       "MyPermissionsResponse": {
         "required": [
           "permissions"
@@ -2716,6 +3931,69 @@
           }
         },
         "description": "The body of `GET /api/me/permissions`."
+      },
+      "NotificationPageResponse": {
+        "required": [
+          "items",
+          "hasMore"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationResponse"
+            },
+            "description": "The items, newest first."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when older items exist (ask again with `before` = the last item's id)."
+          }
+        },
+        "description": "One feed page: `{items, hasMore}`."
+      },
+      "NotificationResponse": {
+        "required": [
+          "id",
+          "titleText",
+          "bodyText",
+          "at",
+          "read",
+          "link"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The notification's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfNotificationIds"
+          },
+          "titleText": {
+            "type": "string",
+            "description": "The title."
+          },
+          "bodyText": {
+            "type": "string",
+            "description": "The body (plain text)."
+          },
+          "at": {
+            "type": "string",
+            "description": "When it was created (ISO 8601, UTC).",
+            "format": "date-time"
+          },
+          "read": {
+            "type": "boolean",
+            "description": "Whether the caller has read it."
+          },
+          "link": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The app-relative link, or null."
+          }
+        },
+        "description": "One bell item on the wire (texts already in the request language)."
       },
       "OrganizationKind": {
         "type": "integer",
@@ -2869,6 +4147,79 @@
         },
         "description": "One source of an effective permission."
       },
+      "PortalContentResponse": {
+        "required": [
+          "page",
+          "updatedAt",
+          "sections"
+        ],
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "string",
+            "description": "The page key (`faq`, `service-guide`, `privacy`, `terms`)."
+          },
+          "updatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When an administrator last changed it (ISO 8601, UTC), or null for the seeded text.",
+            "format": "date-time"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortalSectionResponse"
+            },
+            "description": "The sections, ordered by sort order."
+          }
+        },
+        "description": "One page's content: `{page, updatedAt, sections}`."
+      },
+      "PortalSectionResponse": {
+        "required": [
+          "id",
+          "titleAr",
+          "titleEn",
+          "bodyAr",
+          "bodyEn",
+          "sortOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The section's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfPortalSectionIds"
+          },
+          "titleAr": {
+            "type": "string",
+            "description": "The Arabic title."
+          },
+          "titleEn": {
+            "type": "string",
+            "description": "The English title."
+          },
+          "bodyAr": {
+            "type": "string",
+            "description": "The Arabic body."
+          },
+          "bodyEn": {
+            "type": "string",
+            "description": "The English body."
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The display order.",
+            "format": "int32"
+          }
+        },
+        "description": "One bilingual section on the wire (plain text; body paragraphs separated by a blank line)."
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -2907,7 +4258,58 @@
           }
         }
       },
+      "PublicIdOfAuditEntryIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfAuditedEntityIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": [
+          "null",
+          "string"
+        ],
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfJobRunIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfLookupItemIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfNotificationIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
       "PublicIdOfOrganizationIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfPortalSectionIds": {
         "examples": [
           "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         ],
@@ -3025,6 +4427,25 @@
           }
         },
         "description": "A row the commit left out."
+      },
+      "ReplacePortalContentCommand": {
+        "required": [
+          "sections"
+        ],
+        "type": "object",
+        "properties": {
+          "sections": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/SectionInput"
+            },
+            "description": "Every section the page should hold (at most int PortalLimits.MaxSectionsPerPage; may be empty)."
+          }
+        },
+        "description": "The body of `PUT /api/admin/portal/content/{page}`: the page's complete list of sections. A section with an\r\nid updates that section, one without an id is added, and a section of the page that the list leaves out is removed."
       },
       "RoleAssignmentInput": {
         "required": [
@@ -3170,6 +4591,69 @@
         },
         "description": "One row of `GET /api/admin/access/roles`."
       },
+      "SectionInput": {
+        "required": [
+          "id",
+          "titleAr",
+          "titleEn",
+          "bodyAr",
+          "bodyEn",
+          "sortOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The section's PublicId to update it, or null to add a new section.",
+                "$ref": "#/components/schemas/PublicIdOfPortalSectionIds"
+              }
+            ]
+          },
+          "titleAr": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The Arabic title (plain text)."
+          },
+          "titleEn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The English title (plain text)."
+          },
+          "bodyAr": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The Arabic body (plain text, paragraphs separated by a blank line)."
+          },
+          "bodyEn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The English body."
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The display order, int PortalLimits.SortOrderMin to int PortalLimits.SortOrderMax.",
+            "format": "int32"
+          }
+        },
+        "description": "One section of a replace."
+      },
       "SessionResponse": {
         "required": [
           "accessToken",
@@ -3265,6 +4749,78 @@
         },
         "description": "A signed-in user as the client sees it."
       },
+      "SetLookupItemActiveCommand": {
+        "required": [
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "True to offer the value again, false to retire it."
+          }
+        },
+        "description": "The body of `PUT /api/admin/lookups/{type}/items/{id}/active`."
+      },
+      "SettingResponse": {
+        "required": [
+          "key",
+          "group",
+          "valueType",
+          "value",
+          "defaultValue",
+          "descriptionAr",
+          "descriptionEn",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The stable key (`&lt;group&gt;.&lt;kebab-name&gt;`)."
+          },
+          "group": {
+            "type": "string",
+            "description": "The group the screen lists it under."
+          },
+          "valueType": {
+            "description": "How the value reads (integer on the wire).",
+            "$ref": "#/components/schemas/SettingValueType"
+          },
+          "value": {
+            "type": "string",
+            "description": "The current value, canonical text."
+          },
+          "defaultValue": {
+            "type": "string",
+            "description": "The seeded value, canonical text."
+          },
+          "descriptionAr": {
+            "type": "string",
+            "description": "What it controls, in Arabic."
+          },
+          "descriptionEn": {
+            "type": "string",
+            "description": "What it controls, in English."
+          },
+          "updatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When an administrator last changed it (ISO 8601 UTC), or null.",
+            "format": "date-time"
+          }
+        },
+        "description": "One runtime setting on the wire (the bounds stay server-side; a value outside them is refused with a field error)."
+      },
+      "SettingValueType": {
+        "type": "integer",
+        "description": "How a runtime setting's text value is read and validated. Stored and sent on the wire as the integer value; the\r\nclient labels it from its ar and en bundles."
+      },
       "SsoExchangeCommand": {
         "required": [
           "ticket",
@@ -3301,6 +4857,88 @@
           }
         },
         "description": "The end of an SSO logout."
+      },
+      "SubmitContactMessageCommand": {
+        "required": [
+          "fullName",
+          "email",
+          "topicId",
+          "message",
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's name (1-100 characters after trimming)."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's e-mail address."
+          },
+          "topicId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The contact topic: an active `contact-topics` lookup id (`ContactTopicIds`).",
+            "format": "int32"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The message (10-2000 characters after trimming)."
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The language to reply in: `ar` or `en` (ContactLanguageCodes)."
+          }
+        },
+        "description": "The body of `POST /api/portal/contact-messages`. Every member is nullable, so a missing field comes back as a\r\nfield error of the validator rather than as a binding failure in another shape."
+      },
+      "TriggeredJobRunResponse": {
+        "required": [
+          "runId"
+        ],
+        "type": "object",
+        "properties": {
+          "runId": {
+            "description": "The queued run's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfJobRunIds"
+          }
+        },
+        "description": "The answer to \"run now\": the queued run's PublicId (its outcome appears in the run history)."
+      },
+      "UnreadCountResponse": {
+        "required": [
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "How many of the caller's notifications are unread.",
+            "format": "int32"
+          }
+        },
+        "description": "The unread count: `{count}`."
       },
       "UpdateOrganizationCommand": {
         "required": [
@@ -3381,6 +5019,22 @@
           }
         },
         "description": "The body of `PUT /api/admin/access/roles/{id}`, validated by UpdateRoleValidator."
+      },
+      "UpdateSettingRequest": {
+        "required": [
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The new value as text, in the setting's format (see SettingValueFormat)."
+          }
+        },
+        "description": "The body of `PUT /api/admin/settings/{key}`."
       },
       "UpdateUserCommand": {
         "required": [
@@ -3711,6 +5365,9 @@
       "name": "AccessAdmin"
     },
     {
+      "name": "AdminAudit"
+    },
+    {
       "name": "Auth"
     },
     {
@@ -3724,6 +5381,33 @@
     },
     {
       "name": "Activation"
+    },
+    {
+      "name": "AdminJobs"
+    },
+    {
+      "name": "Lookups"
+    },
+    {
+      "name": "AdminLookups"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "AdminNotifications"
+    },
+    {
+      "name": "PortalContact"
+    },
+    {
+      "name": "PortalContent"
+    },
+    {
+      "name": "AdminPortalContent"
+    },
+    {
+      "name": "AdminSettings"
     },
     {
       "name": "AdminOrganizations"

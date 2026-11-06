@@ -41,6 +41,18 @@ internal static class SolutionAssemblies
         return [.. found.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry => entry.Value)];
     }
 
+    /// <summary>
+    /// The assemblies of <paramref name="assemblies"/> that belong to the host's own solution (the host, the kernel and
+    /// the modules), without the Codelab packages; same order.
+    /// </summary>
+    public static IReadOnlyList<Assembly> OwnAssemblies(IEnumerable<Assembly> assemblies, Assembly hostAssembly)
+    {
+        ArgumentNullException.ThrowIfNull(assemblies);
+        ArgumentNullException.ThrowIfNull(hostAssembly);
+        var solutionPrefix = ModuleNaming.SolutionTokenOf(hostAssembly) + ".";
+        return [.. assemblies.Where(assembly => assembly.GetName().Name?.StartsWith(solutionPrefix, StringComparison.Ordinal) == true)];
+    }
+
     /// <summary>True for an assembly of the solution (<paramref name="solutionPrefix"/>) or a Codelab package.</summary>
     public static bool IsDocumented(string? assemblyName, string solutionPrefix) =>
         assemblyName is not null

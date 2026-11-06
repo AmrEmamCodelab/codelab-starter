@@ -9,12 +9,17 @@ interfaces; adapters live in Starter.Infrastructure or in the module that owns t
 | Results | `Outcome<T>`, `Outcome`, `Refusal`, `RefusalCategory`, `Done`, `PlatformErrorCodes` | (values) |
 | Validation | `IValidator<T>`, `ValidationErrors`, `ValidationMessages`, `FieldNames` | each module |
 | Persistence | `IUnitOfWork` | each module's `ModuleDbContext` |
-| Users | `ICurrentUserContext`, `IUserDirectory`, `DirectoryUser` (+ `Kind`, `OrganizationId`) | kernel (HTTP) / Identity |
+| Users | `ICurrentUserContext`, `IUserDirectory`, `DirectoryUser` (+ `Kind`, `OrganizationId`, `DisplayName`) | kernel (HTTP) / Identity |
 | Account administration | `IAccountAdministration`, `AccountSummary`, `NewAccount`, `AccountChanges`, `AccountQuery`, `AccountPage`, `ActivationIssue` | Identity (consumed by Users) |
 | Authorization | `IPermissionCatalogSource`, `PermissionDefinition`, `PermissionKeyFormat`, `IUserPermissionGrants` | each module / Access |
 | Organization scope | `IOrganizationScope`, `PermissionScope` (Global = 1, OwnOrganization = 2), `ScopeDecision` | Access |
-| Messaging | `IOutbox`, `OutboxMessage`, `OutboxMessageTypes`, `OutboxMessageStatus` (Pending = 1, Sent = 2, Failed = 3), `AccountActivationPayload`, `OutboxLimits` | kernel (`EfOutbox`) |
-| Auditing | `IAuditContextAccessor`, `AuditContext` | kernel (HTTP) |
+| Messaging | IOutbox, OutboxMessage, OutboxMessageTypes (AccountActivation, NotificationEmail, NotificationSms), OutboxMessageStatus (Pending = 1, Sent = 2, Failed = 3, Processing = 4), AccountActivationPayload, OutboxLimits (TypeMaxLength, MaxAttempts = 8), IOutboxHandler, OutboxDelivery, IOutboxDrainRunner, OutboxDrainResult | kernel (EfOutbox, OutboxDrainRunner); handlers in the owning module |
+| Numbering | IRequestNumberAllocator (NextAsync(prefix) -> PREFIX-YYYY-NNN), RequestNumberFormat (prefix 2-6 uppercase letters, counter padded to 3 digits, Format) | kernel (RequestNumberAllocator on SQL sequences) |
+| Notifications | INotificationService (NotifyUserAsync, SendToAddressAsync, SendImmediateEmailAsync), UserNotification, AddressedNotification, NotificationChannels ([Flags] None = 0, InApp = 1, Email = 2, Sms = 4), INotificationRecipients, NotificationRecipient, NotificationTemplateKeys, NotificationPlaceholders | Notifications module (service); Identity (INotificationRecipients) |
+| Settings | `IRuntimeSettings`, `SettingKeys`, `SettingValueType` (Text = 1, WholeNumber = 2, Boolean = 3, DurationSeconds = 4), `SettingsLimits` (CacheTtl 30 s) | Settings module |
+| Auditing | `IAuditContextAccessor`, `AuditContext`, `IAuditTrailQueries` (`AuditTrailQuery`, `AuditTrailPage`, `AuditTrailEntry`, `AuditPropertyChange`), `AuditActors` (`System` = "SYSTEM") | kernel (`HttpAuditContextAccessor`, `EfAuditTrailQueries`) |
+| Jobs | IJob (Key, NameAr, NameEn, Cron or null, RunAsync(JobRunContext)), JobRunContext, JobRunStatus (Queued = 1, Running = 2, Succeeded = 3, Failed = 4), JobTrigger (Schedule = 1, Manual = 2), SystemActor (Name = "SYSTEM", = AuditActors.System), ISystemActorScope (IsActive, BeginSystemScope), JobKeyFormat (lowercase kebab, 3-64) | jobs module (catalog, runs, Hangfire); kernel (SystemActorScope) |
+| Lookups | `ILookupValues` (`FindActiveAsync(typeKey, id)`), `ActiveLookupValue` | Lookups module (`ActiveLookupValues`, over its per-node cache) |
 | Localization | `ICurrentLanguage` | kernel (HTTP) |
 
 ## Use
@@ -54,6 +59,11 @@ await outbox.EnqueueAsync(new OutboxMessage(OutboxMessageTypes.AccountActivation
 ```
 
 ## Extend
+- **Deliver an outbox message type:** implement IOutboxHandler in the owning module (MessageType = the OutboxMessageTypes constant; HandleAsync must be idempotent per OutboxDelivery.MessageId, because delivery is at least once) and register it in Add<Name>Module with services.AddOutboxHandler<THandler>(). Throw to retry (back-off 1/5/15/60 min, Failed after OutboxLimits.MaxAttempts); only the classified error code is stored. Exactly one handler per type.
+- **A reference number:** inject IRequestNumberAllocator and call NextAsync(MyModuleNumberPrefixes.X) with a prefix constant (2-6 uppercase letters, e.g. "CU"); allocate after validation, since a number is consumed even when the caller's save fails (gaps, never duplicates).
+- **Send a notification:** inject INotificationService and follow docs/recipes/add-notification.md (key constant, a Notifications migration with ar + en texts, call after your own save; secret-bearing links only through SendImmediateEmailAsync from an outbox handler).
+- **A background job:** implement IJob in the owning module (key and cron from constants; RunAsync idempotent, throws to fail) and register it with services.AddStarterJob<TJob>() (Starter.Infrastructure.Jobs). The jobs module schedules, runs (as SYSTEM, in a system scope) and records it. Recipe: backend/src/Modules/Jobs/MODULE.md, 'Add a job'.
+- **Work no person does:** wrap it in ISystemActorScope.BeginSystemScope(); inside, ICurrentUserContext is anonymous and the audit actor is SYSTEM.
 - **A new cross-module port:** add the interface here (with records for its data), implement it in the owning module
   and register it in that module's `Add<Name>Module`. Never let one module reference another module's project.
 - **A new outbox message type:** add a constant to `OutboxMessageTypes` and a payload record next to it; the payload

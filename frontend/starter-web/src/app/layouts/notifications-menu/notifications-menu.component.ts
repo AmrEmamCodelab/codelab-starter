@@ -60,6 +60,11 @@ export class NotificationsMenuComponent {
 
   /** The reader's notifications, newest first. */
   readonly items = input<readonly NotificationItem[]>([]);
+  /**
+   * The unread total to show on the badge when the source knows it (the server's count, beyond the loaded items); null
+   * counts the unread ones in `items`.
+   */
+  readonly unreadTotal = input<number | null>(null);
   /** Absolute router link of the full feed page; null hides the "view all" link. */
   readonly viewAllLink = input<string | null>(null);
   /** The id of a notification the reader marked read (or opened while unread). */
@@ -67,7 +72,7 @@ export class NotificationsMenuComponent {
 
   protected readonly keys = NotificationsTranslationKeys;
   readonly open = signal(false);
-  readonly unread = computed(() => unreadCount(this.items()));
+  readonly unread = computed(() => this.unreadTotal() ?? unreadCount(this.items()));
   readonly badge = computed(() => badgeText(this.unread()));
   readonly shown = computed(() => this.items().slice(0, MENU_ITEM_LIMIT));
 

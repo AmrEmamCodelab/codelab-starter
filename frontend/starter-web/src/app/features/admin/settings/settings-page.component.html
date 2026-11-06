@@ -1,0 +1,121 @@
+<app-admin-list-pattern
+  [translatedCodes]="translatedCodes"
+  [titleKey]="keys.Title"
+  [searchLabelKey]="keys.Search"
+  [emptyKey]="keys.Empty"
+  [columns]="columns"
+  [rows]="store.rows()"
+  [rowId]="rowId"
+  [total]="store.total()"
+  [pageSize]="store.pageSize"
+  [loading]="store.loading()"
+  [error]="store.error()"
+  [(page)]="store.page"
+  [(search)]="store.search"
+  (retry)="store.load()"
+>
+  <p listToolbar class="settings-intro">{{ keys.Intro | t }}</p>
+
+  <div listFilters class="filters">
+    <label class="filter">
+      <span class="filter__label">{{ keys.Filters.Group | t }}</span>
+      <select class="filter__select" data-testid="filter-group" (change)="store.filterGroup(selectValue($event))">
+        <option [value]="allGroups">{{ keys.Filters.AllGroups | t }}</option>
+        @for (group of store.groups(); track group) {
+          <option [value]="group" [selected]="store.groupFilter() === group">{{ groupName(group) }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <ng-template listCell="group" let-row [listCellOf]="store.rows()">
+    <span data-testid="setting-group">{{ groupName(row.group) }}</span>
+  </ng-template>
+
+  <ng-template listCell="key" let-row [listCellOf]="store.rows()">
+    <code class="setting-key" dir="ltr" data-fixed-direction>{{ row.key }}</code>
+  </ng-template>
+
+  <ng-template listCell="value" let-row [listCellOf]="store.rows()">
+    <span class="setting-value" data-testid="setting-value">{{ valueText(row.valueType, row.value) }}</span>
+  </ng-template>
+
+  <ng-template listCell="descriptionEn" let-row [listCellOf]="store.rows()">
+    {{ description(row) }}
+  </ng-template>
+
+  <ng-template listCell="updatedAt" let-row [listCellOf]="store.rows()">
+    @if (row.updatedAt; as at) {
+      {{ updatedAt(at) }}
+    } @else {
+      <span class="setting-muted">{{ keys.Values.NeverChanged | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listRowActions let-row [listRowActionsOf]="store.rows()">
+    <div class="row-actions">
+      <dga-button
+        *hasPermission="permissions.Manage"
+        variant="subtle"
+        size="sm"
+        data-testid="setting-edit"
+        (click)="store.openEdit(row)"
+      >
+        {{ keys.Actions.Edit | t }}
+      </dga-button>
+    </div>
+  </ng-template>
+</app-admin-list-pattern>
+
+<app-editor-dialog-pattern
+  *hasPermission="permissions.Manage"
+  [translatedCodes]="translatedCodes"
+  [open]="store.draft() !== null"
+  [titleKey]="keys.Editor.Title"
+  [confirmKey]="keys.Editor.Save"
+  [busy]="store.saving()"
+  [confirmDisabled]="store.cannotSave()"
+  [error]="store.saveError()"
+  (confirm)="store.save()"
+  (cancel)="store.closeEditor()"
+>
+  @if (store.draft(); as draft) {
+    <div class="editor-fields">
+      <div class="setting-summary">
+        <code class="setting-key" dir="ltr" data-fixed-direction data-testid="editor-key">{{ draft.setting.key }}</code>
+        <p class="confirm-text">{{ description(draft.setting) }}</p>
+      </div>
+
+      @if (draft.setting.valueType === ValueType.Boolean) {
+        <dga-checkbox
+          data-testid="editor-checkbox"
+          [label]="keys.Editor.Enabled | t"
+          [error]="store.saveError() | fieldError: valueField"
+          [(checked)]="draft.checked"
+        />
+      } @else {
+        <dga-text-input
+          autofocus
+          data-testid="editor-value"
+          [type]="draft.setting.valueType === ValueType.Text ? 'text' : 'number'"
+          [inputMode]="draft.setting.valueType === ValueType.Text ? null : 'numeric'"
+          [label]="keys.Editor.Value | t"
+          [hint]="hintKeys[draft.setting.valueType] | t"
+          [error]="draft.problem() ? (draft.problem()! | t) : (store.saveError() | fieldError: valueField)"
+          [(value)]="draft.text"
+        />
+      }
+
+      <div class="setting-default-row">
+        <p class="confirm-text" data-testid="editor-default">
+          {{ keys.Editor.Default | t: { value: valueText(draft.setting.valueType, draft.setting.defaultValue) } }}
+        </p>
+        @if (!draft.isDefault()) {
+          <dga-button variant="subtle" size="sm" data-testid="editor-reset" (click)="draft.resetToDefault()">
+            {{ keys.Editor.ResetToDefault | t }}
+          </dga-button>
+        }
+      </div>
+    </div>
+  }
+</app-editor-dialog-pattern>

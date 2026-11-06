@@ -60,6 +60,12 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+  <ItemGroup Label="Starter.Modules.Jobs: Hangfire SQL Server storage and ASP.NET Core hosting; in-memory storage for its tests">
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.8.25" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.25" />
+    <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Codelab.Identity: LDAP/LDAPS for the Active Directory provider (not in the ASP.NET Core shared framework)">
     <PackageVersion Include="System.DirectoryServices.Protocols" Version="10.0.14" />
   </ItemGroup>

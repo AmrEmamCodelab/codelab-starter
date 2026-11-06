@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Starter.Infrastructure.Modularity;
 using Starter.Infrastructure.Persistence;
+using Starter.Modules.Notifications.Infrastructure.Options;
 using Starter.Tests.Hosting;
 
 namespace Starter.Integration.Tests.Support;
@@ -45,10 +46,14 @@ public abstract class IntegrationHost : IAsyncLifetime, IDisposable
     public async Task InitializeAsync()
     {
         await TestSqlServer.EnsureStartedAsync();
-        await TestSqlServer.CreateDatabaseAsync(DatabaseName);
+        if (CreatesDatabaseBeforeStart)
+        {
+            await TestSqlServer.CreateDatabaseAsync(DatabaseName);
+        }
+
         try
         {
-            _factory = new StarterApiFactory(EnvironmentName, StarterHostSettings.For(HostOptions(), Accounts), ConfigureServices);
+            _factory = new StarterApiFactory(EnvironmentName, Settings(), ConfigureServices);
             AssertUsesOwnDatabase(_factory.Services);
         }
         catch
@@ -72,7 +77,13 @@ public abstract class IntegrationHost : IAsyncLifetime, IDisposable
         finally
         {
             await TestSqlServer.DropDatabaseAsync(DatabaseName);
+            AfterStop();
         }
+    }
+
+    /// <summary>Runs after the host stopped and its database was dropped: remove what else the fixture created.</summary>
+    protected virtual void AfterStop()
+    {
     }
 
     /// <summary>Disposes the host if <see cref="DisposeAsync"/> did not already (that path also drops the database).</summary>
@@ -92,6 +103,12 @@ public abstract class IntegrationHost : IAsyncLifetime, IDisposable
         }
     }
 
+    /// <summary>
+    /// True (default) to create the empty database before the host starts. False to let the host's first migration
+    /// create it, as on a developer's first run or a new fork (Development only, where the kernel migrates on start).
+    /// </summary>
+    protected virtual bool CreatesDatabaseBeforeStart => true;
+
     /// <summary>True when the environment lets the kernel migrate on start (Development only).</summary>
     protected bool MigratesOnStart => string.Equals(EnvironmentName, Environments.Development, StringComparison.Ordinal);
 
@@ -102,6 +119,23 @@ public abstract class IntegrationHost : IAsyncLifetime, IDisposable
         {
             services.Insert(0, ServiceDescriptor.Singleton<IHostedService, MigrateBeforeStartupTasks>());
         }
+    }
+
+    /// <summary>
+    /// Settings this fixture adds to (or overrides in) the shared test host settings, keyed by configuration path.
+    /// Empty by default.
+    /// </summary>
+    protected virtual IReadOnlyDictionary<string, string?> ExtraSettings { get; } = new Dictionary<string, string?>();
+
+    private Dictionary<string, string?> Settings()
+    {
+        var settings = new Dictionary<string, string?>(StarterHostSettings.For(HostOptions(), Accounts), StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, value) in ExtraSettings)
+        {
+            settings[key] = value;
+        }
+
+        return settings;
     }
 
     private StarterHostOptions HostOptions() =>
@@ -139,8 +173,21 @@ public abstract class IntegrationHost : IAsyncLifetime, IDisposable
 /// <summary>The host in Development: migrations on start, the break-glass and the Development user seeded.</summary>
 public sealed class DevelopmentHost() : IntegrationHost(Environments.Development);
 
-/// <summary>The host in Production: only the break-glass account is seeded.</summary>
-public sealed class ProductionHost() : IntegrationHost(Environments.Production);
+/// <summary>
+/// The host in Production: only the break-glass account is seeded. E-mail goes to an SMTP relay on a reserved name,
+/// because a production host refuses the file drop; no test here sends mail.
+/// </summary>
+public sealed class ProductionHost() : IntegrationHost(Environments.Production)
+{
+    /// <summary>A relay host name that never resolves (RFC 2606 reserved top-level domain).</summary>
+    public const string UnusedRelayHost = "relay.invalid";
+
+    /// <inheritdoc />
+    protected override IReadOnlyDictionary<string, string?> ExtraSettings { get; } = new Dictionary<string, string?>
+    {
+        [StarterHostSettings.Key(EmailDeliveryOptions.SectionName, nameof(EmailDeliveryOptions.Smtp), nameof(SmtpRelayOptions.Host))] = UnusedRelayHost,
+    };
+}
 
 /// <summary>Tests sharing the Development host.</summary>
 [CollectionDefinition(Name)]

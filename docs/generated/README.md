@@ -14,6 +14,7 @@ change the code, then regenerate. CI fails when a file drifts from the code.
 | `endpoints.md` | Every endpoint: method, route, permission or allowlisted access, owner, summary. |
 | `error-codes.md` | Every `*ErrorCodes` constant, by owner. |
 | `config-keys.md` | Every configuration key of every options class with a `SectionName`. |
+| `statuses.md` | Every `*Status` int enum of the kernel and the modules, with its values. |
 
 Commands (from the repository root; the .NET 10 SDK is private on the build machine, see `tools/README.md`):
 

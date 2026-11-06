@@ -11,6 +11,9 @@ The kernel Domain project (ADR-004): the types every module's domain layer share
   selects the virtual roles a user falls under) and `AccountBinding` (Password 1, ActiveDirectory 2, Sso 3: the
   one sign-in mode an account accepts; only Password accounts ever hold a password, set through an activation link).
 
+- **Lookup types** (`Lookups/`, owned with module 4): `LookupEntity` (the base of every lookup value: a fixed int `Id` from a `<Name>Ids` constants class, `Code`, `NameAr`, `NameEn`, `SortOrder`, `IsActive`, `SetActive`), `LookupTypes` (the seeded type keys), `LookupLimits` (column sizes, `IsKebab`) and one `<Name>Ids` class per seeded type (`ContactTopicIds`). `tools/scaffold/new-lookup.mjs` writes `LookupTypes` entries and the `<Name>Ids` classes.
+- **Auditing** (`Auditing/`): `[PersonalData(PersonalDataKind)]` (NationalId = 1, Email = 2, Phone = 3, Name = 4, FreeText = 5; the audit trail stores only the masked form), `[NotAudited]` (class: never audited; property: never recorded), `AuditAction` (Added = 1, Modified = 2, Deleted = 3) and `RecordHistoryEntry` (+ `RecordHistoryFacts`, `RecordHistoryLimits`): the base of every record history table (Id, RecordId, Action, FromStatus?, ToStatus?, Reason?, ActorUserId?, ActorName, At), itself `[NotAudited]`.
+
 ## Use
 ```csharp
 throw new BusinessRuleException(RecordsErrorCodes.AlreadyClosed, "Record is closed.");  // 422, code on the wire
@@ -24,7 +27,10 @@ An expected "no" that a use case can return is a `Refusal` (Starter.Application)
 - A new exception kind needs a classifier in `Starter.Infrastructure/Errors/StarterFailures.cs` and a row in
   `docs/standards/ERROR-HANDLING.md`.
 
+- Personal data: mark the entity property `[PersonalData(PersonalDataKind.X)]`; a secret `[NotAudited]`. A record history: derive from `RecordHistoryEntry` and map it with `HasRecordHistory<TRecord, THistory>()` (Starter.Infrastructure.Auditing).
+
 ## Rules
+- Lookup ids are compared only through their <Name>Ids constants, whose values mirror the Lookups seed migrations; never renumber one.
 - No reference to ASP.NET Core, EF Core, `Microsoft.Extensions.*` or a Codelab package (`starterdomain.no-frameworks`).
 - Enums are integers with an explicit value on every member; labels come from i18n, never from member names.
 - Exception messages are logged, never sent; keep them free of personal data and of identifiers a user typed.

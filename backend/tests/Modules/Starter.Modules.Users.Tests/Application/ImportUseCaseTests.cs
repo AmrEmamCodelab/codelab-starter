@@ -4,6 +4,7 @@ using Starter.Application.Results;
 using Starter.Application.Validation;
 using Starter.Domain.Users;
 using Starter.Modules.Users.Application;
+using Starter.Modules.Users.Application.Accounts;
 using Starter.Modules.Users.Application.Import;
 using Starter.Modules.Users.Domain;
 using Starter.Modules.Users.Tests.Fakes;
@@ -156,13 +157,33 @@ public sealed class CommitUserImportTests
         var outcome = await harness.Commit().ExecuteAsync(PublicId<UserImportIds>.From(preview.Value.BatchId), CancellationToken.None);
 
         Assert.Equal(["sample.one", "sample.two"], outcome.Value.Created.Select(user => user.UserName));
-        Assert.All(outcome.Value.Created, user => Assert.StartsWith(UsersHarness.LinkBase + "/activate#ticket=", user.Activation!.ActivationLink, StringComparison.Ordinal));
+        Assert.All(outcome.Value.Created, user => Assert.Equal(ActivationDelivery.Email, user.Activation!.Delivery));
+        Assert.All(outcome.Value.Created, user => Assert.Null(user.Activation!.ActivationLink));
         Assert.All(harness.Accounts.Accounts, account => Assert.False(account.HasPassword));
-        Assert.Equal(2, harness.Outbox.Messages.Count(message => message.Type == OutboxMessageTypes.AccountActivation));
+        var messages = harness.Outbox.Messages.Where(message => message.Type == OutboxMessageTypes.AccountActivation).ToList();
+        Assert.Equal(2, messages.Count);
+        Assert.Equal(
+            outcome.Value.Created.Select(user => FakePublicIds.Prefix + user.UserId).Order(StringComparer.Ordinal),
+            messages.Select(message => ActivationPayloads.TryRead(message.PayloadJson)!.UserPublicId).Order(StringComparer.Ordinal));
         var rejected = Assert.Single(outcome.Value.Rejected);
         Assert.Equal(4, rejected.RowNumber);
         Assert.Contains(UsersImportRowErrorCodes.EmailInvalid, rejected.Errors);
         Assert.Equal(ImportBatchStatus.Committed, harness.Batches.Items[0].Status);
+    }
+
+    [Fact]
+    public async Task A_password_row_without_an_email_gets_a_link_for_the_administrator_and_no_outbox_message()
+    {
+        var harness = new UsersHarness();
+        var workbook = XlsxBuilder.WithRows(PreviewUserImportTests.Header, ["no.mail", "No Mail", null, "internal", "password", null]).Build();
+        var preview = await harness.Preview().ExecuteAsync(PreviewUserImportTests.Upload(workbook), CancellationToken.None);
+
+        var outcome = await harness.Commit().ExecuteAsync(PublicId<UserImportIds>.From(preview.Value.BatchId), CancellationToken.None);
+
+        var created = Assert.Single(outcome.Value.Created);
+        Assert.Equal(ActivationDelivery.AdministratorLink, created.Activation!.Delivery);
+        Assert.StartsWith(UsersHarness.LinkBase + "/activate#ticket=", created.Activation.ActivationLink, StringComparison.Ordinal);
+        Assert.Empty(harness.Outbox.Messages);
     }
 
     [Fact]

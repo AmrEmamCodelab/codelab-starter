@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Lookups module (inherits rules/base.rules.yaml). Written by hand to the new-module anatomy.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Lookups
+kind: dotnet
+description: "Lookups (module 4): bilingual reference data in one generic pair of tables (LookupTypes, LookupItems), seeded only by migrations, read through a cached API, activated and deactivated by administrators; structural changes go through a migration."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Users, Access]
+required:
+  - id: lookups.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a LookupsPermissionKeys constant (or [AuthenticatedUser] for the read API, allowlisted) and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: lookups.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (ILookupRepository, ILookupCache, ILookupsUnitOfWork); the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  - id: lookups.seeded-by-migrations
+    statement: Lookup types and values are created, renamed, reordered or removed only by a migration (tools/scaffold/new-lookup.mjs writes it); at run time an administrator may only activate or deactivate a value.
+    enforcedBy: [scaffold, review]
+  - id: lookups.ids-from-constants
+    statement: Code compares and assigns lookup ids only through the type's <Name>Ids constants class in Starter.Domain/Lookups, whose values mirror the ids the migration writes; never a bare number, never an enum that mirrors seeded ids.
+    enforcedBy: [review]
+  - id: lookups.cache-invalidated
+    statement: Every change of a value's active flag invalidates that type's cached read list after the save; the cache keeps no entry longer than LookupsLimits.CacheTtl.
+    enforcedBy: [review]
+forbidden:
+  - id: lookups.no-module-reference
+    description: The Lookups module is a leaf; a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Users|Access)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Read what you need through a kernel port in Starter.Application.
+  - id: lookups.no-has-data
+    description: Lookup values are seeded by explicit migration InsertData calls, never by HasData in the model, so the model snapshot carries no data and an edit never rewrites seeded rows silently.
+    pattern: '[.]HasData\('
+    appliesTo: ["**/*.cs"]
+    fix: Seed the rows in a migration (node tools/scaffold/new-lookup.mjs) with LookupSeed.InsertType and LookupSeed.InsertItems.
+recipes: [docs/recipes/add-lookup.md, docs/recipes/add-endpoint.md]

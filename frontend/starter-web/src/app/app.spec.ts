@@ -14,8 +14,10 @@ import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
 import { LoginFieldMessageKeys } from './features/auth/login-form';
 import { SignInMessageKeys } from './features/auth/sign-in.service';
+import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
 import { LanguageNameKeys } from './layouts/language-switcher/language-switcher.component';
 import { fakeAuth, layoutTestProviders } from './layouts/layout.testing';
+import { SIGNED_IN_ROUTE_PATHS } from './public-routes';
 
 const APP_DIR = dirname(fileURLToPath(import.meta.url));
 const I18N_DIR = join(APP_DIR, '..', 'assets', 'i18n');
@@ -77,7 +79,7 @@ describe('routes', () => {
   it('puts the gated pages inside the shell, behind authGuard', () => {
     const shell = route(SHELL_PATH);
     expect(shell.canActivate).toEqual([authGuard]);
-    expect(shell.children?.map(child => child.path)).toEqual([RoutePaths.Dashboard, RoutePaths.Admin]);
+    expect(shell.children?.map(child => child.path)).toEqual([RoutePaths.Dashboard, RoutePaths.Admin, NOTIFICATIONS_ROUTE_PATH]);
   });
 
   it('gates every shell page with a permission guard and a typed key', () => {
@@ -87,7 +89,8 @@ describe('routes', () => {
     // The admin mount opens to any admin page key (ADMIN_AREA_PERMISSIONS); each admin page carries its own key.
     expect(gate(RoutePaths.Admin).data?.[RouteDataKeys.Permission]).toBeUndefined();
     expect(ADMIN_AREA_PERMISSIONS).toContain(PermissionKeys.AccessAdminView);
-    for (const child of children) {
+    // A signed-in page (SIGNED_IN_ROUTE_PATHS) has no key: the shell's authGuard is its gate.
+    for (const child of children.filter(page => !SIGNED_IN_ROUTE_PATHS.includes(page.path ?? ''))) {
       expect(child.canActivate).toHaveLength(1);
       expect(child.loadComponent ?? child.loadChildren).toBeTypeOf('function');
     }

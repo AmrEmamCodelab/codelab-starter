@@ -8,7 +8,7 @@ import { AccountBinding } from './data/user.models';
 import { UsersAdminClient } from './data/users-api';
 import { UsersPageComponent } from './users-page.component';
 
-const ACTIVATION = { activationLink: 'http://localhost:4280/activate#ticket=abc', expiresAt: '2026-11-06T10:00:00Z' };
+const ACTIVATION = { activationLink: 'http://localhost:4280/activate#ticket=abc', expiresAt: '2026-11-06T10:00:00Z', delivery: 1 };
 
 describe('UsersPageComponent', () => {
   let fixture: ComponentFixture<UsersPageComponent>;

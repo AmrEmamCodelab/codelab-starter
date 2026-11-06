@@ -19,6 +19,18 @@
     <Project Path="backend/tools/Starter.DevIdp.Tests/Starter.DevIdp.Tests.csproj" />
     <Project Path="backend/src/Modules/Users/Starter.Modules.Users.csproj" />
     <Project Path="backend/tests/Modules/Starter.Modules.Users.Tests/Starter.Modules.Users.Tests.csproj" />
+    <Project Path="backend/src/Modules/Lookups/Starter.Modules.Lookups.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Lookups.Tests/Starter.Modules.Lookups.Tests.csproj" />
+    <Project Path="backend/src/Modules/Audit/Starter.Modules.Audit.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Audit.Tests/Starter.Modules.Audit.Tests.csproj" />
+    <Project Path="backend/src/Modules/Settings/Starter.Modules.Settings.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Settings.Tests/Starter.Modules.Settings.Tests.csproj" />
+    <Project Path="backend/src/Modules/Jobs/Starter.Modules.Jobs.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Jobs.Tests/Starter.Modules.Jobs.Tests.csproj" />
+    <Project Path="backend/src/Modules/Notifications/Starter.Modules.Notifications.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Notifications.Tests/Starter.Modules.Notifications.Tests.csproj" />
+    <Project Path="backend/src/Modules/Portal/Starter.Modules.Portal.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Portal.Tests/Starter.Modules.Portal.Tests.csproj" />
   </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />

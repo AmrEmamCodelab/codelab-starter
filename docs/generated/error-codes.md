@@ -21,6 +21,12 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `ACCESS_USER_NOT_FOUND` | `AccessErrorCodes.UserNotFound` | No user has this id (404). |
 | `ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE` | `AccessErrorCodes.VirtualRoleNotAssignable` | A virtual role reaches its users by kind and is never assigned (400). |
 
+## Audit
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `AUDIT_INVALID_FILTER` | `AuditErrorCodes.InvalidFilter` | The audit filter is not valid; the field errors say which value (400). |
+
 ## Codelab.Errors
 
 | Code | Constant | Description |
@@ -61,11 +67,55 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `IDENTITY_UPN_TAKEN` | `IdentityErrorCodes.UpnTaken` | Another account already has this user principal name (409). |
 | `IDENTITY_USER_NAME_TAKEN` | `IdentityErrorCodes.UserNameTaken` | Another account already has this user name (409). |
 
+## Jobs
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `JOBS_JOB_NOT_FOUND` | `JobsErrorCodes.JobNotFound` | No registered job has this key (404). |
+| `JOBS_RUN_IN_PROGRESS` | `JobsErrorCodes.RunInProgress` | The job already has a queued or running run (409); its result appears in the run history. |
+| `JOBS_TAKE_OUT_OF_RANGE` | `JobsErrorCodes.TakeOutOfRange` | Field message on `take`: outside 1 to `JobsLimits.MaxHistoryTake` (with `VALIDATION_FAILED`, 400). |
+
 ## Kernel
 
 | Code | Constant | Description |
 | --- | --- | --- |
+| `OUTBOX_LEASE_EXPIRED` | `OutboxErrorCodes.LeaseExpired` | The lease of the final attempt expired without an outcome (the drain died mid-delivery). |
+| `OUTBOX_NO_HANDLER` | `OutboxErrorCodes.NoHandler` | No `IOutboxHandler` is registered for the message type. |
 | `VALIDATION_FAILED` | `PlatformErrorCodes.Validation` | Well-formed request, invalid field values (Codelab.Errors `ErrorCodes.Validation`). |
+
+## Lookups
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `LOOKUPS_ITEM_NOT_FOUND` | `LookupsErrorCodes.ItemNotFound` | The lookup type has no value with this id (404). |
+| `LOOKUPS_TYPE_NOT_FOUND` | `LookupsErrorCodes.TypeNotFound` | No lookup type has this key (404). |
+
+## Notifications
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `NOTIFICATIONS_INVALID_NOTIFICATION` | `NotificationsErrorCodes.InvalidNotification` | The notification itself is malformed: no channel, unknown channel, blank key or a too-long link (422). |
+| `NOTIFICATIONS_NOTIFICATION_NOT_FOUND` | `NotificationsErrorCodes.NotificationNotFound` | The notification does not exist or is not the caller's (404). |
+| `NOTIFICATIONS_PLACEHOLDER_MISSING` | `NotificationsErrorCodes.PlaceholderMissing` | The template uses a placeholder the caller gave no value for (a caller defect, 422). |
+| `NOTIFICATIONS_RECIPIENT_HAS_NO_EMAIL` | `NotificationsErrorCodes.RecipientHasNoEmail` | The recipient has no e-mail address for an immediate e-mail (a caller defect, 422). |
+| `NOTIFICATIONS_RECIPIENT_NOT_FOUND` | `NotificationsErrorCodes.RecipientNotFound` | The caller has no user account to notify (404). |
+| `NOTIFICATIONS_TEMPLATE_NOT_FOUND` | `NotificationsErrorCodes.TemplateNotFound` | No template text exists for the key, channel and language (a seeding defect, 422). |
+
+## Portal
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `PORTAL_CONTACT_DISABLED` | `PortalErrorCodes.ContactDisabled` | An administrator switched the public contact form off (runtime setting `portal.contact-enabled` is false); nothing is stored or sent (409). |
+| `PORTAL_PAGE_NOT_FOUND` | `PortalErrorCodes.PageNotFound` | The `{page}` segment names no content page (404). |
+| `PORTAL_SECTION_NOT_ON_PAGE` | `PortalErrorCodes.SectionNotOnPage` | A section id in a replace is not a section of that page, for example one another editor removed (409). |
+| `PORTAL_TOPIC_NOT_FOUND` | `PortalErrorCodes.TopicNotFound` | The contact topic is unknown or retired (400, also the `topicId` field message). |
+
+## Settings
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `SETTINGS_SETTING_NOT_FOUND` | `SettingsErrorCodes.SettingNotFound` | No setting has this key (404). Settings are added by migrations only. |
+| `SETTINGS_VALUE_OUT_OF_RANGE` | `SettingsErrorCodes.ValueOutOfRange` | Field message on `value`: the number is outside the setting's minimum and maximum (with `VALIDATION_FAILED`, 400). A value of the wrong type carries `INVALID_FORMAT` instead. |
 
 ## Users
 

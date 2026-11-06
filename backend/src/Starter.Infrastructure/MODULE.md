@@ -7,13 +7,16 @@ host use. It never names a module.
 | Folder | What it provides |
 | --- | --- |
 | `Modularity` | `IModule`, `ModuleCatalog` (discovery from the host's `ModuleAssemblyAttribute` list), `ModuleNaming` (names from assembly names), `ModuleRegistration` (`AddStarterModules`: every `AddModule`, then `AddControllers()` with the kernel and module assemblies as application parts; `MapStarterModules`: controllers, then every `UseModule`) |
-| `Persistence` | `ModuleDbContext` (own schema, own `__EFMigrationsHistory`, `IUnitOfWork`), `AddModuleDbContext<T>(schema)` on `ConnectionStrings:Starter`, `DatabaseOptions` (`Database:ApplyMigrationsOnStartup`, Development only), the Codelab.Security SQL stores pointed at the same database |
+| `Persistence` | `ModuleDbContext` (own schema, own `__EFMigrationsHistory`, `IUnitOfWork`), `AddModuleDbContext<T>(schema)` on `ConnectionStrings:Starter`, `DatabaseOptions` (`Database:ApplyMigrationsOnStartup`, Development only), the Codelab.Security SQL stores pointed at the same database; every context gets the audit interceptor; the model build refuses a cascading record history FK |
 | `Startup` | `IStartupTask`, `StartupPhase` (ReferenceData = 1, Accounts = 2), `StartupTaskRunner` (migrations when enabled, then tasks in phase order; a failure stops the host) |
 | `Authorization` | `[HasPermission(key)]`, `[AuthenticatedUser]`, `IEndpointAccessDeclaration`, the fallback policy (authenticated, `AuthenticatedOrUnroutedRequirement`), the `NoCredentials` default scheme used until a module registers one |
 | `Features` | `IFeatureFlagSource`, `FeatureFlag`, `Features:*` switches (validated on start), `IFeatureGate`, `[RequiresFeature]` (removes the action from MVC while off), the anonymous `GET /api/features` controller (flags only) |
-| `Users`, `Localization` | `HttpCurrentUserContext` (`sub`, `sid`), `HttpAuditContextAccessor`, `HttpCurrentLanguage` (`Accept-Language`, Arabic default) |
+| `Users`, `Localization` | HttpCurrentUserContext (sub, sid), HttpAuditContextAccessor, SystemActorScope (ISystemActorScope on an async-local flag: inside a scope the current user reads as anonymous and the audit context is the system actor with the current correlation id, even with an HTTP context in reach), HttpCurrentLanguage (Accept-Language, Arabic default) |
+| `Jobs` | JobRegistration: AddStarterJob<TJob>() (scoped IJob, idempotent, plus the system actor scope) and AddStarterSystemActor(); the jobs module (Starter.Modules.Jobs) owns the catalog, schedules and run history |
 | `Results`, `Errors` | `OutcomeResults` (Outcome to 200/204 or problem+json), `StarterFailures` (domain exceptions to 404/403/422) |
-| `Messaging` | `OutboxDbContext` (schema `messaging`, table `OutboxMessages`: Id bigint identity, Type, PayloadJson, Status int, CreatedAt, NotBefore; index Status + CreatedAt), its reshaped `InitialCreate` migration and `OutboxMigrationModel`, `EfOutbox` (`IOutbox`), `AddStarterMessaging` (called by `AddStarterKernel`) |
+| `Messaging` | OutboxDbContext (schema messaging, table OutboxMessages: Id, Type, PayloadJson, Status int, CreatedAt, NotBefore, Attempt, LockedUntil, SentAt, LastError), migrations InitialCreate + DeliveryTracking and OutboxMigrationModel, EfOutbox (IOutbox), the drain: OutboxDrainRunner (IOutboxDrainRunner), OutboxDispatcher (routing to the one IOutboxHandler per type, DI scope per message), SqlOutboxStore (IOutboxStore: atomic READPAST/UPDLOCK claim with a 5-minute lease), OutboxDrainSchedule (lease, back-off 1/5/15/60 min, MaxBatchesPerPass 20), OutboxErrorCodes, OutboxOptions (Messaging:Outbox: Enabled default true, BatchSize 50, 1-500), AddStarterMessaging and AddOutboxHandler<T> |
+| `Numbering` | NumberingDbContext (schema numbering, no tables; InitialCreate creates the schema), SqlNumberSequences (one SQL SEQUENCE per prefix and year, e.g. numbering.CU_2026, created on first use, NO CACHE), RequestNumberAllocator (IRequestNumberAllocator; year in Numbering:TimeZoneId, default Arab Standard Time, validated on start), AddStarterNumbering |
+| `Auditing` | `AuditSaveChangesInterceptor` (scoped; attached to every module context by `AddModuleDbContext`; captures added/modified/deleted rows, masks `[PersonalData]` with `PiiMask`, leaves out `[NotAudited]`, secrets and binary, name conventions `AuditNamingConventions` as safety net; actor = subject id or SYSTEM, correlation id, `TimeProvider`), `SqlAuditTrailWriter` (same connection and transaction; opens one when the caller has none), `AuditDbContext` (schema `audit`, table `AuditEntries`, reshaped `InitialCreate` + `AuditMigrationModel`), `EfAuditTrailQueries`, `RecordHistoryMapping` (`HasRecordHistory<TRecord, THistory>()` = FK OnDelete(Restrict) + (RecordId, At) index; `EnsureRestrict` run by `ModuleDbContext` refuses a cascading history FK), `AddStarterAuditing` (called by `AddStarterPersistence`) |
 | `Hosting` | `ApiRoutes.Prefix` (`api`), `AddStarterKernel`, `UseStarterPipeline`, `MapStarterEndpoints` |
 | `Configuration` | `AddLocalSecretsFile` (`appsettings.Development.local.json`, Development only) |
 
@@ -38,6 +41,7 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 `[HasPermission(RecordsPermissionKeys.View)]`. See `backend/src/Modules/README.md`.
 
 ## Extend
+- **Add an outbox handler:** see Starter.Application MODULE.md (Extend); register with services.AddOutboxHandler<THandler>(). The drain itself is run by the jobs module (outbox-drain, every 5 minutes) through IOutboxDrainRunner (scoped: resolve it in a scope).
 - **New kernel service:** register it in `AddStarterKernel` (or a new `AddStarterXxx` called from it), with options
   that carry `public const string SectionName` and a validator registered with `ValidateOnStart`.
 - **New pipeline step:** add it to `UseStarterPipeline` in the position Codelab.Security documents; never in
@@ -47,6 +51,7 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 - Frozen for the modules (contract §3): add members, never rename, remove or change a signature.
 
 ## Rules
+- Every module save is audited in the same transaction; a failure to write the trail fails the save. A module context must not enable a retrying execution strategy (the audit writer opens its own transaction when the caller has none).
 - Never reference a module (`starterinfrastructure.no-module-reference`); derive every name from assembly names.
 - `AddStarterKernel` runs before `AddCodelabSecurity`: hosted services start in registration order, so migrations
   create the database before the Codelab.Security stores ensure their tables.
@@ -55,7 +60,11 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 - Time comes from `TimeProvider`; tests: `backend/tests/Starter.Api.Tests` (no database).
 
 ## Gotchas
-- **The outbox saves on its own.** `EfOutbox` adds a Pending row and saves `OutboxDbContext` at once; it does not join
+- **The outbox saves on its own, and delivery is at least once.** EfOutbox saves its own context (not the caller's transaction): enqueue after the caller's save. A drain claims a message for 5 minutes (Processing + LockedUntil); a drain that dies leaves it to be reclaimed after the lease, so a handler can see the same MessageId twice. Attempts are counted on claim; after 8 the row is Failed (LastError holds only a code: OUTBOX_NO_HANDLER, OUTBOX_LEASE_EXPIRED or the classified failure code). Failed rows are never retried automatically. Messaging:Outbox:Enabled=false stops delivery, not writing.
+- **Numbering needs DDL rights at runtime.** Sequences are created on first use, so the application login needs CREATE SEQUENCE on the database and ALTER on schema numbering (DBA script). Numbers are not transactional: a rolled-back caller leaves a gap.
+- **The audit schema is one more migrated context** (`audit.__EFMigrationsHistory`) and must exist before any module write; production applies its migration and then `deploy/sql/audit/Grant-AuditAppendOnly.sql` (DENY UPDATE, DELETE).
+- **Masking happens at write time**: adding `[PersonalData]` later does not re-mask old rows.
+- **Background work is SYSTEM only inside a system scope.** Outside a request the audit actor is already the system actor; a system scope also covers work that still has a request's HTTP context in reach (an AsyncLocal leak into Task.Run). The jobs module opens one around every run.
   the caller's module transaction (phase 5 adds that and the drain). The `messaging` schema is one more migrated
   context on start, with its own `__EFMigrationsHistory`, and one more DBA script in production.
 - **A messaging migration** follows the module migration rules: add one with dotnet-ef, then reshape it (named types

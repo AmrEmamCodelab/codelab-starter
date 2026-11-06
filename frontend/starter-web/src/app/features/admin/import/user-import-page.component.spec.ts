@@ -17,8 +17,8 @@ const PREVIEW = {
 };
 const COMMIT = {
   created: [
-    { id: 'user-9', userName: 'omar', binding: AccountBinding.Password, activationLink: 'http://x/activate#ticket=t', expiresAt: '2026-11-06T10:00:00Z', activationErrorCode: null },
-    { id: 'user-10', userName: 'dir', binding: AccountBinding.ActiveDirectory, activationLink: null, expiresAt: null, activationErrorCode: null },
+    { id: 'user-9', userName: 'omar', binding: AccountBinding.Password, activationLink: 'http://x/activate#ticket=t', expiresAt: '2026-11-06T10:00:00Z', activationErrorCode: null, activationDelivery: 1 },
+    { id: 'user-10', userName: 'dir', binding: AccountBinding.ActiveDirectory, activationLink: null, expiresAt: null, activationErrorCode: null, activationDelivery: null },
   ],
   rejected: [{ rowNumber: 3, errors: ['USERS_IMPORT_ROW_EMAIL_INVALID'] }],
 };

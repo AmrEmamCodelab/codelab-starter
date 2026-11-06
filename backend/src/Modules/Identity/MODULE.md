@@ -11,7 +11,8 @@ Module 1: who the caller is, how a session lives, and how an account is kept saf
 - **Activation links** (`Application/Activation/`): a Codelab.Security sealed one-time ticket (purpose `account-activation`) for the account's subject, with a random ticket id of this module stored on the account. Redeeming it (`POST /api/auth/activate`) sets the password; issuing a new link (an administrator's password reset) clears the current password and supersedes every older link.
 - **Auth event trail** (`identity.AuthEvents`, `Application/Auditing/IAuthEventSink.cs`, `Infrastructure/Auditing/EfAuthEventSink.cs`): one append-only row per decision: login succeeded or failed (any mode), lockout, logout, refresh rejected, activation issued, redeemed or rejected, deactivation, reactivation, unlock. A row holds the event type and failure reason (integers), the user's internal id, the keyed Codelab.Observability `UserIdHash` of the typed identifier, the sign-in mode, the time and the correlation id; never a password, token, ticket or raw user name.
 - **Accounts from configuration:** the break-glass administrator (holds every permission) and, in Development only, low-privilege Development users that hold `dashboard.view`.
-- **`IUserDirectory`** for the other modules: internal id, active flag, break-glass flag, kind and organization, looked up by token subject.
+- **`IUserDirectory`** for the other modules: internal id, active flag, break-glass flag, kind, organization and display name, looked up by token subject.
+- **`INotificationRecipients`** for the Notifications module (`Infrastructure/Notifications/NotificationRecipients.cs`): an account's e-mail address, mobile number and language by internal user id, read at delivery time. Accounts store no mobile number and no preferred language yet, so `Mobile` is always null and the language is `NotificationRecipients.DefaultLanguage` (Arabic). A deactivated account is still returned (the sender decides); an unknown id is null.
 
 Tables (schema `identity`; migrations `InitialCreate`, `AccountAdministration`): `UserAccounts`, `UserSessions`, `AuthEvents`.
 
@@ -35,6 +36,7 @@ In code (inject the kernel ports; never reference this project from another modu
 | --- | --- |
 | `IUserDirectory.FindBySubjectAsync(subjectId)` | Who the token subject is (Access resolves permissions with it). |
 | `IAccountAdministration` | `CreateAsync`, `UpdateAsync`, `SetActiveAsync`, `UnlockAsync`, `FindAsync`, `ListAsync` (page size capped at `AccountAdministration.MaxPageSize`, 100), `IssueActivationAsync`. Authorization is the caller's job. |
+| `INotificationRecipients.FindAsync(userId)` | Where to reach a user: `{userId, email, mobile (null), language (Arabic)}`, or null for an unknown id. Used by the Notifications module only. |
 
 Error codes (`Application/IdentityErrorCodes.cs`; the client renders `errors.<CODE>`):
 
@@ -146,7 +148,7 @@ The surface they build on (owned here):
 - **A reused refresh token ends the session.** Presenting a refresh token that was already rotated is treated as theft: the session is revoked, so the legitimate holder must sign in again too. Clients must never send the same refresh token twice (serialize refreshes).
 - **Refresh failures are one code.** Malformed, unknown, expired, idle, rotated, revoked, deactivated and version-bumped all answer `IDENTITY_REFRESH_REJECTED`, by design; the auth event says which.
 - **A lockout is a denial-of-service lever too.** Anyone who knows a user name can lock it for `LockoutMinutes` (also the break-glass). That is the trade every lockout makes; keep the window short and watch the `AccountLockedOut` events.
-- **Activation is not in the outbox here.** `IssueActivationAsync` returns the ticket; the caller (Users) builds the link, shows it once and enqueues the `account-activation` outbox message with the ticket id only. The outbox is not yet transactional with this module's save (phase 5).
+- **Activation is not in the outbox here.** `IssueActivationAsync` returns the ticket; the caller (Users) builds the link and either shows it once to the administrator (an account without an e-mail address) or enqueues the `account-activation` outbox message with the ticket id only. At drain time the Users handler calls `IssueActivationAsync` **again** and e-mails that fresh ticket's link, so each delivery supersedes the request-time ticket (whose sealed string was never shown); the newest e-mailed link is the valid one and redemption stays one-time. The sealed ticket is never persisted (only its `ActivationTicketId`) or logged. The outbox is not transactional with this module's save.
 - **The auth trail is written in its own DbContext**, so it never commits the deciding code's pending changes; a failed write is logged (the event line comes first) and the sign-in goes on.
 - **Unicode identifiers are refused** for e-mail, login name and UPN (ASCII only): they are matched against external identities, and case folding could map a look-alike onto another person's account.
 - **The bearer scheme is the default authentication scheme** and keeps claim names as issued (`MapInboundClaims = false`), so `sub` and `sid` stay `sub` and `sid` for `HttpCurrentUserContext` and the Codelab.Security middleware. Its token lifetime check reads the system clock, not `TimeProvider`.

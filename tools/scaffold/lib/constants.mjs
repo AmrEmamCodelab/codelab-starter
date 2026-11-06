@@ -75,6 +75,7 @@ export const Markers = Object.freeze({
   permissionCatalog: '// scaffold:permission-catalog',
   registrations: '// scaffold:registrations',
   errorCodes: '// scaffold:error-codes',
+  lookupTypes: '// scaffold:lookup-types',
 });
 /** Fallback anchors in hand-written modules (Access, Identity): the catalog list end, the Add method's return. */
 export const CATALOG_LIST_END = /^([ \t]*)\];/m;
@@ -121,6 +122,12 @@ export const Flags = Object.freeze({
   skipGenerate: '--skip-generate',
   noGenerate: '--no-gen',
   help: '--help',
+  type: '--type',
+  codes: '--codes',
+  nameEn: '--name-en',
+  nameAr: '--name-ar',
+  namesEn: '--names-en',
+  namesAr: '--names-ar',
 });
 
 /** Environment switch that skips the downstream generators (unit tests only). */
@@ -137,7 +144,33 @@ export const Report = Object.freeze({
   next: 'next:',
   /** The frontend constant a new permission key gets from api:gen. */
   frontendKey: 'frontend key:',
+  /** A fact the user should know (new-lookup: no i18n or permission key is needed). */
+  note: 'note:',
 });
+
+/** new-lookup (module 4, Lookups): where a lookup's constants and its seed migration live. */
+export const LOOKUP_TEMPLATE_SET = 'lookup';
+export const LOOKUP_DOMAIN_DIR = 'backend/src/Starter.Domain/Lookups';
+export const LOOKUP_TYPES_FILE = 'backend/src/Starter.Domain/Lookups/LookupTypes.cs';
+export const LOOKUP_MIGRATIONS_DIR = 'backend/src/Modules/Lookups/Infrastructure/Persistence/Migrations';
+/** The constants class of a lookup's ids (ContactTopic -> ContactTopicIds) and its file. */
+export const LOOKUP_IDS_SUFFIX = 'Ids';
+/** The seed migration class of a lookup type (contact-topics -> AddContactTopicsLookup). */
+export const lookupMigrationClass = (typePascal) => `Add${typePascal}Lookup`;
+/** A migration id: a 14-digit UTC timestamp (yyyyMMddHHmmss), an underscore and the class name. */
+export const MIGRATION_ID_PATTERN = /"(\d{14})_[A-Za-z][A-Za-z0-9]*"/g;
+/** A new seed migration sorts this many minutes after the newest Lookups migration (deterministic, no clock). */
+export const MIGRATION_STEP_MINUTES = 1;
+/** Mirrors Starter.Domain.Lookups.LookupLimits. */
+export const LOOKUP_KEY_MAX_LENGTH = 64;
+export const LOOKUP_NAME_MAX_LENGTH = 200;
+/** The most values one new-lookup run seeds; a longer list is a hand-written migration. */
+export const MAX_LOOKUP_CODES = 100;
+/** The gap between seeded sort orders (10, 20, 30, ...), leaving room to insert a value between two. */
+export const LOOKUP_SORT_STEP = 10;
+/** Separators of the list arguments: codes by comma, display names by semicolon (names may hold commas). */
+export const CODE_LIST_SEPARATOR = ',';
+export const NAME_LIST_SEPARATOR = ';';
 
 export const UTF8 = 'utf8';
 export const NEWLINE = '\n';

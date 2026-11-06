@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebPortal
 kind: angular
-description: "Starter web public portal (module 15 UI): landing, service guide, FAQ with search, contact form and the privacy and terms pages, all public and bilingual. Content is typed translation-key lists (static i18n in P4, settings data from P5); the contact form posts through ApiService to api/portal/contact-messages and shows problem+json field errors inline."
+description: "Starter web public portal (module 15 UI): landing, service guide, FAQ with search, contact form and the privacy and terms pages, all public and bilingual. The FAQ, service guide, privacy and terms sections come from GET api/portal/content/{page} (anonymous, bilingual plain text, loading/empty/error page feedback); the contact form posts through ApiService to api/portal/contact-messages and shows the CU-YYYY-NNN receipt and problem+json field errors inline."
 mayDependOn: []
 mustNotDependOn: []

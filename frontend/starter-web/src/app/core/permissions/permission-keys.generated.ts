@@ -11,12 +11,32 @@ export const PermissionKeys = {
   AccessRolesManage: 'access.roles.manage',
   /** See the roles, their permissions and the permission catalog. (module Access) */
   AccessRolesView: 'access.roles.view',
+  /** Read the audit trail of every audited table (personal data masked). (module Audit) */
+  AuditView: 'audit.view',
   /** Open the dashboard. (module Access) */
   DashboardView: 'dashboard.view',
+  /** Run a background job now. (module Jobs) */
+  JobsRun: 'jobs.run',
+  /** List the background jobs and their run history. (module Jobs) */
+  JobsView: 'jobs.view',
+  /** Activate and deactivate lookup values. (module Lookups) */
+  LookupsManage: 'lookups.manage',
+  /** List the lookup types and every value of a type, active or not. (module Lookups) */
+  LookupsView: 'lookups.view',
+  /** Send oneself a test notification to check the bell, e-mail and SMS delivery. (module Notifications) */
+  NotificationsTest: 'notifications.test',
   /** Create, edit, deactivate and reactivate organizations. (module Users) */
   OrganizationsManage: 'organizations.manage',
   /** List and open organizations. (module Users) */
   OrganizationsView: 'organizations.view',
+  /** Replace the sections of the FAQ, service guide, privacy and terms pages. (module Portal) */
+  PortalContentManage: 'portal.content.manage',
+  /** Read the FAQ, service guide, privacy and terms content in the admin editor. (module Portal) */
+  PortalContentView: 'portal.content.view',
+  /** Change the value of a runtime setting. (module Settings) */
+  SettingsManage: 'settings.manage',
+  /** List the runtime settings with their values and defaults. (module Settings) */
+  SettingsView: 'settings.view',
   /** Preview and commit an Excel user import. (module Users) */
   UsersImport: 'users.import',
   /** Create, edit, deactivate, reactivate and unlock user accounts, and issue activation links. (module Users) */

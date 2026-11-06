@@ -1,0 +1,27 @@
+<div class="lookups-page">
+  <p class="lookups-page__notice" data-testid="lookups-structure-note">{{ 'admin.lookups.structure-note' | t }}</p>
+
+  <app-admin-list-pattern
+    [translatedCodes]="translatedCodes"
+    titleKey="admin.lookups.title"
+    searchLabelKey="admin.lookups.search"
+    emptyKey="admin.lookups.empty"
+    [columns]="columns"
+    [rows]="store.rows()"
+    [rowId]="rowId"
+    [total]="store.total()"
+    [pageSize]="store.pageSize"
+    [loading]="store.list.loading()"
+    [error]="store.list.error()"
+    [(page)]="store.page"
+    [(search)]="store.search"
+    (retry)="store.load()"
+  >
+    <ng-template listCell="name" let-row [listCellOf]="store.rows()">
+      <a class="lookups-page__link" data-testid="lookup-type-link" [routerLink]="LookupsPaths.items(row.type)">{{ nameOf(row) }}</a>
+    </ng-template>
+    <ng-template listCell="type" let-row [listCellOf]="store.rows()">
+      <code>{{ row.type }}</code>
+    </ng-template>
+  </app-admin-list-pattern>
+</div>

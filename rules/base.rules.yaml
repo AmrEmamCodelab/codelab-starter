@@ -112,6 +112,18 @@ forbidden:
     appliesTo: ["**/*.cs"]
     fix: Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.
 
+  # --- Background job scheduler (moved from the Jobs module so a mapping anywhere in the backend is refused) ---
+  - id: base.no-scheduler-dashboard-mapping
+    description: The Hangfire dashboard exposes enqueue, delete and requeue of every job behind its own authorization; the starter never maps it.
+    pattern: '\bUseHangfireDashboard\b|\bMapHangfireDashboard\b'
+    appliesTo: ["**/*.cs"]
+    fix: Use the admin Jobs endpoints (jobs.view, jobs.run) and the log.
+  - id: base.no-static-scheduler-storage
+    description: Static Hangfire storage hides the database from DI and from tests; the storage comes from the JobStorage singleton of SchedulerRegistration.
+    pattern: '\bUseSqlServerStorage\b|\bJobStorage[.]Current\b'
+    appliesTo: ["**/*.cs"]
+    fix: Resolve JobStorage from DI (SchedulerRegistration.AddJobScheduler registers it).
+
   # --- Analyzer opt-outs ---------------------------------------------------------------------------
   - id: base.no-analyzer-opt-out
     description: Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).

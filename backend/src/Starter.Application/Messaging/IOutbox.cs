@@ -2,7 +2,8 @@ namespace Starter.Application.Messaging;
 
 /// <summary>
 /// The outbox: messages a module wants delivered later (an activation e-mail, a notification). A message is written
-/// as <see cref="OutboxMessageStatus.Pending"/> and a later drain delivers it (phase 5; nothing drains yet).
+/// as <see cref="OutboxMessageStatus.Pending"/>; the drain (<see cref="IOutboxDrainRunner"/>) later hands it to the one
+/// <see cref="IOutboxHandler"/> registered for its <see cref="OutboxMessage.Type"/>.
 /// </summary>
 /// <remarks>
 /// Not yet transactional with the caller: <see cref="EnqueueAsync"/> saves in its own database context, so a caller
@@ -29,6 +30,12 @@ public static class OutboxMessageTypes
 {
     /// <summary>An account activation link to deliver; the payload is an <see cref="AccountActivationPayload"/>.</summary>
     public const string AccountActivation = "account-activation";
+
+    /// <summary>A notification e-mail to send (payload owned by the Notifications module).</summary>
+    public const string NotificationEmail = "notification-email";
+
+    /// <summary>A notification SMS to send (payload owned by the Notifications module).</summary>
+    public const string NotificationSms = "notification-sms";
 }
 
 /// <summary>
@@ -49,8 +56,14 @@ public enum OutboxMessageStatus
     /// <summary>Delivered.</summary>
     Sent = 2,
 
-    /// <summary>Delivery gave up.</summary>
+    /// <summary>
+    /// Delivery gave up: no handler for the type, or <see cref="OutboxLimits.MaxAttempts"/> attempts failed. A Failed
+    /// row is never delivered again; an operator decides whether the recipient still needs it.
+    /// </summary>
     Failed = 3,
+
+    /// <summary>Claimed by a drain that holds a lease until <c>LockedUntil</c>; reclaimed only after the lease expires.</summary>
+    Processing = 4,
 }
 
 /// <summary>The outbox limits.</summary>
@@ -58,4 +71,10 @@ public static class OutboxLimits
 {
     /// <summary>The longest <see cref="OutboxMessage.Type"/>.</summary>
     public const int TypeMaxLength = 128;
+
+    /// <summary>
+    /// Delivery attempts before a message becomes <see cref="OutboxMessageStatus.Failed"/>. An attempt is counted when a
+    /// drain claims the message, so a message whose delivery crashes the process also runs out of attempts.
+    /// </summary>
+    public const int MaxAttempts = 8;
 }

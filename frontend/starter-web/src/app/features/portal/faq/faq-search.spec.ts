@@ -1,28 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { FAQ_CATEGORIES, faqEntryCount, type FaqCategory } from './faq-content';
+import type { LocalizedSection } from '../content/portal-content';
+import { FAQ_CATEGORIES, faqEntryCount } from './faq-content';
 import { filterFaq, normalizeSearchText, searchTerms } from './faq-search';
 
-const CATEGORIES: readonly FaqCategory[] = [
-  {
-    id: 'general',
-    titleKey: 'g',
-    entries: [
-      { id: 'one', questionKey: 'q1', answerKey: 'a1' },
-      { id: 'two', questionKey: 'q2', answerKey: 'a2' },
-    ],
-  },
-  { id: 'account', titleKey: 'acc', entries: [{ id: 'three', questionKey: 'q3', answerKey: 'a3' }] },
+const QUESTIONS: readonly LocalizedSection[] = [
+  { id: 'one', anchor: 'part-1', title: 'How do I track my request?', paragraphs: ['Open My requests', 'and choose the request.'] },
+  { id: 'two', anchor: 'part-2', title: 'كيف أُنشئ حساباً؟', paragraphs: ['سجّل من صفحة الدخول.'] },
+  { id: 'three', anchor: 'part-3', title: 'Forgot password', paragraphs: ['Use the reset link on the sign-in page.'] },
 ];
-
-const TEXTS: Readonly<Record<string, string>> = {
-  q1: 'How do I track my request?',
-  a1: 'Open My requests and choose the request.',
-  q2: 'كيف أُنشئ حساباً؟',
-  a2: 'سجّل من صفحة الدخول.',
-  q3: 'Forgot password',
-  a3: 'Use the reset link on the sign-in page.',
-};
-const translate = (key: string): string => TEXTS[key] ?? key;
 
 describe('normalizeSearchText', () => {
   it('lower-cases, trims and collapses whitespace', () => {
@@ -49,33 +34,29 @@ describe('searchTerms', () => {
 });
 
 describe('filterFaq', () => {
-  it('returns the categories as given when there is no query', () => {
-    expect(filterFaq(CATEGORIES, ' ', translate)).toBe(CATEGORIES);
+  const ids = (questions: readonly LocalizedSection[]): string[] => questions.map(question => question.id);
+
+  it('returns the questions as given when there is no query', () => {
+    expect(filterFaq(QUESTIONS, ' ')).toBe(QUESTIONS);
   });
 
   it('keeps questions whose question or answer holds every word, in order', () => {
-    const result = filterFaq(CATEGORIES, 'request open', translate);
-    expect(result.map(category => category.id)).toEqual(['general']);
-    expect(result[0]?.entries.map(entry => entry.id)).toEqual(['one']);
+    expect(ids(filterFaq(QUESTIONS, 'request open'))).toEqual(['one']);
   });
 
-  it('matches part of a word and the answer text', () => {
-    expect(filterFaq(CATEGORIES, 'sign-in', translate)[0]?.entries.map(entry => entry.id)).toEqual(['three']);
-    expect(filterFaq(CATEGORIES, 'pass', translate).map(category => category.id)).toEqual(['account']);
+  it('matches across answer paragraphs, part of a word and the answer text', () => {
+    expect(ids(filterFaq(QUESTIONS, 'requests choose'))).toEqual(['one']);
+    expect(ids(filterFaq(QUESTIONS, 'sign-in'))).toEqual(['three']);
+    expect(ids(filterFaq(QUESTIONS, 'pass'))).toEqual(['three']);
   });
 
   it('matches Arabic regardless of diacritics and hamza forms', () => {
-    expect(filterFaq(CATEGORIES, 'انشئ حساب', translate)[0]?.entries.map(entry => entry.id)).toEqual(['two']);
+    expect(ids(filterFaq(QUESTIONS, 'انشئ حساب'))).toEqual(['two']);
   });
 
-  it('drops a category with no match and returns nothing when nothing matches', () => {
-    expect(filterFaq(CATEGORIES, 'track', translate).map(category => category.id)).toEqual(['general']);
-    expect(filterFaq(CATEGORIES, 'nothing-like-this', translate)).toEqual([]);
-  });
-
-  it('leaves the input untouched', () => {
-    filterFaq(CATEGORIES, 'track', translate);
-    expect(CATEGORIES[0]?.entries).toHaveLength(2);
+  it('returns nothing when nothing matches and leaves the input untouched', () => {
+    expect(filterFaq(QUESTIONS, 'nothing-like-this')).toEqual([]);
+    expect(QUESTIONS).toHaveLength(3);
   });
 });
 

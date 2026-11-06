@@ -19,5 +19,6 @@
       "en": "Codelab Starter"
     }
   },
-  "showcase": false
+  "showcase": false,
+  "portalContactForm": true
 }

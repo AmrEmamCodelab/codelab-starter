@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Starter.Infrastructure.Auditing;
 using Starter.Infrastructure.Startup;
 
 namespace Starter.Infrastructure.Persistence;
@@ -16,9 +17,9 @@ public static class PersistenceRegistration
 
     /// <summary>
     /// Binds <c>ConnectionStrings</c> and <c>Database</c>, gives the Codelab.Security SQL stores the application
-    /// connection string when they have none of their own, and registers the startup runner (migrations, then
-    /// startup tasks). Call it BEFORE <c>AddCodelabSecurity</c>, so the runner creates the database before the security
-    /// stores ensure their tables.
+    /// connection string when they have none of their own, registers the startup runner (migrations, then startup
+    /// tasks) and the audit trail (<c>AddStarterAuditing</c>: every module context is audited). Call it BEFORE
+    /// <c>AddCodelabSecurity</c>, so the runner creates the database before the security stores ensure their tables.
     /// </summary>
     public static IServiceCollection AddStarterPersistence(this IServiceCollection services, IConfiguration configuration)
     {
@@ -31,12 +32,14 @@ public static class PersistenceRegistration
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<DatabaseOptions>, DatabaseOptionsValidator>());
         services.AddOptions<SqlStoreOptions>().PostConfigure<IOptions<ConnectionStringsOptions>>(UseApplicationDatabase);
         services.AddHostedService<StartupTaskRunner>();
+        services.AddStarterAuditing();
         return services;
     }
 
     /// <summary>
     /// Registers <typeparamref name="TContext"/> on the application database with its migrations history table in
-    /// <paramref name="schema"/>, and announces it to the startup runner.
+    /// <paramref name="schema"/>, attaches the scoped <see cref="AuditSaveChangesInterceptor"/> (every save of the context
+    /// is audited; <c>AddStarterPersistence</c> registers it), and announces the context to the startup runner.
     /// </summary>
     public static IServiceCollection AddModuleDbContext<TContext>(this IServiceCollection services, string schema)
         where TContext : ModuleDbContext
@@ -44,7 +47,8 @@ public static class PersistenceRegistration
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
         services.AddDbContext<TContext>((provider, options) => options.UseSqlServer(
             provider.GetRequiredService<IOptions<ConnectionStringsOptions>>().Value.Starter,
-            sql => sql.MigrationsHistoryTable(MigrationsHistoryTable, schema)));
+            sql => sql.MigrationsHistoryTable(MigrationsHistoryTable, schema))
+            .AddInterceptors(provider.GetRequiredService<AuditSaveChangesInterceptor>()));
         services.AddScoped<IModuleDatabase, ModuleDatabase<TContext>>();
         return services;
     }

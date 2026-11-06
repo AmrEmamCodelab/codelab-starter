@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Settings module (inherits rules/base.rules.yaml). Written by hand to the module anatomy.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Settings
+kind: dotnet
+description: "Runtime settings (module 6a): settings an administrator changes without a deployment, stored in schema settings with a single-row version stamp, read through the kernel IRuntimeSettings port from a node-wide snapshot that the per-scope stamp check and a 30 s TTL keep fresh across nodes."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users]
+required:
+  - id: settings.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a SettingsPermissionKeys constant and maps the Outcome with OutcomeResults.
+    enforcedBy: [contract-test, review]
+  - id: settings.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (ISettingsRepository, ISettingsUnitOfWork, ISettingsSnapshotSource); the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  - id: settings.rows-by-migration
+    statement: Settings are created, renamed, re-typed and removed only by a Settings migration (with a key constant); the admin endpoint changes the value only.
+    enforcedBy: [review]
+  - id: settings.stamp-in-same-transaction
+    statement: Every write to settings.Settings goes through ISettingsUnitOfWork.SaveChangesAndAdvanceStampAsync, so the value and the new stamp version commit in one transaction.
+    enforcedBy: [review]
+  - id: settings.one-value-format
+    statement: Values are parsed, validated and written only by Domain/SettingValueFormat (invariant culture, lower-case booleans, whole seconds), for the admin update and the runtime reader alike.
+    enforcedBy: [review]
+  - id: settings.ttl-bound
+    statement: A node never serves a snapshot older than SettingsLimits.CacheTtl (30 s, TimeProvider-driven); the per-scope stamp check may be switched off by Settings:CheckStampPerScope, the TTL never.
+    enforcedBy: [review]
+forbidden:
+  - id: settings.no-module-reference
+    description: The Settings module reaches users only through the kernel IUserDirectory port; a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (IUserDirectory, ICurrentUserContext).
+  - id: settings.no-static-setting-state
+    description: A static mutable holder for a setting value is what made the old settings visible on one node only; values live in the snapshot cache, which the reader refreshes.
+    pattern: '\bstatic\s+(?!readonly\b)(?:TimeSpan|int|bool|string)\??\s+\w+\s*\{\s*get;\s*set;'
+    appliesTo: ["**/*.cs"]
+    fix: Read the value through IRuntimeSettings on each use instead of caching it in a static.
+recipes: [docs/recipes/add-endpoint.md]

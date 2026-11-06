@@ -1,0 +1,40 @@
+// Shared styles of the jobs screens (catalog and run history); tokens and logical properties only.
+
+@mixin jobs-texts {
+  .jobs-intro {
+    margin: 0;
+    color: var(--dga-color-text-paragraph);
+    font-size: var(--dga-font-size-sm);
+  }
+
+  .job-name {
+    display: block;
+    color: var(--dga-color-text-default);
+  }
+
+  .job-code {
+    font-size: var(--dga-font-size-sm);
+    overflow-wrap: anywhere;
+  }
+
+  .job-muted {
+    color: var(--dga-color-text-paragraph);
+    font-size: var(--dga-font-size-sm);
+  }
+
+  .job-run {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dga-space-2);
+  }
+
+  .row-link {
+    color: var(--dga-color-text-link);
+    font-size: var(--dga-font-size-sm);
+
+    &:hover {
+      color: var(--dga-color-text-link-hover);
+    }
+  }
+}

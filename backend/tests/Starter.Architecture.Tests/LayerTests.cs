@@ -13,6 +13,8 @@ public sealed class LayerTests
 {
     public static TheoryData<string> Modules => StarterSolution.ModuleNames;
 
+    public static TheoryData<string> ModulesWithDomain => StarterSolution.ModuleNamesWithDomain;
+
     [Theory]
     [MemberData(nameof(Modules))]
     public void EveryTypeSitsInALayerNamespace(string module)
@@ -22,7 +24,7 @@ public sealed class LayerTests
     }
 
     [Theory]
-    [MemberData(nameof(Modules))]
+    [MemberData(nameof(ModulesWithDomain))]
     public void DomainIsInnermost(string module) =>
         LayerRules.DomainIsInnermost(StarterSolution.All, RootOf(module)).ThrowIfFailed();
 

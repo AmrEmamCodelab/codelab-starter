@@ -1,0 +1,99 @@
+{
+  "batch": "p5-portal",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p5-portal -Manifest <scratch copy of allowlist.manifest.yaml with the p5-portal batch> -Clean (staging %TEMP%/codelab-extract/p5-portal, outside the repo; scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. No source-product wording or inbox addresses were carried.",
+  "origins": [
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-application",
+      "source": "backend/MODHS.Application/ContactUs/ContactUsService.cs",
+      "target": "backend/src/Modules/Portal/Application/Contact/SubmitContactMessage.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ef32b60e9be17d20a1146ac1612c6eeac91cc0bc",
+      "sourceSha256": "eb0c953e455cbbf62509cf2de8f38dc1231237252bcd55aba2e4f8291ac06b01",
+      "stagedSha256": "eb0c953e455cbbf62509cf2de8f38dc1231237252bcd55aba2e4f8291ac06b01",
+      "stagedTarget": "reference/p5/p5-portal/application/ContactUsService.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as SubmitContactMessage, ContactFiling and ContactAnnouncer: trimmed values, the validator owns the field rules (codes, not sentences), an inactive topic is a field error, the number comes from the kernel SQL-sequence allocator (CU prefix) instead of a redraw loop, and the inbox is announced after the save through INotificationService with a load-bearing catch. Left behind: first and last name fields, the session user attribution and the inquiry-type list."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-application",
+      "source": "backend/MODHS.Application/ContactUs/IContactUsService.cs",
+      "target": "backend/src/Modules/Portal/Application/Ports.cs",
+      "mode": "copy",
+      "sourceGitBlob": "1891dfb7af72680ec4c8dc2f92870ab102e7ff49",
+      "sourceSha256": "a0c273ec07535762435480a04d6f9411b9e621f1889960485cc019a685264836",
+      "stagedSha256": "a0c273ec07535762435480a04d6f9411b9e621f1889960485cc019a685264836",
+      "stagedTarget": "reference/p5/p5-portal/application/IContactUsService.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as the module ports IContactMessageStore and IContactTopics (topics come from the contact-topics lookup)."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-api",
+      "source": "backend/MODHS.Api/Contracts/ContactUsContracts.cs",
+      "target": "backend/src/Modules/Portal/Application/Contact/ContactCommand.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ca42c592fc87e089c2a4371a68f11a8806919086",
+      "sourceSha256": "4a50050cfe7dc1bc5dab05c2f83fac53e9818458c5fbb665ff7743c3474a4f19",
+      "stagedSha256": "4a50050cfe7dc1bc5dab05c2f83fac53e9818458c5fbb665ff7743c3474a4f19",
+      "stagedTarget": "reference/p5/p5-portal/api/Contracts/ContactUsContracts.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as SubmitContactMessageCommand (fullName, email, topicId, message, language; all nullable so missing fields are field errors) and ContactReceiptResponse (only the number is echoed)."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-api",
+      "source": "backend/MODHS.Api/Controllers/ContactUsController.cs",
+      "target": "backend/src/Modules/Portal/Api/PortalControllers.cs",
+      "mode": "copy",
+      "sourceGitBlob": "794caf73fd06bba710af70c683d69a1be65d8fe3",
+      "sourceSha256": "03ccdd39c8ae2345c5f009123b6a34e26004a1379cc460863201ecf657e39098",
+      "stagedSha256": "03ccdd39c8ae2345c5f009123b6a34e26004a1379cc460863201ecf657e39098",
+      "stagedTarget": "reference/p5/p5-portal/api/Controllers/ContactUsController.cs",
+      "promotion": "rewritten",
+      "note": "Rewritten as PortalContactController: anonymous, the per-client rate-limit policy (trusted-proxy aware) instead of a separate policy, whole-request signature exemption, 201 through PortalResults. The anonymous inquiry-type endpoint was not carried (topics are lookup data)."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-tests",
+      "source": "backend/MODHS.Api.Tests/ContactUsControllerTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Portal.Tests/PortalModuleTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "ed75e7df440c81da9a3077f871e2ce0c3f719e2e",
+      "sourceSha256": "33275c6137cbad88e495a057dfcc4920ab45f5429d814ed32c76668188b8ad5b",
+      "stagedSha256": "33275c6137cbad88e495a057dfcc4920ab45f5429d814ed32c76668188b8ad5b",
+      "stagedTarget": "reference/p5/p5-portal/tests/MODHS.Api.Tests/ContactUsControllerTests.cs",
+      "promotion": "rewritten",
+      "note": "Patterns only: attribute checks (anonymous, rate-limited, signature-exempt) and the 201 mapping."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-tests",
+      "source": "backend/MODHS.Application.Tests/ContactUsServiceTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Portal.Tests/Application/ContactTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "38afde0e651c2a51e270350785da7382d269fe61",
+      "sourceSha256": "937a473c5d0c6d16852cda8c30de77d8ed83f8b94d93fc8edd6792467fc1b9cf",
+      "stagedSha256": "937a473c5d0c6d16852cda8c30de77d8ed83f8b94d93fc8edd6792467fc1b9cf",
+      "stagedTarget": "reference/p5/p5-portal/tests/MODHS.Application.Tests/ContactUsServiceTests.cs",
+      "promotion": "rewritten",
+      "note": "Patterns only: validation per field, trimming, inactive topic refused, number allocated and stored before the notification, notification failure keeps the receipt."
+    },
+    {
+      "batch": "p5-portal",
+      "entryId": "contact-tests",
+      "source": "backend/MODHS.IntegrationTests/ContactUsRateLimitTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Portal.Tests/PortalModuleTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "cbaeba32623ec7baea560d264e86dc73424fb515",
+      "sourceSha256": "58ddfc0f6075b1281fffc5b4f0908e58572c615cab049de3b8aeac6880128114",
+      "stagedSha256": "58ddfc0f6075b1281fffc5b4f0908e58572c615cab049de3b8aeac6880128114",
+      "stagedTarget": "reference/p5/p5-portal/tests/MODHS.IntegrationTests/ContactUsRateLimitTests.cs",
+      "promotion": "rewritten",
+      "note": "Patterns only: the anonymous write carries the rate-limit policy; the 429 behaviour itself is covered by the kernel rate limiter and the contract test AllAnonymousWritesAreRateLimited."
+    }
+  ]
+}

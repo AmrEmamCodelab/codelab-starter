@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Portal module (inherits rules/base.rules.yaml). Written by hand to the module anatomy.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Portal
+kind: dotnet
+description: "Public portal backend (module 15): the anonymous, rate-limited contact form (CU-YYYY-NNN reference number, stored in schema portal, announced to the configured inbox through the Notifications kernel port) and the bilingual FAQ, service guide, privacy and terms content (seeded by migration, cached public read, admin replace)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users, Notifications, Lookups]
+required:
+  - id: portal.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case and maps its Outcome with OutcomeResults or PortalResults; admin endpoints carry [HasPermission] with a PortalPermissionKeys constant, the two public ones [AllowAnonymous] and an EndpointAllowlist entry.
+    enforcedBy: [contract-test, review]
+  - id: portal.anonymous-write-rate-limited
+    statement: The contact form is the module's only anonymous write and carries [EnableRateLimiting(ClientRateLimitOptions.PolicyName)] (the per-client, trusted-proxy aware policy); no Portal endpoint disables rate limiting.
+    enforcedBy: [contract-test, review]
+  # Tested by SubmitContactMessageTests (call order) and Portal/ContactUsTests; no coverage gate runs yet (ADR-012).
+  - id: portal.store-before-notify
+    statement: A contact message is validated, numbered (IRequestNumberAllocator, PortalNumberPrefixes.ContactUs) and saved before the inbox is notified; a notification failure after the save is logged with the reference number only and never turns the stored message into an error.
+    enforcedBy: [review]
+  # Tested by Auditing/PiiCanaryTests (integration) and the module's model tests.
+  - id: portal.personal-data-marked
+    statement: Every ContactMessage column that holds what the sender typed (name, e-mail, message) carries [PersonalData], so the audit trail keeps only the masked form; logs carry the reference number, never the sender's details.
+    enforcedBy: [review]
+  - id: portal.content-plain-text
+    statement: Section titles and bodies are plain text (paragraphs separated by a blank line), never HTML or Markdown; the client renders them as text.
+    enforcedBy: [review]
+  # Tested by the module's content use case and cache tests, and Portal/ContentTests (integration).
+  - id: portal.cache-invalidated
+    statement: A content replace that changes anything drops that page's cached public content after the save; no cache entry outlives PortalLimits.ContentCacheTtl.
+    enforcedBy: [review]
+  - id: portal.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (IContactMessageStore, IPortalContentStore, IContactTopics, IPortalContentCache); the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+forbidden:
+  - id: portal.no-module-reference
+    description: The Portal module reaches other modules only through kernel ports (INotificationService, IRequestNumberAllocator); a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users|Notifications|Lookups)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application, or a Portal port implemented in Portal Infrastructure.
+  - id: portal.no-disabled-rate-limit
+    description: The contact form stores a row for anyone on the internet; turning the rate limit off opens it to flooding.
+    pattern: '\bDisableRateLimiting\b'
+    appliesTo: ["**/*.cs"]
+    fix: Keep [EnableRateLimiting(ClientRateLimitOptions.PolicyName)] on the contact controller; tune Codelab:Security:RateLimiting instead.
+recipes: [docs/recipes/add-endpoint.md]

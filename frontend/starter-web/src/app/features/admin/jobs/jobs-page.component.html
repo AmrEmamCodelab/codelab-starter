@@ -1,0 +1,76 @@
+<app-admin-list-pattern
+  [translatedCodes]="translatedCodes"
+  [titleKey]="keys.Title"
+  [emptyKey]="keys.Empty"
+  [searchable]="false"
+  [columns]="columns"
+  [rows]="store.rows()"
+  [rowId]="rowId"
+  [total]="store.jobs().length"
+  [pageSize]="store.pageSize"
+  [loading]="store.loading()"
+  [error]="store.error()"
+  [(page)]="store.page"
+  (retry)="store.refresh()"
+>
+  <p listFilters class="jobs-intro">{{ keys.Intro | t }}</p>
+
+  <ng-template listCell="nameEn" let-row [listCellOf]="store.rows()">
+    <span class="job-name">{{ name(row) }}</span>
+    <code class="job-code" dir="ltr" data-fixed-direction>{{ row.key }}</code>
+  </ng-template>
+
+  <ng-template listCell="cron" let-row [listCellOf]="store.rows()">
+    @if (row.cron; as cron) {
+      <code class="job-code" dir="ltr" data-fixed-direction data-testid="job-cron">{{ cron }}</code>
+    } @else {
+      <span class="job-muted" data-testid="job-cron">{{ keys.Schedule.ManualOnly | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listCell="lastRun" let-row [listCellOf]="store.rows()">
+    @if (row.lastRun; as run) {
+      <span class="job-run">
+        <dga-status-tag data-testid="job-last-status" [tone]="statusTone(run.status)">
+          {{ statusLabelKey(run.status) | t }}
+        </dga-status-tag>
+        @if (run.startedAt; as startedAt) {
+          <span class="job-muted">{{ instant(startedAt) }}</span>
+        }
+      </span>
+    } @else {
+      <span class="job-muted" data-testid="job-last-status">{{ keys.LastRun.Never | t }}</span>
+    }
+  </ng-template>
+
+  <ng-template listRowActions let-row [listRowActionsOf]="store.rows()">
+    <div class="row-actions">
+      <a class="row-link" data-testid="job-history" [routerLink]="paths.runs(row.key)">{{ keys.Actions.History | t }}</a>
+      <dga-button
+        *hasPermission="permissions.Run"
+        variant="secondary-outline"
+        size="sm"
+        data-testid="job-run"
+        (click)="store.runTrigger.ask(row)"
+      >
+        {{ keys.Actions.RunNow | t }}
+      </dga-button>
+    </div>
+  </ng-template>
+</app-admin-list-pattern>
+
+<app-editor-dialog-pattern
+  *hasPermission="permissions.Run"
+  [translatedCodes]="translatedCodes"
+  [open]="store.runTrigger.pending() !== null"
+  [titleKey]="keys.Run.Title"
+  [confirmKey]="keys.Run.Confirm"
+  [busy]="store.runTrigger.busy()"
+  [error]="store.runTrigger.error()"
+  (confirm)="confirmRun()"
+  (cancel)="store.runTrigger.cancel()"
+>
+  @if (store.runTrigger.pending(); as job) {
+    <p class="confirm-text">{{ keys.Run.Text | t: { name: name(job) } }}</p>
+  }
+</app-editor-dialog-pattern>

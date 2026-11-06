@@ -77,22 +77,26 @@ public sealed record UserPageResponse(IReadOnlyList<UserResponse> Items, int Tot
     }
 }
 
-/// <summary>An activation link to hand to the user.</summary>
-/// <param name="ActivationLink">The link (the sealed one-time ticket is in its fragment).</param>
-/// <param name="ExpiresAt">When it stops working.</param>
-public sealed record ActivationResponse(string ActivationLink, DateTimeOffset ExpiresAt)
+/// <summary>An activation just issued: e-mailed to the user, or a link to hand over.</summary>
+/// <param name="ActivationLink">
+/// The link (the sealed one-time ticket is in its fragment) when <paramref name="Delivery"/> is AdministratorLink (1);
+/// null when it is Email (2), because the user receives the link by e-mail.
+/// </param>
+/// <param name="ExpiresAt">When it stops working (an e-mailed link expires a little later, by the outbox delay).</param>
+/// <param name="Delivery">AdministratorLink (1) or Email (2).</param>
+public sealed record ActivationResponse(string? ActivationLink, DateTimeOffset ExpiresAt, ActivationDelivery Delivery)
 {
     /// <summary>The response of <paramref name="activation"/>.</summary>
     public static ActivationResponse From(IssuedActivation activation)
     {
         ArgumentNullException.ThrowIfNull(activation);
-        return new ActivationResponse(activation.ActivationLink, activation.ExpiresAt);
+        return new ActivationResponse(activation.ActivationLink, activation.ExpiresAt, activation.Delivery);
     }
 }
 
 /// <summary>The body of a successful <c>POST /api/admin/users</c> (201).</summary>
 /// <param name="User">The account.</param>
-/// <param name="Activation">Its activation link (password binding only), or null.</param>
+/// <param name="Activation">Its activation (password binding only), or null.</param>
 public sealed record CreatedUserResponse(UserResponse User, ActivationResponse? Activation)
 {
     /// <summary>The response of <paramref name="created"/>.</summary>

@@ -1,44 +1,11 @@
-/** Every text of the privacy policy (`portal.privacy.*`). */
+/** The privacy policy's page texts (`portal.privacy.*`); its sections come from the API. */
 export const PrivacyTranslationKeys = {
   Title: 'portal.privacy.title',
   Subtitle: 'portal.privacy.subtitle',
-  CollectTitle: 'portal.privacy.collect-title',
-  CollectBody: 'portal.privacy.collect-body',
-  CollectItem1: 'portal.privacy.collect-item-1',
-  CollectItem2: 'portal.privacy.collect-item-2',
-  CollectItem3: 'portal.privacy.collect-item-3',
-  UseTitle: 'portal.privacy.use-title',
-  UseBody: 'portal.privacy.use-body',
-  ShareTitle: 'portal.privacy.share-title',
-  ShareBody: 'portal.privacy.share-body',
-  KeepTitle: 'portal.privacy.keep-title',
-  KeepBody: 'portal.privacy.keep-body',
-  RightsTitle: 'portal.privacy.rights-title',
-  RightsBody: 'portal.privacy.rights-body',
-  RightsItem1: 'portal.privacy.rights-item-1',
-  RightsItem2: 'portal.privacy.rights-item-2',
-  RightsItem3: 'portal.privacy.rights-item-3',
-  CookiesTitle: 'portal.privacy.cookies-title',
-  CookiesBody: 'portal.privacy.cookies-body',
 } as const;
 
-/** Every text of the terms of use (`portal.terms.*`). */
+/** The terms of use's page texts (`portal.terms.*`); its sections come from the API. */
 export const TermsTranslationKeys = {
   Title: 'portal.terms.title',
   Subtitle: 'portal.terms.subtitle',
-  AcceptanceTitle: 'portal.terms.acceptance-title',
-  AcceptanceBody: 'portal.terms.acceptance-body',
-  AccountTitle: 'portal.terms.account-title',
-  AccountBody: 'portal.terms.account-body',
-  UseTitle: 'portal.terms.use-title',
-  UseBody: 'portal.terms.use-body',
-  UseItem1: 'portal.terms.use-item-1',
-  UseItem2: 'portal.terms.use-item-2',
-  UseItem3: 'portal.terms.use-item-3',
-  ContentTitle: 'portal.terms.content-title',
-  ContentBody: 'portal.terms.content-body',
-  LiabilityTitle: 'portal.terms.liability-title',
-  LiabilityBody: 'portal.terms.liability-body',
-  ChangesTitle: 'portal.terms.changes-title',
-  ChangesBody: 'portal.terms.changes-body',
 } as const;

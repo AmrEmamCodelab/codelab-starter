@@ -8,13 +8,19 @@ import { ACCESS_ROUTES } from './access/access.routes';
 import { AdminPageComponent } from './admin-page/admin-page.component';
 import { AdminPaths, AdminRouteSegments } from './admin.paths';
 import { ADMIN_ROUTES } from './admin.routes';
+import { JOBS_ROUTES } from './jobs/jobs.routes';
+import { SETTINGS_ROUTES } from './settings/settings.routes';
 import { UserImportPageComponent } from './import/user-import-page.component';
 import { OrganizationsPageComponent } from './organizations/organizations-page.component';
 import { UsersPageComponent } from './users/users-page.component';
 
 const GATE_OPTIONS = {
   permissionDataKey: RouteDataKeys.Permission,
-  lazyChildren: { [AdminRouteSegments.Access]: ACCESS_ROUTES },
+  lazyChildren: {
+    [AdminRouteSegments.Access]: ACCESS_ROUTES,
+    [AdminRouteSegments.Settings]: SETTINGS_ROUTES,
+    [AdminRouteSegments.Jobs]: JOBS_ROUTES,
+  },
   knownPermissions: Object.values(PermissionKeys),
 };
 

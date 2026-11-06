@@ -7,12 +7,14 @@ namespace Starter.Infrastructure.Users;
 /// <summary>
 /// <see cref="ICurrentUserContext"/> over the validated principal of the current request: the subject from the
 /// <c>sub</c> claim (a GUID) and the session id from <c>sid</c>. A missing or malformed subject reads as null, so
-/// callers fail closed.
+/// callers fail closed. Inside a system scope (<see cref="SystemActorScope"/>: background jobs) it reads as anonymous
+/// whatever HTTP context is reachable, so system work is never attributed to a person.
 /// </summary>
 public sealed class HttpCurrentUserContext(IHttpContextAccessor accessor) : ICurrentUserContext
 {
     /// <inheritdoc />
-    public bool IsAuthenticated => accessor.HttpContext?.User.Identity?.IsAuthenticated == true;
+    public bool IsAuthenticated =>
+        !SystemActorScope.IsActiveOnCurrentFlow && accessor.HttpContext?.User.Identity?.IsAuthenticated == true;
 
     /// <inheritdoc />
     public Guid? SubjectId =>

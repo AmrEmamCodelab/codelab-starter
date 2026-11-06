@@ -209,6 +209,7 @@ public sealed class GeneratedDocSetTests
                 GeneratedFileNames.OpenApi,
                 GeneratedFileNames.PermissionsJson,
                 GeneratedFileNames.PermissionsMarkdown,
+                GeneratedFileNames.Statuses,
             ],
             documents.Keys);
     }
@@ -238,6 +239,7 @@ public sealed class GeneratedDocSetTests
             Endpoints = [.. surface.Endpoints.Reverse()],
             ErrorCodes = [.. surface.ErrorCodes.Reverse()],
             ConfigKeys = [.. surface.ConfigKeys.Reverse()],
+            Statuses = [.. surface.Statuses.Reverse().Select(status => status with { Members = [.. status.Members.Reverse()] })],
         };
 
         Assert.Equal(GeneratedDocSet.Render(surface), GeneratedDocSet.Render(reversed));

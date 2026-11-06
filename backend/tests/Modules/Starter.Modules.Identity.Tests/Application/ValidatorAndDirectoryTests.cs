@@ -63,7 +63,8 @@ public sealed class UserDirectoryTests
 
         var user = await new UserDirectory(store).FindBySubjectAsync(admin.SubjectId, CancellationToken.None);
 
-        Assert.Equal(new Starter.Application.Users.DirectoryUser(UserId: admin.Id, IsActive: true, HoldsAllPermissions: true), user);
+        Assert.Equal(new Starter.Application.Users.DirectoryUser(UserId: admin.Id, IsActive: true, HoldsAllPermissions: true, DisplayName: admin.DisplayName), user);
+        Assert.False(string.IsNullOrWhiteSpace(user!.DisplayName)); // the name other modules show, never the subject id
     }
 
     [Fact]
