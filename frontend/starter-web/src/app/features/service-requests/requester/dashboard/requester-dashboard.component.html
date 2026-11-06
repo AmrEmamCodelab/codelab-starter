@@ -1,0 +1,38 @@
+<app-landing-dashboard-pattern
+  [greetingKey]="keys.Greeting"
+  [tiles]="tiles()"
+  [quickActions]="quickActions()"
+  [loading]="store.loading()"
+  [kpisLabelKey]="keys.Kpis"
+  [quickActionsLabelKey]="keys.QuickActions"
+  [recentLabelKey]="keys.Recent"
+>
+  <div landingRecent class="recent" data-testid="sr-dashboard-recent">
+    @if (store.error(); as error) {
+      <div class="recent__error" role="alert">
+        <p class="recent__error-text">{{ keys.LoadFailed | t }}</p>
+        @if (errorMessageKey(); as messageKey) {
+          <p class="recent__error-text">{{ messageKey | t }}</p>
+        }
+        <dga-button variant="secondary-outline" size="sm" data-public-action data-testid="sr-dashboard-retry" (click)="retry()">
+          {{ keys.Retry | t }}
+        </dga-button>
+      </div>
+    } @else if (!store.loading() && store.recent().length === 0) {
+      <p class="recent__empty">{{ keys.RecentEmpty | t }}</p>
+    } @else {
+      <ul class="recent__list">
+        @for (item of store.recent(); track item.id) {
+          <li class="recent__item">
+            <a class="recent__link" data-testid="sr-dashboard-recent-link" [routerLink]="linkOf(item)">
+              <span class="recent__number" dir="ltr" data-fixed-direction>{{ item.number ?? '' }}</span>
+              <span class="recent__date">{{ createdText(item) }}</span>
+            </a>
+            <dga-status-tag [tone]="toneOf(item)">{{ statusKeyOf(item) | t }}</dga-status-tag>
+          </li>
+        }
+      </ul>
+      <a class="recent__all" [routerLink]="links.mine">{{ keys.ViewAll | t }}</a>
+    }
+  </div>
+</app-landing-dashboard-pattern>

@@ -48,7 +48,7 @@ public sealed class StatusesRendererTests
     [Fact]
     public void Statuses_are_grouped_by_owner_with_one_table_per_enum_sorted_by_value()
     {
-        var markdown = StatusesRenderer.Render(SurfaceFixtures.Surface().Statuses);
+        var markdown = StatusesRenderer.Render(SurfaceFixtures.Surface().Statuses, []);
 
         Assert.True(markdown.IndexOf("## Alpha", StringComparison.Ordinal) < markdown.IndexOf("## Sample", StringComparison.Ordinal));
         Assert.Contains("### `RunStatus`", markdown, StringComparison.Ordinal);
@@ -60,7 +60,7 @@ public sealed class StatusesRendererTests
 
     [Fact]
     public void No_statuses_is_a_note() =>
-        Assert.Contains("No status enums are declared.", StatusesRenderer.Render([]), StringComparison.Ordinal);
+        Assert.Contains("No status enums are declared.", StatusesRenderer.Render([], []), StringComparison.Ordinal);
 
     [Fact]
     public void The_readme_lists_the_statuses_file() =>

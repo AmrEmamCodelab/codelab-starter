@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of the Assignments module: the assignment row, the queue context and the opening of a queue (record
+    type, workflow, queue permission, organization scope), the work queue views and filters (unassigned, mine, all;
+    status, number, submit range, paging), claim / release / assign with their refusals, the terminal auto-release,
+    the assignment reader, the validators, the registrations and the EF model against its InitialCreate migration.
+    Fakes stand behind the kernel ports (IRecordDirectory, IOrganizationScope, ...) and the module's own; no database.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Assignments\Starter.Modules.Assignments.csproj" />
+  </ItemGroup>
+</Project>

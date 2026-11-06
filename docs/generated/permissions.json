@@ -26,6 +26,16 @@
       "description": "See the roles, their permissions and the permission catalog."
     },
     {
+      "key": "assignments.assign",
+      "module": "Assignments",
+      "description": "Assign queue records to other users who hold the record type's queue permission."
+    },
+    {
+      "key": "assignments.work",
+      "module": "Assignments",
+      "description": "Work record queues: list a queue, claim a record and release your own (with the record type's queue permission)."
+    },
+    {
       "key": "attachments.remove",
       "module": "Attachments",
       "description": "Remove a record's attachments (where the record allows it)."
@@ -94,6 +104,36 @@
       "key": "portal.content.view",
       "module": "Portal",
       "description": "Read the FAQ, service guide, privacy and terms content in the admin editor."
+    },
+    {
+      "key": "records.oversight.view",
+      "module": "Records",
+      "description": "Read every record of every record type, read-only (admin oversight)."
+    },
+    {
+      "key": "service-requests.create",
+      "module": "ServiceRequests",
+      "description": "File service requests: create, fill in and submit a draft, resubmit and cancel your own request."
+    },
+    {
+      "key": "service-requests.decide",
+      "module": "ServiceRequests",
+      "description": "Approve, reject or return a service request under review."
+    },
+    {
+      "key": "service-requests.queue",
+      "module": "ServiceRequests",
+      "description": "See the service request work queue and the requests in it."
+    },
+    {
+      "key": "service-requests.review",
+      "module": "ServiceRequests",
+      "description": "Start the review of a submitted service request."
+    },
+    {
+      "key": "service-requests.view-own",
+      "module": "ServiceRequests",
+      "description": "See your own service requests."
     },
     {
       "key": "settings.manage",

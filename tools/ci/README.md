@@ -28,6 +28,13 @@ Small, host-neutral CI checks and helpers that `tools/build.ps1` calls:
   (`base.no-magic-values`; test files excluded) and `no-restricted-imports` for every module a package's
   `module.rules.yaml` lists in `mustNotDependOn`, by package name or relative path (`base.module-boundaries`).
 
+- `no-dev-autofill.mjs` (CI step 20) scans the production bundle step 11 built
+  (`frontend/starter-web/dist/starter-web`) for the DevAutofill markers and fails when one is found.
+- `module-deletability.ps1` (CI step 21, heavy: skipped by `-Quick`) removes the sample module `ServiceRequests` from
+  a `%TEMP%` copy of the repo, then builds the solution and runs the backend tests, the frontend tests and the
+  production build there (phase 7 exit criterion, ADR-004). It never touches the repo it runs from.
+- `tests/ci-wiring.test.mjs` fails when `build.ps1` stops running steps 20 and 21.
+
 ## Use
 
 ```powershell

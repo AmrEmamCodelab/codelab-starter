@@ -59,13 +59,15 @@ public static class AttachmentsModuleRegistration
     }
 
     /// <summary>
-    /// The record accesses the gate knows: every registered <see cref="IAttachableRecordAccess"/> (owning modules), plus
-    /// <see cref="DemoRecordAccess"/> when the host runs in Development.
+    /// The record accesses the gate knows: every registered <see cref="IAttachableRecordAccess"/> (owning modules), every
+    /// access an <see cref="IAttachableRecordAccessSource"/> serves (the Records module: one per registered record type),
+    /// plus <see cref="DemoRecordAccess"/> when the host runs in Development.
     /// </summary>
     public static IEnumerable<IAttachableRecordAccess> RecordAccessesOf(IServiceProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
-        var registered = provider.GetServices<IAttachableRecordAccess>();
+        var registered = provider.GetServices<IAttachableRecordAccess>()
+            .Concat(provider.GetServices<IAttachableRecordAccessSource>().SelectMany(source => source.Accesses));
         return provider.GetRequiredService<IHostEnvironment>().IsDevelopment()
             ? registered.Append(provider.GetRequiredService<DemoRecordAccess>())
             : registered;

@@ -38,5 +38,9 @@
     <ProjectReference Include="..\Modules\Notifications\Starter.Modules.Notifications.csproj" />
     <ProjectReference Include="..\Modules\Portal\Starter.Modules.Portal.csproj" />
     <ProjectReference Include="..\Modules\Attachments\Starter.Modules.Attachments.csproj" />
+    <ProjectReference Include="..\Modules\Records\Starter.Modules.Records.csproj" />
+    <ProjectReference Include="..\Modules\Assignments\Starter.Modules.Assignments.csproj" />
+    <ProjectReference Include="..\Modules\Deadlines\Starter.Modules.Deadlines.csproj" />
+    <ProjectReference Include="..\Modules\ServiceRequests\Starter.Modules.ServiceRequests.csproj" /> <!-- codelab:module ServiceRequests -->
   </ItemGroup>
 </Project>

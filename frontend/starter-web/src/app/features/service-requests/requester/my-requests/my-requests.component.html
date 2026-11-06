@@ -1,0 +1,60 @@
+<app-admin-list-pattern
+  [titleKey]="keys.Title"
+  [columns]="columns"
+  [rows]="store.result().items"
+  [total]="store.result().total"
+  [pageSize]="store.pageSize"
+  [rowId]="rowId"
+  [loading]="store.loading()"
+  [error]="store.error()"
+  [translatedCodes]="translatedCodes"
+  [searchable]="false"
+  [emptyKey]="keys.Empty"
+  [(page)]="page"
+  (retry)="store.reload()"
+>
+  <dga-button
+    listToolbar
+    *hasPermission="gates.Create"
+    variant="primary"
+    size="md"
+    leadIcon="plus"
+    data-testid="sr-mine-new"
+    (click)="createRequest()"
+  >
+    {{ keys.New | t }}
+  </dga-button>
+
+  <dga-select
+    listFilters
+    class="mine__filter"
+    data-testid="sr-mine-status"
+    [label]="keys.StatusFilter | t"
+    [placeholder]="keys.StatusAll | t"
+    [options]="statusOptions()"
+    [value]="status()"
+    (valueChange)="filterBy($event)"
+  />
+
+  <ng-template [listCell]="columnKeys.Number" [listCellOf]="store.result().items" let-row>
+    @if (row.number; as number) {
+      <span class="mine__number" dir="ltr" data-fixed-direction>{{ number }}</span>
+    } @else {
+      <span class="mine__no-number">{{ keys.NoNumber | t }}</span>
+    }
+  </ng-template>
+  <ng-template [listCell]="columnKeys.Status" [listCellOf]="store.result().items" let-row>
+    <dga-status-tag [tone]="toneOf(row)">{{ statusKeyOf(row) | t }}</dga-status-tag>
+  </ng-template>
+  <ng-template [listCell]="columnKeys.Created" [listCellOf]="store.result().items" let-row>
+    {{ instantText(row.createdAt) }}
+  </ng-template>
+  <ng-template [listCell]="columnKeys.Submitted" [listCellOf]="store.result().items" let-row>
+    {{ instantText(row.submittedAt) }}
+  </ng-template>
+  <ng-template listRowActions [listRowActionsOf]="store.result().items" let-row>
+    <a class="mine__open" data-testid="sr-mine-open" [routerLink]="linkOf(row)">
+      {{ (isDraft(row) ? keys.Continue : keys.Open) | t }}
+    </a>
+  </ng-template>
+</app-admin-list-pattern>

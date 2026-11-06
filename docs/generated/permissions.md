@@ -11,6 +11,8 @@ The permission catalog: the union of every module's `IPermissionCatalogSource`. 
 | `access.grants.view` | Access | See a user's roles, direct grants, virtual roles and effective permissions. | `GET /api/admin/access/users`, `GET /api/admin/access/users/{userId:publicid}/grants` |
 | `access.roles.manage` | Access | Create roles and change their names, permissions and active state. | `POST /api/admin/access/roles`, `PUT /api/admin/access/roles/{id:publicid}` |
 | `access.roles.view` | Access | See the roles, their permissions and the permission catalog. | `GET /api/admin/access/permissions`, `GET /api/admin/access/roles`, `GET /api/admin/access/roles/{id:publicid}` |
+| `assignments.assign` | Assignments | Assign queue records to other users who hold the record type's queue permission. | `POST /api/queues/{recordType}/{id:publicid}/assign` |
+| `assignments.work` | Assignments | Work record queues: list a queue, claim a record and release your own (with the record type's queue permission). | `GET /api/queues/{recordType}`, `POST /api/queues/{recordType}/{id:publicid}/claim`, `POST /api/queues/{recordType}/{id:publicid}/release` |
 | `attachments.remove` | Attachments | Remove a record's attachments (where the record allows it). | `DELETE /api/attachments/{id:publicid}` |
 | `attachments.upload` | Attachments | Upload files and link them to a record (where the record allows it). | `POST /api/records/{recordType}/{recordId:publicid}/attachments`, `POST /api/records/{recordType}/{recordId:publicid}/attachments/upload-ticket` |
 | `attachments.view` | Attachments | List attachment types and a record's attachments, and download them (where the record allows it). | `GET /api/attachments/demo-record`, `GET /api/attachments/types`, `GET /api/attachments/{id:publicid}/content`, `GET /api/records/{recordType}/{recordId:publicid}/attachments` |
@@ -25,6 +27,12 @@ The permission catalog: the union of every module's `IPermissionCatalogSource`. 
 | `organizations.view` | Users | List and open organizations. | `GET /api/admin/organizations`, `GET /api/admin/organizations/{id:publicid}` |
 | `portal.content.manage` | Portal | Replace the sections of the FAQ, service guide, privacy and terms pages. | `PUT /api/admin/portal/content/{page}` |
 | `portal.content.view` | Portal | Read the FAQ, service guide, privacy and terms content in the admin editor. | `GET /api/admin/portal/content/{page}` |
+| `records.oversight.view` | Records | Read every record of every record type, read-only (admin oversight). | `GET /api/records/{recordType}/oversight` |
+| `service-requests.create` | ServiceRequests | File service requests: create, fill in and submit a draft, resubmit and cancel your own request. | `POST /api/service-requests`, `GET /api/service-requests/{id:publicid}/draft`, `PUT /api/service-requests/{id:publicid}/draft`, `POST /api/service-requests/{id:publicid}/submit` |
+| `service-requests.decide` | ServiceRequests | Approve, reject or return a service request under review. | none |
+| `service-requests.queue` | ServiceRequests | See the service request work queue and the requests in it. | none |
+| `service-requests.review` | ServiceRequests | Start the review of a submitted service request. | none |
+| `service-requests.view-own` | ServiceRequests | See your own service requests. | none |
 | `settings.manage` | Settings | Change the value of a runtime setting. | `PUT /api/admin/settings/{key}` |
 | `settings.view` | Settings | List the runtime settings with their values and defaults. | `GET /api/admin/settings` |
 | `users.import` | Users | Preview and commit an Excel user import. | `POST /api/admin/user-import/preview`, `POST /api/admin/user-import/{batchId:publicid}/commit` |

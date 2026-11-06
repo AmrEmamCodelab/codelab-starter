@@ -164,7 +164,7 @@ public sealed class AttachmentsControllersTests
     }
 
     [Fact]
-    public async Task The_download_streams_the_bytes_as_an_attachment_with_nosniff()
+    public async Task The_download_streams_the_bytes_with_nosniff_a_sandbox_and_no_content_disposition()
     {
         var stored = _harness.StoredDemo(FileId);
         _harness.Storage.Files[FileId] = FileBytes;
@@ -173,13 +173,14 @@ public sealed class AttachmentsControllersTests
 
         var file = Assert.IsType<AttachmentFileResult>(result);
         Assert.Equal(stored.ContentType, file.ContentType);
-        Assert.Equal(stored.FileName, file.FileDownloadName);
+        Assert.True(string.IsNullOrEmpty(file.FileDownloadName));
         var written = await ResultProbe.ExecuteAsync(file);
         Assert.Equal(StatusCodes.Status200OK, written.Status);
         Assert.Equal(FileBytes, written.Body);
         Assert.Equal(AttachmentFileResult.NoSniff, written.Headers[HeaderNames.XContentTypeOptions].ToString());
-        Assert.StartsWith("attachment;", written.Headers[HeaderNames.ContentDisposition].ToString(), StringComparison.Ordinal);
-        Assert.Contains(stored.FileName, written.Headers[HeaderNames.ContentDisposition].ToString(), StringComparison.Ordinal);
+        Assert.Equal(AttachmentFileResult.SandboxPolicy, written.Headers[HeaderNames.ContentSecurityPolicy].ToString());
+        // Download managers intercept any response with Content-Disposition mid-fetch (the phase 6 blocker).
+        Assert.False(written.Headers.ContainsKey(HeaderNames.ContentDisposition));
     }
 
     [Fact]

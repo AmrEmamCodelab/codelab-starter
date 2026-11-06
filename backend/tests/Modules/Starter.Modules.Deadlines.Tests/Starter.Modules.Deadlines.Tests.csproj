@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of the deadlines module: the deadline row (open, badge thresholds, breach exactly at DueAt, claim and
+    release), the SLA catalog and its startup check, the transition observer (open and close, idempotent replay), the
+    badge reader, the recipients (assignee, else queue staff), the scan (escalation once, re-run idempotent, failure
+    isolation) and the job, the registrations, and the EF model against its InitialCreate migration. Fakes stand behind
+    the ports and the clock is a FakeTimeProvider; no database.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Deadlines\Starter.Modules.Deadlines.csproj" />
+  </ItemGroup>
+</Project>

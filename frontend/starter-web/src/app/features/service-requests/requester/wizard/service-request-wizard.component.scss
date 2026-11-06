@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+
+.sr-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-6);
+}
+
+.sr-wizard__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--dga-space-3);
+}
+
+.sr-wizard__title {
+  margin: 0;
+  font-size: var(--dga-font-size-2xl);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.sr-wizard__back,
+.sr-wizard__link {
+  color: var(--dga-color-text-link);
+}
+
+.sr-wizard__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-5);
+  max-inline-size: 40rem;
+}
+
+.sr-wizard__review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+  margin-block-end: var(--dga-space-5);
+}
+
+.sr-wizard__section-title {
+  margin: 0;
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.sr-wizard__review-list {
+  display: grid;
+  gap: var(--dga-space-3);
+  margin: 0;
+}
+
+.sr-wizard__review-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) 3fr;
+  gap: var(--dga-space-3);
+
+  dt {
+    color: var(--dga-color-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+}
+
+.sr-wizard__hint,
+.sr-wizard__loading {
+  margin: 0;
+  color: var(--dga-color-text-secondary);
+}
+
+.sr-wizard__load-failed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--dga-space-2);
+}
+
+.sr-wizard__error-text {
+  margin: 0;
+  color: var(--dga-color-text-error);
+}
+
+.sr-wizard__success {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+  padding: var(--dga-space-6);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-primary);
+  border-radius: var(--dga-radius-md);
+  background: var(--dga-color-surface-default);
+}
+
+.sr-wizard__success-title {
+  margin: 0;
+  font-size: var(--dga-font-size-xl);
+}
+
+.sr-wizard__success-message {
+  margin: 0;
+}
+
+.sr-wizard__number {
+  unicode-bidi: isolate;
+}
+
+.sr-wizard__success-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-4);
+}
+
+@media (max-width: 40rem) {
+  .sr-wizard__review-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -8,6 +8,8 @@
 //   node tools/fork/fork.mjs upstream-merge --root <repo> (--upstream <remote|path> [--branch main] | --continue)
 //        [--skip-build] [--report <file>]        (free-text build command: env CODELAB_FORK_BUILD_COMMAND)
 //   node tools/fork/fork.mjs fork-model --starter-root <repo> --remove-module <Name> [see lib/fork-model.mjs]
+//   node tools/fork/fork.mjs add-probe --root <temp copy> --name <Name>        (tools/ci/module-deletability.ps1)
+//   node tools/fork/fork.mjs verify-removed --root <temp copy> --name <Name>   (exit 1 lists the remnants)
 //
 // Exit codes: 0 ok (merged clean), 1 refused / conflicts / build or assertion failed, 2 usage or internal error.
 import path from 'node:path';
@@ -16,13 +18,15 @@ import { OptionKind, parseOptions, UsageError } from './lib/args.mjs';
 import { DEFAULT_UPSTREAM_BRANCH, ExitCode, FEED_DIR } from './lib/constants.mjs';
 import { FORK_MODEL_OPTIONS, runForkModel } from './lib/fork-model.mjs';
 import { runInit } from './lib/init.mjs';
+import { addProbe, findRemnants } from './lib/deletability.mjs';
 import { ManifestError } from './lib/manifest.mjs';
+import { refusalForModuleName } from './lib/modules.mjs';
 import { removeModule } from './lib/remove-module.mjs';
 import { RefusalError } from './lib/repo.mjs';
 import { MergeStatus, runUpstreamMerge } from './lib/upstream-merge.mjs';
 
 const ROOT_FLAG = '--root';
-const USAGE = 'Usage: node tools/fork/fork.mjs <init|remove-module|upstream-merge|fork-model> [options] (see the header of this file)';
+const USAGE = 'Usage: node tools/fork/fork.mjs <init|remove-module|upstream-merge|fork-model|add-probe|verify-removed> [options] (see the header of this file)';
 
 const INIT_OPTIONS = Object.freeze({
   [ROOT_FLAG]: OptionKind.string,
@@ -35,7 +39,10 @@ const INIT_OPTIONS = Object.freeze({
   '--skip-npm-lock': OptionKind.boolean,
   '--allow-missing-targets': OptionKind.boolean,
 });
-const REMOVE_MODULE_OPTIONS = Object.freeze({ [ROOT_FLAG]: OptionKind.string, '--name': OptionKind.string });
+const NAME_FLAG = '--name';
+const REMOVE_MODULE_OPTIONS = Object.freeze({ [ROOT_FLAG]: OptionKind.string, [NAME_FLAG]: OptionKind.string });
+/** add-probe and verify-removed take the same options as remove-module. */
+const MODULE_OPTIONS = REMOVE_MODULE_OPTIONS;
 const UPSTREAM_MERGE_OPTIONS = Object.freeze({
   [ROOT_FLAG]: OptionKind.string,
   '--upstream': OptionKind.string,
@@ -64,8 +71,33 @@ function init(argv, io) {
 }
 
 function removeModuleCommand(argv, io) {
-  const options = parseOptions(argv, REMOVE_MODULE_OPTIONS, [ROOT_FLAG, '--name']);
+  const options = parseOptions(argv, REMOVE_MODULE_OPTIONS, [ROOT_FLAG, NAME_FLAG]);
   removeModule(absolute(options.root), options.name, io);
+  return ExitCode.ok;
+}
+
+function moduleOptions(argv) {
+  const options = parseOptions(argv, MODULE_OPTIONS, [ROOT_FLAG, NAME_FLAG]);
+  const refusal = refusalForModuleName(options.name, []);
+  if (refusal) throw new UsageError(refusal);
+  return { root: absolute(options.root), name: options.name };
+}
+
+function addProbeCommand(argv, io) {
+  const { root, name } = moduleOptions(argv);
+  addProbe(root, name, io);
+  return ExitCode.ok;
+}
+
+function verifyRemovedCommand(argv, io) {
+  const { root, name } = moduleOptions(argv);
+  const remnants = findRemnants(root, name);
+  for (const remnant of remnants) io.error(`  remnant: ${remnant}`);
+  if (remnants.length > 0) {
+    io.error(`Module ${name} is not fully removed (${remnants.length} remnant(s)).`);
+    return ExitCode.failed;
+  }
+  io.log(`Module ${name} is fully removed: no folder, solution or host line, marker or translation key is left.`);
   return ExitCode.ok;
 }
 
@@ -83,7 +115,14 @@ function forkModel(argv, io) {
   return runForkModel(parseOptions(argv, FORK_MODEL_OPTIONS.spec, FORK_MODEL_OPTIONS.required), io);
 }
 
-const COMMANDS = Object.freeze({ init, 'remove-module': removeModuleCommand, 'upstream-merge': upstreamMerge, 'fork-model': forkModel });
+const COMMANDS = Object.freeze({
+  init,
+  'remove-module': removeModuleCommand,
+  'upstream-merge': upstreamMerge,
+  'fork-model': forkModel,
+  'add-probe': addProbeCommand,
+  'verify-removed': verifyRemovedCommand,
+});
 
 /** Runs one command; returns the exit code (never throws). */
 export function main(argv, io = { log: (line) => console.log(line), error: (line) => console.error(line) }) {

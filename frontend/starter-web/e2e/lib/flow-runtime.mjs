@@ -54,10 +54,10 @@ export class FlowRecorder {
     mkdirSync(this.shotDir, { recursive: true });
   }
 
-  /** A fresh browser context (no session) whose app boots in the language; returns its page. */
-  async openPage(language) {
+  /** A fresh browser context (no session) whose app boots in the language, at the viewport (default desktop); returns its page. */
+  async openPage(language, viewport = FLOW_VIEWPORT) {
     const context = await this.browser.newContext({
-      viewport: { ...FLOW_VIEWPORT },
+      viewport: { width: viewport.width, height: viewport.height },
       locale: BROWSER_LOCALES[language],
       colorScheme: COLOUR_SCHEME,
       reducedMotion: 'reduce',

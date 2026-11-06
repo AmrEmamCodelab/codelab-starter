@@ -25,7 +25,7 @@ public sealed class EndpointContractTests(ContractHost host)
 
     [Fact]
     public void AllIdsArePublicId() =>
-        PublicIdContract.AllIdsArePublicId(host.Endpoints, IsPublicId, EndpointAllowlist.NumericLookupIdMembers).ThrowIfFailed();
+        PublicIdContract.AllIdsArePublicId(host.Endpoints, IsPublicId, EndpointAllowlist.PublicIdExemptMembers).ThrowIfFailed();
 
     [Fact]
     public void AllWritesHaveValidator()

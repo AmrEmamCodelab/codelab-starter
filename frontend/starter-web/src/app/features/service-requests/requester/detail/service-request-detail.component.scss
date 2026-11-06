@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.sr-detail__back {
+  align-self: flex-start;
+  color: var(--dga-color-text-link);
+}
+
+.sr-detail__banner {
+  display: block;
+  margin-block-end: var(--dga-space-4);
+}
+
+.sr-detail__reason {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.sr-detail__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--dga-space-6);
+}

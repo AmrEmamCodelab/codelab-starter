@@ -1,0 +1,112 @@
+<div class="service-request-staff-detail">
+  @if (store.decided(); as labelKey) {
+    <dga-alert data-testid="detail-decided" [variant]="AlertVariant.Success">{{ keys.Detail.DecisionDone | t: { action: (labelKey | t) } }}</dga-alert>
+  }
+  @for (failure of actionErrors(); track $index) {
+    <dga-alert data-testid="detail-action-error" [variant]="AlertVariant.Error">
+      <p class="service-request-staff-detail__message">{{ messageKey(failure) | t }}</p>
+      @if (failure.referenceCode; as code) {
+        <p class="service-request-staff-detail__message">{{ keys.Common.ReferenceCode | t: { code: code } }}</p>
+      }
+    </dga-alert>
+  }
+
+  <app-staff-detail-pattern
+    [titleKey]="keys.Detail.Title"
+    [titleParams]="titleParams()"
+    [actions]="store.decisionButtons()"
+    [busy]="store.deciding()"
+    [loading]="store.loading() && store.detail() === null"
+    [error]="store.loadError()"
+    [translatedCodes]="translatedCodes"
+    (decide)="store.choose($event)"
+    (retry)="store.reload()"
+  >
+    <a detailBack class="service-request-staff-detail__back" [routerLink]="paths.queue()">
+      <dga-icon name="arrow-start" size="sm" />
+      {{ keys.Detail.Back | t }}
+    </a>
+
+    @if (store.detail(); as detail) {
+      <span detailStatus class="service-request-staff-detail__status">
+        <dga-status-tag data-testid="detail-status" [tone]="statusTone()">{{ detail.wording | statusWording: audience | t }}</dga-status-tag>
+        <app-sla-badge [sla]="detail.sla" />
+      </span>
+    }
+
+    @if (store.detail(); as detail) {
+      <div detailHeaderActions class="service-request-staff-detail__assignment">
+        @if (detail.assignee; as assignee) {
+          <span data-testid="detail-assignee">{{ keys.Detail.AssignedTo | t: { name: assignee.displayName } }}</span>
+        } @else {
+          <span class="service-request-staff-detail__muted" data-testid="detail-unassigned">{{ keys.Detail.NotAssigned | t }}</span>
+        }
+        @if (store.canClaim()) {
+          <dga-button
+            *hasPermission="permissionKeys.Work"
+            variant="secondary-outline"
+            size="sm"
+            data-testid="detail-claim"
+            [loading]="store.assigning()"
+            [disabled]="store.assigning()"
+            (click)="store.claim()"
+          >
+            {{ keys.Actions.Claim | t }}
+          </dga-button>
+        }
+        @if (store.canRelease()) {
+          <dga-button
+            *hasPermission="permissionKeys.Work"
+            variant="secondary-outline"
+            size="sm"
+            data-testid="detail-release"
+            [loading]="store.assigning()"
+            [disabled]="store.assigning()"
+            (click)="store.release()"
+          >
+            {{ keys.Actions.Release | t }}
+          </dga-button>
+        }
+      </div>
+    }
+
+    @if (store.detail(); as detail) {
+      <div class="service-request-staff-detail__body">
+        <app-record-detail-cards [cards]="cards()" [headingLevel]="sectionHeadingLevel" />
+        <section class="service-request-staff-detail__attachments" aria-labelledby="service-request-staff-attachments">
+          <h2 class="service-request-staff-detail__section-title" id="service-request-staff-attachments">{{ keys.Detail.Attachments | t }}</h2>
+          <app-record-attachments readonly [recordType]="attachableType" [recordId]="detail.id" />
+        </section>
+      </div>
+    }
+
+    <app-record-timeline
+      detailHistory
+      [entries]="store.timeline()"
+      [audience]="audience"
+      [statusKeyFor]="statusKeyFor"
+      [actionLabelKeyFor]="actionLabelKeyFor"
+      [titleKey]="keys.Detail.Steps"
+      [headingLevel]="timelineHeadingLevel"
+    />
+  </app-staff-detail-pattern>
+
+  <app-decision-dialog
+    data-public-action
+    [open]="store.pending() !== null"
+    [titleKey]="store.pending()?.labelKey ?? keys.Detail.Steps"
+    [confirmKey]="store.pending()?.labelKey ?? keys.Detail.Steps"
+    [messageKey]="keys.Detail.ReasonMessage"
+    [destructive]="pendingDestructive()"
+    [minLength]="reasonLimits.minLength"
+    [maxLength]="reasonLimits.maxLength"
+    [reasonField]="reasonField()"
+    [busy]="store.deciding()"
+    [error]="store.decideError()"
+    [translatedCodes]="translatedCodes"
+    [reason]="store.reason()"
+    (reasonChange)="store.reason.set($event)"
+    (confirm)="store.confirmReason($event)"
+    (cancel)="store.cancelReason()"
+  />
+</div>

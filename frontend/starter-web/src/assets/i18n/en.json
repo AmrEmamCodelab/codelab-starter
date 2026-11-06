@@ -114,7 +114,25 @@
     "ATTACHMENTS_MAX_FILES_REACHED": "This attachment already has the most files allowed. Remove one first.",
     "ATTACHMENTS_NOT_FOUND": "The attachment could not be found. It may have been removed.",
     "ATTACHMENTS_REQUIRED_MISSING": "Some required attachments are missing.",
-    "ATTACHMENTS_STORAGE_UNAVAILABLE": "The file storage is not available at the moment. Please try again later."
+    "ATTACHMENTS_STORAGE_UNAVAILABLE": "The file storage is not available at the moment. Please try again later.",
+    "WORKFLOW_ACTION_NOT_ALLOWED": "This action is no longer available. The record has changed; reload it and try again.",
+    "WORKFLOW_FORBIDDEN": "You are not allowed to take this action.",
+    "WORKFLOW_REASON_REQUIRED": "This action needs a reason.",
+    "WORKFLOW_REASON_TOO_LONG": "The reason is too long.",
+    "WORKFLOW_ACTION_UNKNOWN": "This action does not exist for this record.",
+    "RECORDS_NOT_FOUND": "The record was not found.",
+    "RECORDS_NOT_SUBMITTABLE": "This record cannot be submitted in its current status.",
+    "RECORDS_CONCURRENCY": "Someone else changed this record. Reload it and try again.",
+    "ASSIGNMENTS_ALREADY_CLAIMED": "Someone else has already taken this record.",
+    "ASSIGNMENTS_NOT_ASSIGNEE": "Only the person working on this record can release it.",
+    "ASSIGNMENTS_ASSIGNEE_NOT_ELIGIBLE": "The chosen user cannot work on this record.",
+    "SERVICE_REQUESTS_NOT_EDITABLE": "This request can no longer be changed.",
+    "ASSIGNMENTS_RECORD_TYPE_UNKNOWN": "This queue does not exist.",
+    "ASSIGNMENTS_QUEUE_FORBIDDEN": "You do not have access to this queue.",
+    "ASSIGNMENTS_NOT_ASSIGNABLE": "This request is not in the queue.",
+    "ASSIGNMENTS_ACTOR_UNKNOWN": "Your account could not be identified. Sign in again.",
+    "RECORDS_ACTOR_UNKNOWN": "Your account cannot work with requests. Sign in again or contact the administrator.",
+    "RECORDS_VIEW_FORBIDDEN": "You are not allowed to view these requests."
   },
   "core": {
     "error-dialog": {
@@ -840,6 +858,9 @@
     "file-picker": {
       "choose": "Choose file",
       "none": "No file chosen"
+    },
+    "dev-autofill": {
+      "title": "Developer autofill"
     }
   },
   "permissions": {
@@ -1495,6 +1516,297 @@
     "demo": {
       "title": "Attachments demo",
       "intro": "A development record to try the attachment flow: upload a file, see it listed, download it and remove it."
+    }
+  },
+  "serviceRequests": {
+    "wizard": {
+      "steps": {
+        "request": {
+          "title": "Request",
+          "description": "Choose the category and give your request a title."
+        },
+        "details": {
+          "title": "Details",
+          "description": "Describe your request and how we can reach you."
+        },
+        "attachments": {
+          "title": "Attachments and review",
+          "description": "Attach the required document, then review and submit."
+        }
+      }
+    },
+    "fields": {
+      "categoryId": "Category",
+      "title": "Title",
+      "description": "Description",
+      "contactPhone": "Contact mobile number",
+      "preferredDate": "Preferred date"
+    },
+    "cards": {
+      "request": "Request",
+      "details": "Details"
+    },
+    "errors": {
+      "SERVICE_REQUESTS_CATEGORY_REQUIRED": "Choose a category.",
+      "SERVICE_REQUESTS_TITLE_REQUIRED": "Enter a title.",
+      "SERVICE_REQUESTS_TITLE_TOO_SHORT": "The title must be at least 5 characters.",
+      "SERVICE_REQUESTS_TITLE_TOO_LONG": "The title must be at most 200 characters.",
+      "SERVICE_REQUESTS_DESCRIPTION_REQUIRED": "Enter a description.",
+      "SERVICE_REQUESTS_DESCRIPTION_TOO_SHORT": "The description must be at least 20 characters.",
+      "SERVICE_REQUESTS_DESCRIPTION_TOO_LONG": "The description must be at most 2000 characters.",
+      "SERVICE_REQUESTS_CONTACT_PHONE_REQUIRED": "Enter a mobile number.",
+      "SERVICE_REQUESTS_CONTACT_PHONE_INVALID": "Enter a mobile number like 05XXXXXXXX (10 digits).",
+      "SERVICE_REQUESTS_PREFERRED_DATE_INVALID": "Enter a valid date.",
+      "SERVICE_REQUESTS_PREFERRED_DATE_IN_PAST": "The preferred date cannot be in the past.",
+      "SERVICE_REQUESTS_CATEGORY_UNKNOWN": "This category is no longer available. Choose another one.",
+      "SERVICE_REQUESTS_STEP_INVALID": "The wizard step is not valid. Reload the page and try again."
+    },
+    "devAutofill": {
+      "valid": "Fill with valid sample data"
+    },
+    "status": {
+      "draft": {
+        "requester": "Draft",
+        "staff": "Draft",
+        "admin": "Draft"
+      },
+      "submitted": {
+        "requester": "Submitted",
+        "staff": "New, awaiting review",
+        "admin": "Submitted"
+      },
+      "under-review": {
+        "requester": "Being processed",
+        "staff": "Under review",
+        "admin": "Under review"
+      },
+      "returned": {
+        "requester": "Returned to you for changes",
+        "staff": "Returned to the requester",
+        "admin": "Returned for changes"
+      },
+      "resubmitted": {
+        "requester": "Resubmitted",
+        "staff": "Resubmitted, awaiting review",
+        "admin": "Resubmitted"
+      },
+      "approved": {
+        "requester": "Approved",
+        "staff": "Approved",
+        "admin": "Approved"
+      },
+      "rejected": {
+        "requester": "Rejected",
+        "staff": "Rejected",
+        "admin": "Rejected"
+      },
+      "cancelled": {
+        "requester": "Cancelled",
+        "staff": "Cancelled by the requester",
+        "admin": "Cancelled"
+      }
+    },
+    "action": {
+      "submit": "Submit",
+      "start-review": "Start review",
+      "return": "Return for changes",
+      "resubmit": "Resubmit",
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel request"
+    },
+    "requester": {
+      "nav": {
+        "area": "Service requests",
+        "dashboard": "Overview",
+        "mine": "My requests",
+        "new": "New request"
+      },
+      "dashboard": {
+        "greeting": "Your service requests",
+        "kpis": "Your requests at a glance",
+        "kpi": {
+          "all": "All requests",
+          "draft": "Drafts",
+          "submitted": "Submitted",
+          "under-review": "Being processed",
+          "returned": "Returned to you",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "quick-actions": "Quick actions",
+        "action-new": "Submit a new request",
+        "action-mine": "View my requests",
+        "action-notifications": "View my notifications",
+        "recent": "Recent requests",
+        "recent-empty": "You have no requests yet.",
+        "load-failed": "Your requests could not be loaded.",
+        "retry": "Try again",
+        "view-all": "View all my requests"
+      },
+      "mine": {
+        "title": "My requests",
+        "empty": "You have no requests with this status.",
+        "new": "New request",
+        "status-filter": "Status",
+        "status-all": "All statuses",
+        "no-number": "Not submitted yet",
+        "open": "View",
+        "continue": "Continue",
+        "columns": {
+          "number": "Request number",
+          "status": "Status",
+          "created": "Created on",
+          "submitted": "Submitted on"
+        }
+      },
+      "wizard": {
+        "title-new": "New service request",
+        "title-resume": "Continue your draft request",
+        "loading": "Loading your draft...",
+        "load-failed": "Your draft could not be opened.",
+        "retry": "Try again",
+        "draft-saved": "Your draft is saved. You can continue it later from My requests.",
+        "submit": "Submit request",
+        "category-placeholder": "Choose a category",
+        "categories-failed": "The request categories could not be loaded.",
+        "phone-hint": "A Saudi mobile number: 05 followed by 8 digits.",
+        "attachments-hint": "Attach the required document. You can add supporting files too.",
+        "attachments-missing": "Attach the required document before you submit the request.",
+        "review": "Review your request",
+        "back-to-mine": "Back to my requests",
+        "success": {
+          "title": "Your request was submitted",
+          "message": "Your request number is",
+          "view": "View the request",
+          "mine": "Go to my requests"
+        }
+      },
+      "detail": {
+        "title": "Service request",
+        "back": "Back to my requests",
+        "continue-draft": "Continue the draft",
+        "returned-title": "Your request was returned for changes",
+        "rejected-title": "Your request was rejected",
+        "actions-title": "What you can do"
+      }
+    },
+    "staff": {
+      "nav": "Service requests",
+      "queue": {
+        "title": "Service requests queue",
+        "empty": "No requests in this view.",
+        "search": "Search by request number",
+        "tabs": {
+          "unassigned": "Unassigned",
+          "mine": "Assigned to me",
+          "all": "All requests"
+        },
+        "filters": {
+          "status": "Status",
+          "any-status": "Any status"
+        },
+        "columns": {
+          "number": "Request number",
+          "status": "Status",
+          "owner": "Requester",
+          "submitted-at": "Submitted on",
+          "assignee": "Assigned to",
+          "sla": "Deadline"
+        },
+        "unassigned": "Unassigned",
+        "no-sla": "No deadline",
+        "notifications": "Notifications",
+        "claimed": "You are now working on {{number}}.",
+        "released": "{{number}} is back in the queue."
+      },
+      "actions": {
+        "claim": "Claim",
+        "release": "Release"
+      },
+      "detail": {
+        "title": "Request {{number}}",
+        "back": "Back to the queue",
+        "assigned-to": "Assigned to {{name}}",
+        "not-assigned": "Not assigned yet",
+        "attachments": "Attachments",
+        "steps": "Steps taken",
+        "reason-message": "The requester will see this reason.",
+        "decision-done": "Done: {{action}}."
+      },
+      "reference-code": "Reference code: {{code}}"
+    },
+    "record": {
+      "card": "Request",
+      "number": "Request number",
+      "owner": "Requester",
+      "submitted-at": "Submitted on",
+      "last-reason": "Latest reason"
+    },
+    "admin": {
+      "tile": {
+        "title": "All service requests",
+        "text": "Follow every service request, read-only."
+      },
+      "list": {
+        "title": "All service requests",
+        "read-only": "Read-only view. Staff work the requests from their queue.",
+        "empty": "No requests match.",
+        "search": "Search by request number",
+        "filters": {
+          "status": "Status",
+          "any-status": "Any status"
+        },
+        "columns": {
+          "number": "Request number",
+          "status": "Status",
+          "owner": "Requester",
+          "submitted-at": "Submitted on",
+          "updated-at": "Last change"
+        },
+        "no-number": "Draft (no number yet)",
+        "not-submitted": "Not submitted"
+      },
+      "detail": {
+        "title": "Service request",
+        "back": "Back to all requests",
+        "read-only": "Read-only view. No action can be taken here.",
+        "history": "Request history"
+      }
+    }
+  },
+  "records": {
+    "cards": {
+      "empty-value": "Not provided"
+    },
+    "timeline": {
+      "title": "History",
+      "empty": "No steps recorded yet.",
+      "by": "By {{actor}}",
+      "reason": "Reason",
+      "side": {
+        "requester": "Requester",
+        "staff": "Staff",
+        "system": "System"
+      }
+    },
+    "decision": {
+      "title": "Decision",
+      "none": "No action is available on this record.",
+      "reason": "Reason",
+      "reason-required-hint": "This action needs a reason.",
+      "reason-optional-hint": "You may add a reason (optional).",
+      "reason-required": "Enter the reason.",
+      "reason-too-long": "Keep the reason within {{max}} characters.",
+      "counter": "{count} of {max} characters",
+      "cancel": "Cancel",
+      "reference-code": "Reference code: {{code}}"
+    },
+    "sla": {
+      "on-track": "On track",
+      "due-soon": "Due soon",
+      "breached": "Overdue",
+      "due-at": "Due {{date}}"
     }
   }
 }

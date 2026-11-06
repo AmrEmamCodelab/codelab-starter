@@ -21,7 +21,7 @@ public sealed class AttachmentsModelTests
         Assert.Equal(AttachmentsTableNames.ServiceAttachments, context.Model.FindEntityType(typeof(ServiceAttachment))!.GetTableName());
         Assert.Equal(AttachmentsTableNames.RecordAttachments, context.Model.FindEntityType(typeof(RecordAttachment))!.GetTableName());
         Assert.All(context.Model.GetEntityTypes(), entity => Assert.Equal(AttachmentsDbContext.SchemaName, entity.GetSchema()));
-        Assert.Equal([AttachmentsMigrationIds.InitialCreate], context.Database.GetMigrations());
+        Assert.Equal([AttachmentsMigrationIds.InitialCreate, AddServiceRequestAttachmentTypes.MigrationId], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -69,7 +69,7 @@ public sealed class AttachmentsModelTests
         Assert.DoesNotContain("ON DELETE CASCADE", script, StringComparison.Ordinal);
         Assert.Contains($"CREATE UNIQUE INDEX [{AttachmentsMigrationIds.RecordAttachmentsFileIdIndex}]", script, StringComparison.Ordinal);
         Assert.Contains("[attachments].[__EFMigrationsHistory]", script, StringComparison.Ordinal);
-        Assert.Equal(AttachmentTypeSeed.Rows.Count, script.Split("INSERT INTO [attachments].[ServiceAttachments]").Length - 1);
+        Assert.Equal(AttachmentTypeSeed.Rows.Count + AddServiceRequestAttachmentTypes.Rows.Count, script.Split("INSERT INTO [attachments].[ServiceAttachments]").Length - 1);
         Assert.Contains("N'.pdf;.png;.jpg;.jpeg'", script, StringComparison.Ordinal);
         Assert.Contains("N'مستند تجريبي'", script, StringComparison.Ordinal);
     }

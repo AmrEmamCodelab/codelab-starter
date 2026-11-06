@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Records module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs, written to
+# the module anatomy. After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Records
+kind: dotnet
+description: "Records (module 7, with the generic execution of module 8 and the read API of module 11): the record base table of every record type and its RecordHistory timeline (Restrict) in schema records; the kernel ports IRecordLifecycle (draft, submit with the submit validators, the required-attachments interlock and the PREFIX-YYYY-NNN number, transitions through RecordWorkflowEngine, cancel, resubmit) and IRecordDirectory; the attachable access of every registered record type; the generic record HTTP API (mine, detail with server-computed allowed actions, timeline, transitions, read-only oversight)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Users, Access, Lookups, Audit, Settings, Jobs, Notifications, Portal, Attachments, Assignments, Deadlines, ServiceRequests]
+required:
+  - id: records.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case and maps the Outcome with OutcomeResults; ids on the wire are PublicId<RecordsIds>. The oversight list carries [HasPermission(RecordsPermissionKeys.OversightView)]; the per-record-type endpoints carry [AuthenticatedUser] (allowlisted) because their permissions come from the record type's registration and catalog, and every use case checks them live through RecordLoader / RecordStandings.
+    enforcedBy: [contract-test, review]
+  - id: records.data-through-ports
+    statement: Application code reads and writes data only through IRecordStore; the EF implementation lives in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  # Tested by RecordLifecycleTests and RecordReadsTests.
+  - id: records.engine-decides
+    statement: Every transition goes through RecordWorkflowEngine.Decide (refusals mapped once by WorkflowRefusals.ToRefusal) and every offered action comes from RecordWorkflowEngine.AllowedActions; no status matrix, no switch on a status or an action key outside RecordLifecycleActions.
+    enforcedBy: [review]
+  # Tested by RecordLifecycleTests (validator, interlock, generic submit) and RecordsHttpTests (409 then success).
+  - id: records.submit-checks
+    statement: Submit and resubmit (also through the generic transitions endpoint) run every IRecordSubmitValidator of the record type, then RequiredAttachmentsGate.RefuseWhileMissingAsync, and only then take the number with IRequestNumberAllocator; refusals map through SubmitRefusals / WorkflowRefusals, never a per-controller switch.
+    enforcedBy: [review]
+  # Tested by RecordsModuleTests (model) and RecordsHttpTests (SQL refuses the delete).
+  - id: records.history-same-save
+    statement: The status change and its RecordHistory row are saved in one transaction (RecordCommits, IRecordStore.AddDraftAsync); RecordHistory is mapped with HasRecordHistory (ON DELETE RESTRICT) and is never updated or deleted.
+    enforcedBy: [architecture-test, review]
+  # Tested by TransitionEffectsTests.
+  - id: records.isolated-side-effects
+    statement: Transition observers and notifications run after the commit, each in its own catch (ERROR-HANDLING row 8) that logs identifiers only; a failure never undoes or fails the committed transition.
+    enforcedBy: [review]
+forbidden:
+  - id: records.no-module-reference
+    description: Record types plug in through kernel ports (IRecordTypeRegistrationSource, IRecordWorkflowDefinition, IRecordSubmitValidator); a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Users|Access|Lookups|Audit|Settings|Jobs|Notifications|Portal|Attachments|Assignments|Deadlines|ServiceRequests)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application; the record-type module implements or registers it.
+recipes: [docs/recipes/add-endpoint.md]

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Module 7, Records (ADR-004): the record base table of every record type and its timeline in schema records; the
+    kernel ports IRecordLifecycle (draft, submit with the validators, the required-attachments interlock and the
+    PREFIX-YYYY-NNN number, transitions through the workflow engine, cancel, resubmit) and IRecordDirectory; the generic
+    record HTTP API (mine, detail with server-computed allowed actions, timeline, transitions, oversight). Layers by
+    namespace: .Domain, .Application, .Infrastructure, .Api. It never references another module; record types plug in
+    through Starter.Application.Records.IRecordTypeRegistrationSource and their workflow catalog. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Modules.Records</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Starter.Domain\Starter.Domain.csproj" />
+    <ProjectReference Include="..\..\Starter.Application\Starter.Application.csproj" />
+    <ProjectReference Include="..\..\Starter.Infrastructure\Starter.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.Modules.Records.Tests" />
+  </ItemGroup>
+</Project>

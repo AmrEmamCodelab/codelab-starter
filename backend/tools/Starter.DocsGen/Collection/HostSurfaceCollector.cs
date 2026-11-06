@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Starter.Api.Hosting;
 using Starter.Application.Authorization;
+using Starter.Application.Workflow;
 using Starter.Infrastructure.Modularity;
 
 namespace Starter.DocsGen.Collection;
@@ -9,7 +10,8 @@ namespace Starter.DocsGen.Collection;
 /// <summary>
 /// Reads the surface from the real host: the served OpenAPI document, the permission catalog sources and the
 /// endpoint data source from its services, the error codes and options classes by reflection over the solution and
-/// package assemblies, and the status enums by reflection over the solution's own assemblies.
+/// package assemblies, the status enums by reflection over the solution's own assemblies, and the registered workflow
+/// definitions (cross-checked against the definition classes those assemblies declare).
 /// </summary>
 internal sealed class HostSurfaceCollector : IApiSurfaceSource
 {
@@ -35,12 +37,14 @@ internal sealed class HostSurfaceCollector : IApiSurfaceSource
 
         var openApi = await response.Content.ReadAsStringAsync(cancellationToken);
         var services = factory.Services;
+        var ownAssemblies = SolutionAssemblies.OwnAssemblies(assemblies, hostAssembly);
         return new ApiSurface(
             OpenApiJson: openApi,
             Permissions: ConventionScanner.Permissions(services.GetServices<IPermissionCatalogSource>(), owners),
             Endpoints: EndpointCollector.Collect(services.GetRequiredService<EndpointDataSource>().Endpoints, owners, documentation),
             ErrorCodes: ConventionScanner.ErrorCodes(assemblies, owners, documentation),
             ConfigKeys: ConfigKeyScanner.Scan(assemblies, owners, documentation),
-            Statuses: StatusScanner.Scan(SolutionAssemblies.OwnAssemblies(assemblies, hostAssembly), owners, documentation));
+            Statuses: StatusScanner.Scan(ownAssemblies, owners, documentation),
+            Workflows: WorkflowCollector.Collect(services.GetServices<IRecordWorkflowDefinition>(), ownAssemblies, owners));
     }
 }

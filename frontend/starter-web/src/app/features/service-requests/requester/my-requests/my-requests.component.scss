@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.mine__filter {
+  min-inline-size: 14rem;
+}
+
+.mine__number {
+  font-weight: var(--dga-font-weight-semibold);
+  unicode-bidi: isolate;
+}
+
+.mine__no-number {
+  color: var(--dga-color-text-secondary);
+}
+
+.mine__open {
+  color: var(--dga-color-text-link);
+}

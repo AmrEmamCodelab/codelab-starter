@@ -210,6 +210,8 @@ public sealed class GeneratedDocSetTests
                 GeneratedFileNames.PermissionsJson,
                 GeneratedFileNames.PermissionsMarkdown,
                 GeneratedFileNames.Statuses,
+                GeneratedFileNames.WorkflowIndex,
+                GeneratedFileNames.Workflow(FixtureRecordWorkflow.RecordType),
             ],
             documents.Keys);
     }
@@ -240,7 +242,9 @@ public sealed class GeneratedDocSetTests
             ErrorCodes = [.. surface.ErrorCodes.Reverse()],
             ConfigKeys = [.. surface.ConfigKeys.Reverse()],
             Statuses = [.. surface.Statuses.Reverse().Select(status => status with { Members = [.. status.Members.Reverse()] })],
+            Workflows = [new WorkflowDoc(AlphaNoteWorkflowDefinition.Type, "Alpha", "Alpha.Note", new AlphaNoteWorkflowDefinition().Catalog), .. surface.Workflows],
         };
+        surface = surface with { Workflows = [.. reversed.Workflows.Reverse()] };
 
         Assert.Equal(GeneratedDocSet.Render(surface), GeneratedDocSet.Render(reversed));
     }

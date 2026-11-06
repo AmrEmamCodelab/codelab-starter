@@ -6,7 +6,12 @@ import { PermissionKeys, type PermissionKey } from './core/permissions/permissio
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
 import { ATTACHMENTS_ROUTES } from './features/attachments/attachments.routes';
-import { NOTIFICATIONS_ROUTES } from './features/notifications/notifications.routes';
+import { NOTIFICATIONS_LINK, NOTIFICATIONS_ROUTES } from './features/notifications/notifications.routes';
+// codelab:module-begin ServiceRequests
+import { SERVICE_REQUESTS_REQUESTER_DEFAULT_BASE_LINK, SERVICE_REQUESTS_REQUESTER_NAV, SERVICE_REQUESTS_REQUESTER_ROUTES, requesterLandingGuard, requesterShellMatch } from './features/service-requests/requester';
+import { SERVICE_REQUESTS_STAFF_ROUTES } from './features/service-requests/staff/service-requests-staff.routes';
+import { REQUESTER_SHELL_OPTIONS } from './layouts/requester-shell/requester-nav';
+// codelab:module-end ServiceRequests
 import { PORTAL_ROUTES } from './features/portal/portal.routes';
 import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
 import { SHOWCASE_ROUTES } from './showcase/showcase.routes';
@@ -36,7 +41,11 @@ export const SHELL_ROUTE: Route = {
     {
       path: RoutePaths.Dashboard,
       pathMatch: 'full',
-      canActivate: [permissionGuard()],
+      // A requester without dashboard.view lands on the requester dashboard; staff and admins stay here.
+      canActivate: [
+        requesterLandingGuard, // codelab:module ServiceRequests
+        permissionGuard(),
+      ],
       data: requires(PermissionKeys.DashboardView),
       loadComponent: () =>
         import('./features/dashboard/dashboard-page/dashboard-page.component').then(m => m.DashboardPageComponent),
@@ -48,10 +57,36 @@ export const SHELL_ROUTE: Route = {
       loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
     },
     ...NOTIFICATIONS_ROUTES,
+    ...SERVICE_REQUESTS_STAFF_ROUTES, // codelab:module ServiceRequests
     // Development builds only (canMatch); gated by attachments.view.
     ...ATTACHMENTS_ROUTES,
   ],
 };
+
+// codelab:module-begin ServiceRequests
+/**
+ * The requester shell (behind authGuard); each page inside carries its own key. `canMatch` limits it to the requester
+ * area, so `/` falls through to the staff shell instead of an empty requester frame.
+ */
+export const REQUESTER_SHELL_ROUTE: Route = {
+  path: SHELL_PATH,
+  canMatch: [requesterShellMatch],
+  canActivate: [authGuard],
+  providers: [
+    {
+      provide: REQUESTER_SHELL_OPTIONS,
+      useValue: {
+        navItems: SERVICE_REQUESTS_REQUESTER_NAV,
+        homeLink: SERVICE_REQUESTS_REQUESTER_DEFAULT_BASE_LINK,
+        notificationsLink: NOTIFICATIONS_LINK,
+      },
+    },
+  ],
+  loadComponent: () =>
+    import('./layouts/requester-shell/requester-shell.component').then(m => m.RequesterShellComponent),
+  children: [...SERVICE_REQUESTS_REQUESTER_ROUTES],
+};
+// codelab:module-end ServiceRequests
 
 /**
  * The public portal frame (no session): the portal shell around the public pages, each one public. `children` is
@@ -90,6 +125,7 @@ export const routes: Routes = [
   },
   PORTAL_ROUTE,
   ...SHOWCASE_ROUTES,
+  REQUESTER_SHELL_ROUTE, // codelab:module ServiceRequests
   SHELL_ROUTE,
   {
     path: NOT_FOUND_PATH,

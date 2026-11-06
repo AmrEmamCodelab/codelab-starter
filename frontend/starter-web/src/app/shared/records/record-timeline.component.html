@@ -1,0 +1,34 @@
+<section class="record-timeline" [attr.aria-labelledby]="titleId">
+  <div class="record-timeline__title" role="heading" [attr.aria-level]="headingLevel()" [id]="titleId">{{ titleKey() | t }}</div>
+
+  @if (rows().length === 0) {
+    <p class="record-timeline__empty">{{ keys.Empty | t }}</p>
+  } @else {
+    <ol class="record-timeline__list">
+      @for (row of rows(); track $index) {
+        <li class="record-timeline__entry" [attr.data-action]="row.entry.actionKey">
+          <span class="record-timeline__marker" aria-hidden="true"></span>
+          <div class="record-timeline__body">
+            <div class="record-timeline__head">
+              <p class="record-timeline__status">{{ row.statusLabelKey | t }}</p>
+              @if (row.sideLabelKey; as sideKey) {
+                <dga-tag class="record-timeline__side" tone="neutral">{{ sideKey | t }}</dga-tag>
+              }
+            </div>
+            @if (row.actionLabelKey; as actionKey) {
+              <p class="record-timeline__action">{{ actionKey | t }}</p>
+            }
+            <time class="record-timeline__at" [attr.datetime]="row.entry.at">{{ row.atText }}</time>
+            <p class="record-timeline__actor">{{ keys.By | t: { actor: row.entry.actorDisplayName } }}</p>
+            @if (row.reason; as reason) {
+              <p class="record-timeline__reason">
+                <span class="record-timeline__reason-label">{{ keys.Reason | t }}</span>
+                <span class="record-timeline__reason-text">{{ reason }}</span>
+              </p>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</section>

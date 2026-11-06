@@ -70,8 +70,32 @@ const API_PROJECT = `<Project Sdk="Microsoft.NET.Sdk.Web">
     <ProjectReference Include="..\\Modules\\A\\Starter.Modules.A.csproj" />
     <ProjectReference Include="..\\Modules\\B\\Starter.Modules.B.csproj" />
   </ItemGroup>
+  <!-- codelab:module-begin B -->
+  <ItemGroup>
+    <Content Include="b-settings.json" />
+  </ItemGroup>
+  <!-- codelab:module-end B -->
 </Project>
 `;
+
+/** The frontend registration file: module B's lines carry the module markers (remove-module deletes them). */
+const APP_ROUTES = `import type { Routes } from '@angular/router';
+import { A_ROUTES } from './features/a/a.routes';
+import { B_ROUTES } from './features/b/b.routes'; // codelab:module B
+
+export const routes: Routes = [
+  ...A_ROUTES,
+  // codelab:module-begin B
+  ...B_ROUTES,
+  // codelab:module-end B
+];
+`;
+
+/** Translations: module B owns the `b.` keys (remove-module deletes them). */
+const TRANSLATIONS = Object.freeze({
+  en: { a: { title: 'Module A' }, b: { title: 'Module B' } },
+  ar: { a: { title: 'الوحدة أ' }, b: { title: 'الوحدة ب' } },
+});
 
 const BUILD_PROPS = `<Project>
   <PropertyGroup>
@@ -135,6 +159,10 @@ function writeFrontend(root) {
   write(root, 'frontend/starter-web/public/config.json', `${JSON.stringify({ apiBaseUrl: 'http://localhost:5180', security: { protocolPrefix: 'STARTER' }, defaultLanguage: 'ar' }, null, 2)}\n`);
   write(root, 'frontend/starter-web/src/app/features/b/b.page.ts', 'export const STARTER_B_PAGE = "b";\n');
   write(root, 'frontend/starter-web/src/app/features/a/a.page.ts', 'export const STARTER_A_PAGE = "a";\n');
+  write(root, 'frontend/starter-web/src/app/app.routes.ts', APP_ROUTES);
+  for (const [language, keys] of Object.entries(TRANSLATIONS)) {
+    write(root, `frontend/starter-web/src/assets/i18n/${language}.json`, `${JSON.stringify(keys, null, 2)}\n`);
+  }
 }
 
 function writePackages(root) {

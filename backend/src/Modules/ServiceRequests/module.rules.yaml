@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the ServiceRequests sample module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: ServiceRequests
+kind: dotnet
+description: "The deletable sample record type 'service-request' (SR-YYYY-NNN): it only configures the business engine (workflow catalog, record type registration, SLA policy, submit validator, attachment access) and keeps its own wizard fields in schema servicerequests behind typed draft/submit endpoints. Delete it with tools/remove-module.ps1 -Name ServiceRequests; rename it into a project's record type with docs/recipes/add-workflow-type.md."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications, Portal, Attachments, Assignments, Deadlines]
+required:
+  - id: servicerequests.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with a ServiceRequestsPermissionKeys constant (or [AuthenticatedUser] with the access check in the use case and an EndpointAllowlist entry) and maps the Outcome with OutcomeResults or ServiceRequestsResults.
+    enforcedBy: [contract-test, review]
+  - id: servicerequests.data-through-ports
+    statement: Application code reads and writes data only through ports (its own IServiceRequestStore and IServiceRequestCalendar, and the kernel ports IRecordLifecycle, IRecordDirectory, ILookupValues, IOrganizationScope, IUserDirectory); the implementations live in Infrastructure or in the owning modules.
+    enforcedBy: [architecture-test, review]
+  # Tested by Workflow/ServiceRequestWorkflowTests (TransitionFixture walks and the kernel validator) and the startup check.
+  - id: servicerequests.workflow-in-the-catalog
+    statement: The statuses, actions, permissions, reasons, wording keys and notification decisions live only in ServiceRequestWorkflow (one TransitionCatalog); no code switches on a status to decide an action, and the engine computes the allowed actions.
+    enforcedBy: [review]
+  # Tested by Validation/ValidationParityTests against the shared fixture the client spec also runs.
+  - id: servicerequests.validation-parity
+    statement: The wizard rules live in ServiceRequestRules and are hand-mirrored by features/service-requests/data/service-request-rules.ts; a change to either side changes validation-parity.fixtures.json and both parity tests stay green.
+    enforcedBy: [review]
+  - id: servicerequests.one-access-rule
+    statement: "Who may see a service request, its details and its files is decided only by the Records module (IRecordVisibility and the attachable access it publishes through IAttachableRecordAccessSource); ServiceRequestAccess adds only the owner check of the draft endpoints and never decides visibility itself."
+    enforcedBy: [review]
+forbidden:
+  - id: servicerequests.no-module-reference
+    description: The sample reaches the engine and the other modules only through kernel ports; a reference to another module would make it, or them, impossible to delete on their own.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users|Lookups|Audit|Settings|Jobs|Notifications|Portal|Attachments|Records|Assignments|Deadlines)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (IRecordLifecycle, IRecordDirectory, ILookupValues, ...).
+recipes: [docs/recipes/add-endpoint.md, docs/recipes/add-attachment-type.md, docs/recipes/add-lookup.md, docs/recipes/add-notification.md]

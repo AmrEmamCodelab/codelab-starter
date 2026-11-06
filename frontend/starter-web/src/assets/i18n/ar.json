@@ -114,7 +114,25 @@
     "ATTACHMENTS_MAX_FILES_REACHED": "وصل هذا المرفق إلى أقصى عدد مسموح به من الملفات. احذف ملفًا أولًا.",
     "ATTACHMENTS_NOT_FOUND": "تعذّر العثور على المرفق. ربما حُذف.",
     "ATTACHMENTS_REQUIRED_MISSING": "بعض المرفقات المطلوبة غير موجودة.",
-    "ATTACHMENTS_STORAGE_UNAVAILABLE": "مخزن الملفات غير متاح حاليًا. حاول مرة أخرى لاحقًا."
+    "ATTACHMENTS_STORAGE_UNAVAILABLE": "مخزن الملفات غير متاح حاليًا. حاول مرة أخرى لاحقًا.",
+    "WORKFLOW_ACTION_NOT_ALLOWED": "لم يعد هذا الإجراء متاحًا. تغيّر السجل؛ أعد تحميله وحاول مرة أخرى.",
+    "WORKFLOW_FORBIDDEN": "غير مسموح لك باتخاذ هذا الإجراء.",
+    "WORKFLOW_REASON_REQUIRED": "يتطلب هذا الإجراء ذكر السبب.",
+    "WORKFLOW_REASON_TOO_LONG": "السبب أطول من المسموح.",
+    "WORKFLOW_ACTION_UNKNOWN": "هذا الإجراء غير موجود لهذا السجل.",
+    "RECORDS_NOT_FOUND": "لم يتم العثور على السجل.",
+    "RECORDS_NOT_SUBMITTABLE": "لا يمكن تقديم هذا السجل في حالته الحالية.",
+    "RECORDS_CONCURRENCY": "عدّل شخص آخر هذا السجل. أعد تحميله وحاول مرة أخرى.",
+    "ASSIGNMENTS_ALREADY_CLAIMED": "استلم شخص آخر هذا السجل بالفعل.",
+    "ASSIGNMENTS_NOT_ASSIGNEE": "لا يمكن إعادة السجل إلا من قِبل الموظف المكلّف به.",
+    "ASSIGNMENTS_ASSIGNEE_NOT_ELIGIBLE": "لا يمكن للمستخدم المختار العمل على هذا السجل.",
+    "SERVICE_REQUESTS_NOT_EDITABLE": "لم يعد بالإمكان تعديل هذا الطلب.",
+    "ASSIGNMENTS_RECORD_TYPE_UNKNOWN": "قائمة العمل هذه غير موجودة.",
+    "ASSIGNMENTS_QUEUE_FORBIDDEN": "ليست لديك صلاحية الوصول إلى قائمة العمل هذه.",
+    "ASSIGNMENTS_NOT_ASSIGNABLE": "هذا الطلب ليس في قائمة العمل.",
+    "ASSIGNMENTS_ACTOR_UNKNOWN": "تعذّر التعرف على حسابك. سجّل الدخول مرة أخرى.",
+    "RECORDS_ACTOR_UNKNOWN": "لا يمكن لحسابك التعامل مع الطلبات. سجّل الدخول مرة أخرى أو تواصل مع مسؤول النظام.",
+    "RECORDS_VIEW_FORBIDDEN": "ليست لديك صلاحية عرض هذه الطلبات."
   },
   "core": {
     "error-dialog": {
@@ -840,6 +858,9 @@
     "file-picker": {
       "choose": "اختيار ملف",
       "none": "لم يُختر أي ملف"
+    },
+    "dev-autofill": {
+      "title": "التعبئة التلقائية للمطوّر"
     }
   },
   "permissions": {
@@ -1495,6 +1516,297 @@
     "demo": {
       "title": "تجربة المرفقات",
       "intro": "سجل تجريبي لبيئة التطوير لتجربة المرفقات: ارفع ملفًا، وشاهده في القائمة، ونزّله، واحذفه."
+    }
+  },
+  "serviceRequests": {
+    "wizard": {
+      "steps": {
+        "request": {
+          "title": "الطلب",
+          "description": "اختر التصنيف وأدخل عنوانًا لطلبك."
+        },
+        "details": {
+          "title": "التفاصيل",
+          "description": "صف طلبك وطريقة التواصل معك."
+        },
+        "attachments": {
+          "title": "المرفقات والمراجعة",
+          "description": "أرفق المستند المطلوب ثم راجع الطلب وأرسله."
+        }
+      }
+    },
+    "fields": {
+      "categoryId": "التصنيف",
+      "title": "العنوان",
+      "description": "الوصف",
+      "contactPhone": "رقم الجوال للتواصل",
+      "preferredDate": "التاريخ المفضل"
+    },
+    "cards": {
+      "request": "الطلب",
+      "details": "التفاصيل"
+    },
+    "errors": {
+      "SERVICE_REQUESTS_CATEGORY_REQUIRED": "اختر التصنيف.",
+      "SERVICE_REQUESTS_TITLE_REQUIRED": "أدخل العنوان.",
+      "SERVICE_REQUESTS_TITLE_TOO_SHORT": "يجب ألا يقل العنوان عن 5 أحرف.",
+      "SERVICE_REQUESTS_TITLE_TOO_LONG": "يجب ألا يزيد العنوان على 200 حرف.",
+      "SERVICE_REQUESTS_DESCRIPTION_REQUIRED": "أدخل الوصف.",
+      "SERVICE_REQUESTS_DESCRIPTION_TOO_SHORT": "يجب ألا يقل الوصف عن 20 حرفًا.",
+      "SERVICE_REQUESTS_DESCRIPTION_TOO_LONG": "يجب ألا يزيد الوصف على 2000 حرف.",
+      "SERVICE_REQUESTS_CONTACT_PHONE_REQUIRED": "أدخل رقم الجوال.",
+      "SERVICE_REQUESTS_CONTACT_PHONE_INVALID": "أدخل رقم جوال بالشكل 05XXXXXXXX (10 أرقام).",
+      "SERVICE_REQUESTS_PREFERRED_DATE_INVALID": "أدخل تاريخًا صحيحًا.",
+      "SERVICE_REQUESTS_PREFERRED_DATE_IN_PAST": "لا يمكن أن يكون التاريخ المفضل في الماضي.",
+      "SERVICE_REQUESTS_CATEGORY_UNKNOWN": "هذا التصنيف لم يعد متاحاً. اختر تصنيفاً آخر.",
+      "SERVICE_REQUESTS_STEP_INVALID": "خطوة المعالج غير صحيحة. أعد تحميل الصفحة وحاول مرة أخرى."
+    },
+    "devAutofill": {
+      "valid": "تعبئة ببيانات تجريبية صحيحة"
+    },
+    "status": {
+      "draft": {
+        "requester": "مسودة",
+        "staff": "مسودة",
+        "admin": "مسودة"
+      },
+      "submitted": {
+        "requester": "مُرسَل",
+        "staff": "جديد بانتظار المراجعة",
+        "admin": "مُقدَّم"
+      },
+      "under-review": {
+        "requester": "قيد المعالجة",
+        "staff": "قيد المراجعة",
+        "admin": "قيد المراجعة"
+      },
+      "returned": {
+        "requester": "أُعيد إليك لاستكمال التعديلات",
+        "staff": "أُعيد إلى مقدم الطلب",
+        "admin": "أُعيد للتعديل"
+      },
+      "resubmitted": {
+        "requester": "أُعيد إرساله",
+        "staff": "أُعيد تقديمه بانتظار المراجعة",
+        "admin": "أُعيد تقديمه"
+      },
+      "approved": {
+        "requester": "مقبول",
+        "staff": "مقبول",
+        "admin": "مقبول"
+      },
+      "rejected": {
+        "requester": "مرفوض",
+        "staff": "مرفوض",
+        "admin": "مرفوض"
+      },
+      "cancelled": {
+        "requester": "ملغى",
+        "staff": "ألغاه مقدم الطلب",
+        "admin": "ملغى"
+      }
+    },
+    "action": {
+      "submit": "إرسال",
+      "start-review": "بدء المراجعة",
+      "return": "إعادة لاستكمال التعديلات",
+      "resubmit": "إعادة الإرسال",
+      "approve": "قبول",
+      "reject": "رفض",
+      "cancel": "إلغاء الطلب"
+    },
+    "requester": {
+      "nav": {
+        "area": "طلبات الخدمة",
+        "dashboard": "نظرة عامة",
+        "mine": "طلباتي",
+        "new": "طلب جديد"
+      },
+      "dashboard": {
+        "greeting": "طلبات الخدمة الخاصة بك",
+        "kpis": "ملخص طلباتك",
+        "kpi": {
+          "all": "جميع الطلبات",
+          "draft": "المسودات",
+          "submitted": "المُرسَلة",
+          "under-review": "قيد المعالجة",
+          "returned": "المُعادة إليك",
+          "approved": "المقبولة",
+          "rejected": "المرفوضة"
+        },
+        "quick-actions": "إجراءات سريعة",
+        "action-new": "تقديم طلب جديد",
+        "action-mine": "عرض طلباتي",
+        "action-notifications": "عرض إشعاراتي",
+        "recent": "أحدث الطلبات",
+        "recent-empty": "لا توجد لديك طلبات بعد.",
+        "load-failed": "تعذّر تحميل طلباتك.",
+        "retry": "حاول مرة أخرى",
+        "view-all": "عرض جميع طلباتي"
+      },
+      "mine": {
+        "title": "طلباتي",
+        "empty": "لا توجد لديك طلبات بهذه الحالة.",
+        "new": "طلب جديد",
+        "status-filter": "الحالة",
+        "status-all": "جميع الحالات",
+        "no-number": "لم يُرسَل بعد",
+        "open": "عرض",
+        "continue": "متابعة",
+        "columns": {
+          "number": "رقم الطلب",
+          "status": "الحالة",
+          "created": "تاريخ الإنشاء",
+          "submitted": "تاريخ الإرسال"
+        }
+      },
+      "wizard": {
+        "title-new": "طلب خدمة جديد",
+        "title-resume": "متابعة مسودة طلبك",
+        "loading": "جارٍ تحميل المسودة...",
+        "load-failed": "تعذّر فتح المسودة.",
+        "retry": "حاول مرة أخرى",
+        "draft-saved": "حُفظت المسودة. يمكنك متابعتها لاحقًا من طلباتي.",
+        "submit": "إرسال الطلب",
+        "category-placeholder": "اختر التصنيف",
+        "categories-failed": "تعذّر تحميل تصنيفات الطلب.",
+        "phone-hint": "رقم جوال سعودي: 05 ثم 8 أرقام.",
+        "attachments-hint": "أرفق المستند المطلوب، ويمكنك إضافة ملفات داعمة أيضًا.",
+        "attachments-missing": "أرفق المستند المطلوب قبل إرسال الطلب.",
+        "review": "مراجعة طلبك",
+        "back-to-mine": "العودة إلى طلباتي",
+        "success": {
+          "title": "تم إرسال طلبك",
+          "message": "رقم طلبك هو",
+          "view": "عرض الطلب",
+          "mine": "الانتقال إلى طلباتي"
+        }
+      },
+      "detail": {
+        "title": "طلب خدمة",
+        "back": "العودة إلى طلباتي",
+        "continue-draft": "متابعة المسودة",
+        "returned-title": "أُعيد طلبك لاستكمال التعديلات",
+        "rejected-title": "رُفض طلبك",
+        "actions-title": "الإجراءات المتاحة لك"
+      }
+    },
+    "staff": {
+      "nav": "طلبات الخدمة",
+      "queue": {
+        "title": "قائمة طلبات الخدمة",
+        "empty": "لا توجد طلبات في هذا العرض.",
+        "search": "البحث برقم الطلب",
+        "tabs": {
+          "unassigned": "غير مسندة",
+          "mine": "المسندة إليّ",
+          "all": "كل الطلبات"
+        },
+        "filters": {
+          "status": "الحالة",
+          "any-status": "كل الحالات"
+        },
+        "columns": {
+          "number": "رقم الطلب",
+          "status": "الحالة",
+          "owner": "مقدم الطلب",
+          "submitted-at": "تاريخ التقديم",
+          "assignee": "المسند إليه",
+          "sla": "الموعد النهائي"
+        },
+        "unassigned": "غير مسند",
+        "no-sla": "لا يوجد موعد نهائي",
+        "notifications": "الإشعارات",
+        "claimed": "أصبحت تعمل على الطلب {{number}}.",
+        "released": "أُعيد الطلب {{number}} إلى القائمة."
+      },
+      "actions": {
+        "claim": "استلام",
+        "release": "إعادة إلى القائمة"
+      },
+      "detail": {
+        "title": "الطلب {{number}}",
+        "back": "العودة إلى القائمة",
+        "assigned-to": "مسند إلى {{name}}",
+        "not-assigned": "لم يُسند بعد",
+        "attachments": "المرفقات",
+        "steps": "الخطوات المتخذة",
+        "reason-message": "سيظهر هذا السبب لمقدم الطلب.",
+        "decision-done": "تم: {{action}}."
+      },
+      "reference-code": "الرمز المرجعي: {{code}}"
+    },
+    "record": {
+      "card": "الطلب",
+      "number": "رقم الطلب",
+      "owner": "مقدم الطلب",
+      "submitted-at": "تاريخ التقديم",
+      "last-reason": "آخر سبب"
+    },
+    "admin": {
+      "tile": {
+        "title": "كل طلبات الخدمة",
+        "text": "متابعة جميع طلبات الخدمة للاطلاع فقط."
+      },
+      "list": {
+        "title": "كل طلبات الخدمة",
+        "read-only": "عرض للاطلاع فقط. يعالج الموظفون الطلبات من قائمتهم.",
+        "empty": "لا توجد طلبات مطابقة.",
+        "search": "البحث برقم الطلب",
+        "filters": {
+          "status": "الحالة",
+          "any-status": "كل الحالات"
+        },
+        "columns": {
+          "number": "رقم الطلب",
+          "status": "الحالة",
+          "owner": "مقدم الطلب",
+          "submitted-at": "تاريخ التقديم",
+          "updated-at": "آخر تغيير"
+        },
+        "no-number": "مسودة (بلا رقم بعد)",
+        "not-submitted": "لم يُقدَّم"
+      },
+      "detail": {
+        "title": "طلب خدمة",
+        "back": "العودة إلى كل الطلبات",
+        "read-only": "عرض للاطلاع فقط. لا يمكن اتخاذ أي إجراء هنا.",
+        "history": "سجل الطلب"
+      }
+    }
+  },
+  "records": {
+    "cards": {
+      "empty-value": "غير متوفر"
+    },
+    "timeline": {
+      "title": "السجل",
+      "empty": "لا توجد خطوات مسجلة بعد.",
+      "by": "بواسطة {{actor}}",
+      "reason": "السبب",
+      "side": {
+        "requester": "مقدم الطلب",
+        "staff": "الموظف",
+        "system": "النظام"
+      }
+    },
+    "decision": {
+      "title": "القرار",
+      "none": "لا يوجد إجراء متاح على هذا السجل.",
+      "reason": "السبب",
+      "reason-required-hint": "يتطلب هذا الإجراء ذكر السبب.",
+      "reason-optional-hint": "يمكنك إضافة سبب (اختياري).",
+      "reason-required": "أدخل السبب.",
+      "reason-too-long": "لا يتجاوز السبب {{max}} حرفًا.",
+      "counter": "{count} من {max} حرفًا",
+      "cancel": "إلغاء",
+      "reference-code": "الرمز المرجعي: {{code}}"
+    },
+    "sla": {
+      "on-track": "ضمن المهلة",
+      "due-soon": "يقترب موعده",
+      "breached": "متأخر",
+      "due-at": "الموعد النهائي {{date}}"
     }
   }
 }

@@ -14,7 +14,7 @@ export const FlowExitCodes = Object.freeze({
   Environment: 3,
 });
 
-/** The phase-5 and phase-6 exit-criteria flows, by command-line name. */
+/** The phase-5, phase-6 and phase-7 exit-criteria flows, by command-line name. */
 export const FlowNames = Object.freeze({
   /** Admin edits a runtime setting, runs a job and sees its run history. */
   SettingsJobs: 'settings-jobs',
@@ -26,6 +26,8 @@ export const FlowNames = Object.freeze({
   ContactFaq: 'contact-faq',
   /** A PDF is uploaded on the demo record, listed, downloaded; an oversized file is refused in ar and en with a reference code. */
   Attachments: 'attachments',
+  /** Phase 7: a Service Request is filed (draft, resume, submit), reviewed, returned, resubmitted and approved, a second one rejected; ar and en, desktop and phone. */
+  ServiceRequests: 'service-requests',
 });
 
 export const ALL_FLOWS = Object.freeze(Object.values(FlowNames));

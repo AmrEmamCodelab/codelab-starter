@@ -29,7 +29,11 @@ public sealed class HostSurfaceCollectorTests
         Assert.Contains(surface.ConfigKeys, key => key.Key == "Identity:Session:IdleTimeoutMinutes");
         Assert.Contains(surface.Statuses, status => status.Name == "ImportBatchStatus" && status.Owner == "Users");
         Assert.DoesNotContain(surface.Statuses, status => status.FullName.StartsWith(SolutionAssemblies.PlatformPackagePrefix, StringComparison.Ordinal));
-        Assert.DoesNotContain(OpenApiNormalizer.ServersProperty, GeneratedDocSet.Render(surface)[GeneratedFileNames.OpenApi], StringComparison.Ordinal);
+        var documents = GeneratedDocSet.Render(surface);
+        Assert.DoesNotContain(OpenApiNormalizer.ServersProperty, documents[GeneratedFileNames.OpenApi], StringComparison.Ordinal);
+        // Zero or more workflows: the index always exists, and every registered workflow gets its sheet.
+        Assert.Contains(GeneratedFileNames.WorkflowIndex, documents.Keys);
+        Assert.All(surface.Workflows, workflow => Assert.Contains(GeneratedFileNames.Workflow(workflow.RecordType), documents.Keys));
     }
 
     private static void AssertEndpoint(ApiSurface surface, string method, string route, EndpointAccessKind access) =>

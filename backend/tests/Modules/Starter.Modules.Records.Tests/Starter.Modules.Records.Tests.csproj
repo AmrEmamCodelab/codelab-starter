@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unit tests of the Records module: the domain rules (record, timeline entry), the record type registry, the caller's
+    standing and audience, every use case (draft, submit with validators, the interlock and the number, resubmit,
+    cancel, generic transitions, detail, timeline, my records, oversight), the side effects (observers, notifications,
+    isolation), the attachment access, the validators and the EF model, over in-memory fakes of the module and kernel
+    ports on a FakeTimeProvider. The workflow is the test-only record type 'test-record' of Starter.Workflow.Testing;
+    no sample names. No database and no network.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Starter.Modules.Records.Domain.Record" Alias="Record" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Records\Starter.Modules.Records.csproj" />
+    <ProjectReference Include="..\..\Starter.Workflow.Testing\Starter.Workflow.Testing.csproj" />
+  </ItemGroup>
+</Project>

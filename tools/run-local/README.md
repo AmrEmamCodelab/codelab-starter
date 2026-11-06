@@ -12,7 +12,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1               
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoWeb          # API + Attachment service
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoAttachments  # without the Attachment service
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Stop           # stop what a previous run started
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Slot 1         # a second stack next to a running one
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Stop -Slot 1   # stop only slot 1
 ```
+
+### Slots: a second stack next to a running one
+
+A running stack (for example the owner's demo) makes a plain start refuse: its PIDs are recorded and its ports
+answer. `-Slot <n>` (1-9) runs the current tree next to it without touching it:
+
+| | Slot 0 (default) | Slot n (slot 1 shown) |
+| --- | --- | --- |
+| Ports | API 5180, Attachment service 5185, web 4280 | each + n * 100: 5280, 5285, 4380 |
+| State and logs | `%TEMP%\codelab-starter` | `%TEMP%\codelab-starter\slot-<n>` |
+| .NET build output | the project's `bin\Debug` | `slot-<n>\build\<api or attachments>` (`dotnet build -o`), so the DLLs a running stack holds open are never overwritten |
+| Database | as configured | `ConnectionStrings__Starter` (or the development settings) with the database renamed `<name>_Slot<n>`; migrations apply there, never to the other stack's database |
+| Attachment storage | as configured | `slot-<n>\attachments-storage` |
+| Web app | `ng serve` (hot reload) | a frozen development build in `slot-<n>\web`, its `config.json` pointed at the slot's API and Attachment service, served by `static-server.mjs` (unknown routes fall back to `index.html`) |
+
+The slot's API and Attachment service get their web origin (CORS), SSO return URLs, web links and service URL
+through environment overrides (`plan.mjs` `slotOverrides`); no settings file changes. Rebuild the slot web app after
+a frontend change with `-Stop -Slot n` and a new start.
 
 A start:
 
@@ -43,8 +63,11 @@ Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\co
 - Ports, paths, timeouts and names: `lib/constants.mjs`. Decisions (pure, unit-tested): `lib/plan.mjs`. The
   orchestration: `lib/run.mjs`, which reaches the machine only through the `system` object of `lib/system.mjs`, so
   `tests/run.test.mjs` drives it with a fake.
-- A new .NET host: add it to `Services`, `LOG_FILES`, `Urls`, `Timeouts` and `Hosts`, place it in `START_ORDER`, add
-  its decision (and flag) to `plan.mjs`; `run.mjs` builds, starts, records and health-checks every planned host.
+- A new .NET host: add it to `Services`, `LOG_FILES`, `Urls`, `Ports`, `Timeouts` and `Hosts`, place it in
+  `START_ORDER`, add its decision (and flag) to `plan.mjs` and its slot overrides to `slotOverrides`; `run.mjs` builds,
+  starts, records and health-checks every planned host.
+- A setting that names a local URL (a new web link, origin or service URL): add its environment key to
+  `SlotSettings` and set it in `slotOverrides`, or a slot stack points back at the default stack.
 
 ## Rules
 
@@ -63,5 +86,11 @@ Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\co
   starts; stop the other process first.
 - Starting the `Seq` service may need an elevated shell; without it run-local continues without Seq.
 - If a start fails, run-local stops what it started and prints the tail of the failing log.
+- Slots share the browser's `localhost` cookies (cookies ignore the port): signing in to slot 1 in the same browser
+  profile as slot 0 replaces that session. Use a separate profile or a Playwright context per stack.
+- The local DevIdp registers only the slot-0 redirect URIs, so SSO sign-in works in slot 0 only; basic sign-in works
+  in every slot.
+- The first start of a slot builds everything into its own folder (a few minutes); its database is created and
+  migrated on the first API start, empty except for the seeded data and the break-glass user.
 - With `-NoAttachments` the API still runs, but attachment upload tickets, downloads and removals fail until the
   service runs.

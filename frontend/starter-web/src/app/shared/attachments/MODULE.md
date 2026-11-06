@@ -88,5 +88,16 @@ Gate the matching buttons with `*hasPermission`.
 - **One ticket covers one upload.** A retry after any failure starts again from `upload(...)`, which gets a new ticket.
 - **Download goes through the API, never straight to the service.** The response is signed with `UNSIGNED-BODY`
   (`[UnsignedResponse]`). An error body arrives as a `Blob`; `attachmentErrorFrom` decodes it.
+- **A download is a signed fetch, then `FileSaver`; never a link.** `AttachmentsClient.content` calls
+  `ApiService.getBlob`, so the bearer token and the request proof go with it, and `FileSaver` saves the Blob from an
+  object URL. An `<a href>` or `window.open` to the API can carry neither, and is refused 401. The saved name is the
+  list's `fileName`: the API sends no `Content-Disposition`. `attachment-download.signed.spec.ts` proves the whole
+  stack (signed request, verified `UNSIGNED-BODY` answer, Blob saved).
+- **Download managers break downloads that carry `Content-Disposition`.** Internet Download Manager and similar browser
+  integrations intercept such a response in the middle of a `fetch`. The page then gets a bare `204` without
+  `Access-Control-Allow-Origin`, and the console shows `MissingAllowOriginHeader`. The manager then replays the URL
+  without the request proof, and the API log shows 401 `signature_missing`. That was the phase 6 download blocker.
+  The API therefore never sends that header on the content endpoint. If a user still reports this pair of errors,
+  look for a download-manager extension before you look at CORS.
 - **Progress can report 0 percent.** `percent` is 0 while the browser does not know the total, and progress covers
   only the upload to the service, not the link. Show a busy state until the `Linked` event arrives.

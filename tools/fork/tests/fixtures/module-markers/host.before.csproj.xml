@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\Access\Starter.Modules.Access.csproj" />
+    <ProjectReference Include="..\Modules\ServiceRequests\Starter.Modules.ServiceRequests.csproj" /> <!-- codelab:module ServiceRequests -->
+  </ItemGroup>
+  <!-- codelab:module-begin ServiceRequests -->
+  <ItemGroup>
+    <Content Include="service-requests.json" />
+  </ItemGroup>
+  <!-- codelab:module-end ServiceRequests -->
+</Project>

@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Assignments module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs, written to
+# the module anatomy. After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Assignments
+kind: dotnet
+description: "Assignment and queues (module 9): the assignment row history of any record type (RecordAssignment in schema assignments, at most one open row per record), the work queue of every registered record type gated by its queue permission and organization scope, claim / release / assign, the auto-release on a terminal status (IRecordTransitionObserver) and the kernel IRecordAssignmentReader. Record facts come only from the kernel IRecordDirectory port."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Users, Access, Lookups, Audit, Settings, Jobs, Notifications, Portal, Attachments, Records, Deadlines]
+required:
+  - id: assignments.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with an AssignmentsPermissionKeys constant and maps the Outcome with OutcomeResults; record ids on the wire are PublicId<QueueRecordIds> (label records) and user ids PublicId<AssigneeUserIds> (label users).
+    enforcedBy: [contract-test, review]
+  - id: assignments.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (IAssignmentStore, IAssigneeEligibility) or kernel ports (IRecordDirectory, IRecordTypeRegistrationSource, IRecordWorkflowCatalogs, IOrganizationScope, IUserDirectory, IAccountAdministration, IRecordSlaReader); the implementations live in Infrastructure or in the module that owns the data.
+    enforcedBy: [architecture-test, review]
+  # Tested by RecordAssignmentTests, ClaimRecordTests, AssignRecordTests and the real-SQL QueueHttpTests race test.
+  - id: assignments.row-history
+    statement: An assignment is a row of assignments.RecordAssignments, never a column on a record; a row is opened once and closed once (ReleasedAt, ReleaseReason, ReleasedByUserId), never deleted or reopened, and the filtered unique index allows one open row per record so the database decides concurrent claims.
+    enforcedBy: [review]
+  # Tested by RecordQueuesTests and WorkQueueTests (org scope, forbidden queue).
+  - id: assignments.queue-gate
+    statement: Every queue read and write opens the queue through RecordQueues, which requires the record type's RecordTypeRegistration.QueuePermissionKey and narrows by its organization scope; a record outside the scope answers 404 RECORDS_NOT_FOUND, exactly like a missing one.
+    enforcedBy: [review]
+forbidden:
+  - id: assignments.no-module-reference
+    description: Assignments works for any record type through kernel ports; a reference to another module (Records, the sample, Identity, Access, ...) couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?!Assignments(?![A-Za-z0-9_]))[A-Z][A-Za-z0-9]*'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (IRecordDirectory for record facts, IOrganizationScope for scope, IAccountAdministration for names).
+recipes: [docs/recipes/add-endpoint.md]

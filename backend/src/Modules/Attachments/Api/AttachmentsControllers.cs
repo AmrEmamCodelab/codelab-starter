@@ -128,7 +128,7 @@ public sealed class RecordAttachmentsController(
 public sealed class AttachmentContentController(DownloadAttachment downloadAttachment) : ControllerBase
 {
     /// <summary>
-    /// The file (<c>Content-Disposition: attachment</c>, nosniff); 404 for a missing or removed attachment, a record
+    /// The file (no <c>Content-Disposition</c>: the SPA names the saved Blob; nosniff, sandboxed); 404 for a missing or removed attachment, a record
     /// the user may not view, or bytes the service no longer has; 503 when the service is unreachable.
     /// </summary>
     [HttpGet(AttachmentsRoutes.Content)]

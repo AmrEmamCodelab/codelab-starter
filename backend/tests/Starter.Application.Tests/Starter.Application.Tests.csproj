@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Starter.Application\Starter.Application.csproj" />
+    <ProjectReference Include="..\Starter.Workflow.Testing\Starter.Workflow.Testing.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,118 @@
+{
+  "kind": "codelab-flows",
+  "baseUrl": "http://localhost:4380",
+  "browserVersion": "156.0.4314.58",
+  "startedAt": "2026-11-06T22:45:00.736Z",
+  "finishedAt": "2026-11-06T22:45:35.569Z",
+  "passed": false,
+  "flows": [
+    {
+      "name": "service-requests",
+      "status": "failed",
+      "steps": [
+        {
+          "title": "Set-up: the admin grants dev.viewer the requester keys for the run",
+          "status": "passed",
+          "detail": "granted service-requests.create, service-requests.view-own, attachments.view, attachments.upload",
+          "screenshot": "service-requests-01.png"
+        },
+        {
+          "title": "[ar-1440] Requester and reviewer sign in",
+          "status": "passed",
+          "detail": "requester dev.viewer, reviewer breakglass",
+          "screenshot": "service-requests-02.png"
+        },
+        {
+          "title": "[ar-1440] 1a. Requester fills the 3-step wizard, attaches a PDF and saves the draft",
+          "status": "failed",
+          "detail": "locator.setInputFiles: Timeout 30000ms exceeded.",
+          "screenshot": "service-requests-03.png"
+        },
+        {
+          "title": "[ar-1440] 1b. Requester resumes the draft from My requests and submits it",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 2. Reviewer sees it in the queue, claims it and starts the review",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 3. Requester sees the status update and a new notification",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 4a. The return dialog blocks an empty reason",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 4b. Reviewer returns it with a reason",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 5. Requester sees the reason and resubmits",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 6. Reviewer approves; the request is terminal with no further actions",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 7a. The timeline shows every step with its actor",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 7b. The admin sees it read-only in the oversight",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 8a. Requester files a second request",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 8b. Reviewer rejects it with a reason; it is terminal",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "[ar-1440] 8c. Requester sees the rejection reason and has no resubmit action",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "Summary: the record numbers this run produced",
+          "status": "skipped",
+          "detail": "an earlier step failed",
+          "screenshot": null
+        },
+        {
+          "title": "Clean-up: the requester keys granted for the run are taken back",
+          "status": "passed",
+          "detail": "revoked service-requests.create, service-requests.view-own, attachments.view, attachments.upload",
+          "screenshot": "service-requests-17.png"
+        }
+      ]
+    }
+  ]
+}

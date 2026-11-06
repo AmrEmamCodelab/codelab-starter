@@ -7,7 +7,10 @@ to give its own connection string. It owns:
 
 - **Templates** (`notifications.NotificationTemplates`): one text per key, channel and language, seeded **only by
   migrations**. Placeholders are `{{camelCase}}`. Seeded keys (`NotificationTemplateKeys`): `account-activation`
-  (e-mail), `contact-received` (e-mail), `test-notification` (in-app, e-mail, SMS), each in Arabic and English.
+  (e-mail), `contact-received` (e-mail), `test-notification` (in-app, e-mail, SMS), each in Arabic and English;
+  migration `AddServiceRequestTemplates` adds the deletable sample's `service-requests.submitted`, `.under-review`,
+  `.returned`, `.resubmitted`, `.approved`, `.rejected`, `.cancelled` and `.sla-escalation` (in-app and e-mail,
+  placeholder `{{recordNumber}}`, plus `{{dueAt}}` in the escalation). Those rows stay when the sample is removed.
 - **Notifications** (`notifications.Notifications`): a user's bell item (title and body rendered at once in Arabic
   and English, a link, a read time) plus the delivery state of its e-mail and SMS channels (`ChannelDeliveryState`:
   NotRequested 1, Pending 2, Sent 3, NoAddress 4, Disabled 5), or an e-mail to an address that is no user's. The

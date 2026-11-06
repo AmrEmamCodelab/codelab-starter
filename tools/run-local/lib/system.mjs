@@ -13,6 +13,8 @@ const APPEND = 'a';
 export function createSystem() {
   return {
     env: process.env,
+    /** The Node that runs run-local (run-local.ps1 puts the private Node first): it builds and serves a slot web app. */
+    nodeExecutable: process.execPath,
     stateDir: path.join(os.tmpdir(), STATE_DIR_NAME),
     exists: (file) => fs.existsSync(file),
     /** The sub-folder names of `dir` ([] when it does not exist). */

@@ -1810,7 +1810,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record
+         * The file (no `Content-Disposition`: the SPA names the saved Blob; nosniff, sandboxed); 404 for a missing or removed attachment, a record
          *     the user may not view, or bytes the service no longer has; 503 when the service is unreachable.
          */
         get: {
@@ -2910,6 +2910,471 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/queues/{recordType}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One page of the queue in a view (`unassigned`, `mine`, `all`); 400, 403, 404. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Part of the record number, or null. */
+                    Number?: string;
+                    /** @description The 1-based page, or null. */
+                    Page?: number | string;
+                    /** @description The page size, or null. */
+                    PageSize?: number | string;
+                    /** @description One open status value, or null for all of them. */
+                    Status?: number | string;
+                    /** @description The earliest first-submit instant (ISO 8601), or null. */
+                    SubmittedFrom?: string;
+                    /** @description The first-submit instant the range ends before (ISO 8601), or null. */
+                    SubmittedTo?: string;
+                    /** @description The view word: `unassigned`, `mine` or `all` (required). */
+                    View?: string;
+                };
+                header?: never;
+                path: {
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WorkQueueResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/queues/{recordType}/{id}/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hands the record to `userId`: 204; 400 not eligible, 403, 404, 409. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["AssignRecordCommand"];
+                    "application/json": components["schemas"]["AssignRecordCommand"];
+                    "text/json": components["schemas"]["AssignRecordCommand"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/queues/{recordType}/{id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The caller takes the record: 204; 403, 404, 409 already claimed or not assignable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/queues/{recordType}/{id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The caller gives the record back: 204; 403 not the assignee, 404. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{recordType}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One record for the caller's audience with the actions the caller may take now; 404 when missing or hidden. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordDetailResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{recordType}/{id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The record's timeline, oldest first; 404 when missing or hidden. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TimelineEntryResponse"][];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{recordType}/{id}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Takes one action and answers the record's new detail: 400 (reason required or too long, or a submit that fails
+         *     validation), 403 (not the caller's action), 404 (missing, hidden or unknown action), 409 (not allowed from the
+         *     current status, required attachments missing, a concurrent change).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["TransitionCommand"];
+                    "application/json": components["schemas"]["TransitionCommand"];
+                    "text/json": components["schemas"]["TransitionCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordDetailResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/records/{recordType}/{recordId}/attachments": {
         parameters: {
             query?: never;
@@ -3092,6 +3557,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/records/{recordType}/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's own records of the type, newest first (drafts included); 403 without the view-own permission, 404 for an unknown type. */
+        get: {
+            parameters: {
+                query?: {
+                    number?: string;
+                    page?: number | string;
+                    pageSize?: number | string;
+                    status?: number | string;
+                };
+                header?: never;
+                path: {
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordPageResponseOfRecordListItemResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{recordType}/oversight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every submitted record of the type with its owner, read-only (no allowed actions); 400 for a number filter too long. */
+        get: {
+            parameters: {
+                query?: {
+                    number?: string;
+                    page?: number | string;
+                    pageSize?: number | string;
+                    status?: number | string;
+                };
+                header?: never;
+                path: {
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordPageResponseOfRecordListItemResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/security/session-signing-key": {
         parameters: {
             query?: never;
@@ -3130,6 +3717,262 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/service-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Creates an empty draft owned by the caller: 201 `{ id }`. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedServiceRequestResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/service-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The request's fields for the detail cards. Signed-in users only; the use case lets through the owner (with
+         *     `service-requests.view-own`) and queue holders whose scope reaches it, and answers 404 to anyone else.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ServiceRequestDetailsResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/service-requests/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's draft for the wizard to resume; 404 when missing or not the caller's. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ServiceRequestDraftResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        /** Saves one wizard step: 204; 400 with field errors; 404; 409 once the request is not editable. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["SaveServiceRequestDraftCommand"];
+                    "application/json": components["schemas"]["SaveServiceRequestDraftCommand"];
+                    "text/json": components["schemas"]["SaveServiceRequestDraftCommand"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/service-requests/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submits the draft: 200 `{ number }`; 400 `VALIDATION_FAILED` with the field errors of every incomplete
+         *     step; 404; 409 `ATTACHMENTS_REQUIRED_MISSING` or `RECORDS_NOT_SUBMITTABLE`.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubmittedServiceRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3201,6 +4044,24 @@ export interface components {
              */
             expiresAt: string;
         };
+        /** @description One action the caller may take now. */
+        AllowedActionResponse: {
+            /** @description The key to send back. */
+            actionKey: string;
+            /** @description The button label key. */
+            labelKey: string;
+            /** @description Whether a reason is asked (1 none, 2 optional, 3 required). */
+            reason: components["schemas"]["ReasonRequirement"];
+            /** @description The reason's field, or null. */
+            reasonFieldKey: null | string;
+            /**
+             * Format: int32
+             * @description The status the record lands on.
+             */
+            toStatus: number | string;
+            /** @description True when the action closes the record. */
+            toTerminal: boolean;
+        };
         /** @description An assigned role of a grants response. */
         AssignedRoleResponse: {
             /** @description The stable code. */
@@ -3215,6 +4076,11 @@ export interface components {
             roleId: components["schemas"]["PublicIdOfRoleIds"];
             /** @description Global (1) or own organization (2). */
             scope: components["schemas"]["PermissionScope"];
+        };
+        /** @description The body of `POST api/queues/{recordType}/{id}/assign`, validated by AssignRecordValidator. */
+        AssignRecordCommand: {
+            /** @description The PublicId of the user who will hold the record. */
+            userId: components["schemas"]["PublicIdOfAssigneeUserIds"];
         };
         /** @description One active attachment type of `GET /api/attachments/types?recordType={key}`. */
         AttachmentTypeResponse: {
@@ -3275,6 +4141,11 @@ export interface components {
         ContactReceiptResponse: {
             /** @description The reference number, `CU-YYYY-NNN`. */
             referenceNumber: string;
+        };
+        /** @description The answer of the create endpoint. */
+        CreatedServiceRequestResponse: {
+            /** @description The new record's PublicId. */
+            id: components["schemas"]["PublicIdOfServiceRequestRecordIds"];
         };
         /** @description The body of a successful `POST /api/admin/users` (201). */
         CreatedUserResponse: {
@@ -3710,6 +4581,11 @@ export interface components {
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
          */
+        PublicIdOfAssigneeUserIds: WireId<'public-id-of-assignee-user'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
         PublicIdOfAttachableRecordIds: WireId<'public-id-of-attachable-record'>;
         /**
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
@@ -3755,7 +4631,32 @@ export interface components {
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
          */
+        PublicIdOfQueueRecordIds: WireId<'public-id-of-queue-record'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfRecordAttachmentIds: WireId<'public-id-of-record-attachment'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfRecordsIds: WireId<'public-id-of-records'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfRecordUserIds: WireId<'public-id-of-record-user'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
         PublicIdOfRoleIds: WireId<'public-id-of-role'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfServiceRequestRecordIds: WireId<'public-id-of-service-request-record'>;
         /**
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -3793,6 +4694,42 @@ export interface components {
             /** @description The ordinary roles the user holds after the write. */
             roles: components["schemas"]["RoleAssignmentInput"][];
         };
+        /** @description Who holds a queue record. */
+        QueueAssigneeResponse: {
+            /**
+             * Format: date-time
+             * @description When the current assignment started.
+             */
+            assignedAt: string;
+            /** @description The assignee's display name. */
+            displayName: string;
+            /** @description The assignee's PublicId (family `users`). */
+            userId: components["schemas"]["PublicIdOfAssigneeUserIds"];
+        };
+        /** @description A queue record's SLA badge. */
+        QueueSlaResponse: {
+            /**
+             * Format: date-time
+             * @description The deadline of the current status.
+             */
+            dueAt: string;
+            /** @description On track (1), due soon (2) or breached (3). */
+            state: components["schemas"]["SlaState"];
+        };
+        /** @description Whether a transition takes a reason from the actor. Values are sent on the wire; never renumber a member. */
+        ReasonRequirement: number;
+        /** @description Who currently works on the record. */
+        RecordAssigneeResponse: {
+            /**
+             * Format: date-time
+             * @description Since when.
+             */
+            assignedAt: string;
+            /** @description The assignee's name. */
+            displayName: string;
+            /** @description The assignee (family `users`). */
+            userId: components["schemas"]["PublicIdOfRecordUserIds"];
+        };
         /** @description One live attachment of a record (list item and the 201 body of a link). */
         RecordAttachmentResponse: {
             /** @description The MIME type (from the extension, never from the client). */
@@ -3820,6 +4757,120 @@ export interface components {
             items: components["schemas"]["RecordAttachmentResponse"][];
             /** @description The required types with no attachment yet (the interlock's answer). */
             missingRequiredTypeKeys: string[];
+        };
+        /** @description The body of `GET api/records/{recordType}/{id}` and of a transition. */
+        RecordDetailResponse: {
+            /** @description What the caller may do now (empty when terminal and for oversight). */
+            allowedActions: components["schemas"]["AllowedActionResponse"][];
+            assignee: null | components["schemas"]["RecordAssigneeResponse"];
+            /** @description The record type of its attachment routes. */
+            attachableRecordType: string;
+            /** @description The record id in the attachment routes' family (`attachable-records`). */
+            attachmentsRecordId: components["schemas"]["PublicIdOfRecordAttachmentIds"];
+            /** @description How the caller sees the record (1 requester, 2 staff, 3 admin). */
+            audience: components["schemas"]["WorkflowAudience"];
+            /**
+             * Format: date-time
+             * @description When it was created.
+             */
+            createdAt: string;
+            /** @description The record id (family `records`). */
+            id: components["schemas"]["PublicIdOfRecordsIds"];
+            /** @description True when closed. */
+            isTerminal: boolean;
+            /** @description The reason of the latest timeline entry, or null. */
+            lastReason: null | string;
+            /** @description The reference number, or null. */
+            number: null | string;
+            /** @description The owner's display name. */
+            ownerDisplayName: string;
+            /** @description The record type key. */
+            recordType: string;
+            sla: null | components["schemas"]["RecordSlaResponse"];
+            /**
+             * Format: int32
+             * @description The status value.
+             */
+            status: number | string;
+            /** @description The status key. */
+            statusKey: string;
+            /**
+             * Format: date-time
+             * @description When first submitted, or null.
+             */
+            submittedAt: null | string;
+            /**
+             * Format: date-time
+             * @description When it last changed status.
+             */
+            updatedAt: string;
+            /** @description The status wording keys of every audience. */
+            wording: components["schemas"]["StatusWordingResponse"];
+        };
+        /** @description One record in a list (`mine`; `oversight` adds the owner). */
+        RecordListItemResponse: {
+            /**
+             * Format: date-time
+             * @description When it was created.
+             */
+            createdAt: string;
+            /** @description The record id (family `records`). */
+            id: components["schemas"]["PublicIdOfRecordsIds"];
+            /** @description True when closed. */
+            isTerminal: boolean;
+            /** @description The reference number, or null until submitted. */
+            number: null | string;
+            /** @description The owner's display name (oversight only; null in `mine`). */
+            ownerDisplayName: null | string;
+            /** @description The record type key. */
+            recordType: string;
+            /**
+             * Format: int32
+             * @description The status value.
+             */
+            status: number | string;
+            /** @description The status key. */
+            statusKey: string;
+            /**
+             * Format: date-time
+             * @description When it was first submitted, or null.
+             */
+            submittedAt: null | string;
+            /**
+             * Format: date-time
+             * @description When it last changed status.
+             */
+            updatedAt: string;
+        };
+        /** @description A page of a list endpoint (`page` is 1-based). */
+        RecordPageResponseOfRecordListItemResponse: {
+            /** @description The items. */
+            items: components["schemas"]["RecordListItemResponse"][];
+            /**
+             * Format: int32
+             * @description The page.
+             */
+            page: number | string;
+            /**
+             * Format: int32
+             * @description The page size.
+             */
+            pageSize: number | string;
+            /**
+             * Format: int32
+             * @description Every match.
+             */
+            total: number | string;
+        };
+        /** @description The record's deadline badge. */
+        RecordSlaResponse: {
+            /**
+             * Format: date-time
+             * @description When the current status is due.
+             */
+            dueAt: string;
+            /** @description 1 on track, 2 due soon, 3 breached. */
+            state: components["schemas"]["SlaState"];
         };
         /** @description The body of `POST /api/auth/refresh`. */
         RefreshCommand: {
@@ -3892,6 +4943,32 @@ export interface components {
             permissionCount: number | string;
             virtualKind: null | components["schemas"]["VirtualRoleKind"];
         };
+        /**
+         * @description The body of `PUT api/service-requests/{id}/draft`: the draft fields as the wizard holds them, plus the step
+         *     being saved. Only that step's fields are validated and written; the others are ignored (they keep what their own
+         *     step saved), so a stored draft never holds a field its step did not accept.
+         */
+        SaveServiceRequestDraftCommand: {
+            /** @description The category value's PublicId token (family `lookup-items`). */
+            categoryId: null | string;
+            /** @description The contact phone. */
+            contactPhone: null | string;
+            /** @description The description. */
+            description: null | string;
+            /** @description The step, or null when the body names none or an undefined one. */
+            draftStep?: components["schemas"]["ServiceRequestDraftStep"];
+            /** @description The wizard fields of the body. */
+            input?: components["schemas"]["ServiceRequestInput"];
+            /** @description The preferred date, `YYYY-MM-DD`. */
+            preferredDate: null | string;
+            /**
+             * Format: int32
+             * @description The wizard step (1, 2 or 3).
+             */
+            step: null | number | string;
+            /** @description The title. */
+            title: null | string;
+        };
         /** @description One section of a replace. */
         SectionInput: {
             /** @description The Arabic body (plain text, paragraphs separated by a blank line). */
@@ -3908,6 +4985,57 @@ export interface components {
             titleAr: null | string;
             /** @description The English title (plain text). */
             titleEn: null | string;
+        };
+        /**
+         * @description The fields of a service request for its detail cards. Every field but string? ServiceRequestDetailsResponse.Number and
+         *     string? ServiceRequestDetailsResponse.PreferredDate is set once submitted; the category names are null when the value was retired.
+         */
+        ServiceRequestDetailsResponse: {
+            /** @description The category value's PublicId token. */
+            categoryId: null | string;
+            /** @description The category's Arabic name. */
+            categoryNameAr: null | string;
+            /** @description The category's English name. */
+            categoryNameEn: null | string;
+            /** @description The contact phone. */
+            contactPhone: null | string;
+            /** @description The description. */
+            description: null | string;
+            /** @description The record's PublicId. */
+            id: components["schemas"]["PublicIdOfServiceRequestRecordIds"];
+            /** @description The reference number, or null before the submit. */
+            number: null | string;
+            /** @description The preferred date (`YYYY-MM-DD`), or null. */
+            preferredDate: null | string;
+            /** @description The title. */
+            title: null | string;
+        };
+        /** @description A draft as the wizard resumes it (every field null until its step is saved). */
+        ServiceRequestDraftResponse: {
+            /** @description The category value's PublicId token (family `lookup-items`), or null. */
+            categoryId: null | string;
+            /** @description The contact phone, or null. */
+            contactPhone: null | string;
+            /** @description The description, or null. */
+            description: null | string;
+            /** @description The record's PublicId. */
+            id: components["schemas"]["PublicIdOfServiceRequestRecordIds"];
+            /** @description The preferred date (`YYYY-MM-DD`), or null. */
+            preferredDate: null | string;
+            /** @description The title, or null. */
+            title: null | string;
+        };
+        ServiceRequestDraftStep: number;
+        /**
+         * @description The wizard fields as text, exactly as the client sends them (every one may be null or absent). The category is the
+         *     lookup value's PublicId token; the preferred date is `YYYY-MM-DD`.
+         */
+        ServiceRequestInput: {
+            categoryId: null | string;
+            contactPhone: null | string;
+            description: null | string;
+            preferredDate: null | string;
+            title: null | string;
         };
         /** @description The body of a successful login or refresh. */
         SessionResponse: {
@@ -3983,6 +5111,8 @@ export interface components {
          *     client labels it from its ar and en bundles.
          */
         SettingValueType: number;
+        /** @description Where a record stands against the deadline of its current status (stored nowhere; sent as its int value). */
+        SlaState: number;
         /** @description The body of `POST /api/auth/sso/exchange`. */
         SsoExchangeCommand: {
             /** @description The binding secret whose hash started the sign-in (required: without it the ticket is rejected). */
@@ -3994,6 +5124,15 @@ export interface components {
         SsoLogoutResponse: {
             /** @description The identity provider's end_session URL; open it with a top-level GET (not fetch). */
             endSessionUrl: string;
+        };
+        /** @description The status wording keys of one status, one per audience. */
+        StatusWordingResponse: {
+            /** @description The oversight key. */
+            adminKey: string;
+            /** @description The requester screens' key. */
+            requesterKey: string;
+            /** @description The staff screens' key. */
+            staffKey: string;
         };
         StringSegment: {
             buffer?: null | string;
@@ -4023,6 +5162,51 @@ export interface components {
              */
             topicId: null | number | string;
         };
+        /** @description The answer of the submit endpoint. */
+        SubmittedServiceRequestResponse: {
+            /** @description The reference number, for example `SR-2026-001`. */
+            number: string;
+        };
+        /** @description One timeline entry. */
+        TimelineEntryResponse: {
+            /** @description The action key. */
+            actionKey: string;
+            /** @description The actor's name at the time. */
+            actorDisplayName: string;
+            /**
+             * Format: date-time
+             * @description When it happened.
+             */
+            at: string;
+            /**
+             * Format: int32
+             * @description The status before, or null for the first entry.
+             */
+            fromStatus: null | number | string;
+            /** @description The reason, or null. */
+            reason: null | string;
+            /** @description 1 requester, 2 staff, 3 system. */
+            side: components["schemas"]["TransitionSide"];
+            /**
+             * Format: int32
+             * @description The status after.
+             */
+            toStatus: number | string;
+            /** @description The key of the status after. */
+            toStatusKey: string;
+        };
+        /** @description The body of `POST api/records/{recordType}/{id}/transitions`. */
+        TransitionCommand: {
+            /** @description The action key (one of the record's allowed actions). */
+            action: null | string;
+            /** @description The reason, or null; the workflow decides whether it is required and how long it may be. */
+            reason: null | string;
+        };
+        /**
+         * @description Which side of the counter takes a transition: the requester screens, the staff screens or a background job. The
+         *     allowed actions offered to a screen are those of its side. Values are stored and sent on the wire.
+         */
+        TransitionSide: number;
         /** @description The answer to "run now": the queued run's PublicId (its outcome appears in the run history). */
         TriggeredJobRunResponse: {
             /** @description The queued run's PublicId. */
@@ -4183,6 +5367,54 @@ export interface components {
             roleId: components["schemas"]["PublicIdOfRoleIds"];
             /** @description Which users it reaches (int). */
             virtualKind: components["schemas"]["VirtualRoleKind"];
+        };
+        /**
+         * @description Who reads a status: each audience has its own wording for the same status (the requester sees "With the team",
+         *     staff see "Under review"). Values are stored and sent on the wire; never renumber a member.
+         */
+        WorkflowAudience: number;
+        /** @description One record of `GET api/queues/{recordType}`. */
+        WorkQueueItemResponse: {
+            assignee: null | components["schemas"]["QueueAssigneeResponse"];
+            /** @description The record's PublicId (family `records`; opens the record detail). */
+            id: components["schemas"]["PublicIdOfQueueRecordIds"];
+            /** @description The reference number. */
+            number: string;
+            /** @description The requester's display name. */
+            ownerDisplayName: string;
+            sla: null | components["schemas"]["QueueSlaResponse"];
+            /**
+             * Format: int32
+             * @description The status value.
+             */
+            status: number | string;
+            /** @description The status's wire key (the client builds the i18n key from it). */
+            statusKey: string;
+            /**
+             * Format: date-time
+             * @description When the record was first submitted.
+             */
+            submittedAt: string;
+        };
+        /** @description The body of `GET api/queues/{recordType}`. */
+        WorkQueueResponse: {
+            /** @description The page's records. */
+            items: components["schemas"]["WorkQueueItemResponse"][];
+            /**
+             * Format: int32
+             * @description The 1-based page.
+             */
+            page: number | string;
+            /**
+             * Format: int32
+             * @description The page size used.
+             */
+            pageSize: number | string;
+            /**
+             * Format: int32
+             * @description The number of matching records on every page.
+             */
+            total: number | string;
         };
     };
     responses: never;

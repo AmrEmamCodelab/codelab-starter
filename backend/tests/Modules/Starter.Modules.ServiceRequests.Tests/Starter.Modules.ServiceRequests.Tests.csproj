@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Tests of the deletable ServiceRequests sample, kept here ONLY (deleting the module deletes them):
+    - unit tests over in-memory fakes of the kernel ports: the transition table walked with TransitionFixture (every
+      path, terminal statuses offer nothing), the wizard rules, the use cases, the submit validator and the access rule;
+    - the backend half of the FE/BE validation parity contract (reads
+      frontend/starter-web/src/app/features/service-requests/data/validation-parity.fixtures.json from the repo root);
+    - the seed migrations this sample adds to Lookups, Attachments and Notifications, checked against its constants;
+    - real-SQL HTTP tests through the real host (Http/, trait Category=Http) on a throwaway database p7_sr_<guid>
+      (LocalDB by default, CODELAB_TEST_SQL overrides the server), dropped afterwards. They need the Records module
+      and this module referenced by Starter.Api.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup Label="The source folder, so tests find the repository root even when built with --artifacts-path elsewhere">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>SourceProjectDirectory</_Parameter1>
+      <_Parameter2>$(MSBuildProjectDirectory)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup Label="Test host support shared with Starter.Contract.Tests">
+    <Compile Include="..\..\Starter.Contract.Tests\Support\Hosting\StarterApiFactory.cs" Link="Shared\Hosting\StarterApiFactory.cs" />
+    <Compile Include="..\..\Starter.Contract.Tests\Support\Hosting\StarterHostSettings.cs" Link="Shared\Hosting\StarterHostSettings.cs" />
+    <Compile Include="..\..\Starter.Contract.Tests\Support\Hosting\StarterTestAccounts.cs" Link="Shared\Hosting\StarterTestAccounts.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\ServiceRequests\Starter.Modules.ServiceRequests.csproj" />
+    <ProjectReference Include="..\..\..\src\Starter.Api\Starter.Api.csproj" />
+    <ProjectReference Include="..\..\Starter.Workflow.Testing\Starter.Workflow.Testing.csproj" />
+  </ItemGroup>
+</Project>

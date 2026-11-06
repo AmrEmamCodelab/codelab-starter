@@ -17,6 +17,50 @@ export const Urls = Object.freeze({
   attachments: 'http://localhost:5185',
   seqDefault: 'http://localhost:5341',
 });
+
+/**
+ * Side-by-side stacks (--slot / -Slot): slot 0 is the default stack above; slot n (1..max) moves every port up by
+ * n * portStep (slot 1: API :5280, Attachment service :5285, web :4380), keeps its own state folder, build output,
+ * database and attachment storage, and serves a frozen development build of the web app instead of ng serve, so a
+ * reviewer can run the current tree next to a running default stack without touching it.
+ */
+export const Slots = Object.freeze({ default: 0, max: 9, portStep: 100 });
+export const LOCALHOST = 'http://localhost';
+/** The default-slot ports (the ports of Urls). */
+export const Ports = Object.freeze({ api: 5180, attachments: 5185, web: 4280 });
+/** %TEMP%\codelab-starter\slot-<n>: the state, logs and build output of slot n. */
+export const SLOT_DIR_PREFIX = 'slot-';
+export const SLOT_BUILD_DIR = 'build';
+export const SLOT_WEB_DIR = 'web';
+export const SLOT_STORAGE_DIR = 'attachments-storage';
+/** The database of slot n is the configured database name with this suffix and n (StarterDev -> StarterDev_Slot1). */
+export const SLOT_DATABASE_SUFFIX = '_Slot';
+/** The connection-string keys that name the database. */
+export const DATABASE_KEYS = Object.freeze(['database', 'initial catalog']);
+/** The API's development settings (the connection string a slot renames when it is not overridden). */
+export const API_DEVELOPMENT_SETTINGS = 'backend/src/Starter.Api/appsettings.Development.json';
+/** The Angular build output's browser folder and the runtime config the slot web app rewrites. */
+export const WEB_BROWSER_DIR = 'browser';
+export const WEB_RUNTIME_CONFIG = 'config.json';
+export const ANGULAR_CLI = 'node_modules/@angular/cli/bin/ng.js';
+export const ANGULAR_BUILD_ARGUMENTS = Object.freeze(['build', '--configuration', 'development', '--output-path']);
+/** The web app's prebuild step (npm run build runs it first; a slot build calls it directly). */
+export const ICONS_SUBSET_SCRIPT = 'tools/icons-subset.mjs';
+export const ICONS_SUBSET_ARGUMENTS = Object.freeze(['--out', 'src/generated/icons']);
+export const STATIC_SERVER_SCRIPT = 'tools/run-local/static-server.mjs';
+/** Configuration keys a slot overrides through the environment (ASP.NET Core double-underscore form). */
+export const SlotSettings = Object.freeze({
+  apiCorsOrigin: 'Codelab__Security__Cors__AllowedOrigins__0',
+  ssoRedirectUri: 'Codelab__Identity__Sso__RedirectUri',
+  ssoPostLogoutRedirectUri: 'Codelab__Identity__Sso__PostLogoutRedirectUri',
+  webBaseUrl: 'Auth__WebBaseUrl',
+  activationLinkBaseUrl: 'Users__Activation__LinkBaseUrl',
+  attachmentsBaseUrl: 'Attachments__ServiceBaseUrl',
+  attachmentsCorsOrigin: 'Attachments__Cors__AllowedOrigins__0',
+  attachmentsStorageRoot: 'Attachments__Storage__RootPath',
+});
+export const SSO_CALLBACK_PATH = '/api/auth/sso/signin-oidc';
+export const LOGIN_PATH = '/login';
 /** Codelab.Observability HealthEndpoints.ReadyPath (MapCodelabHealth maps /health/live and /health/ready). */
 export const READY_PATH = '/health/ready';
 export const API_HEALTH_PATH = READY_PATH;
@@ -80,6 +124,8 @@ export const Services = Object.freeze({
   api: { name: 'api', image: 'dotnet.exe' },
   attachments: { name: 'attachments', image: 'dotnet.exe' },
   web: { name: 'web', image: 'cmd.exe' },
+  /** The web app of a slot: the static server of its frozen build. */
+  slotWeb: { name: 'web', image: 'node.exe' },
 });
 
 /** Timeouts (milliseconds). The first API start builds the solution; the first web start builds the bundle. */
@@ -87,14 +133,18 @@ export const Timeouts = Object.freeze({
   api: 4 * 60 * 1000,
   attachments: 4 * 60 * 1000,
   web: 6 * 60 * 1000,
+  /** A slot web app is built before it starts, so its static server answers within seconds. */
+  slotWeb: 60 * 1000,
   probe: 3 * 1000,
   pollInterval: 2 * 1000,
 });
 export const LOG_TAIL_CHARACTERS = 4000;
 
 /** CLI flags (run-local.ps1 maps -Stop, -NoWeb, -NoSeq, -NoAttachments onto them). */
-export const Flags = Object.freeze({ stop: '--stop', noWeb: '--no-web', noSeq: '--no-seq', noAttachments: '--no-attachments', root: '--root', help: '--help' });
-export const USAGE = 'Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--no-attachments] [--root <dir>]';
+export const Flags = Object.freeze({
+  stop: '--stop', noWeb: '--no-web', noSeq: '--no-seq', noAttachments: '--no-attachments', root: '--root', slot: '--slot', help: '--help',
+});
+export const USAGE = 'Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--no-attachments] [--slot <0-9>] [--root <dir>]';
 
 /**
  * The .NET hosts run-local builds and runs (each: build the project, run its assembly detached from the project

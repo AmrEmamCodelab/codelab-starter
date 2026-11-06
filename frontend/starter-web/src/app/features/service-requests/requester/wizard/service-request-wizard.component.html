@@ -1,0 +1,151 @@
+<section class="sr-wizard" aria-labelledby="sr-wizard-title">
+  <header class="sr-wizard__header">
+    <h1 class="sr-wizard__title" id="sr-wizard-title">{{ titleKey() | t }}</h1>
+    <a class="sr-wizard__back" [routerLink]="links.mine">{{ keys.BackToMine | t }}</a>
+  </header>
+
+  @switch (store.load()) {
+    @case (loadStates.Loading) {
+      <p class="sr-wizard__loading" role="status" data-testid="sr-wizard-loading">{{ keys.Loading | t }}</p>
+    }
+    @case (loadStates.Failed) {
+      <div class="sr-wizard__load-failed" role="alert" data-testid="sr-wizard-load-failed">
+        <p class="sr-wizard__error-text">{{ keys.LoadFailed | t }}</p>
+        @if (loadErrorKey(); as messageKey) {
+          <p class="sr-wizard__error-text">{{ messageKey | t }}</p>
+        }
+        <dga-button variant="secondary-outline" size="sm" data-public-action data-testid="sr-wizard-retry" (click)="retry()">
+          {{ keys.Retry | t }}
+        </dga-button>
+      </div>
+    }
+    @default {
+      @if (store.submittedNumber(); as number) {
+        <div class="sr-wizard__success" role="status" data-testid="sr-wizard-success">
+          <h2 class="sr-wizard__success-title">{{ keys.SuccessTitle | t }}</h2>
+          <p class="sr-wizard__success-message">
+            {{ keys.SuccessMessage | t }}
+            <strong class="sr-wizard__number" dir="ltr" data-fixed-direction data-testid="sr-wizard-number">{{ number }}</strong>
+          </p>
+          <div class="sr-wizard__success-links">
+            @if (store.id(); as id) {
+              <a class="sr-wizard__link" data-testid="sr-wizard-view" [routerLink]="links.detail(id)">{{ keys.SuccessView | t }}</a>
+            }
+            <a class="sr-wizard__link" [routerLink]="links.mine">{{ keys.SuccessMine | t }}</a>
+          </div>
+        </div>
+      } @else {
+        <dga-dev-autofill [formKey]="formKey" [form]="store.form" />
+        <dga-page-feedback [state]="draftSavedFeedback()" [moveFocus]="false" />
+        @if (store.categoriesError()) {
+          <dga-alert [variant]="alertVariants.Error" data-testid="sr-wizard-categories-failed">
+            {{ keys.CategoriesFailed | t }}
+            <dga-button variant="secondary-outline" size="sm" data-public-action (click)="retry()">{{ keys.Retry | t }}</dga-button>
+          </dga-alert>
+        }
+
+        <app-wizard-pattern
+          [steps]="steps"
+          [(step)]="step"
+          [busy]="store.busy()"
+          [error]="patternError()"
+          [translatedCodes]="translatedCodes"
+          [submitKey]="keys.Submit"
+          draftEnabled
+          cancellable
+          (next)="onNext($event)"
+          (saveDraft)="onSaveDraft($event)"
+          (submit)="onSubmit()"
+          (cancel)="leave()"
+        >
+          <ng-template [wizardStep]="stepIds.Request">
+            <div class="sr-wizard__fields">
+              <dga-select
+                data-testid="sr-field-categoryId"
+                required
+                [label]="labelKeys[fields.CategoryId] | t"
+                [placeholder]="keys.CategoryPlaceholder | t"
+                [options]="categoryOptions()"
+                [value]="categoryValue()"
+                [error]="errorText(fields.CategoryId)"
+                (valueChange)="setValue(fields.CategoryId, $event)"
+                (touchedChange)="touch(fields.CategoryId, $event)"
+              />
+              <dga-text-input
+                data-testid="sr-field-title"
+                required
+                [label]="labelKeys[fields.Title] | t"
+                [maxLength]="limits.TitleMaxLength"
+                [value]="valueOf(fields.Title)"
+                [error]="errorText(fields.Title)"
+                (valueChange)="setValue(fields.Title, $event)"
+                (touchedChange)="touch(fields.Title, $event)"
+              />
+            </div>
+          </ng-template>
+
+          <ng-template [wizardStep]="stepIds.Details">
+            <div class="sr-wizard__fields">
+              <dga-textarea
+                data-testid="sr-field-description"
+                required
+                [label]="labelKeys[fields.Description] | t"
+                [maxLength]="limits.DescriptionMaxLength"
+                [value]="valueOf(fields.Description)"
+                [error]="errorText(fields.Description)"
+                (valueChange)="setValue(fields.Description, $event)"
+                (touchedChange)="touch(fields.Description, $event)"
+              />
+              <dga-text-input
+                data-testid="sr-field-contactPhone"
+                type="tel"
+                inputMode="numeric"
+                autocomplete="tel"
+                required
+                [label]="labelKeys[fields.ContactPhone] | t"
+                [hint]="keys.PhoneHint | t"
+                [value]="valueOf(fields.ContactPhone)"
+                [error]="errorText(fields.ContactPhone)"
+                (valueChange)="setValue(fields.ContactPhone, $event)"
+                (touchedChange)="touch(fields.ContactPhone, $event)"
+              />
+              <dga-date-input
+                data-testid="sr-field-preferredDate"
+                notBeforeToday
+                [label]="labelKeys[fields.PreferredDate] | t"
+                [today]="store.today()"
+                [value]="valueOf(fields.PreferredDate)"
+                [error]="errorText(fields.PreferredDate)"
+                (valueChange)="setValue(fields.PreferredDate, $event)"
+                (touchedChange)="touch(fields.PreferredDate, $event)"
+              />
+            </div>
+          </ng-template>
+
+          <ng-template [wizardStep]="stepIds.Attachments">
+            <div class="sr-wizard__review">
+              <h3 class="sr-wizard__section-title">{{ keys.Review | t }}</h3>
+              <dl class="sr-wizard__review-list" data-testid="sr-wizard-review">
+                @for (row of reviewRows(); track row.field) {
+                  <div class="sr-wizard__review-row">
+                    <dt>{{ row.labelKey | t }}</dt>
+                    <dd [attr.data-field]="row.field">{{ row.value }}</dd>
+                  </div>
+                }
+              </dl>
+            </div>
+            @if (store.attachmentsMissing()) {
+              <dga-alert [variant]="alertVariants.Warning" data-testid="sr-wizard-attachments-missing">
+                {{ keys.AttachmentsMissing | t }}
+              </dga-alert>
+            }
+            <p class="sr-wizard__hint">{{ keys.AttachmentsHint | t }}</p>
+            @if (store.id(); as id) {
+              <app-record-attachments [recordType]="attachableType" [recordId]="id" />
+            }
+          </ng-template>
+        </app-wizard-pattern>
+      }
+    }
+  }
+</section>

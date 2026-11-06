@@ -15,6 +15,8 @@ public sealed class LayerTests
 
     public static TheoryData<string> ModulesWithDomain => StarterSolution.ModuleNamesWithDomain;
 
+    public static TheoryData<string> ModulesWithApi => StarterSolution.ModuleNamesWithApi;
+
     [Theory]
     [MemberData(nameof(Modules))]
     public void EveryTypeSitsInALayerNamespace(string module)
@@ -53,7 +55,7 @@ public sealed class LayerTests
     }
 
     [Theory]
-    [MemberData(nameof(Modules))]
+    [MemberData(nameof(ModulesWithApi))]
     public void ApiHasNoDbContext(string module) =>
         LayerRules.ApiHasNoDbContext(StarterSolution.All, RootOf(module)).ThrowIfFailed();
 

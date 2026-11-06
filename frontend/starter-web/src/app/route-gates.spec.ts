@@ -14,7 +14,7 @@ import { JOBS_ROUTES } from './features/admin/jobs/jobs.routes';
 import { SETTINGS_ROUTES } from './features/admin/settings/settings.routes';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
-import { PUBLIC_ROUTE_PATHS, SIGNED_IN_ROUTE_PATHS, routesForGate } from './public-routes';
+import { LAYOUT_ROUTES, PUBLIC_ROUTE_PATHS, SIGNED_IN_ROUTE_PATHS, routesForGate } from './public-routes';
 
 /** Every lazily loaded child table, keyed by the full path of its `loadChildren` route. */
 const LAZY_ROUTE_TABLES: Readonly<Record<string, Routes>> = {
@@ -36,6 +36,10 @@ const GATE_OPTIONS = {
 
 const UNGATED_PATH = 'reports';
 const page = () => Promise.resolve(class {});
+
+/** The app's layouts with the staff shell swapped for `shell`: every other layout (the requester shell) stays exempt. */
+const layoutsWith = (shell: Route | null): Route[] =>
+  LAYOUT_ROUTES.flatMap(layout => (layout === SHELL_ROUTE ? (shell === null ? [] : [shell]) : [layout]));
 
 describe('the route-table permission gate', () => {
   it('lists only staff-shell children as signed-in pages', () => {
@@ -64,7 +68,7 @@ describe('the route-table permission gate', () => {
 
   it('fails a page added to the shell without a key, naming its path and the recipe', () => {
     const shell: Route = { ...SHELL_ROUTE, children: [...(SHELL_ROUTE.children ?? []), { path: UNGATED_PATH, loadComponent: page }] };
-    const withUngated = routesForGate(routes.map(route => (route === SHELL_ROUTE ? shell : route)), [shell]);
+    const withUngated = routesForGate(routes.map(route => (route === SHELL_ROUTE ? shell : route)), layoutsWith(shell));
     expect(findUngatedRoutes(withUngated, GATE_OPTIONS)).toEqual([{ path: `/${UNGATED_PATH}`, kind: RouteFindingKinds.missingPermission }]);
     expect(() => assertRoutesGated(withUngated, GATE_OPTIONS)).toThrow(RECIPE);
   });
@@ -74,7 +78,7 @@ describe('the route-table permission gate', () => {
       ...SHELL_ROUTE,
       children: [...(SHELL_ROUTE.children ?? []), { path: UNGATED_PATH, data: { [RouteDataKeys.Permission]: PermissionKeys.DashboardView }, loadComponent: page }],
     };
-    const withUnguarded = routesForGate(routes.map(route => (route === SHELL_ROUTE ? shell : route)), [shell]);
+    const withUnguarded = routesForGate(routes.map(route => (route === SHELL_ROUTE ? shell : route)), layoutsWith(shell));
     expect(findUngatedRoutes(withUnguarded, GATE_OPTIONS)).toEqual([{ path: `/${UNGATED_PATH}`, kind: RouteFindingKinds.missingGuard }]);
   });
 
@@ -89,7 +93,7 @@ describe('the route-table permission gate', () => {
   });
 
   it('checks the shell as a page when it is not exempted as a layout', () => {
-    expect(findUngatedRoutes(routesForGate(routes, []), GATE_OPTIONS)).toEqual([{ path: '/', kind: RouteFindingKinds.missingPermission }]);
+    expect(findUngatedRoutes(routesForGate(routes, layoutsWith(null)), GATE_OPTIONS)).toEqual([{ path: '/', kind: RouteFindingKinds.missingPermission }]);
   });
 
   it('refuses a layout route that holds no pages or is not behind authGuard', () => {

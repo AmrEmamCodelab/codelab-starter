@@ -45,6 +45,52 @@ export const NAME_PLACEHOLDER = '{name}';
 export const KEBAB_PLACEHOLDER = '{kebab}';
 export const MODULE_NAME_PATTERN = /^[A-Z][A-Za-z0-9]*$/;
 
+/**
+ * Module marker comments: a registration of a module in a shared file carries `// codelab:module <Name>` (or
+ * `<!-- codelab:module <Name> -->`) on the same line, or sits between `codelab:module-begin <Name>` and
+ * `codelab:module-end <Name>` lines. remove-module deletes those lines.
+ */
+export const MODULE_MARKER = Object.freeze({
+  line: 'codelab:module',
+  begin: 'codelab:module-begin',
+  end: 'codelab:module-end',
+  /** Comment openers a marker may follow: `//` (TypeScript, C#) and `<!--` (csproj, HTML). */
+  commentOpeners: Object.freeze(['//', '<!--']),
+  htmlCommentClose: '-->',
+});
+/**
+ * Where remove-module looks for marker lines: every file with one of the extensions under one of the roots
+ * (repo-relative, '/' separators). The registration files (app.routes.ts, app-nav.ts, app.config.ts,
+ * features/admin/admin.routes.ts, Starter.Api.csproj) are all inside them.
+ */
+export const MARKER_SCAN_ROOTS = Object.freeze(['frontend/starter-web/src/', 'backend/src/']);
+export const MARKER_SCAN_EXTENSIONS = Object.freeze(['.ts', '.html', '.csproj']);
+/** Folders a marker scan never enters (build outputs and installed packages). */
+export const MARKER_SCAN_SKIPPED_DIRS = Object.freeze(['node_modules', 'bin', 'obj', 'dist', '.angular']);
+/** The app's translation files; remove-module deletes the module's `<camelName>.` keys from each one present. */
+export const I18N_FILES = Object.freeze(['frontend/starter-web/src/assets/i18n/ar.json', 'frontend/starter-web/src/assets/i18n/en.json']);
+export const I18N_KEY_SEPARATOR = '.';
+
+/**
+ * The deletability probe (tools/ci/module-deletability.ps1 -DummyModule, in a temp copy only): a scaffolded module
+ * gets a marker-registered frontend route, a marked host-project block and translation keys, so the removal of every
+ * registration kind is proven before a real sample module exists.
+ */
+export const DELETABILITY_PROBE = Object.freeze({
+  appRoutesFile: 'frontend/starter-web/src/app/app.routes.ts',
+  /** The line the probe's route spread goes under (the app's top-level route list). */
+  routesAnchor: 'export const routes: Routes = [',
+  routesFileSuffix: '.routes.ts',
+  /** The import specifier suffix of the routes file (no extension). */
+  routesImportSuffix: '.routes',
+  routesConstSuffix: '_PROBE_ROUTES',
+  translationKey: 'probe',
+  translation: Object.freeze({ en: 'Deletability probe', ar: 'مسبار قابلية الحذف' }),
+  i18nLanguageFile: /\/(en|ar)\.json$/,
+  projectClose: '</Project>',
+  itemGroupLabel: 'deletability probe',
+});
+
 /** Files that list modules line by line; upstream-merge drops the lines of removed modules from their patches. */
 export const MODULE_LIST_FILES = Object.freeze([SOLUTION_FILE, API_PROJECT]);
 
@@ -105,6 +151,8 @@ export const JSON_PATH_SEPARATOR = /[:.]/;
 
 /** Git. */
 export const GIT = 'git';
+/** A git work tree's metadata (a folder, or a file in a linked worktree); the deletability probe refuses a root that has one. */
+export const GIT_METADATA = '.git';
 export const DEFAULT_UPSTREAM_BRANCH = 'main';
 export const FETCH_HEAD = 'FETCH_HEAD';
 export const NULL_BLOB = /^0+$/;

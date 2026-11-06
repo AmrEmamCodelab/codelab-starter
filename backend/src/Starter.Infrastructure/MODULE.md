@@ -17,6 +17,7 @@ host use. It never names a module.
 | `Messaging` | OutboxDbContext (schema messaging, table OutboxMessages: Id, Type, PayloadJson, Status int, CreatedAt, NotBefore, Attempt, LockedUntil, SentAt, LastError), migrations InitialCreate + DeliveryTracking and OutboxMigrationModel, EfOutbox (IOutbox), the drain: OutboxDrainRunner (IOutboxDrainRunner), OutboxDispatcher (routing to the one IOutboxHandler per type, DI scope per message), SqlOutboxStore (IOutboxStore: atomic READPAST/UPDLOCK claim with a 5-minute lease), OutboxDrainSchedule (lease, back-off 1/5/15/60 min, MaxBatchesPerPass 20), OutboxErrorCodes, OutboxOptions (Messaging:Outbox: Enabled default true, BatchSize 50, 1-500), AddStarterMessaging and AddOutboxHandler<T> |
 | `Numbering` | NumberingDbContext (schema numbering, no tables; InitialCreate creates the schema), SqlNumberSequences (one SQL SEQUENCE per prefix and year, e.g. numbering.CU_2026, created on first use, NO CACHE), RequestNumberAllocator (IRequestNumberAllocator; year in Numbering:TimeZoneId, default Arab Standard Time, validated on start), AddStarterNumbering |
 | `Auditing` | `AuditSaveChangesInterceptor` (scoped; attached to every module context by `AddModuleDbContext`; captures added/modified/deleted rows, masks `[PersonalData]` with `PiiMask`, leaves out `[NotAudited]`, secrets and binary, name conventions `AuditNamingConventions` as safety net; actor = subject id or SYSTEM, correlation id, `TimeProvider`), `SqlAuditTrailWriter` (same connection and transaction; opens one when the caller has none), `AuditDbContext` (schema `audit`, table `AuditEntries`, reshaped `InitialCreate` + `AuditMigrationModel`), `EfAuditTrailQueries`, `RecordHistoryMapping` (`HasRecordHistory<TRecord, THistory>()` = FK OnDelete(Restrict) + (RecordId, At) index; `EnsureRestrict` run by `ModuleDbContext` refuses a cascading history FK), `AddStarterAuditing` (called by `AddStarterPersistence`) |
+| `Workflow` | `WorkflowRegistration`: `AddRecordWorkflow<TDefinition>()` (the record type's `IRecordWorkflowDefinition` as a singleton, the `IRecordWorkflowCatalogs` registry, the scoped open generic `IRecordWorkflow<TRecord>` facade, idempotent per definition) and `AddRecordWorkflowKernel()` (registry, facade and check without a definition; called by Records, Assignments and Deadlines); `WorkflowCatalogStartupCheck` (an `IHostedLifecycleService` that validates every catalog against the union of the permission catalogs in `StartingAsync`, before any hosted service, and throws `WorkflowCatalogInvalidException` listing every `CatalogViolation`; no database) |
 | `Hosting` | `ApiRoutes.Prefix` (`api`), `AddStarterKernel`, `UseStarterPipeline`, `MapStarterEndpoints` |
 | `Configuration` | `AddLocalSecretsFile` (`appsettings.Development.local.json`, Development only) |
 
@@ -42,6 +43,9 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 
 ## Extend
 - **Add an outbox handler:** see Starter.Application MODULE.md (Extend); register with services.AddOutboxHandler<THandler>(). The drain itself is run by the jobs module (outbox-drain, every 5 minutes) through IOutboxDrainRunner (scoped: resolve it in a scope).
+- **Register a record type's workflow:** in the owning module, `services.AddRecordWorkflow<MyWorkflowDefinition>()`
+  (recipe `docs/recipes/add-workflow-type.md`); the start check then refuses a broken catalog or a permission key no
+  module declares. Tests: `backend/tests/Starter.Api.Tests/Workflow`.
 - **New kernel service:** register it in `AddStarterKernel` (or a new `AddStarterXxx` called from it), with options
   that carry `public const string SectionName` and a validator registered with `ValidateOnStart`.
 - **New pipeline step:** add it to `UseStarterPipeline` in the position Codelab.Security documents; never in
@@ -78,5 +82,7 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
   replaces it. Without it a host with no Identity module would answer 500 on every protected request.
 - **Codelab.Security SQL stores** take `ConnectionStrings:Starter` when `Codelab:Security:SqlStore:ConnectionString`
   is empty; their tables come from the package's `EnsureSchemaOnStart` script (idempotent), not from a migration.
+- **A broken workflow catalog stops the boot** before migrations run: `WorkflowCatalogInvalidException` lists every
+  violation (and the permission keys come from every module, so a catalog naming a key of a removed module fails).
 - `ModuleCatalog.Discover` loads assemblies by name; a module listed in the host project but missing from the output
   folder fails the start with a `FileNotFoundException`.

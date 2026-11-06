@@ -127,9 +127,33 @@ describe('fork tool refusals', () => {
     assert.deepEqual(JSON.parse(read(fork, 'codelab.starter.json')).removedModules, ['B']);
     assert.equal(existsSync(join(fork, 'backend/tests/Modules/Starter.Modules.B.Tests')), false);
     assert.deepEqual(JSON.parse(read(fork, 'rules/rules.compiled.json')).modules, ['A']);
+    assert.equal(existsSync(join(fork, 'frontend/starter-web/src/app/features/b')), false);
+    const routes = read(fork, 'frontend/starter-web/src/app/app.routes.ts');
+    assert.doesNotMatch(routes, /B_ROUTES|codelab:module/);
+    assert.match(routes, /\.\.\.A_ROUTES,\r?\n\];/);
+    const host = read(fork, 'backend/src/Starter.Api/Starter.Api.csproj');
+    assert.doesNotMatch(host, /Starter\.Modules\.B|b-settings|codelab:module/);
+    assert.match(host, /Starter\.Modules\.A\.csproj/);
+    for (const language of ['en', 'ar']) {
+      assert.deepEqual(Object.keys(JSON.parse(read(fork, `frontend/starter-web/src/assets/i18n/${language}.json`))), ['a']);
+    }
+    assert.match(first.output, /app\.routes\.ts: removed 4 marked line\(s\)/);
+    assert.match(first.output, /en\.json: removed key\(s\) b/);
     const second = runScript(script, ['-Name', 'B'], { cwd: fork });
     assert.equal(second.code, EXIT.ok, second.output);
     assert.match(second.output, /already removed/);
+  });
+
+  it('remove-module refuses unpaired module markers and changes nothing', () => {
+    const fork = newFork();
+    const routes = 'frontend/starter-web/src/app/app.routes.ts';
+    write(fork, routes, read(fork, routes).replace(/ {2}\/\/ codelab:module-end B\r?\n/, ''));
+    const head = commitAll(fork, 'broken marker block');
+    const result = runScript(join(fork, 'tools/remove-module.ps1'), ['-Name', 'B'], { cwd: fork });
+    assert.equal(result.code, EXIT.failed, result.output);
+    assert.match(result.output, /app\.routes\.ts:7: codelab:module-begin B has no codelab:module-end/);
+    assertUnchanged(fork, head);
+    assert.ok(existsSync(join(fork, 'backend/src/Modules/B')));
   });
 
   it('upstream-merge refuses a fork that was never initialized, and a missing -Upstream is a usage error', () => {

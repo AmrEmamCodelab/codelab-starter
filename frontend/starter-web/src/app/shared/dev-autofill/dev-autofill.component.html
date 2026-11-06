@@ -1,0 +1,9 @@
+@if (sets().length > 0) {
+  <div class="dev-autofill" role="group" [attr.aria-label]="keys.Title | t" [attr.data-dev-autofill]="marker" [attr.data-testid]="testIds.Group">
+    @for (set of sets(); track set.labelKey) {
+      <dga-button variant="secondary-outline" size="sm" [attr.data-testid]="testIds.Fill" (click)="fill(set)">
+        {{ set.labelKey | t }}
+      </dga-button>
+    }
+  </div>
+}

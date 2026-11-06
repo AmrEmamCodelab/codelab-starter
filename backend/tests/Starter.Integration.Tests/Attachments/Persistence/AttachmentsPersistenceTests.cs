@@ -15,9 +15,9 @@ using Starter.Modules.Attachments.Infrastructure.Startup;
 namespace Starter.Integration.Tests.Attachments.Persistence;
 
 /// <summary>
-/// Module 13 on real SQL Server: the InitialCreate migration applies in schema <c>attachments</c> with its own history,
-/// the Development demo type is seeded, links and soft removals persist through <see cref="EfAttachmentStore"/>, a file
-/// id links once, and the type foreign key is Restrict (a type with links cannot be deleted; a link to no type is
+/// Module 13 on real SQL Server: its migrations (InitialCreate, then the sample's type seed) apply in schema
+/// <c>attachments</c> with its own history, the Development demo type is seeded, links and soft removals persist
+/// through <see cref="EfAttachmentStore"/>, a file id links once, and the type foreign key is Restrict (a type with links cannot be deleted; a link to no type is
 /// refused). Each test uses its own record id and file ids on the shared collection database.
 /// </summary>
 [Collection(AttachmentsPersistenceGroup.Name)]
@@ -41,7 +41,8 @@ public sealed class AttachmentsPersistenceTests(AttachmentsDatabase database)
     {
         await using var context = database.NewContext();
 
-        Assert.Equal([AttachmentsMigrationIds.InitialCreate], await context.Database.GetAppliedMigrationsAsync());
+        // Every shipped migration of the module, in order; the sample's seed migration stays after remove-module.
+        Assert.Equal([AttachmentsMigrationIds.InitialCreate, AddServiceRequestAttachmentTypes.MigrationId], await context.Database.GetAppliedMigrationsAsync());
         Assert.Empty(await context.Database.GetPendingMigrationsAsync());
         var tables = await TestSqlServer.ReadStringsAsync(
             database.Name,

@@ -1,0 +1,23 @@
+<div class="record-cards">
+  @for (item of rendered(); track $index) {
+    <dga-card class="record-cards__card" [heading]="item.card.titleKey | t" [headingLevel]="headingLevel()">
+      <div class="record-cards__fields">
+        @for (row of item.fields; track $index) {
+          <dga-info-field
+            class="record-cards__field"
+            [label]="row.field.labelKey | t"
+            [valueDir]="row.text === null ? null : (row.field.valueDir ?? null)"
+            [wide]="row.field.wide ?? false"
+            [attr.data-empty]="row.text === null ? '' : null"
+          >
+            @if (row.text; as text) {
+              {{ text }}
+            } @else {
+              <span class="record-cards__empty">{{ keys.EmptyValue | t }}</span>
+            }
+          </dga-info-field>
+        }
+      </div>
+    </dga-card>
+  }
+</div>

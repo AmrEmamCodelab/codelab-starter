@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Codelab.Security;
+using Codelab.Security.Problems;
 using Codelab.Security.PublicIds;
 using Codelab.Security.Tickets;
 using Codelab.Security.Uploads;
@@ -43,6 +44,7 @@ public sealed class AttachmentsHttpTests(AttachmentsHttpHost host)
     private const long OtherRecordId = DemoRecord.RecordId + 1;
     private const int FileIdBytes = 16;
     private const string BearerScheme = "Bearer";
+    private const char HeaderListSeparator = ',';
 
     [Fact]
     public async Task A_ticket_is_issued_for_the_demo_record()
@@ -139,7 +141,7 @@ public sealed class AttachmentsHttpTests(AttachmentsHttpHost host)
     }
 
     [Fact]
-    public async Task The_download_streams_the_bytes_as_an_attachment()
+    public async Task The_download_streams_the_bytes_without_a_content_disposition()
     {
         using var api = host.CreateApi();
         var token = await host.AdminTokenAsync();
@@ -152,8 +154,9 @@ public sealed class AttachmentsHttpTests(AttachmentsHttpHost host)
         Assert.Equal(HttpStatusCode.OK, download.StatusCode);
         Assert.Equal(upload.Bytes, await download.Content.ReadAsByteArrayAsync());
         Assert.Equal(UploadContentTypes.Pdf, download.Content.Headers.ContentType?.MediaType);
-        Assert.Equal("attachment", download.Content.Headers.ContentDisposition?.DispositionType);
+        Assert.Null(download.Content.Headers.ContentDisposition);
         Assert.Equal(AttachmentFileResult.NoSniff, string.Join(",", download.Headers.GetValues(HeaderNames.XContentTypeOptions).Distinct(StringComparer.Ordinal)));
+        Assert.Equal([AttachmentFileResult.SandboxPolicy], download.Headers.GetValues(HeaderNames.ContentSecurityPolicy));
     }
 
     [Fact]
@@ -173,6 +176,54 @@ public sealed class AttachmentsHttpTests(AttachmentsHttpHost host)
         Assert.Equal([BrowserTwinHost.WebOrigin], download.Headers.GetValues(HeaderNames.AccessControlAllowOrigin));
         Assert.True(download.Headers.Contains(host.Service<SecurityProtocol>().ResponseSignatureHeaderName));
         Assert.Equal(upload.Bytes, await download.Content.ReadAsByteArrayAsync());
+        Assert.Contains(host.Service<SecurityProtocol>().ResponseSignatureHeaderName, ExposedHeaders(download), StringComparer.OrdinalIgnoreCase);
+        // A Content-Disposition makes browser download managers swallow the fetch (the phase 6 blocker).
+        Assert.Null(download.Content.Headers.ContentDisposition);
+    }
+
+    [Fact]
+    public async Task The_download_preflight_allows_the_proof_header_for_the_web_origin()
+    {
+        using var api = host.CreateApi();
+        var token = await host.AdminTokenAsync();
+        var record = await DemoRecordPathAsync(api, token);
+        var id = await LinkedIdAsync(api, record, (await UploadAsync(api, record, token)).Receipt, token);
+
+        await using var twin = BrowserTwinHost.Start(host);
+        using var browser = twin.CreateBrowser();
+        using var preflight = await browser.PreflightAsync(AttachmentsPath + id + ContentSuffix, BrowserTwinHost.WebOrigin);
+
+        Assert.Equal(HttpStatusCode.NoContent, preflight.StatusCode);
+        Assert.Equal([BrowserTwinHost.WebOrigin], preflight.Headers.GetValues(HeaderNames.AccessControlAllowOrigin));
+        var allowed = HeaderList(preflight, HeaderNames.AccessControlAllowHeaders);
+        Assert.Contains(HeaderNames.Authorization, allowed, StringComparer.OrdinalIgnoreCase);
+        Assert.Contains(host.Service<SecurityProtocol>().SignatureHeaderName, allowed, StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Cross_origin_download_refusals_still_carry_the_cors_headers()
+    {
+        using var api = host.CreateApi();
+        var token = await host.AdminTokenAsync();
+        var record = await DemoRecordPathAsync(api, token);
+        var id = await LinkedIdAsync(api, record, (await UploadAsync(api, record, token)).Receipt, token);
+        using (var removed = await DeleteAsync(AttachmentsPath + id, token))
+        {
+            Assert.Equal(HttpStatusCode.NoContent, removed.StatusCode);
+        }
+
+        await using var twin = BrowserTwinHost.Start(host);
+        using var browser = twin.CreateBrowser();
+        var twinToken = await twin.AdminTokenAsync();
+        using var unproven = await browser.GetWithoutProofAsync(AttachmentsPath + id + ContentSuffix, twinToken, BrowserTwinHost.WebOrigin);
+        using var gone = await browser.GetAsync(AttachmentsPath + id + ContentSuffix, twinToken, BrowserTwinHost.WebOrigin);
+
+        var refusal = await ApiClient.ReadAsync(unproven, HttpStatusCode.Unauthorized);
+        Assert.Equal(SecurityProblemCodes.SignatureMissing, refusal.GetProperty("code").GetString());
+        Assert.Equal([BrowserTwinHost.WebOrigin], unproven.Headers.GetValues(HeaderNames.AccessControlAllowOrigin));
+        Assert.Equal(HttpStatusCode.NotFound, gone.StatusCode);
+        Assert.Equal([BrowserTwinHost.WebOrigin], gone.Headers.GetValues(HeaderNames.AccessControlAllowOrigin));
+        Assert.Contains(host.Service<SecurityProtocol>().ResponseSignatureHeaderName, ExposedHeaders(gone), StringComparer.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -286,6 +337,15 @@ public sealed class AttachmentsHttpTests(AttachmentsHttpHost host)
         });
         return Convert.ToInt32(count, CultureInfo.InvariantCulture);
     }
+
+    /// <summary>The comma-separated values of <paramref name="name"/>, trimmed (empty when absent).</summary>
+    private static IReadOnlyList<string> HeaderList(HttpResponseMessage response, string name) =>
+        response.Headers.TryGetValues(name, out var values)
+            ? [.. values.SelectMany(value => value.Split(HeaderListSeparator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))]
+            : [];
+
+    private static IReadOnlyList<string> ExposedHeaders(HttpResponseMessage response) =>
+        HeaderList(response, HeaderNames.AccessControlExposeHeaders);
 
     /// <summary>The receipt with its payload changed (a larger size) and the original MAC kept.</summary>
     private static string Tampered(string receipt)

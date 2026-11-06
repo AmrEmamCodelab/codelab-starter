@@ -1,0 +1,63 @@
+<a class="sr-detail__back" [routerLink]="links.mine">{{ keys.Back | t }}</a>
+
+<app-requester-detail-pattern
+  [titleKey]="keys.Title"
+  [recordNumber]="record()?.number ?? null"
+  [statusKey]="statusKey()"
+  [statusTone]="statusTone()"
+  [createdAt]="record()?.createdAt ?? null"
+  [history]="history()"
+  [toneFor]="trackerTone"
+  [loading]="store.loading()"
+  [error]="pageError()"
+  [translatedCodes]="translatedCodes"
+  (retry)="retry()"
+>
+  @if (banner(); as banner) {
+    <dga-alert detailBanner class="sr-detail__banner" data-testid="sr-detail-banner" [variant]="banner.variant" [title]="banner.titleKey | t">
+      <p class="sr-detail__reason" data-testid="sr-detail-reason">{{ banner.reason }}</p>
+    </dga-alert>
+  }
+
+  <div detailSummary class="sr-detail__summary">
+    @if (isDraft()) {
+      <dga-button
+        *hasPermission="gates.Create"
+        variant="primary"
+        size="md"
+        data-testid="sr-detail-continue"
+        (click)="continueDraft()"
+      >
+        {{ keys.ContinueDraft | t }}
+      </dga-button>
+    }
+    <app-record-detail-cards [cards]="cards()" />
+    <app-record-timeline
+      [entries]="store.view()?.timeline ?? []"
+      [audience]="audience"
+      [statusKeyFor]="statusKeyFor"
+      [actionLabelKeyFor]="actionLabelKeyFor"
+    />
+  </div>
+
+  @if (attachmentsRecordId(); as recordId) {
+    <div detailAttachments data-testid="sr-detail-attachments">
+      <app-record-attachments [recordType]="attachableType" [recordId]="recordId" [readonly]="attachmentsReadonly()" />
+    </div>
+  }
+
+  @if (hasActions()) {
+    <div detailActions data-testid="sr-detail-actions">
+      <app-decision-panel
+        [allowedActions]="record()?.allowedActions ?? []"
+        [terminal]="record()?.isTerminal ?? true"
+        [busy]="store.busy()"
+        [error]="store.actionError()"
+        [toneFor]="actionTone"
+        [titleKey]="keys.ActionsTitle"
+        [headingLevel]="3"
+        (decide)="decide($event)"
+      />
+    </div>
+  }
+</app-requester-detail-pattern>

@@ -28,6 +28,7 @@ Seeded types:
 | Type | Ids | Values |
 | --- | --- | --- |
 | `contact-topics` | `ContactTopicIds` | `general` 1, `request` 2, `account` 3, `suggestion` 4 (migration `AddContactTopicsLookup`) |
+| `service-request-categories` | `ServiceRequestCategoryIds` | `general` 1, `certificate` 2, `data-update` 3, `complaint` 4 (migration `AddServiceRequestCategoriesLookup`, for the deletable ServiceRequests sample; the rows and the constants stay when the sample is removed, retire them with a new migration) |
 
 ## Use
 

@@ -26,6 +26,32 @@
       ]
     },
     {
+      "module": "Assignments",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Assignments",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Users",
+        "Access",
+        "Lookups",
+        "Audit",
+        "Settings",
+        "Jobs",
+        "Notifications",
+        "Portal",
+        "Attachments",
+        "Records",
+        "Deadlines"
+      ]
+    },
+    {
       "module": "Attachments",
       "kind": "dotnet",
       "path": "backend/src/Modules/Attachments",
@@ -63,6 +89,30 @@
         "Identity",
         "Access",
         "Users"
+      ]
+    },
+    {
+      "module": "Deadlines",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Deadlines",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users",
+        "Settings",
+        "Lookups",
+        "Audit",
+        "Jobs",
+        "Notifications",
+        "Portal",
+        "Attachments"
       ]
     },
     {
@@ -155,6 +205,59 @@
         "Users",
         "Notifications",
         "Lookups"
+      ]
+    },
+    {
+      "module": "Records",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Records",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Users",
+        "Access",
+        "Lookups",
+        "Audit",
+        "Settings",
+        "Jobs",
+        "Notifications",
+        "Portal",
+        "Attachments",
+        "Assignments",
+        "Deadlines",
+        "ServiceRequests"
+      ]
+    },
+    {
+      "module": "ServiceRequests",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/ServiceRequests",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users",
+        "Lookups",
+        "Audit",
+        "Settings",
+        "Jobs",
+        "Notifications",
+        "Portal",
+        "Attachments",
+        "Assignments",
+        "Deadlines"
       ]
     },
     {
@@ -315,6 +418,13 @@
       "module": "WebPortal",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/features/portal",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
+      "module": "WebServiceRequests",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/service-requests",
       "mayDependOn": [],
       "mustNotDependOn": []
     },

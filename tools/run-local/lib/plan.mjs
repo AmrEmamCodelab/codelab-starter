@@ -3,6 +3,15 @@
 import path from 'node:path';
 import {
   CONNECTION_STRING_ENV,
+  DATABASE_KEYS,
+  LOCALHOST,
+  LOGIN_PATH,
+  Ports,
+  SLOT_DATABASE_SUFFIX,
+  SLOT_DIR_PREFIX,
+  SSO_CALLBACK_PATH,
+  SlotSettings,
+  Slots,
   DEVELOPMENT,
   LOCALDB_INSTANCE,
   DOTNET_ENV,
@@ -23,9 +32,18 @@ import {
 /** Bad arguments (exit 2). */
 export class UsageError extends Error {}
 
-/** Parses the CLI flags into { stop, noWeb, noSeq, noAttachments, root, help }. */
+/** The slot number of `--slot <n>`: an integer from 0 to Slots.max, else a UsageError. */
+export function parseSlot(text) {
+  const slot = /^\d+$/.test(String(text ?? '')) ? Number(text) : Number.NaN;
+  if (!Number.isInteger(slot) || slot < Slots.default || slot > Slots.max) {
+    throw new UsageError(`${Flags.slot} needs a number from ${Slots.default} to ${Slots.max}, not '${text ?? ''}'.`);
+  }
+  return slot;
+}
+
+/** Parses the CLI flags into { stop, noWeb, noSeq, noAttachments, root, slot, help }. */
 export function parseArguments(argv, defaultRoot) {
-  const options = { stop: false, noWeb: false, noSeq: false, noAttachments: false, help: false, root: defaultRoot };
+  const options = { stop: false, noWeb: false, noSeq: false, noAttachments: false, help: false, root: defaultRoot, slot: Slots.default };
   const switches = {
     [Flags.stop]: 'stop', [Flags.noWeb]: 'noWeb', [Flags.noSeq]: 'noSeq', [Flags.noAttachments]: 'noAttachments', [Flags.help]: 'help',
   };
@@ -35,6 +53,9 @@ export function parseArguments(argv, defaultRoot) {
       options[switches[flag]] = true;
     } else if (flag === Flags.root && argv[index + 1]) {
       options.root = path.resolve(argv[index + 1]);
+      index += 1;
+    } else if (flag === Flags.slot) {
+      options.slot = parseSlot(argv[index + 1]);
       index += 1;
     } else {
       throw new UsageError(`Unknown argument '${flag}'.`);
@@ -75,11 +96,14 @@ export function usesDefaultLocalDb(env) {
   return !override || override.toLowerCase().includes(LOCALDB_INSTANCE.toLowerCase());
 }
 
-/** The environment of a .NET host: Development on `url`, plus the Seq URL when one was chosen. */
-export function hostEnvironment(env, url, chosenSeqUrl) {
+/**
+ * The environment of a .NET host: Development on `url`, plus the Seq URL when one was chosen, plus the slot's
+ * configuration overrides (none for the default slot).
+ */
+export function hostEnvironment(env, url, chosenSeqUrl, overrides = {}) {
   const result = { ...env, [ENVIRONMENT_ENV]: DEVELOPMENT, [URLS_ENV]: url };
   if (chosenSeqUrl) result[SEQ_SERVER_URL_ENV] = chosenSeqUrl;
-  return result;
+  return { ...result, ...overrides };
 }
 
 /** The environment of the API process (http://localhost:5180). */
@@ -133,9 +157,74 @@ export function startPlan({ attachments, web }) {
   return START_ORDER.filter((name) => wanted[name]);
 }
 
-/** The URLs that must be free before a start: one per service in the plan. */
-export function portsToCheck(plan) {
-  return plan.map((name) => Urls[name]);
+/** The URLs that must be free before a start: one per service in the plan (`urls` defaults to slot 0's). */
+export function portsToCheck(plan, urls = Urls) {
+  return plan.map((name) => urls[name]);
+}
+
+/** The local URLs of a slot: slot 0 is Urls; slot n moves each port up by n * Slots.portStep. */
+export function slotUrls(slot) {
+  if (slot === Slots.default) return Urls;
+  const offset = slot * Slots.portStep;
+  const at = (port) => `${LOCALHOST}:${port + offset}`;
+  return Object.freeze({ ...Urls, api: at(Ports.api), attachments: at(Ports.attachments), web: at(Ports.web) });
+}
+
+/** The state folder of a slot: the base folder for slot 0, `<base>\slot-<n>` otherwise. */
+export function slotStateDir(baseDir, slot) {
+  return slot === Slots.default ? baseDir : path.join(baseDir, `${SLOT_DIR_PREFIX}${slot}`);
+}
+
+/**
+ * The connection string of slot n: the same server with the database renamed to `<name>_Slot<n>` (idempotent), so a
+ * slot never migrates or writes the default stack's database. Slot 0 and a string without a database name are kept.
+ */
+export function slotConnectionString(connectionString, slot) {
+  if (slot === Slots.default || !connectionString) return connectionString;
+  const suffix = `${SLOT_DATABASE_SUFFIX}${slot}`;
+  return connectionString
+    .split(';')
+    .map((part) => {
+      const separator = part.indexOf('=');
+      if (separator < 0 || !DATABASE_KEYS.includes(part.slice(0, separator).trim().toLowerCase())) return part;
+      const name = part.slice(separator + 1).trim();
+      return name.endsWith(suffix) ? part : `${part.slice(0, separator)}=${name}${suffix}`;
+    })
+    .join(';');
+}
+
+/**
+ * The configuration overrides of a slot's API and Attachment service (empty for slot 0): the web origin, the SSO
+ * return URLs, the web links, the service URL, the database and the attachment storage folder of that slot.
+ */
+export function slotOverrides({ slot, urls, connectionString, storageRoot }) {
+  if (slot === Slots.default) return { api: {}, attachments: {} };
+  const api = {
+    [SlotSettings.apiCorsOrigin]: urls.web,
+    [SlotSettings.ssoRedirectUri]: `${urls.api}${SSO_CALLBACK_PATH}`,
+    [SlotSettings.ssoPostLogoutRedirectUri]: `${urls.web}${LOGIN_PATH}`,
+    [SlotSettings.webBaseUrl]: urls.web,
+    [SlotSettings.activationLinkBaseUrl]: urls.web,
+    [SlotSettings.attachmentsBaseUrl]: urls.attachments,
+  };
+  const database = slotConnectionString(connectionString, slot);
+  if (database) api[CONNECTION_STRING_ENV] = database;
+  const attachments = { [SlotSettings.attachmentsCorsOrigin]: urls.web, [SlotSettings.attachmentsStorageRoot]: storageRoot };
+  return { api, attachments };
+}
+
+/** The API connection string from the development settings JSON text, or null. */
+export function developmentConnectionString(settingsText) {
+  try {
+    return JSON.parse(settingsText)?.ConnectionStrings?.Starter ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** The web runtime config of a slot: the built config.json pointed at the slot's API and Attachment service. */
+export function slotWebConfig(config, urls) {
+  return { ...config, apiBaseUrl: urls.api, origins: { ...config?.origins, api: [urls.api], attachment: [urls.attachments] } };
 }
 
 /**

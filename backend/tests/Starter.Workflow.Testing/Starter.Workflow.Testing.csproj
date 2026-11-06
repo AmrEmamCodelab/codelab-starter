@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The workflow test kit (no test framework dependency): TransitionFixture, a fluent way to assert a record type's
+    transition table, plus the generic test-record catalog and BrokenCatalogs fixtures. Module test projects reference
+    it to test their own catalog; failures throw WorkflowExpectationException, which any runner reports. See README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Workflow.Testing</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Starter.Application\Starter.Application.csproj" />
+  </ItemGroup>
+</Project>

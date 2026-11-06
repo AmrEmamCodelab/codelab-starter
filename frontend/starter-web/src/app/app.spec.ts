@@ -6,7 +6,9 @@ import { provideRouter, type Route } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { App } from './app';
 import { APP_NAV_ITEMS } from './app-nav';
-import { NOT_FOUND_PATH, SHELL_PATH, routes } from './app.routes';
+import { NOT_FOUND_PATH, SHELL_ROUTE, routes } from './app.routes';
+import { REQUESTER_SHELL_ROUTE } from './app.routes'; // codelab:module ServiceRequests
+import { PERMISSION_GUARD_MARKER } from './core/auth/permission.guard';
 import { authGuard } from './core/auth/auth.guard';
 import { CORE_TRANSLATION_KEYS } from './core/i18n/core-translation-keys';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
@@ -16,6 +18,10 @@ import { ATTACHMENTS_DEMO_ROUTE_PATH } from './features/attachments/attachments.
 import { LoginFieldMessageKeys } from './features/auth/login-form';
 import { SignInMessageKeys } from './features/auth/sign-in.service';
 import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
+// codelab:module-begin ServiceRequests
+import { requesterLandingGuard, requesterShellMatch } from './features/service-requests/requester';
+import { SERVICE_REQUESTS_STAFF_ROUTES } from './features/service-requests/staff/service-requests-staff.routes';
+// codelab:module-end ServiceRequests
 import { LanguageNameKeys } from './layouts/language-switcher/language-switcher.component';
 import { fakeAuth, layoutTestProviders } from './layouts/layout.testing';
 import { SIGNED_IN_ROUTE_PATHS } from './public-routes';
@@ -78,21 +84,47 @@ describe('routes', () => {
   });
 
   it('puts the gated pages inside the shell, behind authGuard', () => {
-    const shell = route(SHELL_PATH);
-    expect(shell.canActivate).toEqual([authGuard]);
-    expect(shell.children?.map(child => child.path)).toEqual([RoutePaths.Dashboard, RoutePaths.Admin, NOTIFICATIONS_ROUTE_PATH, ATTACHMENTS_DEMO_ROUTE_PATH]);
+    // Found by identity: the requester shell also hangs on the empty path.
+    expect(routes).toContain(SHELL_ROUTE);
+    expect(SHELL_ROUTE.canActivate).toEqual([authGuard]);
+    expect(SHELL_ROUTE.children?.map(child => child.path)).toEqual([
+      RoutePaths.Dashboard,
+      RoutePaths.Admin,
+      NOTIFICATIONS_ROUTE_PATH,
+      ...SERVICE_REQUESTS_STAFF_ROUTES.map(child => child.path), // codelab:module ServiceRequests
+      ATTACHMENTS_DEMO_ROUTE_PATH,
+    ]);
   });
 
+  // codelab:module-begin ServiceRequests
+  it('limits the requester shell to its own area, so / reaches the staff dashboard', () => {
+    expect(REQUESTER_SHELL_ROUTE.canMatch).toEqual([requesterShellMatch]);
+    expect(REQUESTER_SHELL_ROUTE.canActivate).toEqual([authGuard]);
+    expect(routes.indexOf(REQUESTER_SHELL_ROUTE)).toBeLessThan(routes.indexOf(SHELL_ROUTE));
+  });
+
+  it('sends a requester without the dashboard key to the requester area before the dashboard gate', () => {
+    const dashboard = route(RoutePaths.Dashboard, SHELL_ROUTE.children ?? []);
+    expect(dashboard.canActivate?.[0]).toBe(requesterLandingGuard);
+    expect(Object.getOwnPropertyDescriptor(dashboard.canActivate?.at(-1), PERMISSION_GUARD_MARKER)?.value).toBe(true);
+  });
+  // codelab:module-end ServiceRequests
+
   it('gates every shell page with a permission guard and a typed key', () => {
-    const children = route(SHELL_PATH).children ?? [];
+    const children = SHELL_ROUTE.children ?? [];
     const gate = (path: string) => route(path, children);
     expect(gate(RoutePaths.Dashboard).data?.[RouteDataKeys.Permission]).toBe(PermissionKeys.DashboardView);
     // The admin mount opens to any admin page key (ADMIN_AREA_PERMISSIONS); each admin page carries its own key.
     expect(gate(RoutePaths.Admin).data?.[RouteDataKeys.Permission]).toBeUndefined();
     expect(ADMIN_AREA_PERMISSIONS).toContain(PermissionKeys.AccessAdminView);
     // A signed-in page (SIGNED_IN_ROUTE_PATHS) has no key: the shell's authGuard is its gate.
-    for (const child of children.filter(page => !SIGNED_IN_ROUTE_PATHS.includes(page.path ?? ''))) {
-      expect(child.canActivate).toHaveLength(1);
+    // An eager mount (children, no component) is checked through its pages.
+    const pages = children.flatMap(child => child.children ?? [child]);
+    for (const child of pages.filter(page => !SIGNED_IN_ROUTE_PATHS.includes(page.path ?? ''))) {
+      const permissionGuards = (child.canActivate ?? []).filter(
+        guard => Object.getOwnPropertyDescriptor(guard, PERMISSION_GUARD_MARKER)?.value === true,
+      );
+      expect(permissionGuards).toHaveLength(1);
       expect(child.loadComponent ?? child.loadChildren).toBeTypeOf('function');
     }
   });
@@ -102,14 +134,14 @@ describe('routes', () => {
   });
 
   it('lazy-loads every page', async () => {
-    const pages = [...routes, ...(route(SHELL_PATH).children ?? [])].filter(page => page.loadComponent !== undefined);
+    const pages = [...routes, ...(SHELL_ROUTE.children ?? [])].filter(page => page.loadComponent !== undefined);
     for (const page of pages) {
       await expect(page.loadComponent?.()).resolves.toBeTypeOf('function');
     }
   });
 
   it('lazy-loads the admin area as its own route table', async () => {
-    const admin = route(RoutePaths.Admin, route(SHELL_PATH).children ?? []);
+    const admin = route(RoutePaths.Admin, SHELL_ROUTE.children ?? []);
     expect(admin.loadComponent).toBeUndefined();
     await expect(admin.loadChildren?.()).resolves.toEqual(expect.any(Array));
   });

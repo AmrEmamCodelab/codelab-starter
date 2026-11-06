@@ -1,0 +1,8 @@
+@if (display(); as shown) {
+  <span class="sla-badge" [attr.data-sla-state]="sla()?.state">
+    <dga-status-tag [tone]="shown.tone">{{ shown.labelKey | t }}</dga-status-tag>
+    @if (!compact()) {
+      <time class="sla-badge__due" [attr.datetime]="sla()?.dueAt">{{ keys.DueAt | t: { date: dueText() } }}</time>
+    }
+  </span>
+}

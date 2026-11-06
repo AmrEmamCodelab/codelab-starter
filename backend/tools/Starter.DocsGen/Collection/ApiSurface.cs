@@ -7,13 +7,15 @@ namespace Starter.DocsGen.Collection;
 /// <param name="ErrorCodes">Every constant of every <c>*ErrorCodes</c> class.</param>
 /// <param name="ConfigKeys">Every configuration key of every options class with a <c>SectionName</c>.</param>
 /// <param name="Statuses">Every public <c>*Status</c> enum of the host's own assemblies (kernel and modules).</param>
+/// <param name="Workflows">Every record type's workflow catalog the host registers, sorted by record type (none is valid).</param>
 internal sealed record ApiSurface(
     string OpenApiJson,
     IReadOnlyList<PermissionDoc> Permissions,
     IReadOnlyList<EndpointDoc> Endpoints,
     IReadOnlyList<ErrorCodeDoc> ErrorCodes,
     IReadOnlyList<ConfigKeyDoc> ConfigKeys,
-    IReadOnlyList<StatusDoc> Statuses);
+    IReadOnlyList<StatusDoc> Statuses,
+    IReadOnlyList<WorkflowDoc> Workflows);
 
 /// <summary>One permission of the catalog.</summary>
 /// <param name="Key">The permission key.</param>

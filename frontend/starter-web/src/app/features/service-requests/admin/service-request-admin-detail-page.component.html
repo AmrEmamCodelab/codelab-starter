@@ -1,0 +1,32 @@
+<div class="service-request-admin-detail">
+  <a class="service-request-admin-detail__back" data-testid="admin-detail-back" [routerLink]="paths.list()">
+    <dga-icon name="arrow-start" size="sm" />
+    {{ keys.Back | t }}
+  </a>
+
+  <dga-alert data-testid="admin-detail-read-only" [variant]="AlertVariant.Info">{{ keys.ReadOnly | t }}</dga-alert>
+
+  <app-requester-detail-pattern
+    [titleKey]="keys.Title"
+    [recordNumber]="store.detail()?.number ?? null"
+    [statusKey]="(store.detail()?.wording | statusWording: audience) || null"
+    [statusTone]="statusTone()"
+    [createdAt]="store.detail()?.createdAt ?? null"
+    [history]="history()"
+    [toneFor]="historyTone"
+    [trackerTitleKey]="keys.History"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [translatedCodes]="translatedCodes"
+    (retry)="store.reload()"
+  >
+    <div detailSummary>
+      <app-record-detail-cards [cards]="cards()" [headingLevel]="cardHeadingLevel" />
+    </div>
+    @if (store.detail(); as detail) {
+      <div detailAttachments>
+        <app-record-attachments readonly [recordType]="attachableType" [recordId]="detail.id" />
+      </div>
+    }
+  </app-requester-detail-pattern>
+</div>

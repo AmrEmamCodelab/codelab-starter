@@ -14,7 +14,9 @@ change the code, then regenerate. CI fails when a file drifts from the code.
 | `endpoints.md` | Every endpoint: method, route, permission or allowlisted access, owner, summary. |
 | `error-codes.md` | Every `*ErrorCodes` constant, by owner. |
 | `config-keys.md` | Every configuration key of every options class with a `SectionName`. |
-| `statuses.md` | Every `*Status` int enum of the kernel and the modules, with its values. |
+| `statuses.md` | Every `*Status` int enum of the kernel and the modules, with its values, and every workflow's statuses with their requester, staff and admin wording keys. |
+| `workflows/README.md` | The registered workflows, one row per record type. |
+| `workflows/<record-type>.md` | One workflow for client sign-off: Mermaid state diagram, statuses, transitions with permission, reason and notification decision. |
 
 Commands (from the repository root; the .NET 10 SDK is private on the build machine, see `tools/README.md`):
 

@@ -1,0 +1,106 @@
+<div class="service-request-queue">
+  @if (store.notice(); as notice) {
+    <dga-alert data-testid="queue-notice" [variant]="AlertVariant.Success">{{ notice.key | t: { number: notice.number } }}</dga-alert>
+  }
+  @if (store.actionError(); as failure) {
+    <dga-alert data-testid="queue-action-error" [variant]="AlertVariant.Error">
+      <p class="service-request-queue__message">{{ messageKey(failure) | t }}</p>
+      @if (failure.referenceCode; as code) {
+        <p class="service-request-queue__reference">{{ keys.Common.ReferenceCode | t: { code: code } }}</p>
+      }
+    </dga-alert>
+  }
+
+  <app-work-queue-pattern
+    [titleKey]="keys.Queue.Title"
+    [emptyKey]="keys.Queue.Empty"
+    [searchLabelKey]="keys.Queue.Search"
+    [tabs]="store.tabs()"
+    [columns]="columns"
+    [rowId]="rowId"
+    [rows]="store.rows()"
+    [total]="store.total()"
+    [pageSize]="store.pageSize"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [translatedCodes]="translatedCodes"
+    [tab]="store.view()"
+    (tabChange)="store.setView($event)"
+    [page]="store.page()"
+    (pageChange)="store.setPage($event)"
+    [search]="store.number()"
+    (searchChange)="store.setNumber($event)"
+    (retry)="store.reload()"
+  >
+    <a queueToolbar class="service-request-queue__link" data-testid="queue-notifications" [routerLink]="paths.notifications()">
+      <dga-icon name="bell" size="sm" />
+      {{ keys.Queue.Notifications | t }}
+    </a>
+
+    <dga-select
+      queueFilters
+      name="service-request-queue-status"
+      data-testid="queue-status-filter"
+      [label]="keys.Queue.StatusFilter | t"
+      [placeholder]="keys.Queue.AnyStatus | t"
+      [options]="statusOptions()"
+      [value]="store.status()"
+      (valueChange)="store.setStatus($event)"
+    />
+
+    <ng-template [listCell]="Column.Number" [listCellOf]="store.rows()" let-row>
+      <a class="service-request-queue__number" dir="ltr" data-fixed-direction data-testid="queue-open" [routerLink]="paths.detail(row.id)">{{ row.number }}</a>
+    </ng-template>
+    <ng-template [listCell]="Column.Status" [listCellOf]="store.rows()" let-row>
+      <dga-status-tag [tone]="statusTone(row.status)">{{ statusLabelKey(row.statusKey) | t }}</dga-status-tag>
+    </ng-template>
+    <ng-template [listCell]="Column.SubmittedAt" [listCellOf]="store.rows()" let-row>
+      <time [attr.datetime]="row.submittedAt">{{ instantText(row.submittedAt) }}</time>
+    </ng-template>
+    <ng-template [listCell]="Column.Assignee" [listCellOf]="store.rows()" let-row>
+      @if (row.assignee; as assignee) {
+        <span data-testid="queue-assignee">{{ assignee.displayName }}</span>
+      } @else {
+        <span class="service-request-queue__muted" data-testid="queue-unassigned">{{ keys.Queue.Unassigned | t }}</span>
+      }
+    </ng-template>
+    <ng-template [listCell]="Column.Sla" [listCellOf]="store.rows()" let-row>
+      @if (row.sla) {
+        <app-sla-badge [sla]="row.sla" />
+      } @else {
+        <span class="service-request-queue__muted">{{ keys.Queue.NoSla | t }}</span>
+      }
+    </ng-template>
+
+    <ng-template listRowActions [listRowActionsOf]="store.rows()" let-row>
+      @switch (store.holderOf(row)) {
+        @case (Holder.Nobody) {
+          <dga-button
+            *hasPermission="permissionKeys.Work"
+            variant="subtle"
+            size="sm"
+            data-testid="queue-claim"
+            [disabled]="store.workingRowId() !== null"
+            [loading]="store.workingRowId() === row.id"
+            (click)="store.claim(row)"
+          >
+            {{ keys.Actions.Claim | t }}
+          </dga-button>
+        }
+        @case (Holder.CurrentUser) {
+          <dga-button
+            *hasPermission="permissionKeys.Work"
+            variant="subtle"
+            size="sm"
+            data-testid="queue-release"
+            [disabled]="store.workingRowId() !== null"
+            [loading]="store.workingRowId() === row.id"
+            (click)="store.release(row)"
+          >
+            {{ keys.Actions.Release | t }}
+          </dga-button>
+        }
+      }
+    </ng-template>
+  </app-work-queue-pattern>
+</div>

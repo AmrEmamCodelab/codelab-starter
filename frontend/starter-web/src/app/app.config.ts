@@ -8,6 +8,8 @@ import { provideStarterSecurity } from './core/security/security.providers';
 import { initializeCore } from './core/session/core-initializer';
 import { provideApiNotifications } from './features/notifications/notifications.providers';
 import { routes } from './app.routes';
+import { APP_DEV_AUTOFILL_SETS } from './dev-autofill.sets';
+import { provideDevAutofill } from './shared/dev-autofill';
 
 /**
  * The application providers, built from the runtime configuration `main.ts` loaded before bootstrap
@@ -24,6 +26,7 @@ export function createAppConfig(config: AppConfig): ApplicationConfig {
       ...provideApiNotifications(),
       ...provideStarterSecurity(config),
       provideAppInitializer(initializeCore),
+      provideDevAutofill(...APP_DEV_AUTOFILL_SETS),
     ],
   };
 }

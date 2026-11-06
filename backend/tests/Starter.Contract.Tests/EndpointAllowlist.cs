@@ -24,8 +24,31 @@ public static class EndpointAllowlist
     /// <summary>The module that owns the public portal pages and the contact form.</summary>
     public const string PortalModule = "Portal";
 
+    /// <summary>The module that owns the generic record API.</summary>
+    public const string RecordsModule = "Records";
+
+    /// <summary>The deletable sample record type module.</summary>
+    public const string ServiceRequestsModule = "ServiceRequests"; // codelab:module ServiceRequests
+
     /// <summary>Wire members that legitimately carry a number: lookup ids seeded by migrations (Type.Member), passed to the PublicId contract.</summary>
     public static IReadOnlyCollection<string> NumericLookupIdMembers { get; } = ["SubmitContactMessageCommand.TopicId"];
+
+    /// <summary>
+    /// Wire members that carry a lookup value's PublicId token as a plain string (Type.Member), passed to the PublicId
+    /// contract. Each is already a codec-protected token (family <c>lookup-items</c>), never a raw id; it stays a string
+    /// so an unreadable or retired token is the step's field error (<c>SERVICE_REQUESTS_CATEGORY_UNKNOWN</c>) instead of
+    /// a body-level 400, as the wizard's client-side validation rules expect.
+    /// </summary>
+    public static IReadOnlyCollection<string> LookupTokenStringMembers { get; } =
+    [
+        "SaveServiceRequestDraftCommand.CategoryId", // codelab:module ServiceRequests
+        "ServiceRequestInput.CategoryId", // codelab:module ServiceRequests
+        "ServiceRequestDraftResponse.CategoryId", // codelab:module ServiceRequests
+        "ServiceRequestDetailsResponse.CategoryId", // codelab:module ServiceRequests
+    ];
+
+    /// <summary>Every wire member the PublicId contract lets through, each listed above with its reason.</summary>
+    public static IReadOnlyCollection<string> PublicIdExemptMembers => [.. NumericLookupIdMembers, .. LookupTokenStringMembers];
 
     /// <summary>Every allowlisted endpoint.</summary>
     public static IReadOnlyList<AllowlistEntry> Entries { get; } =
@@ -47,6 +70,11 @@ public static class EndpointAllowlist
         new("POST /api/notifications/{id:publicid}/read", EndpointAccess.Authenticated, NotificationsModule, "Any signed-in user may mark their own notification read; another user's id answers 404."),
         new("POST /api/portal/contact-messages", EndpointAccess.Anonymous, PortalModule, "The public contact form: the people most likely to write have no account. Rate-limited per client (the anonymous-write policy, trusted-proxy aware); answers only the reference number it generated."),
         new("GET /api/portal/content/{page}", EndpointAccess.Anonymous, PortalModule, "The public FAQ, service guide, privacy and terms pages are read before and without a session; published text only, never per-user data."),
+        new("GET /api/records/{recordType}/mine", EndpointAccess.Authenticated, RecordsModule, "The caller's own records of one record type; the record type's view-own permission comes from its registration and is checked live in ListMyRecords (403 RECORDS_VIEW_FORBIDDEN)."),
+        new("GET /api/records/{recordType}/{id:publicid}", EndpointAccess.Authenticated, RecordsModule, "One record for the caller's audience; owner with the type's view-own key, staff with its queue key reaching the record's organization, or records.oversight.view, all checked live by RecordLoader; anyone else gets 404."),
+        new("GET /api/records/{recordType}/{id:publicid}/timeline", EndpointAccess.Authenticated, RecordsModule, "The timeline of a record the caller may see (same live check as the detail; 404 otherwise)."),
+        new("POST /api/records/{recordType}/{id:publicid}/transitions", EndpointAccess.Authenticated, RecordsModule, "Takes a workflow action; the permission is the transition rule's own key (catalog data), decided live by RecordWorkflowEngine.Decide after the visibility check (403 WORKFLOW_FORBIDDEN, 404 hidden)."),
+        new("GET /api/service-requests/{id:publicid}", EndpointAccess.Authenticated, ServiceRequestsModule, "The sample's detail cards for whoever may see the record, decided live by the Records module (IRecordVisibility, the RecordLoader rule): the owner with service-requests.view-own; once submitted, a service-requests.queue or records.oversight.view holder whose scope reaches the record; anyone else gets 404."), // codelab:module ServiceRequests
         new("GET /api/features", EndpointAccess.Anonymous, EndpointOwners.Kernel, "Feature flags are read before sign-in; flags only, never identities."),
         new("GET /api/security/session-signing-key", EndpointAccess.Authenticated, EndpointOwners.Platform, "Issues the caller's session signing key right after sign-in; Codelab.Security requires authentication."),
         new("* /health/live", EndpointAccess.Anonymous, EndpointOwners.Platform, "Liveness probe for the load balancer; runs no check."),

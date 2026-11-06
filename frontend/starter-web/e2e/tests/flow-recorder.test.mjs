@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { StepStatus } from '../lib/flow-constants.mjs';
+import { BROWSER_LOCALES } from '../lib/constants.mjs';
+import { FLOW_VIEWPORT, StepStatus } from '../lib/flow-constants.mjs';
 import { FlowRecorder, readMails } from '../lib/flow-runtime.mjs';
 
 const folders = [];
@@ -80,6 +81,21 @@ describe('FlowRecorder', () => {
     flow.fail('Flow set-up', new Error('context refused s3cret'));
     expect(flow.steps).toEqual([{ title: 'Flow set-up', status: StepStatus.Failed, detail: 'context refused ***', screenshot: null }]);
     expect(flow.failed).toBe(true);
+  });
+
+  it('opens a context at the desktop viewport by default and at a given viewport on request', async () => {
+    const options = [];
+    const browser = {
+      newContext: async (contextOptions) => {
+        options.push(contextOptions);
+        return { addInitScript: async () => undefined, newPage: async () => ({ setDefaultTimeout: () => undefined }), close: async () => undefined };
+      },
+    };
+    const flow = new FlowRecorder({ browser, name: 'demo', baseUrl: 'http://localhost:4280/', outDir: tempFolder(), secrets: [] });
+    await flow.openPage('ar');
+    await flow.openPage('en', { name: '390', width: 390, height: 844 });
+    expect(options.map((entry) => entry.viewport)).toEqual([{ ...FLOW_VIEWPORT }, { width: 390, height: 844 }]);
+    expect(options.map((entry) => entry.locale)).toEqual([BROWSER_LOCALES.ar, BROWSER_LOCALES.en]);
   });
 
   it('builds app URLs below the base URL', () => {

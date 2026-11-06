@@ -58,7 +58,7 @@ showcase).
 
 ## Scripted user flows (`flows.mjs`)
 
-The phase-5 and phase-6 exit criteria as runnable scripts, one per flow, in the same installed Edge (no download). Each step is
+The phase-5, phase-6 and phase-7 exit criteria as runnable scripts, one per flow, in the same installed Edge (no download). Each step is
 logged with its result and a screenshot; the run writes `flows-report.json`, `flows-report.md` and `screenshots/` to
 `--out-dir`, so the report is the phase evidence.
 
@@ -69,12 +69,15 @@ logged with its result and a screenshot; the run writes `flows-report.json`, `fl
 | `activation` | An Excel-imported user (a generated `.xlsx`) gets the activation e-mail, opens the link, sets a password and signs in; the reused link is refused. |
 | `contact-faq` | A contact message returns a `CU-YYYY-NNN` number of this year and the contact inbox gets the e-mail; an admin edit of the first FAQ title shows on `/portal/faq` in en and ar. The titles are put back at the end. |
 | `attachments` | Phase 6: on `/attachments/demo` the admin uploads a PDF (the browser posts it to the attachment service with the upload-ticket header, across origins; the API links the receipt), sees it listed after a reload, downloads identical bytes, and a file of `MaxFileBytes + 1` is refused with `errors.ATTACHMENTS_FILE_TOO_LARGE` in en and in ar plus a reference code (row and banner). The uploaded PDF is removed at the end. |
+| `service-requests` | Phase 7, steps 1-8, run four times (ar and en, at 1440 and at 390 px): the requester fills the 3-step wizard with a PDF, saves the draft, resumes it from My requests and submits it (`SR-YYYY-NNN`; `SR-2026-001` on a fresh database); the reviewer claims it in the queue and starts the review (SLA badge shown); the requester sees the timeline update and a new notification; the return dialog blocks an empty reason; the reviewer returns it with a reason; the requester sees the reason and resubmits; the reviewer approves and no action is left for anyone; the timeline covers submit, review, return, resubmit, review, approve with at least two actors; the admin oversight shows it read-only; a second request is rejected with a reason and the requester has no resubmit. Step 9 (an SLA breach raises an escalation) needs an advanced `TimeProvider` and is proven in the test host (`Starter.Integration.Tests` `SlaBreachEscalationTests`). |
 
 ```powershell
 # App running (run-local.ps1); private Node first on PATH; from frontend/starter-web
 node e2e/flows.mjs --base-url http://localhost:4280 --out-dir ../../docs/evidence/P5/flows
 node e2e/flows.mjs --base-url http://localhost:4280 --flows activation,contact-faq --headed
 node e2e/flows.mjs --base-url http://localhost:4280 --flows attachments --out-dir ../../docs/evidence/P6/flows
+# Phase 7 against a reviewer slot (run-local.ps1 -Slot 1: web :4380, its own database)
+node e2e/flows.mjs --base-url http://localhost:4380 --flows service-requests --out-dir ../../docs/evidence/P7/ui/service-requests
 node e2e/flows.mjs --help
 ```
 
@@ -84,6 +87,11 @@ node e2e/flows.mjs --help
 - **E-mail:** the API's `FileDrop` mode writes `.eml` files to `%TEMP%\starter-mail` (`--mail-dir` for another
   `Notifications:Email:PickupDirectory`). This folder is the local SMTP sink. When the mail is not there yet, the flow
   runs `outbox-drain` from the jobs screen instead of waiting for the 5-minute schedule.
+- **Service Request accounts:** the requester is the first Development user (`Identity:DevUsers:0` of the secrets
+  file, `dev.viewer`); the flow grants it `service-requests.create`, `service-requests.view-own`, `attachments.view`
+  and `attachments.upload` on its access page for the run and takes back exactly the keys it added. The reviewer and
+  the admin oversight are the break-glass user: a separate account, because the engine refuses the staff rules to the
+  record's owner. Each variant files two requests and leaves them (terminal) in the database.
 - **Exit codes:** `0` all flows passed, `1` a step failed, `2` usage, `3` environment (no credentials, Edge not starting,
   app unreachable).
 - **Pure parts** (arguments, credentials, step log, `.eml` parsing, `.xlsx` building, reference numbers and run data)

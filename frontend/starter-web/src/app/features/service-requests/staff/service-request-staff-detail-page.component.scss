@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.service-request-staff-detail,
+.service-request-staff-detail__body,
+.service-request-staff-detail__attachments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.service-request-staff-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  color: var(--dga-color-text-link);
+}
+
+.service-request-staff-detail__status,
+.service-request-staff-detail__assignment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.service-request-staff-detail__muted {
+  color: var(--dga-color-text-secondary);
+}
+
+.service-request-staff-detail__section-title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.service-request-staff-detail__message {
+  margin: 0;
+}

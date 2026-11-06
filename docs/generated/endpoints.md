@@ -46,7 +46,7 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | GET | `/api/attachments/demo-record` | permission `attachments.view` | Attachments | The Development demo record the attachments demo page works on; 404 `ATTACHMENTS_RECORD_TYPE_UNKNOWN` when the demo record type is not registered (every environment but Development). |
 | GET | `/api/attachments/types` | permission `attachments.view` | Attachments | The active attachment types of one record type, ordered by key; 404 for an unknown record type. |
 | DELETE | `/api/attachments/{id:publicid}` | permission `attachments.remove` | Attachments | Removes an attachment (soft; the bytes are deleted later through the outbox): 204, or 404 for a missing or removed attachment or a record the user may not change. |
-| GET | `/api/attachments/{id:publicid}/content` | permission `attachments.view` | Attachments | The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record the user may not view, or bytes the service no longer has; 503 when the service is unreachable. |
+| GET | `/api/attachments/{id:publicid}/content` | permission `attachments.view` | Attachments | The file (no `Content-Disposition`: the SPA names the saved Blob; nosniff, sandboxed); 404 for a missing or removed attachment, a record the user may not view, or bytes the service no longer has; 503 when the service is unreachable. |
 | POST | `/api/auth/activate` | anonymous (allowlisted) | Identity | Sets the account's password from an activation link; the link is spent. |
 | POST | `/api/auth/ad/login` | anonymous (allowlisted) | Identity | Signs in with a directory user name and password. |
 | POST | `/api/auth/login` | anonymous (allowlisted) | Identity | Signs in with a user name and password. |
@@ -66,10 +66,24 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | POST | `/api/notifications/{id:publicid}/read` | authenticated (allowlisted) | Notifications | Marks one of the caller's notifications read (idempotent). |
 | POST | `/api/portal/contact-messages` | anonymous (allowlisted) | Portal | Stores a contact message and answers its reference number (201), the field errors (400), 409 while an administrator has switched the form off, or 429. |
 | GET | `/api/portal/content/{page}` | anonymous (allowlisted) | Portal | One page's content; 404 for an unknown page key. |
+| GET | `/api/queues/{recordType}` | permission `assignments.work` | Assignments | One page of the queue in a view (`unassigned`, `mine`, `all`); 400, 403, 404. |
+| POST | `/api/queues/{recordType}/{id:publicid}/assign` | permission `assignments.assign` | Assignments | Hands the record to `userId`: 204; 400 not eligible, 403, 404, 409. |
+| POST | `/api/queues/{recordType}/{id:publicid}/claim` | permission `assignments.work` | Assignments | The caller takes the record: 204; 403, 404, 409 already claimed or not assignable. |
+| POST | `/api/queues/{recordType}/{id:publicid}/release` | permission `assignments.work` | Assignments | The caller gives the record back: 204; 403 not the assignee, 404. |
+| GET | `/api/records/{recordType}/mine` | authenticated (allowlisted) | Records | The caller's own records of the type, newest first (drafts included); 403 without the view-own permission, 404 for an unknown type. |
+| GET | `/api/records/{recordType}/oversight` | permission `records.oversight.view` | Records | Every submitted record of the type with its owner, read-only (no allowed actions); 400 for a number filter too long. |
+| GET | `/api/records/{recordType}/{id:publicid}` | authenticated (allowlisted) | Records | One record for the caller's audience with the actions the caller may take now; 404 when missing or hidden. |
+| GET | `/api/records/{recordType}/{id:publicid}/timeline` | authenticated (allowlisted) | Records | The record's timeline, oldest first; 404 when missing or hidden. |
+| POST | `/api/records/{recordType}/{id:publicid}/transitions` | authenticated (allowlisted) | Records | Takes one action and answers the record's new detail: 400 (reason required or too long, or a submit that fails validation), 403 (not the caller's action), 404 (missing, hidden or unknown action), 409 (not allowed from the current status, required attachments missing, a concurrent change). |
 | GET | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.view` | Attachments | The record's live attachments and the required types it still misses; 404 for an unknown or hidden record. |
 | POST | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.upload` | Attachments | Links an uploaded file to the record by its receipt (201 with the attachment); 400 for an invalid, tampered or foreign receipt or an extension the type refuses, 404, or 409 when the type is full. |
 | POST | `/api/records/{recordType}/{recordId:publicid}/attachments/upload-ticket` | permission `attachments.upload` | Attachments | A sealed, single-use ticket to upload files of one type straight to the attachment service; 400, 404, or 409 when the record already holds the type's most files. |
 | GET | `/api/security/session-signing-key` | authenticated (allowlisted) | Codelab.Security |  |
+| POST | `/api/service-requests` | permission `service-requests.create` | ServiceRequests | Creates an empty draft owned by the caller: 201 `{ id }`. |
+| GET | `/api/service-requests/{id:publicid}` | authenticated (allowlisted) | ServiceRequests | The request's fields for the detail cards. Signed-in users only; the use case lets through the owner (with `service-requests.view-own`) and queue holders whose scope reaches it, and answers 404 to anyone else. |
+| GET | `/api/service-requests/{id:publicid}/draft` | permission `service-requests.create` | ServiceRequests | The caller's draft for the wizard to resume; 404 when missing or not the caller's. |
+| PUT | `/api/service-requests/{id:publicid}/draft` | permission `service-requests.create` | ServiceRequests | Saves one wizard step: 204; 400 with field errors; 404; 409 once the request is not editable. |
+| POST | `/api/service-requests/{id:publicid}/submit` | permission `service-requests.create` | ServiceRequests | Submits the draft: 200 `{ number }`; 400 `VALIDATION_FAILED` with the field errors of every incomplete step; 404; 409 `ATTACHMENTS_REQUIRED_MISSING` or `RECORDS_NOT_SUBMITTABLE`. |
 | ANY | `/health/live` | anonymous (allowlisted) | Platform |  |
 | ANY | `/health/ready` | anonymous (allowlisted) | Platform |  |
 | GET | `/openapi/{documentName}.json` | anonymous (allowlisted) | Microsoft.AspNetCore.OpenApi |  |

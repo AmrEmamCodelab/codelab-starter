@@ -39,7 +39,11 @@
                 { "type": "initial", "maximumWarning": "750kB", "maximumError": "1.5MB" },
                 { "type": "anyComponentStyle", "maximumWarning": "8kB", "maximumError": "16kB" }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                { "replace": "src/app/shared/dev-autofill/dev-autofill.impl.ts", "with": "src/app/shared/dev-autofill/dev-autofill.stub.ts" },
+                { "replace": "src/app/dev-autofill.sets.ts", "with": "src/app/shared/dev-autofill/dev-autofill.sets.stub.ts" }
+              ]
             },
             "development": {
               "optimization": false,

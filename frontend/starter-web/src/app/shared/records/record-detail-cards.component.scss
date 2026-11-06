@@ -1,0 +1,21 @@
+// Tokens only, logical CSS only: the field grid flows from the inline start, so it mirrors in RTL by itself.
+:host {
+  display: block;
+}
+
+.record-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.record-cards__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--dga-size-container) / 4)), 1fr));
+  gap: var(--dga-space-4);
+}
+
+// Inside a white card the muted text falls below 4.5:1, so the "not provided" text uses the secondary colour.
+.record-cards__empty {
+  color: var(--dga-color-text-secondary);
+}

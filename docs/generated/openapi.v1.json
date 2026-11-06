@@ -2016,7 +2016,7 @@
         "tags": [
           "AttachmentContent"
         ],
-        "summary": "The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record\r\nthe user may not view, or bytes the service no longer has; 503 when the service is unreachable.",
+        "summary": "The file (no `Content-Disposition`: the SPA names the saved Blob; nosniff, sandboxed); 404 for a missing or removed attachment, a record\r\nthe user may not view, or bytes the service no longer has; 503 when the service is unreachable.",
         "parameters": [
           {
             "name": "id",
@@ -2909,6 +2909,734 @@
         }
       }
     },
+    "/api/queues/{recordType}": {
+      "get": {
+        "tags": [
+          "Queues"
+        ],
+        "summary": "One page of the queue in a view (`unassigned`, `mine`, `all`); 400, 403, 404.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "View",
+            "in": "query",
+            "description": "The view word: `unassigned`, `mine` or `all` (required).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "description": "One open status value, or null for all of them.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Number",
+            "in": "query",
+            "description": "Part of the record number, or null.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SubmittedFrom",
+            "in": "query",
+            "description": "The earliest first-submit instant (ISO 8601), or null.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "SubmittedTo",
+            "in": "query",
+            "description": "The first-submit instant the range ends before (ISO 8601), or null.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "description": "The 1-based page, or null.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "description": "The page size, or null.",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkQueueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queues/{recordType}/{id}/assign": {
+      "post": {
+        "tags": [
+          "Queues"
+        ],
+        "summary": "Hands the record to `userId`: 204; 400 not eligible, 403, 404, 409.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRecordCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRecordCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRecordCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queues/{recordType}/{id}/claim": {
+      "post": {
+        "tags": [
+          "Queues"
+        ],
+        "summary": "The caller takes the record: 204; 403, 404, 409 already claimed or not assignable.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queues/{recordType}/{id}/release": {
+      "post": {
+        "tags": [
+          "Queues"
+        ],
+        "summary": "The caller gives the record back: 204; 403 not the assignee, 404.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/mine": {
+      "get": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "The caller's own records of the type, newest first (drafts included); 403 without the view-own permission, 404 for an unknown type.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordPageResponseOfRecordListItemResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/oversight": {
+      "get": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "Every submitted record of the type with its owner, read-only (no allowed actions); 400 for a number filter too long.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordPageResponseOfRecordListItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/{id}": {
+      "get": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "One record for the caller's audience with the actions the caller may take now; 404 when missing or hidden.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/{id}/timeline": {
+      "get": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "The record's timeline, oldest first; 404 when missing or hidden.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimelineEntryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/{id}/transitions": {
+      "post": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "Takes one action and answers the record's new detail: 400 (reason required or too long, or a submit that fails\r\nvalidation), 403 (not the caller's action), 404 (missing, hidden or unknown action), 409 (not allowed from the\r\ncurrent status, required attachments missing, a concurrent change).",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/records/{recordType}/{recordId}/attachments": {
       "get": {
         "tags": [
@@ -3159,6 +3887,240 @@
           }
         }
       }
+    },
+    "/api/service-requests": {
+      "post": {
+        "tags": [
+          "ServiceRequests"
+        ],
+        "summary": "Creates an empty draft owned by the caller: 201 `{ id }`.",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedServiceRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/service-requests/{id}": {
+      "get": {
+        "tags": [
+          "ServiceRequests"
+        ],
+        "summary": "The request's fields for the detail cards. Signed-in users only; the use case lets through the owner (with\r\n`service-requests.view-own`) and queue holders whose scope reaches it, and answers 404 to anyone else.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRequestDetailsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/service-requests/{id}/draft": {
+      "get": {
+        "tags": [
+          "ServiceRequests"
+        ],
+        "summary": "The caller's draft for the wizard to resume; 404 when missing or not the caller's.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRequestDraftResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ServiceRequests"
+        ],
+        "summary": "Saves one wizard step: 204; 400 with field errors; 404; 409 once the request is not editable.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveServiceRequestDraftCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveServiceRequestDraftCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveServiceRequestDraftCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/service-requests/{id}/submit": {
+      "post": {
+        "tags": [
+          "ServiceRequests"
+        ],
+        "summary": "Submits the draft: 200 `{ number }`; 400 `VALIDATION_FAILED` with the field errors of every incomplete\r\nstep; 404; 409 `ATTACHMENTS_REQUIRED_MISSING` or `RECORDS_NOT_SUBMITTABLE`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmittedServiceRequestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3339,6 +4301,65 @@
           }
         },
         "description": "An activation just issued: e-mailed to the user, or a link to hand over."
+      },
+      "AllowedActionResponse": {
+        "required": [
+          "actionKey",
+          "labelKey",
+          "reason",
+          "reasonFieldKey",
+          "toStatus",
+          "toTerminal"
+        ],
+        "type": "object",
+        "properties": {
+          "actionKey": {
+            "type": "string",
+            "description": "The key to send back."
+          },
+          "labelKey": {
+            "type": "string",
+            "description": "The button label key."
+          },
+          "reason": {
+            "description": "Whether a reason is asked (1 none, 2 optional, 3 required).",
+            "$ref": "#/components/schemas/ReasonRequirement"
+          },
+          "reasonFieldKey": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reason's field, or null."
+          },
+          "toStatus": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The status the record lands on.",
+            "format": "int32"
+          },
+          "toTerminal": {
+            "type": "boolean",
+            "description": "True when the action closes the record."
+          }
+        },
+        "description": "One action the caller may take now."
+      },
+      "AssignRecordCommand": {
+        "required": [
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "The PublicId of the user who will hold the record.",
+            "$ref": "#/components/schemas/PublicIdOfAssigneeUserIds"
+          }
+        },
+        "description": "The body of `POST api/queues/{recordType}/{id}/assign`, validated by AssignRecordValidator."
       },
       "AssignedRoleResponse": {
         "required": [
@@ -3707,6 +4728,19 @@
           }
         },
         "description": "The body of `POST /api/admin/users`. There is no password field: a password-bound account gets an activation\r\nlink, an Active Directory or SSO account signs in through its directory or identity provider."
+      },
+      "CreatedServiceRequestResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The new record's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfServiceRequestRecordIds"
+          }
+        },
+        "description": "The answer of the create endpoint."
       },
       "CreatedUserResponse": {
         "required": [
@@ -4793,6 +5827,14 @@
           }
         }
       },
+      "PublicIdOfAssigneeUserIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
       "PublicIdOfAttachableRecordIds": {
         "examples": [
           "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -4868,7 +5910,47 @@
         "type": "string",
         "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
       },
+      "PublicIdOfQueueRecordIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfRecordAttachmentIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfRecordUserIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfRecordsIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
       "PublicIdOfRoleIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfServiceRequestRecordIds": {
         "examples": [
           "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         ],
@@ -4937,6 +6019,77 @@
         },
         "description": "The body of `PUT /api/admin/access/users/{userId}/grants`: the user's complete set of roles and direct grants\r\n(replaces both), validated by PutUserGrantsValidator. A role or key listed twice keeps its widest\r\nscope."
       },
+      "QueueAssigneeResponse": {
+        "required": [
+          "userId",
+          "displayName",
+          "assignedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "The assignee's PublicId (family `users`).",
+            "$ref": "#/components/schemas/PublicIdOfAssigneeUserIds"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The assignee's display name."
+          },
+          "assignedAt": {
+            "type": "string",
+            "description": "When the current assignment started.",
+            "format": "date-time"
+          }
+        },
+        "description": "Who holds a queue record."
+      },
+      "QueueSlaResponse": {
+        "required": [
+          "state",
+          "dueAt"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "description": "On track (1), due soon (2) or breached (3).",
+            "$ref": "#/components/schemas/SlaState"
+          },
+          "dueAt": {
+            "type": "string",
+            "description": "The deadline of the current status.",
+            "format": "date-time"
+          }
+        },
+        "description": "A queue record's SLA badge."
+      },
+      "ReasonRequirement": {
+        "type": "integer",
+        "description": "Whether a transition takes a reason from the actor. Values are sent on the wire; never renumber a member."
+      },
+      "RecordAssigneeResponse": {
+        "required": [
+          "userId",
+          "displayName",
+          "assignedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "The assignee (family `users`).",
+            "$ref": "#/components/schemas/PublicIdOfRecordUserIds"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The assignee's name."
+          },
+          "assignedAt": {
+            "type": "string",
+            "description": "Since when.",
+            "format": "date-time"
+          }
+        },
+        "description": "Who currently works on the record."
+      },
       "RecordAttachmentResponse": {
         "required": [
           "id",
@@ -5004,6 +6157,278 @@
           }
         },
         "description": "The body of `GET /api/records/{recordType}/{recordId}/attachments`."
+      },
+      "RecordDetailResponse": {
+        "required": [
+          "id",
+          "recordType",
+          "number",
+          "status",
+          "statusKey",
+          "wording",
+          "audience",
+          "isTerminal",
+          "ownerDisplayName",
+          "createdAt",
+          "submittedAt",
+          "updatedAt",
+          "lastReason",
+          "allowedActions",
+          "assignee",
+          "sla",
+          "attachableRecordType",
+          "attachmentsRecordId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The record id (family `records`).",
+            "$ref": "#/components/schemas/PublicIdOfRecordsIds"
+          },
+          "recordType": {
+            "type": "string",
+            "description": "The record type key."
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reference number, or null."
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The status value.",
+            "format": "int32"
+          },
+          "statusKey": {
+            "type": "string",
+            "description": "The status key."
+          },
+          "wording": {
+            "description": "The status wording keys of every audience.",
+            "$ref": "#/components/schemas/StatusWordingResponse"
+          },
+          "audience": {
+            "description": "How the caller sees the record (1 requester, 2 staff, 3 admin).",
+            "$ref": "#/components/schemas/WorkflowAudience"
+          },
+          "isTerminal": {
+            "type": "boolean",
+            "description": "True when closed."
+          },
+          "ownerDisplayName": {
+            "type": "string",
+            "description": "The owner's display name."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When it was created.",
+            "format": "date-time"
+          },
+          "submittedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When first submitted, or null.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When it last changed status.",
+            "format": "date-time"
+          },
+          "lastReason": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reason of the latest timeline entry, or null."
+          },
+          "allowedActions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AllowedActionResponse"
+            },
+            "description": "What the caller may do now (empty when terminal and for oversight)."
+          },
+          "assignee": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The current assignee, or null.",
+                "$ref": "#/components/schemas/RecordAssigneeResponse"
+              }
+            ]
+          },
+          "sla": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The SLA badge, or null.",
+                "$ref": "#/components/schemas/RecordSlaResponse"
+              }
+            ]
+          },
+          "attachableRecordType": {
+            "type": "string",
+            "description": "The record type of its attachment routes."
+          },
+          "attachmentsRecordId": {
+            "description": "The record id in the attachment routes' family (`attachable-records`).",
+            "$ref": "#/components/schemas/PublicIdOfRecordAttachmentIds"
+          }
+        },
+        "description": "The body of `GET api/records/{recordType}/{id}` and of a transition."
+      },
+      "RecordListItemResponse": {
+        "required": [
+          "id",
+          "recordType",
+          "number",
+          "status",
+          "statusKey",
+          "createdAt",
+          "submittedAt",
+          "updatedAt",
+          "isTerminal",
+          "ownerDisplayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The record id (family `records`).",
+            "$ref": "#/components/schemas/PublicIdOfRecordsIds"
+          },
+          "recordType": {
+            "type": "string",
+            "description": "The record type key."
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reference number, or null until submitted."
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The status value.",
+            "format": "int32"
+          },
+          "statusKey": {
+            "type": "string",
+            "description": "The status key."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When it was created.",
+            "format": "date-time"
+          },
+          "submittedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When it was first submitted, or null.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When it last changed status.",
+            "format": "date-time"
+          },
+          "isTerminal": {
+            "type": "boolean",
+            "description": "True when closed."
+          },
+          "ownerDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The owner's display name (oversight only; null in `mine`)."
+          }
+        },
+        "description": "One record in a list (`mine`; `oversight` adds the owner)."
+      },
+      "RecordPageResponseOfRecordListItemResponse": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordListItemResponse"
+            },
+            "description": "The items."
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size.",
+            "format": "int32"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Every match.",
+            "format": "int32"
+          }
+        },
+        "description": "A page of a list endpoint (`page` is 1-based)."
+      },
+      "RecordSlaResponse": {
+        "required": [
+          "state",
+          "dueAt"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "description": "1 on track, 2 due soon, 3 breached.",
+            "$ref": "#/components/schemas/SlaState"
+          },
+          "dueAt": {
+            "type": "string",
+            "description": "When the current status is due.",
+            "format": "date-time"
+          }
+        },
+        "description": "The record's deadline badge."
       },
       "RefreshCommand": {
         "required": [
@@ -5210,6 +6635,73 @@
         },
         "description": "One row of `GET /api/admin/access/roles`."
       },
+      "SaveServiceRequestDraftCommand": {
+        "required": [
+          "categoryId",
+          "title",
+          "description",
+          "contactPhone",
+          "preferredDate",
+          "step"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category value's PublicId token (family `lookup-items`)."
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The title."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The description."
+          },
+          "contactPhone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The contact phone."
+          },
+          "preferredDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The preferred date, `YYYY-MM-DD`."
+          },
+          "step": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The wizard step (1, 2 or 3).",
+            "format": "int32"
+          },
+          "input": {
+            "description": "The wizard fields of the body.",
+            "$ref": "#/components/schemas/ServiceRequestInput"
+          },
+          "draftStep": {
+            "description": "The step, or null when the body names none or an undefined one.",
+            "$ref": "#/components/schemas/ServiceRequestDraftStep"
+          }
+        },
+        "description": "The body of `PUT api/service-requests/{id}/draft`: the draft fields as the wizard holds them, plus the step\r\nbeing saved. Only that step's fields are validated and written; the others are ignored (they keep what their own\r\nstep saved), so a stored draft never holds a field its step did not accept."
+      },
       "SectionInput": {
         "required": [
           "id",
@@ -5272,6 +6764,182 @@
           }
         },
         "description": "One section of a replace."
+      },
+      "ServiceRequestDetailsResponse": {
+        "required": [
+          "id",
+          "number",
+          "categoryId",
+          "categoryNameAr",
+          "categoryNameEn",
+          "title",
+          "description",
+          "contactPhone",
+          "preferredDate"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The record's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfServiceRequestRecordIds"
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reference number, or null before the submit."
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category value's PublicId token."
+          },
+          "categoryNameAr": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category's Arabic name."
+          },
+          "categoryNameEn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category's English name."
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The title."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The description."
+          },
+          "contactPhone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The contact phone."
+          },
+          "preferredDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The preferred date (`YYYY-MM-DD`), or null."
+          }
+        },
+        "description": "The fields of a service request for its detail cards. Every field but string? ServiceRequestDetailsResponse.Number and\r\nstring? ServiceRequestDetailsResponse.PreferredDate is set once submitted; the category names are null when the value was retired."
+      },
+      "ServiceRequestDraftResponse": {
+        "required": [
+          "id",
+          "categoryId",
+          "title",
+          "description",
+          "contactPhone",
+          "preferredDate"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The record's PublicId.",
+            "$ref": "#/components/schemas/PublicIdOfServiceRequestRecordIds"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category value's PublicId token (family `lookup-items`), or null."
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The title, or null."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The description, or null."
+          },
+          "contactPhone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The contact phone, or null."
+          },
+          "preferredDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The preferred date (`YYYY-MM-DD`), or null."
+          }
+        },
+        "description": "A draft as the wizard resumes it (every field null until its step is saved)."
+      },
+      "ServiceRequestDraftStep": {
+        "type": "integer"
+      },
+      "ServiceRequestInput": {
+        "required": [
+          "categoryId",
+          "title",
+          "description",
+          "contactPhone",
+          "preferredDate"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contactPhone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "preferredDate": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "The wizard fields as text, exactly as the client sends them (every one may be null or absent). The category is the\r\nlookup value's PublicId token; the preferred date is `YYYY-MM-DD`."
       },
       "SessionResponse": {
         "required": [
@@ -5440,6 +7108,10 @@
         "type": "integer",
         "description": "How a runtime setting's text value is read and validated. Stored and sent on the wire as the integer value; the\r\nclient labels it from its ar and en bundles."
       },
+      "SlaState": {
+        "type": "integer",
+        "description": "Where a record stands against the deadline of its current status (stored nowhere; sent as its int value)."
+      },
       "SsoExchangeCommand": {
         "required": [
           "ticket",
@@ -5476,6 +7148,29 @@
           }
         },
         "description": "The end of an SSO logout."
+      },
+      "StatusWordingResponse": {
+        "required": [
+          "requesterKey",
+          "staffKey",
+          "adminKey"
+        ],
+        "type": "object",
+        "properties": {
+          "requesterKey": {
+            "type": "string",
+            "description": "The requester screens' key."
+          },
+          "staffKey": {
+            "type": "string",
+            "description": "The staff screens' key."
+          },
+          "adminKey": {
+            "type": "string",
+            "description": "The oversight key."
+          }
+        },
+        "description": "The status wording keys of one status, one per audience."
       },
       "StringSegment": {
         "type": "object",
@@ -5563,6 +7258,110 @@
           }
         },
         "description": "The body of `POST /api/portal/contact-messages`. Every member is nullable, so a missing field comes back as a\r\nfield error of the validator rather than as a binding failure in another shape."
+      },
+      "SubmittedServiceRequestResponse": {
+        "required": [
+          "number"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "The reference number, for example `SR-2026-001`."
+          }
+        },
+        "description": "The answer of the submit endpoint."
+      },
+      "TimelineEntryResponse": {
+        "required": [
+          "at",
+          "actorDisplayName",
+          "side",
+          "actionKey",
+          "fromStatus",
+          "toStatus",
+          "toStatusKey",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "description": "When it happened.",
+            "format": "date-time"
+          },
+          "actorDisplayName": {
+            "type": "string",
+            "description": "The actor's name at the time."
+          },
+          "side": {
+            "description": "1 requester, 2 staff, 3 system.",
+            "$ref": "#/components/schemas/TransitionSide"
+          },
+          "actionKey": {
+            "type": "string",
+            "description": "The action key."
+          },
+          "fromStatus": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The status before, or null for the first entry.",
+            "format": "int32"
+          },
+          "toStatus": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The status after.",
+            "format": "int32"
+          },
+          "toStatusKey": {
+            "type": "string",
+            "description": "The key of the status after."
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reason, or null."
+          }
+        },
+        "description": "One timeline entry."
+      },
+      "TransitionCommand": {
+        "required": [
+          "action",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The action key (one of the record's allowed actions)."
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The reason, or null; the workflow decides whether it is required and how long it may be."
+          }
+        },
+        "description": "The body of `POST api/records/{recordType}/{id}/transitions`."
+      },
+      "TransitionSide": {
+        "type": "integer",
+        "description": "Which side of the counter takes a transition: the requester screens, the staff screens or a background job. The\r\nallowed actions offered to a screen are those of its side. Values are stored and sent on the wire."
       },
       "TriggeredJobRunResponse": {
         "required": [
@@ -6038,6 +7837,124 @@
           }
         },
         "description": "A virtual role that reaches the user."
+      },
+      "WorkQueueItemResponse": {
+        "required": [
+          "id",
+          "number",
+          "status",
+          "statusKey",
+          "submittedAt",
+          "ownerDisplayName",
+          "assignee",
+          "sla"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The record's PublicId (family `records`; opens the record detail).",
+            "$ref": "#/components/schemas/PublicIdOfQueueRecordIds"
+          },
+          "number": {
+            "type": "string",
+            "description": "The reference number."
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The status value.",
+            "format": "int32"
+          },
+          "statusKey": {
+            "type": "string",
+            "description": "The status's wire key (the client builds the i18n key from it)."
+          },
+          "submittedAt": {
+            "type": "string",
+            "description": "When the record was first submitted.",
+            "format": "date-time"
+          },
+          "ownerDisplayName": {
+            "type": "string",
+            "description": "The requester's display name."
+          },
+          "assignee": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Who holds the record, or null.",
+                "$ref": "#/components/schemas/QueueAssigneeResponse"
+              }
+            ]
+          },
+          "sla": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The SLA badge, or null.",
+                "$ref": "#/components/schemas/QueueSlaResponse"
+              }
+            ]
+          }
+        },
+        "description": "One record of `GET api/queues/{recordType}`."
+      },
+      "WorkQueueResponse": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkQueueItemResponse"
+            },
+            "description": "The page's records."
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size used.",
+            "format": "int32"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of matching records on every page.",
+            "format": "int32"
+          }
+        },
+        "description": "The body of `GET api/queues/{recordType}`."
+      },
+      "WorkflowAudience": {
+        "type": "integer",
+        "description": "Who reads a status: each audience has its own wording for the same status (the requester sees \"With the team\",\r\nstaff see \"Under review\"). Values are stored and sent on the wire; never renumber a member."
       }
     }
   },
@@ -6065,6 +7982,9 @@
     },
     {
       "name": "AccessAdmin"
+    },
+    {
+      "name": "Queues"
     },
     {
       "name": "Attachments"
@@ -6116,6 +8036,12 @@
     },
     {
       "name": "AdminPortalContent"
+    },
+    {
+      "name": "Records"
+    },
+    {
+      "name": "ServiceRequests"
     },
     {
       "name": "AdminSettings"

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.service-request-queue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.service-request-queue__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-2);
+  color: var(--dga-color-text-link);
+}
+
+.service-request-queue__number {
+  color: var(--dga-color-text-link);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.service-request-queue__muted {
+  color: var(--dga-color-text-secondary);
+}
+
+.service-request-queue__message,
+.service-request-queue__reference {
+  margin: 0;
+}

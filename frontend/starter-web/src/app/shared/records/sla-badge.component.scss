@@ -1,0 +1,15 @@
+:host {
+  display: inline-block;
+}
+
+.sla-badge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-2);
+}
+
+.sla-badge__due {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}

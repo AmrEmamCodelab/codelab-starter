@@ -10,5 +10,8 @@ public static class LookupTypes
     /// <summary>The contact topics lookup (<see cref="ContactTopicIds"/>).</summary>
     public const string ContactTopics = "contact-topics";
 
+    /// <summary>The service request categories lookup (<see cref="ServiceRequestCategoryIds"/>).</summary>
+    public const string ServiceRequestCategories = "service-request-categories";
+
     // scaffold:lookup-types
 }

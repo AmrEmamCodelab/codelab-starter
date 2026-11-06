@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The deletable sample record type "service-request" (ADR-004), created by tools/scaffold/new-module.mjs. It only
+    configures the engine (workflow catalog, record type, SLA, submit validator, attachment access) and adds its own
+    fields table (schema servicerequests) and typed wizard endpoints. Layers by namespace: .Domain, .Application,
+    .Infrastructure, .Api. It never references another module; it talks to them through kernel ports in
+    Starter.Application. Delete it with tools/remove-module.ps1 -Name ServiceRequests. See MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Starter.Modules.ServiceRequests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Starter.Domain\Starter.Domain.csproj" />
+    <ProjectReference Include="..\..\Starter.Application\Starter.Application.csproj" />
+    <ProjectReference Include="..\..\Starter.Infrastructure\Starter.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Starter.Modules.ServiceRequests.Tests" />
+  </ItemGroup>
+</Project>

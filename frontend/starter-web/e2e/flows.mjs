@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Scripted user flows (phase-5 and phase-6 exit criteria): runs the selected flows in the installed Microsoft Edge against a running app and
+// Scripted user flows (phase-5, phase-6 and phase-7 exit criteria): runs the selected flows in the installed Microsoft Edge against a running app and
 // writes flows-report.json, flows-report.md and one screenshot per step to --out-dir. See e2e/README.md (Flows).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -7,6 +7,7 @@ import { runActivation } from './flows/activation.mjs';
 import { runAttachments } from './flows/attachments.mjs';
 import { runContactFaq } from './flows/contact-faq.mjs';
 import { runNotificationBell } from './flows/notification-bell.mjs';
+import { runServiceRequests } from './flows/service-requests.mjs';
 import { runSettingsJobs } from './flows/settings-jobs.mjs';
 import { FLOW_USAGE, parseFlowArgs, resolveCredentials } from './lib/flow-args.mjs';
 import { FLOW_REPORT_JSON, FLOW_REPORT_MARKDOWN, FlowExitCodes, FlowNames } from './lib/flow-constants.mjs';
@@ -19,6 +20,7 @@ const FLOW_RUNNERS = Object.freeze({
   [FlowNames.Activation]: runActivation,
   [FlowNames.ContactFaq]: runContactFaq,
   [FlowNames.Attachments]: runAttachments,
+  [FlowNames.ServiceRequests]: runServiceRequests,
 });
 
 async function appReachable(baseUrl) {

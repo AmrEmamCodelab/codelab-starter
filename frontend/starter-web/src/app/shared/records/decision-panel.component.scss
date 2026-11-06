@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.decision-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+
+  p {
+    margin: 0;
+  }
+}
+
+.decision-panel__title {
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+// Inline end: the expected step (sorted last) sits where the eye ends, on the left in RTL.
+.decision-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--dga-space-3);
+}
+
+.decision-panel__empty {
+  color: var(--dga-color-text-secondary);
+}
+
+.decision-panel__dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-3);
+  margin-block-start: var(--dga-space-3);
+
+  p {
+    margin: 0;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "errors": {
+    "NOT_FOUND": "The item you asked for was not found."
+  },
+  "serviceRequests": {
+    "title": "Service requests",
+    "status": {
+      "draft": {
+        "requester": "Draft"
+      }
+    }
+  },
+  "serviceRequests.flat": "A flat key under the prefix",
+  "serviceRequestsArchive": {
+    "title": "Not the same prefix"
+  },
+  "records": {
+    "serviceRequests": "A nested key elsewhere stays"
+  }
+}

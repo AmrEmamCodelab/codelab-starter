@@ -13,6 +13,7 @@
     <Project Path="backend/tests/Starter.Architecture.Tests/Starter.Architecture.Tests.csproj" />
     <Project Path="backend/tests/Starter.Contract.Tests/Starter.Contract.Tests.csproj" />
     <Project Path="backend/tests/Starter.Integration.Tests/Starter.Integration.Tests.csproj" />
+    <Project Path="backend/tests/Starter.Workflow.Testing/Starter.Workflow.Testing.csproj" />
     <Project Path="backend/tools/Starter.DocsGen/Starter.DocsGen.csproj" />
     <Project Path="backend/tools/Starter.DocsGen.Tests/Starter.DocsGen.Tests.csproj" />
     <Project Path="backend/tools/Starter.DevIdp/Starter.DevIdp.csproj" />
@@ -33,6 +34,14 @@
     <Project Path="backend/tests/Modules/Starter.Modules.Portal.Tests/Starter.Modules.Portal.Tests.csproj" />
     <Project Path="backend/src/Modules/Attachments/Starter.Modules.Attachments.csproj" />
     <Project Path="backend/tests/Modules/Starter.Modules.Attachments.Tests/Starter.Modules.Attachments.Tests.csproj" />
+    <Project Path="backend/src/Modules/Records/Starter.Modules.Records.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Records.Tests/Starter.Modules.Records.Tests.csproj" />
+    <Project Path="backend/src/Modules/Assignments/Starter.Modules.Assignments.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Assignments.Tests/Starter.Modules.Assignments.Tests.csproj" />
+    <Project Path="backend/src/Modules/Deadlines/Starter.Modules.Deadlines.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Deadlines.Tests/Starter.Modules.Deadlines.Tests.csproj" />
+    <Project Path="backend/src/Modules/ServiceRequests/Starter.Modules.ServiceRequests.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.ServiceRequests.Tests/Starter.Modules.ServiceRequests.Tests.csproj" />
   </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />

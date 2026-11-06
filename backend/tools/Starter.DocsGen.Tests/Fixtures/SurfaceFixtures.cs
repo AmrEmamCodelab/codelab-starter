@@ -49,9 +49,10 @@ internal static class SurfaceFixtures
                 new StatusMemberDoc(1, "Queued", "Waiting."),
             ]),
             new StatusDoc("EmptyStatus", "Alpha.EmptyStatus", "Alpha", string.Empty, []),
-        ]);
+        ],
+        Workflows: [FixtureRecordWorkflow.Doc()]);
 
-    public static ApiSurface Empty() => new(OpenApi, [], [], [], [], []);
+    public static ApiSurface Empty() => new(OpenApi, [], [], [], [], [], []);
 }
 
 /// <summary>An <see cref="IApiSurfaceSource"/> that returns a fixed surface or throws.</summary>

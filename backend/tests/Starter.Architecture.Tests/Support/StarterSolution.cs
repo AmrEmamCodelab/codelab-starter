@@ -55,6 +55,25 @@ public static class StarterSolution
     /// The modules that have a Domain layer (types under <c>&lt;root&gt;.Domain</c>), for the Domain-only theories. A module
     /// whose entities are kernel types (the Audit viewer: <c>Starter.Domain.Auditing</c>) has no Domain layer to check.
     /// </summary>
+    /// <summary>The modules that have an Api layer (a module without endpoints, such as Deadlines, has none).</summary>
+    public static TheoryData<string> ModuleNamesWithApi
+    {
+        get
+        {
+            var data = new TheoryData<string>();
+            foreach (var assembly in ModuleAssemblies)
+            {
+                var apiRoot = $"{RootNamespaceOf(assembly)}.{LayerNames.Api}";
+                if (assembly.GetTypes().Any(type => type.Namespace is { } name && LayerPlacement.IsSameOrNested(name, apiRoot)))
+                {
+                    data.Add(ModuleNaming.NameOf(assembly));
+                }
+            }
+
+            return data;
+        }
+    }
+
     public static TheoryData<string> ModuleNamesWithDomain
     {
         get

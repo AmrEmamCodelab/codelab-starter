@@ -52,6 +52,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release
 # Local stack: API :5180, Attachment service :5185, web :4280 (+ Seq :5341 when available); -NoAttachments skips the service; -Stop stops only what it started
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1
+# A second stack next to a running one (ports +n*100, own build/DB/storage/state, frozen web build); stop it with -Stop -Slot 1
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Slot 1
 # Local secrets for the API and the Attachment service (gitignored appsettings.Development.local.json; adds missing keys, -Force regenerates)
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1
 ```

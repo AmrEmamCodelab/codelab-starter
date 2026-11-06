@@ -20,7 +20,7 @@ public sealed class LookupsModelTests
         Assert.Equal(LookupsDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(LookupsTableNames.LookupTypes, context.Model.FindEntityType(typeof(LookupType))!.GetTableName());
         Assert.Equal(LookupsTableNames.LookupItems, context.Model.FindEntityType(typeof(LookupItem))!.GetTableName());
-        Assert.Equal([LookupsMigrationIds.InitialCreate, AddContactTopicsLookup.MigrationId], context.Database.GetMigrations());
+        Assert.Equal([LookupsMigrationIds.InitialCreate, AddContactTopicsLookup.MigrationId, AddServiceRequestCategoriesLookup.MigrationId], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 

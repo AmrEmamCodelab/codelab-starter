@@ -21,6 +21,18 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `ACCESS_USER_NOT_FOUND` | `AccessErrorCodes.UserNotFound` | No user has this id (404). |
 | `ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE` | `AccessErrorCodes.VirtualRoleNotAssignable` | A virtual role reaches its users by kind and is never assigned (400). |
 
+## Assignments
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `ASSIGNMENTS_ACTOR_UNKNOWN` | `AssignmentsErrorCodes.ActorUnknown` | The caller's token names no known user account (403). |
+| `ASSIGNMENTS_ALREADY_CLAIMED` | `AssignmentsErrorCodes.AlreadyClaimed` | The record already has an assignee (409): claim it only after it is released. |
+| `ASSIGNMENTS_ASSIGNEE_NOT_ELIGIBLE` | `AssignmentsErrorCodes.AssigneeNotEligible` | The chosen user does not hold the queue permission for the record's organization, or is inactive (400). |
+| `ASSIGNMENTS_NOT_ASSIGNABLE` | `AssignmentsErrorCodes.NotAssignable` | The record is a draft or closed, so it is not in the queue (409). |
+| `ASSIGNMENTS_NOT_ASSIGNEE` | `AssignmentsErrorCodes.NotAssignee` | Only the current assignee may release the record (403). |
+| `ASSIGNMENTS_QUEUE_FORBIDDEN` | `AssignmentsErrorCodes.QueueForbidden` | The caller does not hold the record type's queue permission (403). |
+| `ASSIGNMENTS_RECORD_TYPE_UNKNOWN` | `AssignmentsErrorCodes.RecordTypeUnknown` | No module registers this record type with a workflow, so it has no queue (404). |
+
 ## Attachments
 
 | Code | Constant | Description |
@@ -95,7 +107,15 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `ATTACHMENTS_REQUIRED_MISSING` | `AttachmentErrorCodes.RequiredMissing` | The record still misses an attachment of a required type (409); returned by the module whose action the `IRequiredAttachments` interlock blocked. |
 | `OUTBOX_LEASE_EXPIRED` | `OutboxErrorCodes.LeaseExpired` | The lease of the final attempt expired without an outcome (the drain died mid-delivery). |
 | `OUTBOX_NO_HANDLER` | `OutboxErrorCodes.NoHandler` | No `IOutboxHandler` is registered for the message type. |
+| `RECORDS_CONCURRENCY` | `RecordsErrorCodes.Concurrency` | Someone else changed the record first; reload and try again (409). |
+| `RECORDS_NOT_FOUND` | `RecordsErrorCodes.NotFound` | The record does not exist or is not the caller's (404; a foreign record is never confirmed to exist). |
+| `RECORDS_NOT_SUBMITTABLE` | `RecordsErrorCodes.NotSubmittable` | The record is not in a state that can be submitted or resubmitted (409). |
 | `VALIDATION_FAILED` | `PlatformErrorCodes.Validation` | Well-formed request, invalid field values (Codelab.Errors `ErrorCodes.Validation`). |
+| `WORKFLOW_ACTION_NOT_ALLOWED` | `WorkflowErrorCodes.ActionNotAllowed` | The action is not allowed from the record's current status (409). |
+| `WORKFLOW_ACTION_UNKNOWN` | `WorkflowErrorCodes.ActionUnknown` | The record type has no action with this key (404). |
+| `WORKFLOW_FORBIDDEN` | `WorkflowErrorCodes.Forbidden` | The caller may not take the action (403). |
+| `WORKFLOW_REASON_REQUIRED` | `WorkflowErrorCodes.ReasonRequired` | The action needs a reason (400, with the reason field's error). |
+| `WORKFLOW_REASON_TOO_LONG` | `WorkflowErrorCodes.ReasonTooLong` | The reason is too long (400, with the reason field's error). |
 
 ## Lookups
 
@@ -123,6 +143,19 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `PORTAL_PAGE_NOT_FOUND` | `PortalErrorCodes.PageNotFound` | The `{page}` segment names no content page (404). |
 | `PORTAL_SECTION_NOT_ON_PAGE` | `PortalErrorCodes.SectionNotOnPage` | A section id in a replace is not a section of that page, for example one another editor removed (409). |
 | `PORTAL_TOPIC_NOT_FOUND` | `PortalErrorCodes.TopicNotFound` | The contact topic is unknown or retired (400, also the `topicId` field message). |
+
+## Records
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `RECORDS_ACTOR_UNKNOWN` | `RecordsModuleErrorCodes.ActorUnknown` | The token names no active account, so nobody can own or act on a record (403). |
+| `RECORDS_VIEW_FORBIDDEN` | `RecordsModuleErrorCodes.ViewForbidden` | The caller lacks the record type's view-own permission, so has no "my records" list (403). |
+
+## ServiceRequests
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `SERVICE_REQUESTS_NOT_EDITABLE` | `ServiceRequestsErrorCodes.NotEditable` | The request is no longer a draft or returned, so its fields cannot change (409). |
 
 ## Settings
 

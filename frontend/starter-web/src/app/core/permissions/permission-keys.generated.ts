@@ -11,6 +11,10 @@ export const PermissionKeys = {
   AccessRolesManage: 'access.roles.manage',
   /** See the roles, their permissions and the permission catalog. (module Access) */
   AccessRolesView: 'access.roles.view',
+  /** Assign queue records to other users who hold the record type's queue permission. (module Assignments) */
+  AssignmentsAssign: 'assignments.assign',
+  /** Work record queues: list a queue, claim a record and release your own (with the record type's queue permission). (module Assignments) */
+  AssignmentsWork: 'assignments.work',
   /** Remove a record's attachments (where the record allows it). (module Attachments) */
   AttachmentsRemove: 'attachments.remove',
   /** Upload files and link them to a record (where the record allows it). (module Attachments) */
@@ -39,6 +43,18 @@ export const PermissionKeys = {
   PortalContentManage: 'portal.content.manage',
   /** Read the FAQ, service guide, privacy and terms content in the admin editor. (module Portal) */
   PortalContentView: 'portal.content.view',
+  /** Read every record of every record type, read-only (admin oversight). (module Records) */
+  RecordsOversightView: 'records.oversight.view',
+  /** File service requests: create, fill in and submit a draft, resubmit and cancel your own request. (module ServiceRequests) */
+  ServiceRequestsCreate: 'service-requests.create',
+  /** Approve, reject or return a service request under review. (module ServiceRequests) */
+  ServiceRequestsDecide: 'service-requests.decide',
+  /** See the service request work queue and the requests in it. (module ServiceRequests) */
+  ServiceRequestsQueue: 'service-requests.queue',
+  /** Start the review of a submitted service request. (module ServiceRequests) */
+  ServiceRequestsReview: 'service-requests.review',
+  /** See your own service requests. (module ServiceRequests) */
+  ServiceRequestsViewOwn: 'service-requests.view-own',
   /** Change the value of a runtime setting. (module Settings) */
   SettingsManage: 'settings.manage',
   /** List the runtime settings with their values and defaults. (module Settings) */

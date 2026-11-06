@@ -1,0 +1,59 @@
+<section class="decision-panel" [attr.aria-labelledby]="titleId">
+  <div class="decision-panel__title" role="heading" [attr.aria-level]="headingLevel()" [id]="titleId">{{ titleKey() | t }}</div>
+
+  @if (buttons().length > 0) {
+    <div class="decision-panel__actions" role="group" [attr.aria-labelledby]="titleId">
+      @for (button of buttons(); track button.action.actionKey) {
+        <dga-button
+          size="md"
+          data-public-action
+          [attr.data-action]="button.action.actionKey"
+          [variant]="button.variant"
+          [destructive]="button.destructive"
+          [disabled]="busy()"
+          (click)="choose(button)"
+        >
+          {{ button.action.labelKey | t }}
+        </dga-button>
+      }
+    </div>
+  } @else {
+    <p class="decision-panel__empty">{{ keys.None | t }}</p>
+  }
+</section>
+
+<dga-confirm-dialog
+  data-public-action
+  [open]="pending() !== null"
+  [title]="dialogTitleKey() | t"
+  [message]="hintKey() ? (hintKey()! | t) : null"
+  [confirmLabel]="dialogTitleKey() | t"
+  [cancelLabel]="keys.Cancel | t"
+  [variant]="dialogVariant()"
+  [busy]="busy()"
+  (confirmed)="confirmReason()"
+  (cancelled)="cancelReason()"
+>
+  @if (pending() !== null) {
+    <div class="decision-panel__dialog-body">
+      <dga-textarea
+        [label]="keys.Reason | t"
+        [required]="reasonRequired()"
+        [maxLength]="maxReasonLength()"
+        [counterLabel]="keys.Counter | t"
+        [error]="problemText()"
+        [disabled]="busy()"
+        [value]="reason()"
+        (valueChange)="onReason($event)"
+      />
+      @if (errorMessageKey(); as messageKey) {
+        <dga-alert variant="error">
+          <p class="decision-panel__error">{{ messageKey | t }}</p>
+          @if (error()?.referenceCode; as code) {
+            <p class="decision-panel__reference">{{ keys.ReferenceCode | t: { code: code } }}</p>
+          }
+        </dga-alert>
+      }
+    </div>
+  }
+</dga-confirm-dialog>

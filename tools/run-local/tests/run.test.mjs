@@ -15,6 +15,7 @@ import {
 import { main, start, stop } from '../lib/run.mjs';
 
 const ROOT = 'R:\\repo';
+const NODE = 'N:\\node\\node.exe';
 const STATE_DIR = 'T:\\state';
 const STATE = path.join(STATE_DIR, STATE_FILE);
 const SECRETS = path.join(ROOT, LOCAL_SECRETS_FILE);
@@ -31,6 +32,7 @@ function fakeSystem({ files = {}, statuses = {}, alive = new Map(), commands = {
   let nextPid = 100;
   const system = {
     env: {},
+    nodeExecutable: NODE,
     stateDir: STATE_DIR,
     lines: [],
     warnings: [],
@@ -57,7 +59,7 @@ function fakeSystem({ files = {}, statuses = {}, alive = new Map(), commands = {
     spawned: [],
     spawnDetached: (command, args, options) => {
       const pid = (nextPid += 1);
-      alive.set(pid, command.toLowerCase().endsWith('cmd.exe') ? 'cmd.exe' : 'dotnet.exe');
+      alive.set(pid, command.toLowerCase().endsWith('cmd.exe') ? 'cmd.exe' : path.basename(command).toLowerCase() === 'node.exe' ? 'node.exe' : 'dotnet.exe');
       calls.push(['spawn', command, ...args]);
       system.spawned.push({ command, args, options });
       const early = typeof exitsEarly === 'function' ? exitsEarly(args) : exitsEarly;
@@ -307,5 +309,120 @@ describe('stop', () => {
 
   it('has nothing to stop without a state file', () => {
     assert.match(stop(fakeSystem())[0], /Nothing to stop/);
+  });
+});
+
+describe('slots: a second stack next to a running default stack', () => {
+  const SLOT_DIR = path.join(STATE_DIR, 'slot-1');
+  const SLOT_STATE = path.join(SLOT_DIR, STATE_FILE);
+  const SLOT_URLS = { api: 'http://localhost:5280', attachments: 'http://localhost:5285', web: 'http://localhost:4380' };
+  const BUILT_CONFIG = path.join(SLOT_DIR, 'web', 'browser', 'config.json');
+  const DEV_SETTINGS = path.join(ROOT, 'backend/src/Starter.Api/appsettings.Development.json');
+  const ANGULAR = path.join(ROOT, 'node_modules/@angular/cli/bin/ng.js');
+  const slotHealthy = {
+    [`${SLOT_URLS.api}/health/ready`]: upAfterStart,
+    [`${SLOT_URLS.attachments}/health/ready`]: upAfterStart,
+    [`${SLOT_URLS.web}/`]: upAfterStart,
+  };
+  /** The default stack runs (its state and PIDs) and answers on the default ports. */
+  const ownerRunning = () => ({
+    files: {
+      ...WITH_ATTACHMENTS,
+      [STATE]: '{"processes":[{"name":"api","pid":7,"image":"dotnet.exe"},{"name":"attachments","pid":8,"image":"dotnet.exe"}]}',
+      [DEV_SETTINGS]: '{"ConnectionStrings":{"Starter":"Server=(localdb)\\\\MSSQLLocalDB;Database=StarterDev"}}',
+      [ANGULAR]: '',
+      [BUILT_CONFIG]: '{"apiBaseUrl":"http://localhost:5180","origins":{"api":["http://localhost:5180"],"attachment":["http://localhost:5185"]}}',
+    },
+    alive: new Map([[7, 'dotnet.exe'], [8, 'dotnet.exe']]),
+    statuses: { ...slotHealthy, [Urls.api]: () => 404, [Urls.attachments]: () => 404, [Urls.web]: () => 200 },
+  });
+
+  it('refuses the default slot while the default stack runs, and names -Slot 1 as the way out', async () => {
+    const system = fakeSystem(ownerRunning());
+
+    assert.equal(await main({ root: ROOT, noWeb: false, noSeq: true, stop: false, slot: 0 }, system), ExitCode.failed);
+    assert.ok(system.warnings.some((line) => /already running .*-Slot 1/.test(line)));
+  });
+
+  it('starts slot 1 on its own ports, build output, database and state, without touching the default stack', async () => {
+    const alive = ownerRunning().alive;
+    const system = fakeSystem({ ...ownerRunning(), alive });
+
+    const lines = await start(system, { root: ROOT, noWeb: false, noSeq: true, slot: 1 });
+
+    assert.deepEqual(JSON.parse(system.disk.get(SLOT_STATE)).processes.map((entry) => `${entry.name}:${entry.image}`), ['api:dotnet.exe', 'attachments:dotnet.exe', 'web:node.exe']);
+    assert.ok(system.disk.get(STATE).includes('"pid":7'), 'the default stack state is untouched');
+    assert.ok(alive.has(7) && alive.has(8) && !system.calls.some((call) => call[0] === 'taskkill.exe'), 'the default stack is never stopped');
+    for (const url of [Urls.api, Urls.attachments, Urls.web]) assert.ok(!system.probed.includes(url), `the default port ${url} is not checked`);
+
+    const builds = system.calls.filter((call) => call[1] === 'build');
+    assert.deepEqual(builds.map((call) => call.slice(-2)), [['-o', path.join(SLOT_DIR, 'build', 'api')], ['-o', path.join(SLOT_DIR, 'build', 'attachments')]]);
+    const [api, service, web] = system.spawned;
+    assert.equal(api.args[0], path.join(SLOT_DIR, 'build', 'api', API_ASSEMBLY), 'the slot runs its own build, not bin/Debug');
+    assert.equal(api.options.env.ASPNETCORE_URLS, SLOT_URLS.api);
+    assert.equal(api.options.env.ConnectionStrings__Starter, 'Server=(localdb)\\MSSQLLocalDB;Database=StarterDev_Slot1');
+    assert.equal(api.options.env.Codelab__Security__Cors__AllowedOrigins__0, SLOT_URLS.web);
+    assert.equal(api.options.env.Attachments__ServiceBaseUrl, SLOT_URLS.attachments);
+    assert.equal(api.options.logFile, path.join(SLOT_DIR, 'api.log'));
+    assert.equal(service.options.env.ASPNETCORE_URLS, SLOT_URLS.attachments);
+    assert.equal(service.options.env.Attachments__Cors__AllowedOrigins__0, SLOT_URLS.web);
+    assert.equal(service.options.env.Attachments__Storage__RootPath, path.join(SLOT_DIR, 'attachments-storage'));
+
+    const ngBuild = system.calls.find((call) => call[0] === NODE && call[1] === ANGULAR);
+    assert.deepEqual(ngBuild.slice(2), ['build', '--configuration', 'development', '--output-path', path.join(SLOT_DIR, 'web')]);
+    assert.equal(web.command, NODE);
+    assert.deepEqual(web.args, [path.join(ROOT, 'tools/run-local/static-server.mjs'), '--dir', path.join(SLOT_DIR, 'web', 'browser'), '--port', '4380']);
+    const config = JSON.parse(system.disk.get(BUILT_CONFIG));
+    assert.equal(config.apiBaseUrl, SLOT_URLS.api);
+    assert.deepEqual(config.origins, { api: [SLOT_URLS.api], attachment: [SLOT_URLS.attachments] });
+
+    assert.ok(lines.some((line) => line.includes(`API      ${SLOT_URLS.api}`)) && lines.some((line) => line.includes(`Web      ${SLOT_URLS.web}`)));
+    assert.ok(lines.some((line) => line.endsWith('run-local.ps1 -Stop -Slot 1')));
+  });
+
+  it('honours a connection-string override but still renames its database for the slot', async () => {
+    const system = fakeSystem(ownerRunning());
+    system.env = { ConnectionStrings__Starter: 'Server=(localdb)\\P2Proof;Database=StarterOwnerDemo' };
+
+    await start(system, { root: ROOT, noWeb: true, noSeq: true, slot: 1 });
+
+    assert.equal(system.spawned[0].options.env.ConnectionStrings__Starter, 'Server=(localdb)\\P2Proof;Database=StarterOwnerDemo_Slot1', 'never the owner database');
+  });
+
+  it('refuses when a slot port is taken, naming -Stop -Slot n and the next slot', async () => {
+    const system = fakeSystem({ ...ownerRunning(), statuses: { [SLOT_URLS.api]: () => 404 } });
+
+    await assert.rejects(start(system, { root: ROOT, noWeb: true, noSeq: true, slot: 1 }), /already answers on http:\/\/localhost:5280.*-Stop -Slot 1.*-Slot 2/);
+    assert.ok(!system.calls.some((call) => call[0] === 'spawn'));
+  });
+
+  it('refuses a slot web app when the Angular CLI is not installed', async () => {
+    const options = ownerRunning();
+    delete options.files[ANGULAR];
+    const system = fakeSystem(options);
+
+    await start(system, { root: ROOT, noWeb: false, noSeq: true, slot: 1 });
+
+    assert.ok(system.warnings.some((line) => /ng\.js is missing/.test(line)));
+    assert.ok(!system.spawned.some((entry) => entry.command === NODE));
+  });
+
+  it('stops only what the slot recorded', () => {
+    const alive = new Map([[7, 'dotnet.exe'], [21, 'dotnet.exe'], [22, 'node.exe']]);
+    const system = fakeSystem({
+      files: {
+        [STATE]: '{"processes":[{"name":"api","pid":7,"image":"dotnet.exe"}]}',
+        [SLOT_STATE]: '{"processes":[{"name":"api","pid":21,"image":"dotnet.exe"},{"name":"web","pid":22,"image":"node.exe"}]}',
+      },
+      alive,
+    });
+
+    assert.match(stop(system, 2)[0], /Nothing to stop.*slot 2/);
+    const lines = stop(system, 1);
+
+    assert.deepEqual(system.calls.filter((call) => call[0] === 'taskkill.exe').map((call) => call[2]), ['21', '22']);
+    assert.ok(alive.has(7) && system.disk.has(STATE), 'the default stack is left alone');
+    assert.ok(!system.disk.has(SLOT_STATE));
+    assert.ok(lines.includes('Stopped web (PID 22).'));
   });
 });

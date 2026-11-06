@@ -1,0 +1,109 @@
+// Tokens only, logical CSS only: the rail and markers sit at the inline start, so they move to the right in RTL by
+// themselves.
+:host {
+  display: block;
+}
+
+.record-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+  padding-block: var(--dga-space-5);
+  padding-inline: var(--dga-space-5);
+  border: var(--dga-border-width-thin) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-md);
+  background-color: var(--dga-color-surface-default);
+
+  p {
+    margin: 0;
+  }
+}
+
+.record-timeline__title {
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.record-timeline__empty {
+  color: var(--dga-color-text-secondary);
+}
+
+.record-timeline__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-timeline__entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--dga-space-4) minmax(0, 1fr);
+  column-gap: var(--dga-space-3);
+  padding-block-end: var(--dga-space-4);
+}
+
+// The rail between markers; the last entry has none below it.
+.record-timeline__entry:not(:last-child)::before {
+  position: absolute;
+  inset-block: var(--dga-space-4) 0;
+  inset-inline-start: calc(var(--dga-space-2) - var(--dga-border-width-thin));
+  inline-size: var(--dga-border-width-thick);
+  background-color: var(--dga-color-border-default);
+  content: '';
+}
+
+.record-timeline__marker {
+  inline-size: var(--dga-space-4);
+  block-size: var(--dga-space-4);
+  margin-block-start: var(--dga-space-1);
+  border: var(--dga-border-width-thick) solid var(--dga-color-border-default);
+  border-radius: var(--dga-radius-full);
+  background-color: var(--dga-color-surface-default);
+}
+
+.record-timeline__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-1);
+  min-inline-size: 0;
+}
+
+.record-timeline__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-2);
+}
+
+.record-timeline__status {
+  color: var(--dga-color-text-display);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.record-timeline__action,
+.record-timeline__at,
+.record-timeline__actor {
+  color: var(--dga-color-text-secondary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.record-timeline__reason {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-1);
+  color: var(--dga-color-text-primary);
+  font-size: var(--dga-font-size-sm);
+}
+
+.record-timeline__reason-label {
+  color: var(--dga-color-text-secondary);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.record-timeline__reason-text {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}

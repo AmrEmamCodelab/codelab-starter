@@ -126,7 +126,7 @@ Run from the repo root. Put `E:\codelab-tools\node24` first on PATH in any shell
 | --- | --- |
 | Install Node tooling | `npm install` (repo root) |
 | Local secrets (API + Attachment service; adds missing keys, `-Force` regenerates both) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1` |
-| Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`, `-NoAttachments`) |
+| Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`, `-NoAttachments`); `-Slot <1-9>` starts a reviewer stack next to a running default stack (see [README.md](tools/run-local/README.md) "Slots") |
 | API only | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend\src\Starter.Api` (http://localhost:5180) |
 | Attachment service only | `E:\codelab-tools\dotnet10\dotnet.exe run --project services\attachment-service\src\Codelab.Attachments.Api` (http://localhost:5185, health /health/ready); test: `E:\codelab-tools\dotnet10\dotnet.exe test services\attachment-service\Codelab.Attachments.slnx` |
 | Dev IdP for local SSO | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend/tools/Starter.DevIdp` (http://localhost:5190) |

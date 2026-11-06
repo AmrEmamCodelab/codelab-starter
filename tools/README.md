@@ -55,6 +55,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -
 | 16 | generated drift | `<dotnet> run --project backend/tools/Starter.DocsGen -- --out docs/generated --check`, then `npm run api:gen:check --workspace frontend/starter-web` (needs no SQL and no secrets file) |
 | 17 | frontend lint | `npm run lint --workspace frontend/starter-web`: ESLint (module boundaries, HTTP only in `core/api`), Stylelint (tokens, logical CSS) and `tools/i18n-parity.mjs`. Step 11 lints `packages/npm` only |
 | 18 | fork-model test | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\fork\Test-ForkModel.ps1 -RemoveModule Demo` (ADR-003): scaffold Demo upstream, fork, `init.ps1 -Minimal -RemoveModule Demo`, upstream merge, then build and test the fork from the feed, all in `%TEMP%` |
+| 20 | no dev autofill | `node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web`: the production bundle step 11 built holds no DevAutofill code |
+| 21 | module deletability | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\ci\module-deletability.ps1 -Name ServiceRequests` (ADR-004): removes the sample module from a `%TEMP%` copy, then build, backend tests (`CODELAB_TEST_SQL`), frontend tests and production build. Heavy: skipped by `-Quick` |
 
 After the steps, the platform-owned paths the branch changes against the base ref are listed (owner review before a
 local merge, while no host enforces CODEOWNERS).

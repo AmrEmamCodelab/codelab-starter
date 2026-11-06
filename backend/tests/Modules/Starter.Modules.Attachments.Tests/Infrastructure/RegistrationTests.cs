@@ -28,6 +28,7 @@ public sealed class RegistrationTests
 {
     private const string UploadKeyId = "u1k";
     private const int ReplayEntryLimit = 100;
+    private const string SourcedRecordType = "sourced-files";
 
     [Fact]
     public void Development_registers_the_demo_record_type()
@@ -45,6 +46,34 @@ public sealed class RegistrationTests
         using var scope = provider.CreateScope();
 
         Assert.False(scope.ServiceProvider.GetRequiredService<AttachableRecords>().IsKnown(AttachableRecordTypes.Demo));
+    }
+
+    [Fact]
+    public void The_gate_knows_every_access_an_access_source_serves()
+    {
+        using var provider = Provider(
+            Environments.Production,
+            StubHandler.Status(HttpStatusCode.OK),
+            services => services.AddScoped<IAttachableRecordAccessSource>(_ => new SourceOf(SourcedRecordType)));
+        using var scope = provider.CreateScope();
+
+        Assert.True(scope.ServiceProvider.GetRequiredService<AttachableRecords>().IsKnown(SourcedRecordType));
+    }
+
+    [Fact]
+    public void An_access_served_twice_is_a_wiring_fault()
+    {
+        using var provider = Provider(
+            Environments.Production,
+            StubHandler.Status(HttpStatusCode.OK),
+            services =>
+            {
+                services.AddScoped<IAttachableRecordAccessSource>(_ => new SourceOf(SourcedRecordType));
+                services.AddScoped<IAttachableRecordAccess>(_ => new SourceOf(SourcedRecordType).Accesses.Single());
+            });
+        using var scope = provider.CreateScope();
+
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetRequiredService<AttachableRecords>());
     }
 
     [Fact]
@@ -115,7 +144,7 @@ public sealed class RegistrationTests
     private static void AssertRegistered<TService>(IServiceCollection services) =>
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(TService));
 
-    private static ServiceProvider Provider(string environment, StubHandler handler)
+    private static ServiceProvider Provider(string environment, StubHandler handler, Action<IServiceCollection>? extra = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -126,7 +155,23 @@ public sealed class RegistrationTests
         services.AddSingleton(new KeyRingGuard(PublishedMaterialDenylist.Embedded, checkPublished: true));
         services.AddAttachmentsModule(Configuration());
         services.AddHttpClient<IAttachmentStorageClient, HttpAttachmentStorageClient>().ConfigurePrimaryHttpMessageHandler(() => handler);
+        extra?.Invoke(services);
         return services.BuildServiceProvider();
+    }
+
+    /// <summary>A source serving one access that allows nothing, as the Records module serves one per record type.</summary>
+    private sealed class SourceOf(string recordType) : IAttachableRecordAccessSource
+    {
+        public IEnumerable<IAttachableRecordAccess> Accesses { get; } = [new NoAccess(recordType)];
+
+        private sealed class NoAccess(string recordType) : IAttachableRecordAccess
+        {
+            public string RecordType => recordType;
+
+            public Task<bool> CanViewAsync(long recordId, CancellationToken cancellationToken) => Task.FromResult(false);
+
+            public Task<bool> CanChangeAsync(long recordId, CancellationToken cancellationToken) => Task.FromResult(false);
+        }
     }
 
     private static IConfiguration Configuration()

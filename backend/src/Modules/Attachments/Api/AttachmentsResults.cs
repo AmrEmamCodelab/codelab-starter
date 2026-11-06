@@ -21,8 +21,8 @@ public static class AttachmentsResults
     }
 
     /// <summary>
-    /// The download (<see cref="AttachmentFileResult"/>: streamed, <c>Content-Disposition: attachment</c>, nosniff), or the
-    /// refusal's problem+json.
+    /// The download (<see cref="AttachmentFileResult"/>: streamed, no <c>Content-Disposition</c>, nosniff, sandboxed), or
+    /// the refusal's problem+json.
     /// </summary>
     public static ActionResult ToFileResult(this Outcome<AttachmentDownload> outcome)
     {
@@ -32,20 +32,31 @@ public static class AttachmentsResults
 }
 
 /// <summary>
-/// An attachment's bytes as a download: streamed from the attachment service without buffering, with the name and MIME
-/// type this database recorded, <c>Content-Disposition: attachment</c> (never rendered inline) and
-/// <c>X-Content-Type-Options: nosniff</c> (the browser keeps the recorded type). The stream is disposed after the write.
+/// An attachment's bytes for the SPA: streamed from the attachment service without buffering, with the MIME type this
+/// database recorded, <c>X-Content-Type-Options: nosniff</c> (the browser keeps the recorded type) and
+/// <c>Content-Security-Policy: sandbox; default-src 'none'</c> (rendered on its own, the bytes can run nothing and load
+/// nothing). The stream is disposed after the write.
+/// <para>
+/// It deliberately sends NO <c>Content-Disposition</c>. The endpoint answers only a signed <c>fetch</c> (a navigation or
+/// a link can never carry the bearer token and the request proof), and the SPA saves the Blob itself under the name
+/// the attachment list gave it. A <c>Content-Disposition</c> header is what browser download managers (Internet Download
+/// Manager and similar) key on: they swallow such a response mid-<c>fetch</c>, hand the page a bare 204 without
+/// <c>Access-Control-Allow-Origin</c> (<c>MissingAllowOriginHeader</c>), and replay the URL themselves without the
+/// request proof (401 <c>signature_missing</c>). That was the phase 6 browser download blocker.
+/// </para>
 /// </summary>
 public sealed class AttachmentFileResult : FileStreamResult
 {
     /// <summary>The <c>X-Content-Type-Options</c> value that stops MIME sniffing.</summary>
     public const string NoSniff = "nosniff";
 
+    /// <summary>The <c>Content-Security-Policy</c> of a download: an opaque origin that may run and load nothing.</summary>
+    public const string SandboxPolicy = "sandbox; default-src 'none'";
+
     /// <summary>Creates the result for <paramref name="download"/>.</summary>
     public AttachmentFileResult(AttachmentDownload download)
         : base(Guard(download).Content, download.ContentType)
     {
-        FileDownloadName = download.FileName;
         EnableRangeProcessing = false;
     }
 
@@ -53,7 +64,9 @@ public sealed class AttachmentFileResult : FileStreamResult
     public override Task ExecuteResultAsync(ActionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        context.HttpContext.Response.Headers[HeaderNames.XContentTypeOptions] = NoSniff;
+        var headers = context.HttpContext.Response.Headers;
+        headers[HeaderNames.XContentTypeOptions] = NoSniff;
+        headers[HeaderNames.ContentSecurityPolicy] = SandboxPolicy;
         return base.ExecuteResultAsync(context);
     }
 

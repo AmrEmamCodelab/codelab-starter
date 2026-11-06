@@ -45,6 +45,10 @@
      18. fork-model test    tools\fork\Test-ForkModel.ps1 -RemoveModule Demo   (ADR-003; all in %TEMP%, the repo is only read)
      19. deploy-kit tests   Invoke-Pester deploy/kits/tests (Install-Common, Install-Attachment; Pester 3.4, Windows
                             PowerShell 5.1; no IIS change, no admin)
+     20. no dev autofill    node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web   (the
+                            production bundle step 11 built holds no DevAutofill code)
+     21. module deletability tools/ci/module-deletability.ps1 -Name ServiceRequests   (removes the sample module from a
+                            %TEMP% copy, then build, backend tests, frontend tests and build; ADR-004)
     A step whose entry point does not exist yet FAILS with a MISSING message; nothing is skipped silently.
     All steps run (unless -FailFast) and a summary is printed; the exit code is 1 when any step failed.
     The protected (platform-owned) paths the branch changes against the base ref are listed at the end, so the
@@ -101,7 +105,8 @@ param(
     # Prerelease number for -Pack. Default: $env:CODELAB_CI_NUMBER, else one above the highest ci.<n> in feed\.
     [int] $CiNumber = 0,
 
-    # Inner-loop CI: skip the heavy end-of-phase steps (13 package integration, 14 handover offline, 18 fork-model).
+    # Inner-loop CI: skip the heavy end-of-phase steps (13 package integration, 14 handover offline, 18 fork-model,
+    # 21 module deletability).
     # Run the full -Target CI once at the end of a phase; -Quick is for the checks in between.
     [switch] $Quick,
 
@@ -189,6 +194,11 @@ $ForkModelScript       = 'tools/fork/Test-ForkModel.ps1'
 $ForkModelModule       = 'Demo'
 $KitModuleTests        = 'deploy/kits/tests/Install-Common.Tests.ps1'
 $KitAttachmentTests    = 'deploy/kits/tests/Install-Attachment.Tests.ps1'
+# Steps 20 and 21: the phase 7 exit checks (no DevAutofill code in the production bundle; the sample module is deletable).
+$NoDevAutofillScript   = 'tools/ci/no-dev-autofill.mjs'
+$StarterWebDist        = 'frontend/starter-web/dist/starter-web'
+$DeletabilityScript    = 'tools/ci/module-deletability.ps1'
+$DeletableSampleModule = 'ServiceRequests'
 # Test files are named *.test.mjs. Node 24 'node --test <dir>' treats the dir as a script, so a glob is passed.
 $TestFilePattern       = '*.test.mjs'
 $ExitSuccess           = 0
@@ -652,6 +662,19 @@ function Invoke-KitModuleTestStep {
     return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
 }
 
+# Step 20: the production bundle step 11 built (ng build, production configuration) holds no DevAutofill code.
+function Invoke-NoDevAutofillStep {
+    return Invoke-NodeScriptStep $NoDevAutofillScript @('--dist', $StarterWebDist) 'tools/ci'
+}
+
+# Step 21: the sample module is deletable: removed from a %TEMP% copy, the solution builds and every test passes (ADR-004).
+function Invoke-ModuleDeletabilityStep {
+    if (-not (Test-EntryPoints @($DeletabilityScript) 'tools/ci')) { return $false }
+    $script = Join-Path $RepoRoot $DeletabilityScript
+    $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', $script, '-Name', $DeletableSampleModule)
+    return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
+}
+
 # Returns the base ref to diff against, $NoBaseRef for a repository without commits, or $null (reason printed).
 function Resolve-BaseRef {
     $arguments = @($BaseRefScript, '--root', '.')
@@ -723,7 +746,9 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '16 generated drift'; Run = { Invoke-GeneratedDriftStep $Dotnet } },
         @{ Name = '17 frontend lint';   Run = { Invoke-FrontendLintStep } },
         @{ Name = '18 fork-model test'; Heavy = $true; Run = { Invoke-ForkModelStep } },
-        @{ Name = '19 deploy-kit tests'; Run = { Invoke-KitModuleTestStep } }
+        @{ Name = '19 deploy-kit tests'; Run = { Invoke-KitModuleTestStep } },
+        @{ Name = '20 no dev autofill'; Run = { Invoke-NoDevAutofillStep } },
+        @{ Name = '21 module deletability'; Heavy = $true; Run = { Invoke-ModuleDeletabilityStep } }
     )
 
     $results = New-Object System.Collections.Generic.List[object]
@@ -995,7 +1020,7 @@ try {
             Write-Host 'CI FAILED.' -ForegroundColor Red
             exit $ExitFailure
         }
-        Write-Host $(if ($Quick) { 'CI PASSED (quick: steps 13, 14, 18 skipped).' } else { 'CI PASSED.' }) -ForegroundColor Green
+        Write-Host $(if ($Quick) { 'CI PASSED (quick: steps 13, 14, 18, 21 skipped).' } else { 'CI PASSED.' }) -ForegroundColor Green
     }
     if ($Pack) { Invoke-PackTarget $dotnet $Release.IsPresent }
     exit $ExitSuccess

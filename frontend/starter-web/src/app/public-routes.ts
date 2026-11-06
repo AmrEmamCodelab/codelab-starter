@@ -1,5 +1,6 @@
 import type { Route, Routes } from '@angular/router';
 import { NOT_FOUND_PATH, PORTAL_ROUTE, SHELL_ROUTE } from './app.routes';
+import { REQUESTER_SHELL_ROUTE } from './app.routes'; // codelab:module ServiceRequests
 import { authGuard } from './core/auth/auth.guard';
 import { RoutePaths } from './core/routing/route-paths';
 import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
@@ -45,7 +46,10 @@ export const PUBLIC_LAYOUT_ROUTES: readonly Route[] = [PORTAL_ROUTE];
  * `children`, every one of which carries its own key. A layout renders no page content, so the gate checks only its
  * children.
  */
-export const LAYOUT_ROUTES: readonly Route[] = [SHELL_ROUTE];
+export const LAYOUT_ROUTES: readonly Route[] = [
+  SHELL_ROUTE,
+  REQUESTER_SHELL_ROUTE, // codelab:module ServiceRequests
+];
 
 /**
  * The route table as the gate checks it: every {@link LAYOUT_ROUTES} entry (found by identity, at any depth) loses

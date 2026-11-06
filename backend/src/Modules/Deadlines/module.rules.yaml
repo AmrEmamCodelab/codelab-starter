@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Deadlines module (inherits rules/base.rules.yaml). Written by hand to the module anatomy.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Deadlines
+kind: dotnet
+description: "Deadlines and SLA timers (module 10): one RecordDeadline per record and status with an SLA (schema deadlines), opened and closed by a record transition observer, the deadlines-sla-scan job (every 5 minutes, actor SYSTEM) that marks breaches and raises one escalation notification per breach, and the SLA badges (IRecordSlaReader). Generic: SLA definitions come from every ISlaPolicySource; it reaches records, assignments, workflows and notifications only through kernel ports."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users, Settings, Lookups, Audit, Jobs, Notifications, Portal, Attachments]
+required:
+  # Tested by the module's architecture rows (ApplicationUsesPortsOnly) and the forbidden pattern below.
+  - id: deadlines.kernel-ports-only
+    statement: The module reaches other modules only through kernel ports (ISlaPolicySource, IRecordTransitionObserver, IRecordSlaReader, IRecordDirectory, IRecordAssignmentReader, IRecordTypeRegistrationSource, IRecordWorkflowCatalogs, INotificationService, IJob); it names no record type, status or template of its own.
+    enforcedBy: [architecture-test, review]
+  - id: deadlines.data-through-ports
+    statement: Application code reads and writes deadlines only through IRecordDeadlineStore; the EF Core implementation lives in Infrastructure/Persistence.
+    enforcedBy: [architecture-test, review]
+  # Tested by SlaScanTests (escalation once, re-run idempotent, release on failure) and Deadlines/SlaBreachEscalationTests (real SQL).
+  - id: deadlines.escalate-once
+    statement: A breach is escalated at most once per recipient; the escalation is claimed (EscalatedAt saved) before any notification is sent, and given back only when it failed before reaching any recipient.
+    enforcedBy: [review]
+  - id: deadlines.system-actor
+    statement: The scan runs only as the deadlines-sla-scan job (inside the Jobs module's system scope, actor SYSTEM), never from a request.
+    enforcedBy: [review]
+  - id: deadlines.time-provider
+    statement: Every instant comes from TimeProvider or from the RecordTransitioned event; due and due-soon times are frozen when a deadline opens.
+    enforcedBy: [review]
+forbidden:
+  - id: deadlines.no-module-reference
+    description: Record types, assignments and notifications plug in through kernel ports; a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users|Settings|Lookups|Audit|Jobs|Notifications|Portal|Attachments|Records|Assignments)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use the kernel port in Starter.Application (ISlaPolicySource, IRecordDirectory, IRecordAssignmentReader, INotificationService).
+recipes: [docs/recipes/add-deadline.md]

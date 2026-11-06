@@ -6,6 +6,7 @@ import { ADMIN_AREA_PERMISSIONS } from './admin-entry';
 import { AdminRouteSegments } from './admin.paths';
 import { LOOKUPS_ROUTES } from './lookups/lookups.routes';
 import { PORTAL_CONTENT_ROUTES } from './portal-content/portal-content.routes';
+import { SERVICE_REQUESTS_ADMIN_ROUTES } from '../service-requests/admin/service-requests-admin.routes'; // codelab:module ServiceRequests
 
 function requires(permission: PermissionKey): Readonly<Record<string, PermissionKey>> {
   return { [RouteDataKeys.Permission]: permission };
@@ -48,6 +49,7 @@ export const ADMIN_ROUTES: Routes = [
   },
   ...LOOKUPS_ROUTES,
   ...PORTAL_CONTENT_ROUTES,
+  ...SERVICE_REQUESTS_ADMIN_ROUTES, // codelab:module ServiceRequests
   {
     path: AdminRouteSegments.Access,
     loadChildren: () => import('./access/access.routes').then((m) => m.ACCESS_ROUTES),

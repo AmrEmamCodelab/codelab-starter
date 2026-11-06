@@ -1,0 +1,56 @@
+<div class="service-request-oversight">
+  <dga-alert data-testid="oversight-read-only" [variant]="AlertVariant.Info">{{ keys.ReadOnly | t }}</dga-alert>
+
+  <app-admin-list-pattern
+    [titleKey]="keys.Title"
+    [emptyKey]="keys.Empty"
+    [searchLabelKey]="keys.Search"
+    [columns]="columns"
+    [rowId]="rowId"
+    [rows]="store.rows()"
+    [total]="store.total()"
+    [pageSize]="store.pageSize"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [translatedCodes]="translatedCodes"
+    [page]="store.page()"
+    (pageChange)="store.setPage($event)"
+    [search]="store.number()"
+    (searchChange)="store.setNumber($event)"
+    (retry)="store.reload()"
+  >
+    <dga-select
+      listFilters
+      name="service-request-oversight-status"
+      data-testid="oversight-status-filter"
+      [label]="keys.StatusFilter | t"
+      [placeholder]="keys.AnyStatus | t"
+      [options]="statusOptions()"
+      [value]="store.status()"
+      (valueChange)="store.setStatus($event)"
+    />
+
+    <ng-template [listCell]="Column.Number" [listCellOf]="store.rows()" let-row>
+      <a class="service-request-oversight__number" data-testid="oversight-open" [routerLink]="paths.detail(row.id)">
+        @if (row.number) {
+          <span dir="ltr" data-fixed-direction>{{ row.number }}</span>
+        } @else {
+          {{ keys.NoNumber | t }}
+        }
+      </a>
+    </ng-template>
+    <ng-template [listCell]="Column.Status" [listCellOf]="store.rows()" let-row>
+      <dga-status-tag [tone]="statusTone(row.status)">{{ statusLabelKey(row.statusKey) | t }}</dga-status-tag>
+    </ng-template>
+    <ng-template [listCell]="Column.SubmittedAt" [listCellOf]="store.rows()" let-row>
+      @if (row.submittedAt) {
+        <time [attr.datetime]="row.submittedAt">{{ instantText(row.submittedAt) }}</time>
+      } @else {
+        <span class="service-request-oversight__muted">{{ keys.NotSubmitted | t }}</span>
+      }
+    </ng-template>
+    <ng-template [listCell]="Column.UpdatedAt" [listCellOf]="store.rows()" let-row>
+      <time [attr.datetime]="row.updatedAt">{{ instantText(row.updatedAt) }}</time>
+    </ng-template>
+  </app-admin-list-pattern>
+</div>

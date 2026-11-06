@@ -28,5 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Starter.Infrastructure\Starter.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\Identity\Starter.Modules.Identity.csproj" />
+    <ProjectReference Include="..\Starter.Workflow.Testing\Starter.Workflow.Testing.csproj" />
   </ItemGroup>
 </Project>

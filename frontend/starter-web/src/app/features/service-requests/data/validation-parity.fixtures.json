@@ -1,0 +1,488 @@
+{
+  "today": "2026-11-06",
+  "cases": [
+    {
+      "name": "submit: every field valid",
+      "scope": "submit",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal",
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-20"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "submit: valid without the optional preferred date",
+      "scope": "submit",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal",
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "submit: preferred date equal to today is accepted",
+      "scope": "submit",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal",
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-06"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "submit: skips step 2 (only step 1 fields sent)",
+      "scope": "submit",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone",
+          "description"
+        ]
+      }
+    },
+    {
+      "name": "submit: skips step 1 (only step 2 fields sent)",
+      "scope": "submit",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-20"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "categoryId",
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "submit: empty draft",
+      "scope": "submit",
+      "input": {},
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "categoryId",
+          "contactPhone",
+          "description",
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step1: valid",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step1: ignores step 2 fields, even invalid ones",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Passport renewal",
+        "contactPhone": "123",
+        "description": "short"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step1: category missing",
+      "scope": "step1",
+      "input": {
+        "title": "Passport renewal"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "categoryId"
+        ]
+      }
+    },
+    {
+      "name": "step1: category null",
+      "scope": "step1",
+      "input": {
+        "categoryId": null,
+        "title": "Passport renewal"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "categoryId"
+        ]
+      }
+    },
+    {
+      "name": "step1: title missing",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step1: title only white space",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "      "
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step1: title too short (4 characters)",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Abcd"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step1: title at the minimum (5 characters)",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "Abcde"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step1: title at the maximum (200 characters)",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step1: title too long (201 characters)",
+      "scope": "step1",
+      "input": {
+        "categoryId": "m1_k1_QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ",
+        "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step1: category and title both missing",
+      "scope": "step1",
+      "input": {},
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "categoryId",
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "step2: valid",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-20"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step2: valid without the optional preferred date",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": null
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step2: ignores step 1 fields",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-20",
+        "title": "x"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step2: description missing",
+      "scope": "step2",
+      "input": {
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "description"
+        ]
+      }
+    },
+    {
+      "name": "step2: description too short (19 characters)",
+      "scope": "step2",
+      "input": {
+        "description": "aaaaaaaaaaaaaaaaaaa",
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "description"
+        ]
+      }
+    },
+    {
+      "name": "step2: description at the minimum (20 characters)",
+      "scope": "step2",
+      "input": {
+        "description": "aaaaaaaaaaaaaaaaaaaa",
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step2: description at the maximum (2000 characters)",
+      "scope": "step2",
+      "input": {
+        "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": true,
+        "errorFields": []
+      }
+    },
+    {
+      "name": "step2: description too long (2001 characters)",
+      "scope": "step2",
+      "input": {
+        "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "contactPhone": "\u0030512345678"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "description"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone missing",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month."
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone with a wrong prefix",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "0612345678"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone one digit short",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u003051234567"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone one digit long",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u00305123456789"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone with letters",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u00305123456ab"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: contact phone in international form",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u002B966512345678"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone"
+        ]
+      }
+    },
+    {
+      "name": "step2: preferred date in the past (yesterday)",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-11-05"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "preferredDate"
+        ]
+      }
+    },
+    {
+      "name": "step2: preferred date in a non-ISO format",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "20/11/2026"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "preferredDate"
+        ]
+      }
+    },
+    {
+      "name": "step2: preferred date that is not a calendar date",
+      "scope": "step2",
+      "input": {
+        "description": "I need to renew my passport before travelling next month.",
+        "contactPhone": "\u0030512345678",
+        "preferredDate": "2026-02-30"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "preferredDate"
+        ]
+      }
+    },
+    {
+      "name": "step2: every field wrong at once",
+      "scope": "step2",
+      "input": {
+        "description": "too short",
+        "contactPhone": "12345",
+        "preferredDate": "2025-01-01"
+      },
+      "expected": {
+        "valid": false,
+        "errorFields": [
+          "contactPhone",
+          "description",
+          "preferredDate"
+        ]
+      }
+    }
+  ]
+}

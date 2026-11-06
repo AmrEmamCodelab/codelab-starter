@@ -9,6 +9,8 @@ import {
   attachmentsDecision,
   attachmentsEnvironment,
   breakGlassUser,
+  developmentConnectionString,
+  hostEnvironment,
   parseArguments,
   parseState,
   pollUntilReady,
@@ -21,6 +23,11 @@ import {
   seqDecision,
   seqUrl,
   serializeState,
+  slotConnectionString,
+  slotOverrides,
+  slotStateDir,
+  slotUrls,
+  slotWebConfig,
   startPlan,
   taskMatches,
   webDecision,
@@ -30,7 +37,7 @@ import {
 describe('arguments', () => {
   it('parses the switches and the root', () => {
     assert.deepEqual(parseArguments(['--stop', '--no-web', '--no-seq', '--no-attachments', '--root', 'x'], 'R'), {
-      stop: true, noWeb: true, noSeq: true, noAttachments: true, help: false, root: path.resolve('x'),
+      stop: true, noWeb: true, noSeq: true, noAttachments: true, help: false, root: path.resolve('x'), slot: 0,
     });
     assert.equal(parseArguments([], 'R').root, 'R');
     assert.equal(parseArguments([], 'R').noAttachments, false, 'the Attachment service starts by default');
@@ -39,6 +46,66 @@ describe('arguments', () => {
   it('refuses unknown arguments', () => {
     assert.throws(() => parseArguments(['--start'], 'R'), UsageError);
     assert.throws(() => parseArguments(['--root'], 'R'), UsageError);
+  });
+
+  it('parses --slot 0 to 9 and refuses anything else', () => {
+    assert.equal(parseArguments(['--slot', '1'], 'R').slot, 1);
+    assert.equal(parseArguments(['--slot', '9', '--stop'], 'R').slot, 9);
+    for (const bad of [[], ['10'], ['-1'], ['x'], ['1.5']]) {
+      assert.throws(() => parseArguments(['--slot', ...bad], 'R'), UsageError, `--slot ${bad.join(' ')}`);
+    }
+  });
+});
+
+describe('slots (a second stack next to a running one)', () => {
+  it('keeps the default ports and state folder for slot 0 and moves slot n up by n * 100', () => {
+    assert.equal(slotUrls(0), Urls);
+    assert.deepEqual(
+      { api: slotUrls(1).api, attachments: slotUrls(1).attachments, web: slotUrls(1).web },
+      { api: 'http://localhost:5280', attachments: 'http://localhost:5285', web: 'http://localhost:4380' },
+    );
+    assert.equal(slotUrls(3).api, 'http://localhost:5480');
+    assert.equal(slotUrls(1).seqDefault, Urls.seqDefault, 'Seq is shared');
+    assert.equal(slotStateDir('T', 0), 'T');
+    assert.equal(slotStateDir('T', 2), path.join('T', 'slot-2'));
+    assert.deepEqual(portsToCheck(['api', 'web'], slotUrls(1)), ['http://localhost:5280', 'http://localhost:4380']);
+  });
+
+  it('renames the database for a slot, idempotently, and leaves slot 0 alone', () => {
+    const configured = 'Server=(localdb)\\MSSQLLocalDB;Database=StarterDev;Integrated Security=true';
+    assert.equal(slotConnectionString(configured, 0), configured);
+    assert.equal(slotConnectionString(configured, 1), 'Server=(localdb)\\MSSQLLocalDB;Database=StarterDev_Slot1;Integrated Security=true');
+    assert.equal(slotConnectionString(slotConnectionString(configured, 1), 1), slotConnectionString(configured, 1));
+    assert.equal(slotConnectionString('Server=x; Initial Catalog = Demo ;', 2), 'Server=x; Initial Catalog =Demo_Slot2;');
+    assert.equal(slotConnectionString(null, 1), null);
+    assert.equal(developmentConnectionString('{"ConnectionStrings":{"Starter":"Server=a;Database=b"}}'), 'Server=a;Database=b');
+    assert.equal(developmentConnectionString('not json'), null);
+  });
+
+  it('points the slot API and Attachment service at the slot web app, service, database and storage', () => {
+    const urls = slotUrls(1);
+    const { api, attachments } = slotOverrides({ slot: 1, urls, connectionString: 'Server=a;Database=b', storageRoot: 'S' });
+    assert.deepEqual(api, {
+      Codelab__Security__Cors__AllowedOrigins__0: 'http://localhost:4380',
+      Codelab__Identity__Sso__RedirectUri: 'http://localhost:5280/api/auth/sso/signin-oidc',
+      Codelab__Identity__Sso__PostLogoutRedirectUri: 'http://localhost:4380/login',
+      Auth__WebBaseUrl: 'http://localhost:4380',
+      Users__Activation__LinkBaseUrl: 'http://localhost:4380',
+      Attachments__ServiceBaseUrl: 'http://localhost:5285',
+      ConnectionStrings__Starter: 'Server=a;Database=b_Slot1',
+    });
+    assert.deepEqual(attachments, { Attachments__Cors__AllowedOrigins__0: 'http://localhost:4380', Attachments__Storage__RootPath: 'S' });
+    assert.deepEqual(slotOverrides({ slot: 0, urls: Urls }), { api: {}, attachments: {} });
+    assert.equal(hostEnvironment({}, urls.api, null, api).ConnectionStrings__Starter, 'Server=a;Database=b_Slot1');
+  });
+
+  it('points the built web config at the slot API and Attachment service and keeps the rest', () => {
+    const built = { apiBaseUrl: 'http://localhost:5180', origins: { api: ['http://localhost:5180'], attachment: ['http://localhost:5185'], extra: [1] }, defaultLanguage: 'ar' };
+    assert.deepEqual(slotWebConfig(built, slotUrls(2)), {
+      apiBaseUrl: 'http://localhost:5380',
+      origins: { api: ['http://localhost:5380'], attachment: ['http://localhost:5385'], extra: [1] },
+      defaultLanguage: 'ar',
+    });
   });
 });
 

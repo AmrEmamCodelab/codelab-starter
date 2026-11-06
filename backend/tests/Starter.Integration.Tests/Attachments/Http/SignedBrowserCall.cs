@@ -20,6 +20,7 @@ public sealed class SignedBrowserCall(HttpClient http, SecurityProtocol protocol
 {
     private const string BearerScheme = "Bearer";
     private const int NonceBytes = 16;
+    private const string PreflightHeaderSeparator = ",";
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     /// <summary>Sends the signed GET of <paramref name="path"/> (no query) as <paramref name="origin"/>.</summary>
@@ -31,6 +32,33 @@ public sealed class SignedBrowserCall(HttpClient http, SecurityProtocol protocol
         request.Headers.Add(HeaderNames.Origin, origin);
         request.Headers.Add(protocol.SignatureHeaderName, Proof(key, path));
         return await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+    }
+
+    /// <summary>
+    /// The CORS preflight the browser sends before that GET: <c>OPTIONS</c> with <c>Origin</c>, the method and the two
+    /// non-safelisted request headers (Authorization and the request proof), lower-cased as browsers send them.
+    /// </summary>
+    public async Task<HttpResponseMessage> PreflightAsync(string path, string origin)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Options, new Uri(path, UriKind.Relative));
+        request.Headers.Add(HeaderNames.Origin, origin);
+        request.Headers.Add(HeaderNames.AccessControlRequestMethod, HttpMethod.Get.Method);
+        request.Headers.Add(
+            HeaderNames.AccessControlRequestHeaders,
+            string.Join(PreflightHeaderSeparator, HeaderNames.Authorization.ToLowerInvariant(), protocol.SignatureHeaderName.ToLowerInvariant()));
+        return await http.SendAsync(request);
+    }
+
+    /// <summary>
+    /// The GET as a download manager replays it: bearer token and <c>Origin</c>, but no request proof (the server
+    /// refuses it 401 <c>signature_missing</c>).
+    /// </summary>
+    public async Task<HttpResponseMessage> GetWithoutProofAsync(string path, string accessToken, string origin)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(path, UriKind.Relative));
+        request.Headers.Authorization = new AuthenticationHeaderValue(BearerScheme, accessToken);
+        request.Headers.Add(HeaderNames.Origin, origin);
+        return await http.SendAsync(request);
     }
 
     /// <inheritdoc />

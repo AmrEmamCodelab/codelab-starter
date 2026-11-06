@@ -11,6 +11,12 @@ public static class AttachableRecordTypes
     public const string Demo = "attachments-demo";
 
     /// <summary>
+    /// The sample Service Request (module ServiceRequests, which registers its access). The same key as the record
+    /// type, so one record is one attachable record.
+    /// </summary>
+    public const string ServiceRequest = "service-request";
+
+    /// <summary>
     /// The PublicId domain label of a record id in the attachment routes (part of the wire format; never rename). A
     /// module that offers its records for attachments hands the client its record id encoded under this label (its own
     /// <c>IIdDomain</c> returning this value), so one route serves every record type.
