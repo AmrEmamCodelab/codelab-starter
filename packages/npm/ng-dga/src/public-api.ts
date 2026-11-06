@@ -43,6 +43,7 @@ export * from './lib/page-feedback/dga-page-feedback.component';
 export * from './lib/portal-page-header/dga-portal-page-header.component';
 export * from './lib/file-upload/file-validation';
 export * from './lib/file-upload/file-upload-item';
+export * from './lib/file-upload/file-upload-state';
 export * from './lib/file-upload/dga-file-upload.component';
 export * from './lib/date-input/iso-date';
 export * from './lib/date-input/dga-date-input.component';

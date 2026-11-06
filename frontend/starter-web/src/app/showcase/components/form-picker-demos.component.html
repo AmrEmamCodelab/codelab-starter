@@ -119,7 +119,7 @@
       [maxFiles]="maxFiles"
       [items]="uploads()"
       (filesSelected)="onFilesSelected($event)"
-      (removed)="onRemoved($event)"
+      (remove)="onRemoved($event.id)"
     />
   </app-showcase-demo>
   <app-showcase-demo wide stack [labelKey]="keys.States.Disabled">

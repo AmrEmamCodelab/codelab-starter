@@ -8,6 +8,12 @@ function file(name: string, options: { type?: string; size?: number } = {}): Fil
   return new File(['x'.repeat(options.size ?? 1)], name, { type: options.type ?? '' });
 }
 
+describe('DgaFileRejectionReason', () => {
+  it('is an integer enum with explicit, stable values', () => {
+    expect(DgaFileRejectionReason).toEqual({ Type: 0, Size: 1, Empty: 2, Count: 3 });
+  });
+});
+
 describe('acceptEntries', () => {
   it('trims, lower-cases and drops empty entries', () => {
     expect(acceptEntries(' .PDF, image/* ,,')).toEqual(['.pdf', 'image/*']);
@@ -45,6 +51,12 @@ describe('fileRejectionReason', () => {
     expect(fileRejectionReason(file('a.pdf', { size: 0 }), rules)).toBe(DgaFileRejectionReason.Empty);
     expect(fileRejectionReason(file('a.pdf', { size: KIB + 1 }), rules)).toBe(DgaFileRejectionReason.Size);
     expect(fileRejectionReason(file('a.pdf', { size: KIB }), rules)).toBeNull();
+  });
+
+  it('applies the optional size check only when maxSizeBytes is set', () => {
+    const big = file('a.pdf', { size: KIB + 1 });
+    expect(fileRejectionReason(big, { accept: '.pdf', maxSizeBytes: KIB })).toBe(DgaFileRejectionReason.Size);
+    expect(fileRejectionReason(big, { accept: '.pdf', maxSizeBytes: null })).toBeNull();
   });
 
   it('has no size limit when maxSizeBytes is null', () => {

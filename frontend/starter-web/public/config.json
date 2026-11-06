@@ -4,7 +4,9 @@
     "api": [
       "http://localhost:5180"
     ],
-    "attachment": []
+    "attachment": [
+      "http://localhost:5185"
+    ]
   },
   "security": {
     "protocolPrefix": "STARTER"

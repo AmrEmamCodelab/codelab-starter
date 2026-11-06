@@ -12,6 +12,7 @@ import { CORE_TRANSLATION_KEYS } from './core/i18n/core-translation-keys';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
+import { ATTACHMENTS_DEMO_ROUTE_PATH } from './features/attachments/attachments.routes';
 import { LoginFieldMessageKeys } from './features/auth/login-form';
 import { SignInMessageKeys } from './features/auth/sign-in.service';
 import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
@@ -79,7 +80,7 @@ describe('routes', () => {
   it('puts the gated pages inside the shell, behind authGuard', () => {
     const shell = route(SHELL_PATH);
     expect(shell.canActivate).toEqual([authGuard]);
-    expect(shell.children?.map(child => child.path)).toEqual([RoutePaths.Dashboard, RoutePaths.Admin, NOTIFICATIONS_ROUTE_PATH]);
+    expect(shell.children?.map(child => child.path)).toEqual([RoutePaths.Dashboard, RoutePaths.Admin, NOTIFICATIONS_ROUTE_PATH, ATTACHMENTS_DEMO_ROUTE_PATH]);
   });
 
   it('gates every shell page with a permission guard and a typed key', () => {

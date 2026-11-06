@@ -1,22 +1,27 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { DEVELOPMENT, PRIVATE_DOTNET, PRIVATE_NODE_DIR, SEQ_SERVER_URL_ENV, Urls } from '../lib/constants.mjs';
+import { ATTACHMENTS_HEALTH_PATH, DEVELOPMENT, Hosts, PRIVATE_DOTNET, PRIVATE_NODE_DIR, SEQ_SERVER_URL_ENV, Urls } from '../lib/constants.mjs';
 import {
   UsageError,
   apiAssemblyPath,
   apiEnvironment,
+  attachmentsDecision,
+  attachmentsEnvironment,
   breakGlassUser,
   parseArguments,
   parseState,
   pollUntilReady,
+  portsToCheck,
   prependPath,
   resolveDotnet,
   resolveNodeDir,
   usesDefaultLocalDb,
+  secretsNeedSeeding,
   seqDecision,
   seqUrl,
   serializeState,
+  startPlan,
   taskMatches,
   webDecision,
   webEnvironment,
@@ -24,10 +29,11 @@ import {
 
 describe('arguments', () => {
   it('parses the switches and the root', () => {
-    assert.deepEqual(parseArguments(['--stop', '--no-web', '--no-seq', '--root', 'x'], 'R'), {
-      stop: true, noWeb: true, noSeq: true, help: false, root: path.resolve('x'),
+    assert.deepEqual(parseArguments(['--stop', '--no-web', '--no-seq', '--no-attachments', '--root', 'x'], 'R'), {
+      stop: true, noWeb: true, noSeq: true, noAttachments: true, help: false, root: path.resolve('x'),
     });
     assert.equal(parseArguments([], 'R').root, 'R');
+    assert.equal(parseArguments([], 'R').noAttachments, false, 'the Attachment service starts by default');
   });
 
   it('refuses unknown arguments', () => {
@@ -136,5 +142,71 @@ describe('usesDefaultLocalDb', () => {
     assert.equal(usesDefaultLocalDb({}), true);
     assert.equal(usesDefaultLocalDb({ ConnectionStrings__Starter: 'Server=(localdb)\MSSQLLocalDB;Database=X' }), true);
     assert.equal(usesDefaultLocalDb({ ConnectionStrings__Starter: 'Server=(localdb)\P2Proof;Database=X' }), false);
+  });
+});
+
+describe('the Attachment service', () => {
+  it('runs on :5185 in Development and is health-checked on the readiness path', () => {
+    assert.equal(Urls.attachments, 'http://localhost:5185');
+    assert.equal(ATTACHMENTS_HEALTH_PATH, '/health/ready');
+    assert.equal(`${Hosts.attachments.url}${Hosts.attachments.healthPath}`, 'http://localhost:5185/health/ready');
+    assert.equal(Hosts.attachments.projectDir, 'services/attachment-service/src/Codelab.Attachments.Api');
+    const env = attachmentsEnvironment({ KEEP: '1' }, 'http://seq');
+    assert.equal(env.ASPNETCORE_ENVIRONMENT, DEVELOPMENT);
+    assert.equal(env.ASPNETCORE_URLS, Urls.attachments);
+    assert.equal(env[SEQ_SERVER_URL_ENV], 'http://seq');
+    assert.equal(env.KEEP, '1');
+    assert.equal(attachmentsEnvironment({}, null)[SEQ_SERVER_URL_ENV], undefined);
+  });
+
+  it('starts unless -NoAttachments is given or the project is absent', () => {
+    assert.deepEqual(attachmentsDecision({ noAttachments: false, projectExists: true }), { start: true });
+    assert.match(attachmentsDecision({ noAttachments: true, projectExists: true }).reason, /NoAttachments/);
+    assert.match(attachmentsDecision({ noAttachments: false, projectExists: false }).reason, /does not exist/);
+  });
+
+  it('starts after the API and before the web app, and checks only the planned ports', () => {
+    assert.deepEqual(startPlan({ attachments: true, web: true }), ['api', 'attachments', 'web']);
+    assert.deepEqual(startPlan({ attachments: false, web: true }), ['api', 'web']);
+    assert.deepEqual(startPlan({ attachments: true, web: false }), ['api', 'attachments']);
+    assert.deepEqual(startPlan({ attachments: false, web: false }), ['api']);
+    assert.deepEqual(portsToCheck(['api', 'attachments', 'web']), [Urls.api, Urls.attachments, Urls.web]);
+    assert.deepEqual(portsToCheck(['api']), [Urls.api]);
+  });
+});
+
+describe('secretsNeedSeeding', () => {
+  const complete = JSON.stringify({
+    Codelab: {
+      Security: {
+        Tickets: { ActiveKeyId: 'a' },
+        UploadTickets: { ActiveKeyId: 'c' },
+        Uploads: { ActiveKeyId: 'b' },
+        ServiceAssertions: { Client: { PrivateKeyPem: 'p' } },
+      },
+    },
+  });
+  const beforeUploadTicketRing = JSON.stringify({
+    Codelab: { Security: { Tickets: { ActiveKeyId: 'a' }, Uploads: { ActiveKeyId: 'b' }, ServiceAssertions: { Client: { PrivateKeyPem: 'p' } } } },
+  });
+  const beforeAttachments = JSON.stringify({ Codelab: { Security: { Tickets: { ActiveKeyId: 'a' } } } });
+
+  it('seeds when the API file is missing', () => {
+    assert.equal(secretsNeedSeeding({ apiSecretsText: null, serviceSecretsExists: true, withAttachments: false }), true);
+  });
+
+  it('never touches an existing API file when the Attachment service does not start', () => {
+    assert.equal(secretsNeedSeeding({ apiSecretsText: beforeAttachments, serviceSecretsExists: false, withAttachments: false }), false);
+  });
+
+  it('seeds when the service file is missing or the API file lacks an attachment key', () => {
+    assert.equal(secretsNeedSeeding({ apiSecretsText: complete, serviceSecretsExists: false, withAttachments: true }), true);
+    assert.equal(secretsNeedSeeding({ apiSecretsText: beforeAttachments, serviceSecretsExists: true, withAttachments: true }), true);
+    assert.equal(secretsNeedSeeding({ apiSecretsText: 'not json', serviceSecretsExists: true, withAttachments: true }), true);
+    assert.equal(secretsNeedSeeding({ apiSecretsText: complete, serviceSecretsExists: true, withAttachments: true }), false);
+  });
+
+  it('seeds when the API file predates the dedicated upload-ticket ring', () => {
+    assert.equal(secretsNeedSeeding({ apiSecretsText: beforeUploadTicketRing, serviceSecretsExists: true, withAttachments: true }), true);
   });
 });

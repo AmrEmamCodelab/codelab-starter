@@ -1,0 +1,60 @@
+{
+  "batch": "p6-fe-att-widget",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p6-fe-att-widget -Manifest <scratch copy of allowlist.manifest.yaml with the p6-fe-att-widget batch> -Staging <scratch folder outside the repo> -Clean (scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference only and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. Carried patterns only: one row per picked file with its own id (never the file name), files uploaded one at a time, teardown of running uploads when the view goes away, one download at a time, and a visible failure instead of a silent dead button. Left behind: the legacy base64 attachments, the dual-source (legacy + service) DTO and its id pairing, the source product's per-purpose blocks, role-specific loaders, business-rule limits and descriptions.",
+  "origins": [
+    {
+      "batch": "p6-fe-att-widget",
+      "entryId": "request-attachments-card",
+      "source": "frontend/modhs-web/src/app/shared/request-detail-cards/attachments/request-attachments.component.html",
+      "target": "frontend/starter-web/src/app/shared/record-attachments/record-attachments.component.html",
+      "mode": "copy",
+      "sourceGitBlob": "c63981366088337189d0648b1cb9772e2ab244b0",
+      "sourceSha256": "020a80fb24ee81f87aa300b9236b754a4027de94777efc6b4bdffef4c0936c09",
+      "stagedSha256": "020a80fb24ee81f87aa300b9236b754a4027de94777efc6b4bdffef4c0936c09",
+      "stagedTarget": "reference/p6/fe-att-widget/request-attachments.component.html",
+      "promotion": "rewritten",
+      "note": "Rewritten on ng-dga dga-file-upload (one control per attachment type) and dga-page-feedback; the third-party UI kit markup and the per-purpose blocks were not carried."
+    },
+    {
+      "batch": "p6-fe-att-widget",
+      "entryId": "request-attachments-card",
+      "source": "frontend/modhs-web/src/app/shared/request-detail-cards/attachments/request-attachments.component.ts",
+      "target": "frontend/starter-web/src/app/shared/record-attachments/record-attachments.store.ts",
+      "mode": "copy",
+      "sourceGitBlob": "b0cf8e54f71bd770a671a95e0888f18f15c0f3c9",
+      "sourceSha256": "99bfcfecda3c21d5c6f6eb8b2db65b53ca3fff10bba238575e5007a6a27f2762",
+      "stagedSha256": "99bfcfecda3c21d5c6f6eb8b2db65b53ca3fff10bba238575e5007a6a27f2762",
+      "stagedTarget": "reference/p6/fe-att-widget/request-attachments.component.ts",
+      "promotion": "rewritten",
+      "note": "Pattern kept: one download at a time and a visible failure (now page feedback with errors.<CODE> and the reference code). The dual-source rows, the legacy base64 save and the role-specific loader input were left behind; downloads go through the shared adapter for any record."
+    },
+    {
+      "batch": "p6-fe-att-widget",
+      "entryId": "attachments-section",
+      "source": "frontend/modhs-web/src/app/features/requester/request-detail/attachments/attachments-section.component.html",
+      "target": "frontend/starter-web/src/app/shared/record-attachments/record-attachments.component.html",
+      "mode": "copy",
+      "sourceGitBlob": "7bc72ad094f90d6799e59e8c6785d115fbdd5187",
+      "sourceSha256": "e7c37e4a61a08d3f3ec307903f5d08de3f283b8e93105826c5858e038d7a8886",
+      "stagedSha256": "e7c37e4a61a08d3f3ec307903f5d08de3f283b8e93105826c5858e038d7a8886",
+      "stagedTarget": "reference/p6/fe-att-widget/attachments-section.component.html",
+      "promotion": "rewritten",
+      "note": "Rewritten: per-file rows with status, progress and error now come from dga-file-upload; the native file input, the per-file description fields and the separate record step were not carried."
+    },
+    {
+      "batch": "p6-fe-att-widget",
+      "entryId": "attachments-section",
+      "source": "frontend/modhs-web/src/app/features/requester/request-detail/attachments/attachments-section.component.ts",
+      "target": "frontend/starter-web/src/app/shared/record-attachments/record-attachments-view.ts",
+      "mode": "copy",
+      "sourceGitBlob": "9bfb3956460a13d20ecf73e778cbf97fcaf14b79",
+      "sourceSha256": "66245619d2d6e16c86e594390fd0333eaaadba078844d7f5b5c6a5e641339f1a",
+      "stagedSha256": "66245619d2d6e16c86e594390fd0333eaaadba078844d7f5b5c6a5e641339f1a",
+      "stagedTarget": "reference/p6/fe-att-widget/attachments-section.component.ts",
+      "promotion": "rewritten",
+      "note": "Patterns kept: per-file upload state on a row with its own id, sequential uploads, cancelling running uploads when the view changes. The client business limits, the description rule, the batch record call and its retry-with-stored-metadata were left behind: limits are per attachment type on the server, and each file is linked by its receipt as soon as it is stored."
+    }
+  ]
+}

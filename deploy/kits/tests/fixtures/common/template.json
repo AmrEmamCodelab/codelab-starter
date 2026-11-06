@@ -1,0 +1,49 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Starter": ""
+  },
+  "Attachments": {
+    "Storage": {
+      "RootPath": "",
+      "TempPath": ""
+    },
+    "Cors": {
+      "AllowedOrigins": [
+        "http://localhost:4280"
+      ],
+      "AllowCredentials": false
+    }
+  },
+  "Codelab": {
+    "Security": {
+      "Uploads": {
+        "MaxFileBytes": 5242880,
+        "AllowedExtensions": [
+          ".pdf",
+          ".png"
+        ],
+        "BlockedExtensions": [
+          ".exe",
+          ".js"
+        ],
+        "Receipts": {
+          "Enabled": true,
+          "LifetimeSeconds": 900
+        }
+      }
+    }
+  },
+  "EmptySection": {
+    "Added": null
+  },
+  "Legacy": {
+    "Nested": true
+  },
+  "AllowedHosts": "*"
+}

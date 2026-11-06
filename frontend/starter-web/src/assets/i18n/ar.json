@@ -99,7 +99,22 @@
     "PORTAL_SECTION_NOT_ON_PAGE": "عدّل شخص آخر هذه الصفحة. أعد تحميلها ثم حاول مرة أخرى.",
     "TOO_SHORT": "هذه القيمة قصيرة جدًا.",
     "DUPLICATE": "هذه القيمة مكررة.",
-    "PORTAL_CONTACT_DISABLED": "نموذج التواصل متوقف حاليًا. يرجى المحاولة لاحقًا."
+    "PORTAL_CONTACT_DISABLED": "نموذج التواصل متوقف حاليًا. يرجى المحاولة لاحقًا.",
+    "ATTACHMENTS_TICKET_INVALID": "انتهت صلاحية إذن الرفع أو سبق استخدامه. ابدأ الرفع من جديد.",
+    "ATTACHMENTS_FILE_TOO_LARGE": "حجم الملف أكبر من الحجم المسموح به.",
+    "ATTACHMENTS_TOO_MANY_FILES": "أُرسل عدد كبير من الملفات في مرة واحدة.",
+    "ATTACHMENTS_TYPE_NOT_ALLOWED": "نوع هذا الملف غير مسموح به.",
+    "ATTACHMENTS_SIGNATURE_MISMATCH": "محتوى الملف لا يطابق نوعه.",
+    "ATTACHMENTS_EMPTY_FILE": "الملف فارغ.",
+    "ATTACHMENTS_FILE_NOT_FOUND": "تعذّر العثور على الملف المخزّن.",
+    "ATTACHMENTS_RECEIPT_INVALID": "تعذّر تأكيد الرفع. ارفع الملف مرة أخرى.",
+    "ATTACHMENTS_RECORD_TYPE_UNKNOWN": "المرفقات غير متاحة لهذا السجل.",
+    "ATTACHMENTS_TYPE_NOT_FOUND": "نوع المرفق هذا غير موجود.",
+    "ATTACHMENTS_EXTENSION_NOT_ALLOWED_FOR_TYPE": "نوع هذا الملف غير مسموح به لهذا المرفق.",
+    "ATTACHMENTS_MAX_FILES_REACHED": "وصل هذا المرفق إلى أقصى عدد مسموح به من الملفات. احذف ملفًا أولًا.",
+    "ATTACHMENTS_NOT_FOUND": "تعذّر العثور على المرفق. ربما حُذف.",
+    "ATTACHMENTS_REQUIRED_MISSING": "بعض المرفقات المطلوبة غير موجودة.",
+    "ATTACHMENTS_STORAGE_UNAVAILABLE": "مخزن الملفات غير متاح حاليًا. حاول مرة أخرى لاحقًا."
   },
   "core": {
     "error-dialog": {
@@ -1444,6 +1459,42 @@
       "failed-body": "تحقق من اتصالك وحاول مرة أخرى.",
       "retry": "حاول مرة أخرى",
       "send-test": "أرسل لي إشعارًا تجريبيًا"
+    }
+  },
+  "attachments": {
+    "widget": {
+      "loading": "جارٍ تحميل المرفقات…",
+      "load-failed": "تعذّر تحميل المرفقات.",
+      "retry": "إعادة المحاولة",
+      "no-types": "لا توجد أنواع مرفقات معرّفة لهذا السجل.",
+      "browse": "اختيار ملفات",
+      "drop": "اسحب الملفات إلى هنا أو",
+      "hint": "الأنواع المسموح بها: {{extensions}}. حتى {{max}} ملفات.",
+      "required": "مطلوب",
+      "missing": "هذا المرفق مطلوب.",
+      "reference-code": "الرمز المرجعي",
+      "download": "تنزيل {name}",
+      "remove": "حذف {name}",
+      "status-queued": "{name} بانتظار الرفع",
+      "status-uploading": "جارٍ رفع {name}",
+      "status-uploaded": "تم رفع {name}",
+      "status-failed": "لم يُرفع {name}",
+      "rejected-type": "{{name}} ليس من أنواع الملفات المسموح بها.",
+      "rejected-size": "حجم {{name}} كبير جدًا.",
+      "rejected-empty": "الملف {{name}} فارغ.",
+      "rejected-count": "لم يُضف {{name}}: يقبل هذا المرفق {{max}} ملفات على الأكثر.",
+      "failed-load": "لم تُحمّل المرفقات",
+      "failed-upload": "لم يُرفع الملف",
+      "failed-download": "لم يُنزّل الملف",
+      "failed-remove": "لم يُحذف المرفق",
+      "uploaded": "أُرفق {{name}}.",
+      "removed": "حُذف {{name}}.",
+      "with-reference": "{{message}} الرمز المرجعي: {{code}}",
+      "dismiss": "إغلاق"
+    },
+    "demo": {
+      "title": "تجربة المرفقات",
+      "intro": "سجل تجريبي لبيئة التطوير لتجربة المرفقات: ارفع ملفًا، وشاهده في القائمة، ونزّله، واحذفه."
     }
   }
 }

@@ -50,9 +50,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack
 # Release the exact versions (platform owner only; packs after a green CI, refused when a version is in the feed)
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -Release
-# Local stack: API :5180, web :4280 (+ Seq :5341 when available); -Stop stops only what it started
+# Local stack: API :5180, Attachment service :5185, web :4280 (+ Seq :5341 when available); -NoAttachments skips the service; -Stop stops only what it started
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1
-# Once, before the first run: fresh local secrets (gitignored appsettings.Development.local.json)
+# Local secrets for the API and the Attachment service (gitignored appsettings.Development.local.json; adds missing keys, -Force regenerates)
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1
 ```
 

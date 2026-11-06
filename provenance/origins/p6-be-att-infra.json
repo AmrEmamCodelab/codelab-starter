@@ -1,0 +1,112 @@
+{
+  "batch": "p6-be-att-infra",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p6-be-att-infra -Manifest <scratch copy of allowlist.manifest.yaml plus the p6-be-att-infra batch> -Clean (staging %TEMP%/codelab-extract/p6-be-att-infra, outside the repo; scrub and secret findings are expected before the rewrite)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. The JWT service token, the shared receipt secret, the relayed upload, the base64 download envelope and the source-product module/folder ids were left behind.",
+  "origins": [
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "api-adapters",
+      "source": "backend/MODHS.Api/Services/AttachmentReceiptVerifier.cs",
+      "target": "backend/src/Modules/Attachments/Infrastructure/Security/ReceiptVerifier.cs",
+      "mode": "copy",
+      "sourceGitBlob": "8778aa1565a48af99690c3b26276570566e922b2",
+      "sourceSha256": "e9b3eab0e7684fa047cb1de82658fcd896602f26e2b593410448d487363e198a",
+      "stagedSha256": "e9b3eab0e7684fa047cb1de82658fcd896602f26e2b593410448d487363e198a",
+      "stagedTarget": "reference/p6/p6-be-att-infra/api/AttachmentReceiptVerifier.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: an offline check of the attachment service receipt (no network call on link). The JWT-shaped receipt, the shared UTF-8 secret, the kill switch and the module/folder/file claims were left behind; the starter verifies the r1. token with Codelab.Security UploadReceiptSigner under the Codelab:Security:Uploads key ring, returns null when receipts are disabled, and takes the MIME type from UploadContentTypes."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "api-adapters",
+      "source": "backend/MODHS.Api/Services/AttachmentStorageClient.cs",
+      "target": "backend/src/Modules/Attachments/Infrastructure/Storage/HttpAttachmentStorageClient.cs",
+      "mode": "copy",
+      "sourceGitBlob": "5596652c5bae4d144349afb511a45cde18af17e7",
+      "sourceSha256": "84ed83ab179cf845c5d954ce63e0c3444a908eb245e1e0f12b623afd886f08f1",
+      "stagedSha256": "84ed83ab179cf845c5d954ce63e0c3444a908eb245e1e0f12b623afd886f08f1",
+      "stagedTarget": "reference/p6/p6-be-att-infra/api/AttachmentStorageClient.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the typed HttpClient adapter, the transport-failure wrapping and the caller-cancellation versus timeout test. The bearer service token, the relayed upload, the listing and the base64 download envelope were left behind; the starter calls GET/DELETE /api/files/{fileId} with the ES256 service assertion, maps 404 to not found and every other failure to AttachmentStorageUnavailableException (503)."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "api-adapter-tests",
+      "source": "backend/MODHS.Api.Tests/AttachmentReceiptVerifierTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Attachments.Tests/Infrastructure/ReceiptVerifierTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "1140a0971a5745f3f93634f5588ea32dd6f150a6",
+      "sourceSha256": "d49aca00ead373e53d13ee200fcb9fa0eaf55b983e0bc0a04b9475d55d945dda",
+      "stagedSha256": "d49aca00ead373e53d13ee200fcb9fa0eaf55b983e0bc0a04b9475d55d945dda",
+      "stagedTarget": "reference/p6/p6-be-att-infra/tests/AttachmentReceiptVerifierTests.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only (tampered, wrong key, malformed and disabled cases); keys are generated at run time, the fixture secrets were not carried."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "api-adapter-tests",
+      "source": "backend/MODHS.Api.Tests/AttachmentStorageClientTests.cs",
+      "target": "backend/tests/Modules/Starter.Modules.Attachments.Tests/Infrastructure/HttpAttachmentStorageClientTests.cs",
+      "mode": "copy",
+      "sourceGitBlob": "3ec97e70dfd65dafd3065845ae4bbe8e2f0a6929",
+      "sourceSha256": "7a3cd79fc2fbd9bbf7a84fee6dc10fd39d62334b5b877a594c29ce94ae79a2f0",
+      "stagedSha256": "7a3cd79fc2fbd9bbf7a84fee6dc10fd39d62334b5b877a594c29ce94ae79a2f0",
+      "stagedTarget": "reference/p6/p6-be-att-infra/tests/AttachmentStorageClientTests.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: a stub HttpMessageHandler drives the status mapping, connection failure, timeout and caller cancellation; the token and envelope cases were not carried."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "persistence",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/RequestServiceAttachmentConfiguration.cs",
+      "target": "backend/src/Modules/Attachments/Infrastructure/Persistence/AttachmentsDbContext.cs",
+      "mode": "copy",
+      "sourceGitBlob": "bda34276e868f4e25176050c31d2c80e69da55c9",
+      "sourceSha256": "a88ede174da5309032c7d6ecc9f34f7e7a9816fc6034b28bbcc0bd4653ecfaa1",
+      "stagedSha256": "a88ede174da5309032c7d6ecc9f34f7e7a9816fc6034b28bbcc0bd4653ecfaa1",
+      "stagedTarget": "reference/p6/p6-be-att-infra/persistence/Data/Configurations/RequestServiceAttachmentConfiguration.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the Restrict foreign key to the type and the filtered unique file index. The link is generic (record type + record id, no foreign key into another module), the file id is unique outright, and removal is a soft RemovedAt."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "persistence",
+      "source": "backend/MODHS.Infrastructure/Data/Configurations/ServiceAttachmentConfiguration.cs",
+      "target": "backend/src/Modules/Attachments/Infrastructure/Persistence/AttachmentsDbContext.cs",
+      "mode": "copy",
+      "sourceGitBlob": "0f9da2806224c6b893ddb64ae76a961579cec80e",
+      "sourceSha256": "632e122eeed044372559eacfebc0763c0fee349443eb118a122c6e6d70e4211c",
+      "stagedSha256": "632e122eeed044372559eacfebc0763c0fee349443eb118a122c6e6d70e4211c",
+      "stagedTarget": "reference/p6/p6-be-att-infra/persistence/Data/Configurations/ServiceAttachmentConfiguration.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: the type catalog mapping. Fixed ids (never generated), a unique key and the stored extension list are the starter shape; source-product columns were left behind."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "persistence",
+      "source": "backend/MODHS.Infrastructure/Repositories/ServiceAttachmentRepository.cs",
+      "target": "backend/src/Modules/Attachments/Infrastructure/Persistence/EfAttachmentStore.cs",
+      "mode": "copy",
+      "sourceGitBlob": "7555c035bb44c23524720d9a968bd2366c396e92",
+      "sourceSha256": "46f29d71daf122817564a43d8f9be0e5ff129c9cdd6b0552261a7b94038b764d",
+      "stagedSha256": "46f29d71daf122817564a43d8f9be0e5ff129c9cdd6b0552261a7b94038b764d",
+      "stagedTarget": "reference/p6/p6-be-att-infra/persistence/Repositories/ServiceAttachmentRepository.cs",
+      "promotion": "rewritten",
+      "note": "Pattern only: no-tracking reads of the type catalog and of live attachments per record. Folder/module lookups, retention queries and request-specific joins were left behind; the store implements the module port IAttachmentStore over AttachmentsDbContext."
+    },
+    {
+      "batch": "p6-be-att-infra",
+      "entryId": "retention",
+      "source": "backend/MODHS.Application/Attachments/AttachmentRetentionService.cs",
+      "target": "reference/p6/p6-be-att-infra/application/",
+      "mode": "copy",
+      "sourceGitBlob": "b0753ef4c415d08dd43a8ad6f492030f86c9ab89",
+      "sourceSha256": "b40b75883d3839f87aa259a7a844e8d1781385719812b5d22934af7691baf929",
+      "stagedSha256": "b40b75883d3839f87aa259a7a844e8d1781385719812b5d22934af7691baf929",
+      "stagedTarget": "reference/p6/p6-be-att-infra/application/",
+      "promotion": "staged",
+      "note": "Not carried in phase 6: removed files are deleted through the outbox (attachments.delete-file, DeleteAttachmentFileHandler); a sweep of uploads that were never linked needs a service listing endpoint the phase 6 contract does not have. Documented as a Gotcha in the module MODULE.md; candidate for a later phase."
+    }
+  ]
+}

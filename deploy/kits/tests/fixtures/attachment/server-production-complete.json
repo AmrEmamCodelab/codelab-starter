@@ -1,0 +1,48 @@
+{
+  "Attachments": {
+    "Storage": {
+      "RootPath": "__STORAGE_ROOT__"
+    },
+    "Cors": {
+      "AllowedOrigins": [
+        "https://portal.example.test"
+      ]
+    }
+  },
+  "Codelab": {
+    "Security": {
+      "Tickets": {
+        "Enabled": true,
+        "ActiveKeyId": "fixture-ticket-key",
+        "Keys": [
+          {
+            "KeyId": "fixture-ticket-key",
+            "MaterialBase64": "fixture-not-key-material"
+          }
+        ]
+      },
+      "Uploads": {
+        "ReceiptsEnabled": true,
+        "ActiveKeyId": "fixture-receipt-key",
+        "Keys": [
+          {
+            "KeyId": "fixture-receipt-key",
+            "MaterialBase64": "fixture-not-key-material"
+          }
+        ]
+      },
+      "ServiceAssertions": {
+        "Server": {
+          "Audience": "starter-attachments",
+          "TrustedServices": [
+            {
+              "ServiceName": "starter-api",
+              "KeyId": "fixture-s2s-key",
+              "PublicKeyPem": "fixture-not-a-public-key"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../rules/rules.schema.json
+# Rules for the attachment service (inherits rules/base.rules.yaml): Codelab.Attachments.Core and Codelab.Attachments.Api.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: AttachmentsService
+kind: dotnet
+description: "The attachment service deployable: browser uploads authenticated only by a one-time sealed ticket, S2S-only download and delete (ES256 service assertions), streamed multipart with magic bytes, caps, path containment, SHA-256 and signed receipts, on a file share."
+mayDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors]
+mustNotDependOn: [CodelabIntegration, CodelabTesting, StarterDomain, StarterApplication, StarterInfrastructure]
+required:
+  - id: attachmentsservice.two-credentials-only
+    statement: The service authenticates only two credentials, each on its own endpoints - the CodelabServiceAssertion scheme (S2S, the fallback policy) for GET and DELETE /api/files/{fileId}, and the one-time upload ticket for POST /api/uploads. No JWT bearer, no API key, no cookie, no default scheme.
+    enforcedBy: [contract-test, review]
+  - id: attachmentsservice.ticket-opens-once
+    statement: An upload ticket is opened with ISealedTicketService.OpenAsync for UploadTickets.Purpose (single use) and its subject is the scope of every receipt the upload returns; the header name comes from the protocol prefix (UploadTickets.HeaderName), never a literal product name.
+    enforcedBy: [contract-test, review]
+  - id: attachmentsservice.coded-refusals
+    statement: Every refusal is the Codelab.Errors problem+json envelope with a code from AttachmentServiceErrorCodes (or Codelab.Errors ErrorCodes for authentication and retryable failures) and a referenceCode; no endpoint writes an error body by hand.
+    enforcedBy: [contract-test, review]
+  - id: attachmentsservice.one-allowlist
+    statement: Upload extensions, caps and receipts come from Codelab:Security:Uploads (the same section as the API) and content types from Codelab.Security UploadContentTypes; the service keeps no second allowlist.
+    enforcedBy: [review]
+  - id: attachmentsservice.streamed-upload
+    statement: The upload endpoint reads the raw body through IUploadPipeline (no form binding, no IFormFile) behind UploadBodyCeilingFilter, and web.config maxAllowedContentLength stays at least the ceiling of the shipped settings.
+    enforcedBy: [contract-test, review]
+  - id: attachmentsservice.no-key-material
+    statement: Committed appsettings and web.config carry no key material; keys come from the environment or a secret store (Development - the gitignored appsettings.Development.local.json from tools/devseed/New-LocalSecrets.ps1). The service holds no PublicId ring of its own (EphemeralPublicIdRing).
+    enforcedBy: [contract-test, review]
+forbidden:
+  - id: attachmentsservice.no-other-credential
+    description: A bearer, API-key or cookie scheme would let a browser token or a shared secret reach stored files; the only credentials are the service assertion and the upload ticket.
+    pattern: '(AddJwtBearer|JwtBearerDefaults|AddCookie\s*\(|ApiKey\w*(?:Handler|Scheme|Authentication))'
+    appliesTo: ["src/**/*.cs"]
+    fix: Use the CodelabServiceAssertion scheme for service callers, or an upload ticket sealed by the API for browsers.
+    severity: error
+  - id: attachmentsservice.no-form-binding
+    description: Form binding buffers the whole multipart body before any cap or magic-byte check runs.
+    pattern: '(IFormFile|ReadFormAsync|Request\.Form\b|\[FromForm\])'
+    appliesTo: ["src/**/*.cs"]
+    fix: Stream the raw body through IUploadPipeline.
+    severity: error

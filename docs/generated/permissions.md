@@ -11,6 +11,9 @@ The permission catalog: the union of every module's `IPermissionCatalogSource`. 
 | `access.grants.view` | Access | See a user's roles, direct grants, virtual roles and effective permissions. | `GET /api/admin/access/users`, `GET /api/admin/access/users/{userId:publicid}/grants` |
 | `access.roles.manage` | Access | Create roles and change their names, permissions and active state. | `POST /api/admin/access/roles`, `PUT /api/admin/access/roles/{id:publicid}` |
 | `access.roles.view` | Access | See the roles, their permissions and the permission catalog. | `GET /api/admin/access/permissions`, `GET /api/admin/access/roles`, `GET /api/admin/access/roles/{id:publicid}` |
+| `attachments.remove` | Attachments | Remove a record's attachments (where the record allows it). | `DELETE /api/attachments/{id:publicid}` |
+| `attachments.upload` | Attachments | Upload files and link them to a record (where the record allows it). | `POST /api/records/{recordType}/{recordId:publicid}/attachments`, `POST /api/records/{recordType}/{recordId:publicid}/attachments/upload-ticket` |
+| `attachments.view` | Attachments | List attachment types and a record's attachments, and download them (where the record allows it). | `GET /api/attachments/demo-record`, `GET /api/attachments/types`, `GET /api/attachments/{id:publicid}/content`, `GET /api/records/{recordType}/{recordId:publicid}/attachments` |
 | `audit.view` | Audit | Read the audit trail of every audited table (personal data masked). | `GET /api/admin/audit` |
 | `dashboard.view` | Access | Open the dashboard. | `GET /api/dashboard` |
 | `jobs.run` | Jobs | Run a background job now. | `POST /api/admin/jobs/{key}/runs` |

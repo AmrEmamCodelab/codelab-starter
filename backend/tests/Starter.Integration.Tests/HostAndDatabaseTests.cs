@@ -13,13 +13,13 @@ public sealed class HostAndDatabaseTests(DevelopmentHost host)
     private const string MigrationHistoryCount = "SELECT COUNT(*) FROM sys.tables WHERE name = '__EFMigrationsHistory'";
 
     /// <summary>
-    /// The migrated schemas: the modules (identity, access, users, lookups, settings, jobs, notifications, portal) and the
+    /// The migrated schemas: the modules (identity, access, users, lookups, settings, jobs, notifications, portal, attachments) and the
     /// kernel contexts (messaging: the outbox; numbering: request number sequences; audit: the audit trail). Each has its
     /// own migration history. The Audit module has no schema of its own (it reads the kernel trail), and the jobs
     /// scheduler's schema (hangfire) is not an EF context and exists only on a job-server node.
     /// </summary>
     private static readonly string[] MigratedSchemas =
-        ["identity", "access", "users", "lookups", "settings", "jobs", "notifications", "portal", "messaging", "numbering", "audit"];
+        ["identity", "access", "users", "lookups", "settings", "jobs", "notifications", "portal", "attachments", "messaging", "numbering", "audit"];
 
     private static readonly string ModuleSchemaCount =
         $"SELECT COUNT(*) FROM sys.schemas WHERE name IN ({string.Join(", ", MigratedSchemas.Select(schema => $"'{schema}'"))})";

@@ -26,6 +26,29 @@
       ]
     },
     {
+      "module": "Attachments",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Attachments",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Users",
+        "Access",
+        "Lookups",
+        "Audit",
+        "Settings",
+        "Jobs",
+        "Notifications",
+        "Portal"
+      ]
+    },
+    {
       "module": "Audit",
       "kind": "dotnet",
       "path": "backend/src/Modules/Audit",
@@ -254,6 +277,13 @@
       "mustNotDependOn": []
     },
     {
+      "module": "WebAttachments",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/attachments",
+      "mayDependOn": [],
+      "mustNotDependOn": []
+    },
+    {
       "module": "WebAuth",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/features/auth",
@@ -429,6 +459,23 @@
       "mayDependOn": [],
       "mustNotDependOn": [
         "NgSecurity"
+      ]
+    },
+    {
+      "module": "AttachmentsService",
+      "kind": "dotnet",
+      "path": "services/attachment-service",
+      "mayDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "CodelabIntegration",
+        "CodelabTesting",
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure"
       ]
     }
   ]

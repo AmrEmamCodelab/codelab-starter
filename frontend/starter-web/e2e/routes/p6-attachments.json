@@ -1,0 +1,5 @@
+{
+  "routes": [
+    { "name": "attachments-demo", "path": "/attachments/demo", "waitFor": "[data-testid=\"record-attachments\"]" }
+  ]
+}

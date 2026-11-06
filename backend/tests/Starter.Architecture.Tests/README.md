@@ -12,6 +12,7 @@ reads `rules/rules.compiled.json`, so the rules have one source.
 | `ControllerTests` | `base.thin-controllers`: sealed, in `.Api`, constructor takes only Application use cases (never a port, repository or DbContext), every action names its HTTP method |
 | `EnumTests` | `base.enums-as-int`: every enum under `backend/src` (parsed with Roslyn) has no non-int underlying type and an explicit value on every member; every compiled enum is `int` |
 | `ProgramTests` | `ProgramCs_HasAtMost150Lines` |
+| `PublishTests` | the host csproj sets `CopyToPublishDirectory="Never"` on `appsettings.*.local.json`, so a publish never carries the dev key rings |
 | `DataBoundaryTests` | ADR-004 at the database: every string a module builds (literals, `const` concatenations and interpolations, folded with Roslyn across files) names no other owner's schema (`[schema].` or `FROM schema.`); owners come from every `public const string SchemaName`. Rules `base.no-scheduler-dashboard-mapping` and `base.no-static-scheduler-storage` over all of `backend/src`, at any dashboard path (Roslyn names, so comments and strings do not count) |
 
 ## Use

@@ -1,13 +1,13 @@
-/** Why <dga-file-upload> refused a picked or dropped file, before anything is uploaded. */
+/** Why <dga-file-upload> refused a picked or dropped file, before anything is uploaded. Integer values, explicit. */
 export const DgaFileRejectionReason = {
   /** The file matches none of the `accept` entries. */
-  Type: 'type',
-  /** The file is larger than `maxSizeBytes`. */
-  Size: 'size',
+  Type: 0,
+  /** The file is larger than `maxSizeBytes` (only when the caller opted into the client size check). */
+  Size: 1,
   /** The file is empty (0 bytes). */
-  Empty: 'empty',
+  Empty: 2,
   /** Accepting the file would exceed `maxFiles`. */
-  Count: 'count',
+  Count: 3,
 } as const;
 export type DgaFileRejectionReason = (typeof DgaFileRejectionReason)[keyof typeof DgaFileRejectionReason];
 
@@ -26,7 +26,10 @@ export interface DgaFileSelection {
 export interface DgaFileRules {
   /** The native `accept` list: extensions (`.pdf`), media types (`application/pdf`) and wildcards (`image/*`). Empty accepts any type. */
   readonly accept: string;
-  /** The largest file in bytes; null for no limit. */
+  /**
+   * The largest file in bytes, an OPTIONAL client pre-check; null skips it and leaves the size to the server, which
+   * is authoritative either way (an oversized file then comes back failed with the server's reference code).
+   */
   readonly maxSizeBytes: number | null;
   /** How many more files the control may take now (its limit minus the files it already holds). */
   readonly remainingSlots: number;

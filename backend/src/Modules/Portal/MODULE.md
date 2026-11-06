@@ -110,6 +110,8 @@ entry on the node that made it, after the save. Other nodes see the change withi
 - **The cache is invalidated after every changing replace,** and no entry outlives the TTL.
 - **The module never references another module.** It uses kernel ports (`IRequestNumberAllocator`,
   `INotificationService`, `IRuntimeSettings`, `ILookupValues`) and its own ports; it reads no other module's tables.
+  Contact topics are read only through `ILookupValues`. Never add SQL that names the `lookups` schema: the
+  architecture test `DataBoundaryTests.NoModuleSqlNamesAnotherModulesSchema` fails the build on it.
 
 ## Gotchas
 

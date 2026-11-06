@@ -13,7 +13,7 @@ import {
 
 export const FLOW_USAGE = `Usage: node e2e/flows.mjs --base-url <url> [options]
 
-Runs the scripted phase-5 user flows in the installed Microsoft Edge against a running app (run-local.ps1) and
+Runs the scripted user flows (phase-5 and phase-6 exit criteria) in the installed Microsoft Edge against a running app (run-local.ps1) and
 writes a step log (JSON + Markdown) with one screenshot per step.
 
   --base-url <url>      the running web app, for example http://localhost:4280

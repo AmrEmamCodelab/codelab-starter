@@ -99,7 +99,22 @@
     "PORTAL_SECTION_NOT_ON_PAGE": "Someone else changed this page. Reload it and try again.",
     "TOO_SHORT": "This value is too short.",
     "DUPLICATE": "This value appears more than once.",
-    "PORTAL_CONTACT_DISABLED": "The contact form is closed at the moment. Please try again later."
+    "PORTAL_CONTACT_DISABLED": "The contact form is closed at the moment. Please try again later.",
+    "ATTACHMENTS_TICKET_INVALID": "The upload permission has expired or was already used. Start the upload again.",
+    "ATTACHMENTS_FILE_TOO_LARGE": "The file is larger than the allowed size.",
+    "ATTACHMENTS_TOO_MANY_FILES": "Too many files were sent at once.",
+    "ATTACHMENTS_TYPE_NOT_ALLOWED": "This file type is not allowed.",
+    "ATTACHMENTS_SIGNATURE_MISMATCH": "The file content does not match its file type.",
+    "ATTACHMENTS_EMPTY_FILE": "The file is empty.",
+    "ATTACHMENTS_FILE_NOT_FOUND": "The stored file could not be found.",
+    "ATTACHMENTS_RECEIPT_INVALID": "The upload could not be confirmed. Upload the file again.",
+    "ATTACHMENTS_RECORD_TYPE_UNKNOWN": "Attachments are not available for this record.",
+    "ATTACHMENTS_TYPE_NOT_FOUND": "This attachment type does not exist.",
+    "ATTACHMENTS_EXTENSION_NOT_ALLOWED_FOR_TYPE": "This file type is not allowed for this attachment.",
+    "ATTACHMENTS_MAX_FILES_REACHED": "This attachment already has the most files allowed. Remove one first.",
+    "ATTACHMENTS_NOT_FOUND": "The attachment could not be found. It may have been removed.",
+    "ATTACHMENTS_REQUIRED_MISSING": "Some required attachments are missing.",
+    "ATTACHMENTS_STORAGE_UNAVAILABLE": "The file storage is not available at the moment. Please try again later."
   },
   "core": {
     "error-dialog": {
@@ -1444,6 +1459,42 @@
       "failed-body": "Check your connection and try again.",
       "retry": "Try again",
       "send-test": "Send me a test notification"
+    }
+  },
+  "attachments": {
+    "widget": {
+      "loading": "Loading attachments…",
+      "load-failed": "The attachments could not be loaded.",
+      "retry": "Try again",
+      "no-types": "No attachment types are defined for this record.",
+      "browse": "Choose files",
+      "drop": "Drag files here or",
+      "hint": "Allowed types: {{extensions}}. Up to {{max}} files.",
+      "required": "required",
+      "missing": "This attachment is required.",
+      "reference-code": "Reference code",
+      "download": "Download {name}",
+      "remove": "Remove {name}",
+      "status-queued": "{name} is waiting to upload",
+      "status-uploading": "{name} is uploading",
+      "status-uploaded": "{name} is uploaded",
+      "status-failed": "{name} was not uploaded",
+      "rejected-type": "{{name}} is not an allowed file type.",
+      "rejected-size": "{{name}} is too large.",
+      "rejected-empty": "{{name}} is empty.",
+      "rejected-count": "{{name}} was not added: this attachment takes at most {{max}} files.",
+      "failed-load": "Attachments not loaded",
+      "failed-upload": "File not uploaded",
+      "failed-download": "File not downloaded",
+      "failed-remove": "Attachment not removed",
+      "uploaded": "{{name}} was attached.",
+      "removed": "{{name}} was removed.",
+      "with-reference": "{{message}} Reference code: {{code}}",
+      "dismiss": "Dismiss"
+    },
+    "demo": {
+      "title": "Attachments demo",
+      "intro": "A development record to try the attachment flow: upload a file, see it listed, download it and remove it."
     }
   }
 }

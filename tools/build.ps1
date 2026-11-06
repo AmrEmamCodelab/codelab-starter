@@ -43,6 +43,8 @@
      17. frontend lint      npm run lint --workspace frontend/starter-web   (ESLint, Stylelint, i18n parity; step 11
                             lints packages/npm only)
      18. fork-model test    tools\fork\Test-ForkModel.ps1 -RemoveModule Demo   (ADR-003; all in %TEMP%, the repo is only read)
+     19. deploy-kit tests   Invoke-Pester deploy/kits/tests (Install-Common, Install-Attachment; Pester 3.4, Windows
+                            PowerShell 5.1; no IIS change, no admin)
     A step whose entry point does not exist yet FAILS with a MISSING message; nothing is skipped silently.
     All steps run (unless -FailFast) and a summary is printed; the exit code is 1 when any step failed.
     The protected (platform-owned) paths the branch changes against the base ref are listed at the end, so the
@@ -185,6 +187,8 @@ $GeneratedDocsDir      = 'docs/generated'
 $FrontendWorkspace     = 'frontend/starter-web'
 $ForkModelScript       = 'tools/fork/Test-ForkModel.ps1'
 $ForkModelModule       = 'Demo'
+$KitModuleTests        = 'deploy/kits/tests/Install-Common.Tests.ps1'
+$KitAttachmentTests    = 'deploy/kits/tests/Install-Attachment.Tests.ps1'
 # Test files are named *.test.mjs. Node 24 'node --test <dir>' treats the dir as a script, so a glob is passed.
 $TestFilePattern       = '*.test.mjs'
 $ExitSuccess           = 0
@@ -640,6 +644,14 @@ function Invoke-ForkModelStep {
     return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
 }
 
+# Step 19: the deploy-kit module and the attachment kit (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin).
+function Invoke-KitModuleTestStep {
+    if (-not (Test-EntryPoints @($KitModuleTests, $KitAttachmentTests) 'deploy/kits')) { return $false }
+    $command = "Invoke-Pester @('$KitModuleTests', '$KitAttachmentTests') -EnableExit"
+    $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', $command)
+    return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
+}
+
 # Returns the base ref to diff against, $NoBaseRef for a repository without commits, or $null (reason printed).
 function Resolve-BaseRef {
     $arguments = @($BaseRefScript, '--root', '.')
@@ -710,7 +722,8 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '15 provenance origins'; Run = { Invoke-NodeScriptStep $CheckOriginsScript @('--root', '.') 'tools/extract' } },
         @{ Name = '16 generated drift'; Run = { Invoke-GeneratedDriftStep $Dotnet } },
         @{ Name = '17 frontend lint';   Run = { Invoke-FrontendLintStep } },
-        @{ Name = '18 fork-model test'; Heavy = $true; Run = { Invoke-ForkModelStep } }
+        @{ Name = '18 fork-model test'; Heavy = $true; Run = { Invoke-ForkModelStep } },
+        @{ Name = '19 deploy-kit tests'; Run = { Invoke-KitModuleTestStep } }
     )
 
     $results = New-Object System.Collections.Generic.List[object]

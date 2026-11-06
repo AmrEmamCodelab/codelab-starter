@@ -1,0 +1,60 @@
+{
+  "batch": "p6-fe-att-adapter",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p6-fe-att-adapter -Manifest <scratch copy of allowlist.manifest.yaml with the p6-fe-att-adapter batch> -Clean (staging %TEMP%/codelab-extract/p6-fe-att-adapter, outside the repo; scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. No source-product wording, business-rule identifiers or legacy base64 handling were carried.",
+  "origins": [
+    {
+      "batch": "p6-fe-att-adapter",
+      "entryId": "attachment-upload-util",
+      "source": "frontend/modhs-web/src/app/shared/attachments/attachment-upload.util.spec.ts",
+      "target": "frontend/starter-web/src/app/shared/attachments/attachment-files.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "111f05f69bcff6d777cf9856b38f58098e137302",
+      "sourceSha256": "0b7d53ea7fb4e6126b3d3820a5e8b1fd3a014d4d99efa9c03ad2b81f1a735770",
+      "stagedSha256": "0b7d53ea7fb4e6126b3d3820a5e8b1fd3a014d4d99efa9c03ad2b81f1a735770",
+      "stagedTarget": "reference/p6/fe-att-adapter/attachment-upload.util.spec.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as the extension and accept-attribute cases; the source-product business-rule cases were not carried."
+    },
+    {
+      "batch": "p6-fe-att-adapter",
+      "entryId": "attachment-upload-util",
+      "source": "frontend/modhs-web/src/app/shared/attachments/attachment-upload.util.ts",
+      "target": "frontend/starter-web/src/app/shared/attachments/attachment-files.ts",
+      "mode": "copy",
+      "sourceGitBlob": "68d9c26841cdaf23c018aa9535ebe40823bec790",
+      "sourceSha256": "a9e9473a11250a7a47068b42e2d46542d98398747a07fbff811cbcf1172a1c8a",
+      "stagedSha256": "a9e9473a11250a7a47068b42e2d46542d98398747a07fbff811cbcf1172a1c8a",
+      "stagedTarget": "reference/p6/fe-att-adapter/attachment-upload.util.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as attachment-files.ts (accept attribute, extension allowlist hint, case-insensitive, extension-less names refused). The business limits, the executable blocklist and the refusal-kind mapping were left behind: limits and types are per attachment type on the server, and the UI renders errors.<CODE> from AttachmentError."
+    },
+    {
+      "batch": "p6-fe-att-adapter",
+      "entryId": "file-save-util",
+      "source": "frontend/modhs-web/src/app/shared/attachments/file-save.util.spec.ts",
+      "target": "frontend/starter-web/src/app/shared/attachments/file-saver.spec.ts",
+      "mode": "copy",
+      "sourceGitBlob": "551c8a4ec4b09820a79e3a8d96654268a5240738",
+      "sourceSha256": "d34e46e8f396dc2c1738a0fde580197810d044e67592a24f6e790540172ba574",
+      "stagedSha256": "d34e46e8f396dc2c1738a0fde580197810d044e67592a24f6e790540172ba574",
+      "stagedTarget": "reference/p6/fe-att-adapter/file-save.util.spec.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten for Vitest with fake timers; the base64 cases were not carried."
+    },
+    {
+      "batch": "p6-fe-att-adapter",
+      "entryId": "file-save-util",
+      "source": "frontend/modhs-web/src/app/shared/attachments/file-save.util.ts",
+      "target": "frontend/starter-web/src/app/shared/attachments/file-saver.ts",
+      "mode": "copy",
+      "sourceGitBlob": "22ad816ff2d357efe85ac52e008560a0658ef92a",
+      "sourceSha256": "4f35dc313455b8fa96110fd88ad9ca8c24eed23fcb7988a31eea0d99057c512f",
+      "stagedSha256": "4f35dc313455b8fa96110fd88ad9ca8c24eed23fcb7988a31eea0d99057c512f",
+      "stagedTarget": "reference/p6/fe-att-adapter/file-save.util.ts",
+      "promotion": "rewritten",
+      "note": "Rewritten as the injectable FileSaver (DOCUMENT, object URL released after a delay). The base64 helpers for legacy in-database attachments were left behind (Phase 6: leave behind base64-in-DB attachments)."
+    }
+  ]
+}

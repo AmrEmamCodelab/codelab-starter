@@ -1752,6 +1752,210 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/attachments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Removes an attachment (soft; the bytes are deleted later through the outbox): 204, or 404 for a missing or
+         *     removed attachment or a record the user may not change.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attachments/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record
+         *     the user may not view, or bytes the service no longer has; 503 when the service is unreachable.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/octet-stream": components["schemas"]["FileResult"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attachments/demo-record": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The Development demo record the attachments demo page works on; 404 `ATTACHMENTS_RECORD_TYPE_UNKNOWN` when
+         *     the demo record type is not registered (every environment but Development).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DemoRecordResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attachments/types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The active attachment types of one record type, ordered by key; 404 for an unknown record type. */
+        get: {
+            parameters: {
+                query?: {
+                    recordType?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AttachmentTypeResponse"][];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/activate": {
         parameters: {
             query?: never;
@@ -2706,6 +2910,188 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/records/{recordType}/{recordId}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The record's live attachments and the required types it still misses; 404 for an unknown or hidden record. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    recordId: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordAttachmentsResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Links an uploaded file to the record by its receipt (201 with the attachment); 400 for an invalid, tampered or
+         *     foreign receipt or an extension the type refuses, 404, or 409 when the type is full.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    recordId: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["LinkUploadedFileCommand"];
+                    "application/json": components["schemas"]["LinkUploadedFileCommand"];
+                    "text/json": components["schemas"]["LinkUploadedFileCommand"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordAttachmentResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{recordType}/{recordId}/attachments/upload-ticket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * A sealed, single-use ticket to upload files of one type straight to the attachment service; 400, 404, or 409
+         *     when the record already holds the type's most files.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    recordId: string;
+                    recordType: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["IssueUploadTicketCommand"];
+                    "application/json": components["schemas"]["IssueUploadTicketCommand"];
+                    "text/json": components["schemas"]["IssueUploadTicketCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UploadTicketResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/security/session-signing-key": {
         parameters: {
             query?: never;
@@ -2830,6 +3216,24 @@ export interface components {
             /** @description Global (1) or own organization (2). */
             scope: components["schemas"]["PermissionScope"];
         };
+        /** @description One active attachment type of `GET /api/attachments/types?recordType={key}`. */
+        AttachmentTypeResponse: {
+            /** @description The accepted extensions, lower-case with the dot. */
+            allowedExtensions: string[];
+            /** @description True when a record needs one before it can move on. */
+            isRequired: boolean;
+            /** @description The type key (kebab-case; the `typeKey` of tickets and links). */
+            key: string;
+            /**
+             * Format: int32
+             * @description The most files of this type per record.
+             */
+            maxFiles: number | string;
+            /** @description The Arabic name. */
+            nameAr: string;
+            /** @description The English name. */
+            nameEn: string;
+        };
         /** @description What happened to an audited row (stored as int; never reorder or renumber). */
         AuditAction: number;
         /** @description One recorded value. */
@@ -2922,6 +3326,13 @@ export interface components {
         };
         /** @description The body of `GET /api/dashboard` (empty in phase 2). */
         DashboardResponse: Record<string, never>;
+        /** @description The body of `GET /api/attachments/demo-record` (Development only). */
+        DemoRecordResponse: {
+            /** @description The demo record id (opaque token, family `attachable-records`). */
+            recordId: components["schemas"]["PublicIdOfAttachableRecordIds"];
+            /** @description The demo record type (`attachments-demo`). */
+            recordType: string;
+        };
         /** @description A direct grant of a grants response. */
         DirectGrantResponse: {
             /** @description The permission key. */
@@ -2945,12 +3356,24 @@ export interface components {
             /** @description Every source. */
             sources: components["schemas"]["PermissionSourceResponse"][];
         };
+        EntityTagHeaderValue: {
+            isWeak?: boolean;
+            tag?: components["schemas"]["StringSegment"];
+        };
         /** @description The feature flags of this deployment, as the client reads them. */
         FeaturesResponse: {
             /** @description Every declared flag name to its effective value. Flags only: never an identity or a setting. */
             flags: {
                 [key: string]: boolean;
             };
+        };
+        FileResult: {
+            contentType?: null | string;
+            enableRangeProcessing?: boolean;
+            entityTag?: null | components["schemas"]["EntityTagHeaderValue"];
+            fileDownloadName?: null | string;
+            /** Format: date-time */
+            lastModified?: null | string;
         };
         /** @description The user of a grants response. */
         GrantUserResponse: {
@@ -3032,6 +3455,11 @@ export interface components {
             /** @description True when the row will become an account. */
             valid: boolean;
         };
+        /** @description The body of `POST /api/records/{recordType}/{recordId}/attachments/upload-ticket`. */
+        IssueUploadTicketCommand: {
+            /** @description The attachment type the upload is for. */
+            typeKey: null | string;
+        };
         /** @description One registered job on the wire, with its newest run. */
         JobResponse: {
             /** @description The five-field cron schedule (jobs time zone), or null for a manual-only job. */
@@ -3076,6 +3504,13 @@ export interface components {
         JobRunStatus: number;
         /** @description Why a job run started (stored and sent as the integer value). */
         JobTrigger: number;
+        /** @description The body of `POST /api/records/{recordType}/{recordId}/attachments`. */
+        LinkUploadedFileCommand: {
+            /** @description The attachment service's receipt for the stored file. */
+            receipt: null | string;
+            /** @description The attachment type the file was uploaded for. */
+            typeKey: null | string;
+        };
         /** @description The body of `POST /api/auth/login`. */
         LoginCommand: {
             /** @description The password. */
@@ -3275,6 +3710,16 @@ export interface components {
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
          * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
          */
+        PublicIdOfAttachableRecordIds: WireId<'public-id-of-attachable-record'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
+        PublicIdOfAttachmentIds: WireId<'public-id-of-attachment'>;
+        /**
+         * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
+         * @example m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+         */
         PublicIdOfAuditedEntityIds: WireId<'public-id-of-audited-entity'> | null;
         /**
          * @description An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire.
@@ -3347,6 +3792,34 @@ export interface components {
             permissions: components["schemas"]["PermissionGrantInput"][];
             /** @description The ordinary roles the user holds after the write. */
             roles: components["schemas"]["RoleAssignmentInput"][];
+        };
+        /** @description One live attachment of a record (list item and the 201 body of a link). */
+        RecordAttachmentResponse: {
+            /** @description The MIME type (from the extension, never from the client). */
+            contentType: string;
+            /** @description The file name as uploaded (sanitized by the attachment service). */
+            fileName: string;
+            /** @description The attachment id (opaque token, family `attachments`). */
+            id: components["schemas"]["PublicIdOfAttachmentIds"];
+            /**
+             * Format: int64
+             * @description The size in bytes.
+             */
+            sizeBytes: number | string;
+            /** @description The attachment type key. */
+            typeKey: string;
+            /**
+             * Format: date-time
+             * @description When it was linked.
+             */
+            uploadedAt: string;
+        };
+        /** @description The body of `GET /api/records/{recordType}/{recordId}/attachments`. */
+        RecordAttachmentsResponse: {
+            /** @description The live attachments, ordered by upload time. */
+            items: components["schemas"]["RecordAttachmentResponse"][];
+            /** @description The required types with no attachment yet (the interlock's answer). */
+            missingRequiredTypeKeys: string[];
         };
         /** @description The body of `POST /api/auth/refresh`. */
         RefreshCommand: {
@@ -3522,6 +3995,15 @@ export interface components {
             /** @description The identity provider's end_session URL; open it with a top-level GET (not fetch). */
             endSessionUrl: string;
         };
+        StringSegment: {
+            buffer?: null | string;
+            hasValue?: boolean;
+            /** Format: int32 */
+            length?: number | string;
+            /** Format: int32 */
+            offset?: number | string;
+            value?: null | string;
+        };
         /**
          * @description The body of `POST /api/portal/contact-messages`. Every member is nullable, so a missing field comes back as a
          *     field error of the validator rather than as a binding failure in another shape.
@@ -3601,6 +4083,27 @@ export interface components {
             organizationId: null | components["schemas"]["PublicIdOfOrganizationIds"];
             /** @description The user principal name (unique when given), or null. */
             upn: null | string;
+        };
+        /** @description The body of `POST /api/records/{recordType}/{recordId}/attachments/upload-ticket`. */
+        UploadTicketResponse: {
+            /** @description The extensions the type accepts. */
+            allowedExtensions: string[];
+            /**
+             * Format: date-time
+             * @description When the ticket stops opening.
+             */
+            expiresAt: string;
+            /**
+             * Format: int32
+             * @description How many more files of the type the record may take.
+             */
+            maxFileCount: number | string;
+            /** @description The sealed, single-use ticket. */
+            ticket: string;
+            /** @description The header the browser sends it in (and the only header the attachment service reads). */
+            ticketHeader: string;
+            /** @description The absolute upload URL on the attachment service. */
+            uploadUrl: string;
         };
         /**
          * @description The body of `GET` and `PUT /api/admin/access/users/{userId}/grants`: the editable rows (roles and direct

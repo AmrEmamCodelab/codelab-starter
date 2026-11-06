@@ -145,6 +145,7 @@ The surface they build on (owned here):
 - Generated files (`CLAUDE.md`, `.editorconfig`, `BannedSymbols.generated.txt`, `CodeMetricsConfig.txt`) are never hand-edited. A migration that has shipped is never changed; add a new one.
 
 ## Gotchas
+- **`Codelab:Security:Tickets` never leaves the API.** That ring seals the SSO pending and exchange tickets and the activation tickets; it must never be deployed to another host. The attachment service gets only the separate `Codelab:Security:UploadTickets` ring.
 - **A reused refresh token ends the session.** Presenting a refresh token that was already rotated is treated as theft: the session is revoked, so the legitimate holder must sign in again too. Clients must never send the same refresh token twice (serialize refreshes).
 - **Refresh failures are one code.** Malformed, unknown, expired, idle, rotated, revoked, deactivated and version-bumped all answer `IDENTITY_REFRESH_REJECTED`, by design; the auth event says which.
 - **A lockout is a denial-of-service lever too.** Anyone who knows a user name can lock it for `LockoutMinutes` (also the break-glass). That is the trade every lockout makes; keep the window short and watch the `AccountLockedOut` events.

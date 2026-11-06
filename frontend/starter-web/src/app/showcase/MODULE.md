@@ -72,3 +72,4 @@ branding, in Arabic and English. The generated component catalog links each comp
   never outlives the branding page.
 - The gallery is one long page (about 11,000 px at 1440 and 15,000 px at 390), because the catalog anchors must all
   live on `/showcase`. Keep demos compact: a full-page screenshot above about 16,000 px is unreliable in Chromium.
+- The file-upload demo follows the ng-dga `dga-file-upload` API: rows start as `DgaFileUploadStatus.Queued` (int enum) and removal binds `(remove)="onRemoved($event.id)"` (the row item, not its id).

@@ -512,7 +512,7 @@ Native date input: the browser supplies the segment keyboard model, the calendar
 
 ### dga-file-upload
 
-A presentational file upload: drop zone and browse button with client-side checks (type, size, empty, count), and the list of files the caller is uploading with progress and remove. It sends nothing; an app adapter does the HTTP.
+A presentational file upload: drop zone and browse button with client-side pre-checks (type, empty, count; size only when opted in), and the list of files the caller is uploading with per-file state (queued, uploading with progress, uploaded, failed with error text and reference code), download and remove. It sends nothing; an app adapter does the HTTP.
 
 | Fact | Value |
 | --- | --- |
@@ -531,19 +531,28 @@ A presentational file upload: drop zone and browse button with client-side check
 | `dropLabel` | `string \| null` | no | `null` | The prompt inside the drop zone (translated). |
 | `browseLabel` | `string` | yes |  | The browse button's label (translated). |
 | `accept` | `string` | no | `''` | Extensions, media types and type/* wildcards, comma-separated; empty accepts any type. |
-| `maxSizeBytes` | `number \| null` | no | `null` | The largest file in bytes; null for no limit. |
+| `maxSizeBytes` | `number \| null` | no | `null` | OPTIONAL client size pre-check in bytes; null leaves the size to the server, which is authoritative (an oversized file comes back as a failed row with its reference code). |
 | `maxFiles` | `number` | no | `1` | How many files the control holds at most, counting items; more than one allows multi-select. |
-| `disabled` | `boolean` | no | `false` | Disables browsing, dropping and removing. |
+| `disabled` | `boolean` | no | `false` | Disables browsing, dropping and removing; downloads stay available. |
+| `readonly` | `boolean` | no | `false` | Shows the list only: no drop zone and no remove buttons; downloads stay. |
+| `required` | `boolean` | no | `false` | Marks the control as required (an asterisk; requiredLabel names it for screen readers). |
+| `requiredLabel` | `string \| null` | no | `null` | The screen-reader word for the required marker (translated). |
+| `missingText` | `string \| null` | no | `null` | Shown, and describing the control, while it is required and holds no uploaded file (translated). |
 | `error` | `string \| null` | no | `null` | The current problem (translated), shown as an alert and describing the control. |
-| `items` | `readonly DgaFileUploadItem[] ({ id, name, status: 'pending' \| 'uploading' \| 'uploaded' \| 'failed', progress?, detail?, errorText? })` | no | `[]` | The files the caller holds, with their upload status and progress (percent, or null for indeterminate). |
+| `items` | `readonly DgaFileUploadItem[] ({ id, name, status: DgaFileUploadStatus (Queued=0, Uploading=1, Uploaded=2, Failed=3), progress?, detail?, errorText?, referenceCode? })` | no | `[]` | The files the caller holds, with their state, progress (percent, or null for indeterminate), error text and reference code; file-upload-state.ts has the transition helpers. |
+| `statusLabels` | `DgaFileUploadStatusLabels (Partial<Record<DgaFileUploadStatus, string>>)` | no | `{}` | The announcement per state, templates with {name} (translated), read out through a polite live region. |
+| `referenceCodeLabel` | `string \| null` | no | `null` | The label before a failed row's reference code (translated). |
+| `downloadable` | `boolean` | no | `false` | Uploaded rows offer a download button (needs downloadLabel). |
+| `downloadLabel` | `string \| null` | no | `null` | The download button's accessible name as a template with {name} (translated). |
 | `removeLabel` | `string \| null` | no | `null` | The remove button's accessible name as a template with {name} (translated); without it rows have no remove button. |
 
 #### Outputs
 
 | Name | Payload | Description |
 | --- | --- | --- |
-| `filesSelected` | `DgaFileSelection ({ accepted: File[], rejected: { file, reason: 'type' \| 'size' \| 'empty' \| 'count' }[] })` | Every pick or drop, split by the client-side checks; an empty selection when the dialog was left empty. |
-| `removed` | `string` | The id of the row whose remove button was pressed. |
+| `filesSelected` | `DgaFileSelection ({ accepted: File[], rejected: { file, reason: DgaFileRejectionReason (Type=0, Size=1, Empty=2, Count=3) }[] })` | Every pick or drop, split by the client-side pre-checks; an empty selection when the dialog was left empty. |
+| `download` | `DgaFileUploadItem` | The uploaded row whose download button was pressed. |
+| `remove` | `DgaFileUploadItem` | The row whose remove button was pressed (never while disabled or read-only). |
 
 #### Slots
 
@@ -553,7 +562,7 @@ A presentational file upload: drop zone and browse button with client-side check
 
 #### Accessibility
 
-A role=group named by the label (or ariaLabelledBy) and described by the hint and error. The native file input is hidden from assistive technology and the tab order; the native browse button opens it, so the control is fully keyboard-operable without drag and drop. File names are dir=ltr isolated; progress bars are labelled by their file name; each remove button is named for its file. Logical CSS mirrors in RTL.
+A role=group named by the label (or ariaLabelledBy) and described by the hint, the missing text and the error. The required asterisk is aria-hidden and requiredLabel speaks it. The native file input is hidden from assistive technology and the tab order; the native browse button opens it, so the control is fully keyboard-operable without drag and drop. The file list sits in a polite live region: each row's translated status (statusLabels), error text and reference code are announced as they change. File names are isolated with bdi and reference codes are dir=ltr; progress bars are labelled by their file name; each download and remove button is named for its file. Logical CSS mirrors in RTL.
 
 ### dga-geo-select
 

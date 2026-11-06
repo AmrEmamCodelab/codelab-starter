@@ -6,82 +6,122 @@
   [attr.aria-disabled]="disabled() ? 'true' : null"
 >
   @if (hasLabel()) {
-    <span class="dga-file-upload__label" [id]="labelId">{{ label() }}</span>
+    <span class="dga-file-upload__label" [id]="labelId"
+      ><span class="dga-file-upload__label-text">{{ label() }}</span>
+      @if (required()) {
+        <span class="dga-file-upload__required" aria-hidden="true">*</span>
+        @if (requiredLabel(); as requiredName) {
+          <span class="dga-file-upload__sr-only">{{ requiredName }}</span>
+        }
+      }
+    </span>
   }
   @if (hasHint()) {
     <span class="dga-file-upload__hint" [id]="hintId">{{ hint() }}</span>
   }
-  <div
-    class="dga-file-upload__zone"
-    [class.dga-file-upload__zone--dragging]="dragging()"
-    [class.dga-file-upload__zone--invalid]="hasError()"
-    [class.dga-file-upload__zone--disabled]="disabled()"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave()"
-    (drop)="onDrop($event)"
-  >
-    <dga-icon class="dga-file-upload__zone-icon" name="upload" size="md" />
-    @if (dropLabel(); as prompt) {
-      <span class="dga-file-upload__prompt">{{ prompt }}</span>
-    }
-    <dga-button class="dga-file-upload__browse" variant="secondary-outline" size="md" leadIcon="upload" [disabled]="disabled()" (click)="browse()">
-      {{ browseLabel() }}
-    </dga-button>
-    <div class="dga-file-upload__extra"><ng-content /></div>
-    <input
-      #fileInput
-      class="dga-file-upload__input"
-      type="file"
-      tabindex="-1"
-      aria-hidden="true"
-      [accept]="accept()"
-      [multiple]="multiple()"
-      [disabled]="disabled()"
-      (change)="onPicked($event)"
-    />
-  </div>
+  @if (!readonly()) {
+    <div
+      class="dga-file-upload__zone"
+      [class.dga-file-upload__zone--dragging]="dragging()"
+      [class.dga-file-upload__zone--invalid]="hasError() || missing()"
+      [class.dga-file-upload__zone--disabled]="disabled()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+      (drop)="onDrop($event)"
+    >
+      <dga-icon class="dga-file-upload__zone-icon" name="upload" size="md" />
+      @if (dropLabel(); as prompt) {
+        <span class="dga-file-upload__prompt">{{ prompt }}</span>
+      }
+      <dga-button class="dga-file-upload__browse" variant="secondary-outline" size="md" leadIcon="upload" [disabled]="disabled()" (click)="browse()">
+        {{ browseLabel() }}
+      </dga-button>
+      <div class="dga-file-upload__extra"><ng-content /></div>
+      <input
+        #fileInput
+        class="dga-file-upload__input"
+        type="file"
+        tabindex="-1"
+        aria-hidden="true"
+        [accept]="accept()"
+        [multiple]="multiple()"
+        [disabled]="disabled()"
+        (change)="onPicked($event)"
+      />
+    </div>
+  }
+  @if (missing()) {
+    <p class="dga-file-upload__missing" [id]="missingId">
+      <dga-icon name="warning" size="sm" />
+      <span>{{ missingText() }}</span>
+    </p>
+  }
   @if (hasError()) {
     <p class="dga-file-upload__error" role="alert" [id]="errorId">
       <dga-icon name="error" size="sm" />
       <span>{{ error() }}</span>
     </p>
   }
-  @if (rows().length) {
-    <ul class="dga-file-upload__list">
-      @for (row of rows(); track row.item.id) {
-        <li class="dga-file-upload__file" [attr.data-status]="row.item.status" [attr.aria-busy]="row.uploading ? 'true' : null">
-          <dga-icon class="dga-file-upload__file-icon" [name]="row.icon" size="md" />
-          <div class="dga-file-upload__file-text">
-            <span class="dga-file-upload__file-name" [id]="row.nameId"><bdi>{{ row.item.name }}</bdi></span>
-            @if (row.item.detail; as detail) {
-              <span class="dga-file-upload__file-detail">{{ detail }}</span>
+  <div class="dga-file-upload__files" aria-live="polite">
+    @if (rows().length) {
+      <ul class="dga-file-upload__list">
+        @for (row of rows(); track row.item.id) {
+          <li class="dga-file-upload__file" [attr.data-status]="row.statusName" [attr.aria-busy]="row.uploading ? 'true' : null">
+            <dga-icon class="dga-file-upload__file-icon" [name]="row.icon" size="md" />
+            <div class="dga-file-upload__file-text">
+              <span class="dga-file-upload__file-name" [id]="row.nameId"><bdi>{{ row.item.name }}</bdi></span>
+              @if (row.statusText; as statusText) {
+                <span class="dga-file-upload__sr-only dga-file-upload__status">{{ statusText }}</span>
+              }
+              @if (row.item.detail; as detail) {
+                <span class="dga-file-upload__file-detail">{{ detail }}</span>
+              }
+              @if (row.uploading) {
+                <progress
+                  class="dga-file-upload__progress"
+                  [attr.max]="progressMax"
+                  [attr.value]="row.progress"
+                  [attr.aria-labelledby]="row.nameId"
+                ></progress>
+              }
+              @if (row.errorText; as errorText) {
+                <span class="dga-file-upload__file-error" [id]="row.errorId">{{ errorText }}</span>
+              }
+              @if (row.referenceCode; as referenceCode) {
+                <span class="dga-file-upload__reference">
+                  @if (referenceCodeLabel(); as referenceLabel) {
+                    <span class="dga-file-upload__reference-label">{{ referenceLabel }}</span>
+                  }
+                  <code class="dga-file-upload__reference-code" dir="ltr" data-fixed-direction>{{ referenceCode }}</code>
+                </span>
+              }
+            </div>
+            @if (row.downloadLabel; as downloadName) {
+              <dga-button
+                class="dga-file-upload__download"
+                variant="transparent"
+                size="sm"
+                iconOnly
+                leadIcon="download"
+                [label]="downloadName"
+                (click)="onDownload(row.item)"
+              />
             }
-            @if (row.uploading) {
-              <progress
-                class="dga-file-upload__progress"
-                [attr.max]="progressMax"
-                [attr.value]="row.progress"
-                [attr.aria-labelledby]="row.nameId"
-              ></progress>
+            @if (row.removeLabel; as removeName) {
+              <dga-button
+                class="dga-file-upload__remove"
+                variant="transparent"
+                size="sm"
+                iconOnly
+                leadIcon="trash"
+                [label]="removeName"
+                [disabled]="disabled()"
+                (click)="onRemove(row.item)"
+              />
             }
-            @if (row.failed && row.item.errorText) {
-              <span class="dga-file-upload__file-error" [id]="row.errorId">{{ row.item.errorText }}</span>
-            }
-          </div>
-          @if (row.removeLabel; as removeName) {
-            <dga-button
-              class="dga-file-upload__remove"
-              variant="transparent"
-              size="sm"
-              iconOnly
-              leadIcon="trash"
-              [label]="removeName"
-              [disabled]="disabled()"
-              (click)="remove(row.item.id)"
-            />
-          }
-        </li>
-      }
-    </ul>
-  }
+          </li>
+        }
+      </ul>
+    }
+  </div>
 </div>

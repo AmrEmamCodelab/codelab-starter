@@ -3,18 +3,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Time.Testing;
-using Starter.Application.Lookups;
 using Starter.Domain.Localization;
-using Starter.Domain.Lookups;
-using Starter.Modules.Portal.Application;
 using Starter.Modules.Portal.Application.Content;
 using Starter.Modules.Portal.Domain;
 using Starter.Modules.Portal.Infrastructure.Caching;
-using Starter.Modules.Portal.Infrastructure.Lookups;
 using Starter.Modules.Portal.Infrastructure.Options;
 using Starter.Modules.Portal.Infrastructure.Persistence;
 using Starter.Modules.Portal.Infrastructure.Persistence.Migrations;
-using Starter.Modules.Portal.Tests.Fakes;
 
 namespace Starter.Modules.Portal.Tests.Infrastructure;
 
@@ -189,35 +184,4 @@ public sealed class ContentSeedTests
     }
 
     private static int Paragraphs(string body) => body.Split(ContentSeed.ParagraphBreak).Length;
-}
-
-public sealed class LookupContactTopicsTests
-{
-    [Fact]
-    public async Task Topics_are_the_active_values_of_the_contact_topics_lookup_read_through_the_kernel_port()
-    {
-        var lookups = new FakeLookupValues();
-        lookups.Values[(LookupTypes.ContactTopics, ContactTopicIds.General)] = new ActiveLookupValue(ContactTopicIds.General, "general", "عام", "General");
-        var topics = new LookupContactTopics(lookups);
-
-        var found = await topics.FindActiveAsync(ContactTopicIds.General, CancellationToken.None);
-        var missing = await topics.FindActiveAsync(ContactTopicIds.Account, CancellationToken.None);
-
-        Assert.Equal(new ContactTopic(ContactTopicIds.General, "عام", "General"), found);
-        Assert.Null(missing);
-        Assert.All(lookups.Asked, asked => Assert.Equal(LookupTypes.ContactTopics, asked.TypeKey));
-    }
-}
-
-public sealed class SqlContactTopicsTests
-{
-    [Fact]
-    public void The_query_reads_only_active_values_of_the_contact_topics_type_with_parameters()
-    {
-        Assert.Contains("[lookups].[LookupItems]", SqlContactTopics.Query, StringComparison.Ordinal);
-        Assert.Contains("[TypeKey] = @typeKey", SqlContactTopics.Query, StringComparison.Ordinal);
-        Assert.Contains("[Id] = @id", SqlContactTopics.Query, StringComparison.Ordinal);
-        Assert.Contains("[IsActive] = CAST(1 AS bit)", SqlContactTopics.Query, StringComparison.Ordinal);
-        Assert.Equal("contact-topics", LookupTypes.ContactTopics);
-    }
 }

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../../../rules/rules.schema.json
+# Rules for the starter web app's features/attachments (inherits rules/base.rules.yaml). Exemptions are a platform-owner decision.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: WebAttachments
+kind: angular
+description: "Starter web attachments (module 13 UI sample): the development-only /attachments/demo page inside the staff shell (attachments.view), which loads the API's demo record and hosts the shared app-record-attachments widget in the requester-detail pattern; the page the Phase 6 Playwright exit check runs on."
+mayDependOn: []
+mustNotDependOn: []

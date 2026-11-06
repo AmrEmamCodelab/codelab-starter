@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.Attachments.Core: the attachment service's host-free core. The file-share store (opaque random file ids,
+    <root>/<yyyy>/<MM>/<fileId>, temp-then-move writes, a sidecar metadata file) and the streaming multipart upload
+    pipeline (caps, blocked and allowed extensions, magic bytes, SHA-256, signed receipts), built only on the shared
+    Codelab.Security upload primitives. The HTTP host is Codelab.Attachments.Api.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.Attachments.Core</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <CodelabProjectBannedSymbolsFile>../../BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
+    <CodelabProjectCodeMetricsFile>../../CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MultipartReader and the header parsers live in the shared framework (Microsoft.AspNetCore.WebUtilities). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Attachments.Core.Tests" />
+  </ItemGroup>
+</Project>

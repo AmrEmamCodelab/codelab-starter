@@ -9,7 +9,7 @@ import { isAppLanguage, type AppLanguage } from '../i18n/language';
 export interface AppConfig {
   /** The API root every `ApiService` path resolves against (absolute origin or same-origin prefix). */
   readonly apiBaseUrl: string;
-  /** The roots whose calls are signed and verified (`api`), and attachment roots (none yet). */
+  /** The roots whose calls are signed and verified (`api`), and the attachment service roots uploads may go to (ApiService.uploadMultipart). */
   readonly origins: AppConfigOrigins;
   readonly security: AppConfigSecurity;
   /** The language a first visit renders in. */

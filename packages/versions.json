@@ -1,6 +1,6 @@
 {
   "Codelab.Build.Sdk": "0.2.1",
-  "Codelab.Security": "0.5.2",
+  "Codelab.Security": "0.6.0",
   "Codelab.Observability": "0.5.1",
   "Codelab.Errors": "0.5.1",
   "Codelab.Testing": "0.5.0",

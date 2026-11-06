@@ -33,12 +33,13 @@ powershell -File tools\devseed\New-LocalSecrets.ps1          # once: appsettings
 - `AddStarterKernel` must stay before `AddCodelabSecurity` (startup order: migrations, then the security store schema).
 - Without the local secrets file the start fails on the Codelab.Security key rings; run `New-LocalSecrets.ps1`.
 - `Database:ApplyMigrationsOnStartup` is true only in `appsettings.Development.json`; any other environment refuses it.
-- Modules referenced today: Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications and Portal (each a
+- Modules referenced today: Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications, Portal and Attachments (each a
   ProjectReference in `Starter.Api.csproj`). `appsettings.json` documents the Phase 5 defaults: `Messaging:Outbox`
   (on), `Numbering:TimeZoneId`, `Settings:CheckStampPerScope`, `Jobs` (job server on per node), `Notifications` (e-mail
   Smtp with no relay host, so a server fails at start until `Notifications:Email:Smtp:Host` is set; SMS off) and
-  `Portal:Contact` (the inbox, required on start: every deployment sets its own); Development switches e-mail to the
+  `Portal:Contact` (the inbox, required on start: every deployment sets its own); `Attachments` (phase 6): `TicketLifetimeSeconds` 300 and `Codelab:Security:ServiceAssertions:Client` ServiceName `starter-api` / Audience `starter-attachments` in `appsettings.json`; `Attachments:ServiceBaseUrl` only in Development (`http://localhost:5185`), so a server fails at start until it sets an https URL; the client KeyId and PrivateKeyPem come from the local secrets file (`New-LocalSecrets.ps1`) or the server's settings. An API local secrets file from before phase 6 lacks `Codelab:Security:Uploads` and `ServiceAssertions:Client`; rerun `New-LocalSecrets.ps1` (no -Force) or `run-local.ps1` to add them; Development switches e-mail to the
   FileDrop folder and turns the file SMS sink on (both refused outside Development). The Users
   module needs `Users:Activation:LinkBaseUrl` to issue activation links, and SSO needs `Auth:WebBaseUrl` plus sealed
-  tickets (`Codelab:Security:Tickets`); `New-LocalSecrets.ps1` writes the local ticket ring.
+  tickets (`Codelab:Security:Tickets`); attachment upload tickets use their own ring (`Codelab:Security:UploadTickets`,
+  the only ring the attachment service holds). `New-LocalSecrets.ps1` writes both local ticket rings.
 - The OpenAPI document lists the request's host under `servers`; DocsGen generates `docs/generated/openapi.v1.json`.

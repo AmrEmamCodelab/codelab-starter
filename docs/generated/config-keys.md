@@ -4,6 +4,25 @@
 
 Every key bound by an options class that declares `public const string SectionName`, with the default a fresh options instance carries. `<n>` is an array index and `<name>` a dictionary key. Secrets (keys, passwords, connection strings) never go into a committed file: Development reads them from `appsettings.Development.local.json` (`tools/devseed/New-LocalSecrets.ps1`), servers from the environment.
 
+## Attachments
+
+### `Attachments`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Attachments:ServiceBaseUrl` | string |  | The attachment service root, absolute (Development `http://localhost:5185`). The API calls `<root>/api/files/{fileId}` server to server, and the browser uploads to `<root>/api/uploads` (the ticket's upload URL), so it must be the address the browser reaches too. HTTPS outside Development. Required: there is no default. |
+| `Attachments:TicketLifetimeSeconds` | int | `300` | How long an upload ticket opens, in seconds (`MinTicketLifetimeSeconds` to `MaxTicketLifetimeSeconds`, and at most `Codelab:Security:UploadTickets:MaxLifetimeSeconds`). |
+
+### `Codelab:Security:UploadTickets`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Codelab:Security:UploadTickets:ActiveKeyId` | string |  | The key new values are written with; must name a member of `Keys`. |
+| `Codelab:Security:UploadTickets:Enabled` | bool | `false` | Seal upload tickets with this ring (issuing an upload ticket fails while it is off). |
+| `Codelab:Security:UploadTickets:Keys:<n>:KeyId` | string |  | The key id. |
+| `Codelab:Security:UploadTickets:Keys:<n>:MaterialBase64` | string |  | The key material, base64. Supplied from the environment or a secret store, never from a committed file. |
+| `Codelab:Security:UploadTickets:MaxLifetimeSeconds` | int | `3600` | The longest lifetime an upload ticket may be sealed with, in seconds (default `MaxTicketLifetimeSeconds`); `Attachments:TicketLifetimeSeconds` may not exceed it. |
+
 ## Codelab.Identity
 
 ### `Codelab:Identity:ActiveDirectory`

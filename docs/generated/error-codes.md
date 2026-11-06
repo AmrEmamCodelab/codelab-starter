@@ -21,6 +21,19 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `ACCESS_USER_NOT_FOUND` | `AccessErrorCodes.UserNotFound` | No user has this id (404). |
 | `ACCESS_VIRTUAL_ROLE_NOT_ASSIGNABLE` | `AccessErrorCodes.VirtualRoleNotAssignable` | A virtual role reaches its users by kind and is never assigned (400). |
 
+## Attachments
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `ATTACHMENTS_EXTENSION_NOT_ALLOWED_FOR_TYPE` | `AttachmentsErrorCodes.ExtensionNotAllowedForType` | The file's extension is not one the attachment type allows (400). |
+| `ATTACHMENTS_MAX_FILES_REACHED` | `AttachmentsErrorCodes.MaxFilesReached` | The record already holds the most files the attachment type allows (409). |
+| `ATTACHMENTS_NOT_FOUND` | `AttachmentsErrorCodes.NotFound` | No such attachment, or no such record, or one the caller may not see or change (404: the same answer, so existence never leaks). |
+| `ATTACHMENTS_RECEIPT_INVALID` | `AttachmentsErrorCodes.ReceiptInvalid` | The upload receipt does not verify, was issued for another record, type or user, or names a file already linked elsewhere (400). |
+| `ATTACHMENTS_RECORD_TYPE_UNKNOWN` | `AttachmentsErrorCodes.RecordTypeUnknown` | No record type with this key takes attachments (404). |
+| `ATTACHMENTS_REQUIRED_MISSING` | `AttachmentsErrorCodes.RequiredMissing` | A required attachment type has no attachment yet (409); the kernel constant, re-exported for the generated docs. |
+| `ATTACHMENTS_STORAGE_UNAVAILABLE` | `AttachmentsErrorCodes.StorageUnavailable` | The attachment service could not be reached (503, thrown as `AttachmentStorageUnavailableException`). |
+| `ATTACHMENTS_TYPE_NOT_FOUND` | `AttachmentsErrorCodes.TypeNotFound` | The record type has no active attachment type with this key (404). |
+
 ## Audit
 
 | Code | Constant | Description |
@@ -79,6 +92,7 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 
 | Code | Constant | Description |
 | --- | --- | --- |
+| `ATTACHMENTS_REQUIRED_MISSING` | `AttachmentErrorCodes.RequiredMissing` | The record still misses an attachment of a required type (409); returned by the module whose action the `IRequiredAttachments` interlock blocked. |
 | `OUTBOX_LEASE_EXPIRED` | `OutboxErrorCodes.LeaseExpired` | The lease of the final attempt expired without an outcome (the drain died mid-delivery). |
 | `OUTBOX_NO_HANDLER` | `OutboxErrorCodes.NoHandler` | No `IOutboxHandler` is registered for the message type. |
 | `VALIDATION_FAILED` | `PlatformErrorCodes.Validation` | Well-formed request, invalid field values (Codelab.Errors `ErrorCodes.Validation`). |

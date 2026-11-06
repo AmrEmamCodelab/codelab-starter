@@ -1,0 +1,37 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Starter": "set-on-server"
+  },
+  "Attachments": {
+    "Storage": {
+      "RootPath": "D:\\data\\attachments"
+    },
+    "Cors": {
+      "AllowedOrigins": [
+        "https://portal.example.test"
+      ]
+    }
+  },
+  "Branding": {
+    "NameAr": "بوابة الخدمات",
+    "NameEn": "Services portal \"v2\""
+  },
+  "Codelab": {
+    "Security": {
+      "Uploads": {
+        "MaxFileBytes": 10485760,
+        "AllowedExtensions": [
+          ".pdf"
+        ]
+      }
+    }
+  },
+  "FeatureLimit": 2.50,
+  "EmptySection": {},
+  "Legacy": "flat-value"
+}

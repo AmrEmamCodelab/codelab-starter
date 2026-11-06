@@ -58,7 +58,7 @@ showcase).
 
 ## Scripted user flows (`flows.mjs`)
 
-The phase-5 exit criteria as runnable scripts, one per flow, in the same installed Edge (no download). Each step is
+The phase-5 and phase-6 exit criteria as runnable scripts, one per flow, in the same installed Edge (no download). Each step is
 logged with its result and a screenshot; the run writes `flows-report.json`, `flows-report.md` and `screenshots/` to
 `--out-dir`, so the report is the phase evidence.
 
@@ -68,11 +68,13 @@ logged with its result and a screenshot; the run writes `flows-report.json`, `fl
 | `notification-bell` | The admin sends a test notification from the notifications page; the bell shows the template title in en and in ar, and its e-mail lands in the pickup folder. |
 | `activation` | An Excel-imported user (a generated `.xlsx`) gets the activation e-mail, opens the link, sets a password and signs in; the reused link is refused. |
 | `contact-faq` | A contact message returns a `CU-YYYY-NNN` number of this year and the contact inbox gets the e-mail; an admin edit of the first FAQ title shows on `/portal/faq` in en and ar. The titles are put back at the end. |
+| `attachments` | Phase 6: on `/attachments/demo` the admin uploads a PDF (the browser posts it to the attachment service with the upload-ticket header, across origins; the API links the receipt), sees it listed after a reload, downloads identical bytes, and a file of `MaxFileBytes + 1` is refused with `errors.ATTACHMENTS_FILE_TOO_LARGE` in en and in ar plus a reference code (row and banner). The uploaded PDF is removed at the end. |
 
 ```powershell
 # App running (run-local.ps1); private Node first on PATH; from frontend/starter-web
 node e2e/flows.mjs --base-url http://localhost:4280 --out-dir ../../docs/evidence/P5/flows
 node e2e/flows.mjs --base-url http://localhost:4280 --flows activation,contact-faq --headed
+node e2e/flows.mjs --base-url http://localhost:4280 --flows attachments --out-dir ../../docs/evidence/P6/flows
 node e2e/flows.mjs --help
 ```
 
@@ -125,6 +127,11 @@ node e2e/flows.mjs --help
 - `notification-bell` needs a "send test notification" control on the notifications page
   (`data-testid="notifications-send-test"`, permission `notifications.test`). Until that control exists, the flow
   fails at that step and names the missing selector.
+- `attachments` needs the attachment service (`run-local.ps1` without `-NoAttachments`) and a development build
+  (the demo page matches only there). Its oversized size comes from `ATTACHMENT_MAX_FILE_BYTES` in
+  `lib/flow-constants.mjs`, which a unit test keeps equal to the service's `Codelab:Security:Uploads:MaxFileBytes` in
+  `appsettings.json`; a machine that overrides the limit locally must pass the same value there. The demo type allows
+  five files: a run that stops before its clean-up step leaves its PDF, so remove leftovers on the demo page.
 - The axe scan runs after the screenshot in the same page, so injected axe styles never appear in the image.
 - Showcase routes (`docs/evidence/P4/showcase/routes.json`, `/showcase` in `e2e/routes/p4-public.json`) render only
   against a development build (`npm start` / `run-local.ps1` on :4280) or a staging config with `"showcase": true`.

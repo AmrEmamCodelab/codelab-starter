@@ -3,6 +3,7 @@ using Codelab.Observability;
 using Codelab.Security;
 using Codelab.Security.Keys;
 using Codelab.Security.Replay;
+using Codelab.Security.ServiceAuth;
 using Codelab.Security.Sessions;
 using Codelab.Security.Storage;
 using Microsoft.AspNetCore.Hosting;
@@ -81,6 +82,12 @@ internal static class DocsHostSettings
     /// <summary>The jobs module's job-server switch; off, so the host never opens SQL (see <see cref="JwtSigningKeyPath"/>).</summary>
     public const string JobsEnabledPath = "Jobs:Enabled";
 
+    /// <summary>The Attachments module's service root key (see <see cref="JwtSigningKeyPath"/>); a reserved name that never resolves.</summary>
+    public const string AttachmentsServiceBaseUrlPath = "Attachments:ServiceBaseUrl";
+
+    private const string UnusedAttachmentServiceRoot = "https://attachments.invalid";
+    private const string AttachmentsClientServiceName = "starter-api";
+    private const string AttachmentsAudience = "starter-attachments";
     private const string Separator = ":";
     private const string KeyId = "docsgen";
     private const string DevUser = "docsgen-user";
@@ -108,6 +115,11 @@ internal static class DocsHostSettings
             [DevUserNamePath] = DevUser,
             [DevUserPasswordPath] = RandomKey(),
             [JobsEnabledPath] = bool.FalseString,
+            [AttachmentsServiceBaseUrlPath] = UnusedAttachmentServiceRoot,
+            [ClientKey(nameof(ServiceAssertionClientOptions.ServiceName))] = AttachmentsClientServiceName,
+            [ClientKey(nameof(ServiceAssertionClientOptions.Audience))] = AttachmentsAudience,
+            [ClientKey(nameof(ServiceAssertionClientOptions.KeyId))] = KeyId,
+            [ClientKey(nameof(ServiceAssertionClientOptions.PrivateKeyPem))] = NewServiceAssertionKeyPem(),
         };
         AddKeyRing(settings, SecuritySections.PublicIds);
         AddKeyRing(settings, SecuritySections.RequestSigning);
@@ -120,6 +132,14 @@ internal static class DocsHostSettings
         settings[section + Separator + nameof(KeyRingOptions.ActiveKeyId)] = KeyId;
         settings[firstKey + nameof(KeyEntryOptions.KeyId)] = KeyId;
         settings[firstKey + nameof(KeyEntryOptions.MaterialBase64)] = RandomKey();
+    }
+
+    private static string ClientKey(string name) => ServiceAssertionClientOptions.SectionName + Separator + name;
+
+    private static string NewServiceAssertionKeyPem()
+    {
+        using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        return key.ExportPkcs8PrivateKeyPem();
     }
 
     private static string RandomKey() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(KeyBytes));

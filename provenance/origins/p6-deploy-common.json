@@ -1,0 +1,73 @@
+{
+  "batch": "p6-deploy-common",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p6-deploy-common -Manifest <scratch copy of allowlist.manifest.yaml plus the p6-deploy-common batch> -Clean (staging %TEMP%/codelab-extract/p6-deploy-common, outside the repo; scrub findings are expected before the rewrite)",
+  "promotion": "Each staged script was read as a reference and its patterns rewritten into deploy/kits/Install-Common.psm1 (tests in deploy/kits/tests); \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. Hosts, paths, accounts and product names were dropped.",
+  "origins": [
+    {
+      "batch": "p6-deploy-common",
+      "entryId": "install-templates",
+      "source": ".claude/skills/prep-deploy/templates/Install-Api.ps1",
+      "target": "deploy/kits/Install-Common.psm1",
+      "mode": "copy",
+      "sourceGitBlob": "5ec78cdeae2d1ffc7a78bd9cf445853337bc5f0e",
+      "sourceSha256": "c37a7c21cc8397d9fd9b62e8ba5d7b3d496985b8501afdeaf9b5477173b24f07",
+      "stagedSha256": "c37a7c21cc8397d9fd9b62e8ba5d7b3d496985b8501afdeaf9b5477173b24f07",
+      "stagedTarget": "reference/p6/deploy-common/templates/Install-Api.ps1",
+      "promotion": "rewritten",
+      "note": "Rewritten as Install-Common.psm1: the keep-server-settings rule (settings files are never copied over; a missing server file is created from the template instead of refused), the backup before any change with logs excluded, the robocopy exit-code threshold (>= 8 is a failure) and the \"nothing else changed\" proof before writing (now a leaf-by-leaf comparison in Merge-AppSettings) are carried. The text-edit patch list became Merge-AppSettings: add only the keys new in the package template, never overwrite. Site discovery, the offline page, health polling and app-pool environment listing stay kit-specific (phase 8 kits). No host, path or product name was carried."
+    },
+    {
+      "batch": "p6-deploy-common",
+      "entryId": "install-templates",
+      "source": ".claude/skills/prep-deploy/templates/Install-Web.ps1",
+      "target": "deploy/kits/Install-Common.psm1",
+      "mode": "copy",
+      "sourceGitBlob": "d135a6452ea23d10edc908d4697e443a075f4129",
+      "sourceSha256": "1c388845929fb07edd31a786f50a66453e43a5cf8dc1415e827c5657f13b59d2",
+      "stagedSha256": "1c388845929fb07edd31a786f50a66453e43a5cf8dc1415e827c5657f13b59d2",
+      "stagedTarget": "reference/p6/deploy-common/templates/Install-Web.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only for Copy-KitPayload: server-owned files are excluded from the copy (now appsettings.json, appsettings.*.json, app_offline.htm and logs, plus -ExcludeFiles/-ExcludeDirectories for kit-specific ones such as web.config) and the backup-then-copy order. The edge and gateway checks, the load-balancer drain text and the default public host name were not carried."
+    },
+    {
+      "batch": "p6-deploy-common",
+      "entryId": "deploy-helpers",
+      "source": "deploy/DeployConfig.ps1",
+      "target": "deploy/kits/Install-Common.psm1",
+      "mode": "copy",
+      "sourceGitBlob": "7484ffa7040b2d9dfcbdbfcce7497921bf1eed96",
+      "sourceSha256": "647dfe0de51ae2199aef3644ae888a586d093f831540664e4aef6bd6881e3d38",
+      "stagedSha256": "647dfe0de51ae2199aef3644ae888a586d093f831540664e4aef6bd6881e3d38",
+      "stagedTarget": "reference/p6/deploy-common/helpers/DeployConfig.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only: the deployed-folder backup became Backup-Deployment (sortable timestamp, first-install no-op, rollback is a copy back; pruning is left to the kit); the BOM-free JSON writer became the order-preserving writer that keeps the server file encoding; the locked-file clear informed the Copy-KitPayload exclusions. The config-file loader, SQL module installer and HTTP wait helper were not carried."
+    },
+    {
+      "batch": "p6-deploy-common",
+      "entryId": "deploy-helpers",
+      "source": "deploy/archive-build.ps1",
+      "target": "deploy/kits/Install-Common.psm1",
+      "mode": "copy",
+      "sourceGitBlob": "afbe89b2365b064de9f57ee82eaabc5801088e7a",
+      "sourceSha256": "5af53557e30809a876467b1d7769c1d448ba98dd790776c325f7a990aceb4881",
+      "stagedSha256": "5af53557e30809a876467b1d7769c1d448ba98dd790776c325f7a990aceb4881",
+      "stagedTarget": "reference/p6/deploy-common/helpers/archive-build.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only: the timestamped release folder and the -WhatIf discipline (nothing written while previewing) informed Backup-Deployment. The release archive itself (zip, pruning, config file) was not carried."
+    },
+    {
+      "batch": "p6-deploy-common",
+      "entryId": "deploy-helpers",
+      "source": "deploy/backup-database.ps1",
+      "target": "deploy/kits/Install-Common.psm1",
+      "mode": "copy",
+      "sourceGitBlob": "e0f437489c41204c89267b0450e073eb779a80da",
+      "sourceSha256": "145d195093ce5af5e53983c27bd7c4298da537358571eb5c95c9741b27474a18",
+      "stagedSha256": "145d195093ce5af5e53983c27bd7c4298da537358571eb5c95c9741b27474a18",
+      "stagedTarget": "reference/p6/deploy-common/helpers/backup-database.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only: the elevation and folder pre-checks with an actionable message informed Test-KitPrerequisites (each failed check says what to install). The SQL backup itself is a DBA concern and was not carried; the example share path was dropped."
+    }
+  ]
+}

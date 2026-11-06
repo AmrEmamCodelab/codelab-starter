@@ -1903,6 +1903,167 @@
         }
       }
     },
+    "/api/attachments/demo-record": {
+      "get": {
+        "tags": [
+          "Attachments"
+        ],
+        "summary": "The Development demo record the attachments demo page works on; 404 `ATTACHMENTS_RECORD_TYPE_UNKNOWN` when\r\nthe demo record type is not registered (every environment but Development).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoRecordResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attachments/types": {
+      "get": {
+        "tags": [
+          "Attachments"
+        ],
+        "summary": "The active attachment types of one record type, ordered by key; 404 for an unknown record type.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttachmentTypeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attachments/{id}": {
+      "delete": {
+        "tags": [
+          "Attachments"
+        ],
+        "summary": "Removes an attachment (soft; the bytes are deleted later through the outbox): 204, or 404 for a missing or\r\nremoved attachment or a record the user may not change.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attachments/{id}/content": {
+      "get": {
+        "tags": [
+          "AttachmentContent"
+        ],
+        "summary": "The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record\r\nthe user may not view, or bytes the service no longer has; 503 when the service is unreachable.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/auth/activate": {
       "post": {
         "tags": [
@@ -2748,6 +2909,228 @@
         }
       }
     },
+    "/api/records/{recordType}/{recordId}/attachments": {
+      "get": {
+        "tags": [
+          "RecordAttachments"
+        ],
+        "summary": "The record's live attachments and the required types it still misses; 404 for an unknown or hidden record.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordAttachmentsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "RecordAttachments"
+        ],
+        "summary": "Links an uploaded file to the record by its receipt (201 with the attachment); 400 for an invalid, tampered or\r\nforeign receipt or an extension the type refuses, 404, or 409 when the type is full.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkUploadedFileCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkUploadedFileCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkUploadedFileCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordAttachmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/records/{recordType}/{recordId}/attachments/upload-ticket": {
+      "post": {
+        "tags": [
+          "RecordAttachments"
+        ],
+        "summary": "A sealed, single-use ticket to upload files of one type straight to the attachment service; 400, 404, or 409\r\nwhen the record already holds the type's most files.",
+        "parameters": [
+          {
+            "name": "recordType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueUploadTicketCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueUploadTicketCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueUploadTicketCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadTicketResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/security/session-signing-key": {
       "get": {
         "tags": [
@@ -2994,6 +3377,52 @@
           }
         },
         "description": "An assigned role of a grants response."
+      },
+      "AttachmentTypeResponse": {
+        "required": [
+          "key",
+          "nameAr",
+          "nameEn",
+          "isRequired",
+          "maxFiles",
+          "allowedExtensions"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The type key (kebab-case; the `typeKey` of tickets and links)."
+          },
+          "nameAr": {
+            "type": "string",
+            "description": "The Arabic name."
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "The English name."
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "True when a record needs one before it can move on."
+          },
+          "maxFiles": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The most files of this type per record.",
+            "format": "int32"
+          },
+          "allowedExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The accepted extensions, lower-case with the dot."
+          }
+        },
+        "description": "One active attachment type of `GET /api/attachments/types?recordType={key}`."
       },
       "AuditAction": {
         "type": "integer",
@@ -3308,6 +3737,24 @@
         "type": "object",
         "description": "The body of `GET /api/dashboard` (empty in phase 2)."
       },
+      "DemoRecordResponse": {
+        "required": [
+          "recordType",
+          "recordId"
+        ],
+        "type": "object",
+        "properties": {
+          "recordType": {
+            "type": "string",
+            "description": "The demo record type (`attachments-demo`)."
+          },
+          "recordId": {
+            "description": "The demo record id (opaque token, family `attachable-records`).",
+            "$ref": "#/components/schemas/PublicIdOfAttachableRecordIds"
+          }
+        },
+        "description": "The body of `GET /api/attachments/demo-record` (Development only)."
+      },
       "DirectGrantResponse": {
         "required": [
           "key",
@@ -3376,6 +3823,17 @@
         },
         "description": "One effective permission."
       },
+      "EntityTagHeaderValue": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/StringSegment"
+          },
+          "isWeak": {
+            "type": "boolean"
+          }
+        }
+      },
       "FeaturesResponse": {
         "required": [
           "flags"
@@ -3391,6 +3849,43 @@
           }
         },
         "description": "The feature flags of this deployment, as the client reads them."
+      },
+      "FileResult": {
+        "type": "object",
+        "properties": {
+          "contentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileDownloadName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastModified": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "entityTag": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EntityTagHeaderValue"
+              }
+            ]
+          },
+          "enableRangeProcessing": {
+            "type": "boolean"
+          }
+        }
       },
       "GrantUserResponse": {
         "required": [
@@ -3642,6 +4137,22 @@
         },
         "description": "An account the commit created."
       },
+      "IssueUploadTicketCommand": {
+        "required": [
+          "typeKey"
+        ],
+        "type": "object",
+        "properties": {
+          "typeKey": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The attachment type the upload is for."
+          }
+        },
+        "description": "The body of `POST /api/records/{recordType}/{recordId}/attachments/upload-ticket`."
+      },
       "JobResponse": {
         "required": [
           "key",
@@ -3754,6 +4265,30 @@
       "JobTrigger": {
         "type": "integer",
         "description": "Why a job run started (stored and sent as the integer value)."
+      },
+      "LinkUploadedFileCommand": {
+        "required": [
+          "typeKey",
+          "receipt"
+        ],
+        "type": "object",
+        "properties": {
+          "typeKey": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The attachment type the file was uploaded for."
+          },
+          "receipt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The attachment service's receipt for the stored file."
+          }
+        },
+        "description": "The body of `POST /api/records/{recordType}/{recordId}/attachments`."
       },
       "LoginCommand": {
         "required": [
@@ -4258,6 +4793,22 @@
           }
         }
       },
+      "PublicIdOfAttachableRecordIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
+      "PublicIdOfAttachmentIds": {
+        "examples": [
+          "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "pattern": "^m1_[a-z0-9]{1,8}_[A-Za-z0-9_-]{48}$",
+        "type": "string",
+        "description": "An opaque identifier: 'm1', the key id and 48 base64url characters, separated by underscores. Server-minted and bound to one identifier family; a token of another family is refused like a malformed one. No identifier has a numeric spelling on the wire."
+      },
       "PublicIdOfAuditEntryIds": {
         "examples": [
           "m1_k1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -4385,6 +4936,74 @@
           }
         },
         "description": "The body of `PUT /api/admin/access/users/{userId}/grants`: the user's complete set of roles and direct grants\r\n(replaces both), validated by PutUserGrantsValidator. A role or key listed twice keeps its widest\r\nscope."
+      },
+      "RecordAttachmentResponse": {
+        "required": [
+          "id",
+          "typeKey",
+          "fileName",
+          "sizeBytes",
+          "contentType",
+          "uploadedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The attachment id (opaque token, family `attachments`).",
+            "$ref": "#/components/schemas/PublicIdOfAttachmentIds"
+          },
+          "typeKey": {
+            "type": "string",
+            "description": "The attachment type key."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The file name as uploaded (sanitized by the attachment service)."
+          },
+          "sizeBytes": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The size in bytes.",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "The MIME type (from the extension, never from the client)."
+          },
+          "uploadedAt": {
+            "type": "string",
+            "description": "When it was linked.",
+            "format": "date-time"
+          }
+        },
+        "description": "One live attachment of a record (list item and the 201 body of a link)."
+      },
+      "RecordAttachmentsResponse": {
+        "required": [
+          "items",
+          "missingRequiredTypeKeys"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordAttachmentResponse"
+            },
+            "description": "The live attachments, ordered by upload time."
+          },
+          "missingRequiredTypeKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The required types with no attachment yet (the interlock's answer)."
+          }
+        },
+        "description": "The body of `GET /api/records/{recordType}/{recordId}/attachments`."
       },
       "RefreshCommand": {
         "required": [
@@ -4858,6 +5477,42 @@
         },
         "description": "The end of an SSO logout."
       },
+      "StringSegment": {
+        "type": "object",
+        "properties": {
+          "buffer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "offset": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "length": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasValue": {
+            "type": "boolean"
+          }
+        }
+      },
       "SubmitContactMessageCommand": {
         "required": [
           "fullName",
@@ -5116,6 +5771,53 @@
         },
         "description": "The body of `PUT /api/admin/users/{id}` (the user name never changes)."
       },
+      "UploadTicketResponse": {
+        "required": [
+          "ticket",
+          "ticketHeader",
+          "uploadUrl",
+          "expiresAt",
+          "allowedExtensions",
+          "maxFileCount"
+        ],
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "description": "The sealed, single-use ticket."
+          },
+          "ticketHeader": {
+            "type": "string",
+            "description": "The header the browser sends it in (and the only header the attachment service reads)."
+          },
+          "uploadUrl": {
+            "type": "string",
+            "description": "The absolute upload URL on the attachment service."
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When the ticket stops opening.",
+            "format": "date-time"
+          },
+          "allowedExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The extensions the type accepts."
+          },
+          "maxFileCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "How many more files of the type the record may take.",
+            "format": "int32"
+          }
+        },
+        "description": "The body of `POST /api/records/{recordType}/{recordId}/attachments/upload-ticket`."
+      },
       "UserGrantsResponse": {
         "required": [
           "user",
@@ -5363,6 +6065,15 @@
     },
     {
       "name": "AccessAdmin"
+    },
+    {
+      "name": "Attachments"
+    },
+    {
+      "name": "RecordAttachments"
+    },
+    {
+      "name": "AttachmentContent"
     },
     {
       "name": "AdminAudit"

@@ -1,13 +1,29 @@
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams, type HttpEvent } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { createApiRootClassifier } from '@codelab/ng-security';
+import { throwError, type Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
 import { TokenStore } from '../auth/token.store';
-import { UNSIGNED_REQUEST } from '../http/http-context';
+import { UNSIGNED_REQUEST, unsignedSelfHandledContext } from '../http/http-context';
 
 /** The bearer scheme ApiService writes into the Authorization header. */
 export const AUTHORIZATION_HEADER = 'Authorization';
 export const BEARER_SCHEME = 'Bearer';
+
+/**
+ * `uploadMultipart` was handed a URL outside the configured attachment roots (`origins.attachment` in config.json).
+ * The upload is refused before anything is sent, so an upload ticket never leaves for a host the deployment does
+ * not name. The message never contains the URL.
+ */
+export class UntrustedUploadUrlError extends Error {
+  constructor() {
+    super('The upload URL is not under a configured attachment root (origins.attachment).');
+    this.name = 'UntrustedUploadUrlError';
+  }
+}
+
+/** The HTTP method a multipart upload uses. */
+const UPLOAD_METHOD = 'POST';
 
 export interface ApiOptions {
   readonly params?: HttpParams;
@@ -38,6 +54,12 @@ export class ApiService {
   private readonly config = inject(AppConfigService);
   private readonly tokens = inject(TokenStore);
 
+  /** Classifies a URL against `origins.attachment`: the path under a matching root, or null when none matches. */
+  private readonly attachmentRoots = createApiRootClassifier({
+    roots: () => this.config.origins.attachment,
+    pageOrigin: () => globalThis.location.origin,
+  });
+
   get<T>(path: string, options?: ApiOptions): Observable<T> {
     return this.http.get<T>(this.url(path), this.requestOptions(options));
   }
@@ -52,6 +74,39 @@ export class ApiService {
 
   delete<T>(path: string, options?: ApiOptions): Observable<T> {
     return this.http.delete<T>(this.url(path), this.requestOptions(options));
+  }
+
+  /** GET a file: the body arrives as a `Blob` (a signed call; the server marks such endpoints `[UnsignedResponse]`). */
+  getBlob(path: string, options?: ApiOptions): Observable<Blob> {
+    return this.http.get(this.url(path), { ...this.requestOptions(options), responseType: 'blob' });
+  }
+
+  /**
+   * POSTs `formData` (multipart) to `absoluteUrl`, a separate service such as the attachment service, and emits every
+   * HTTP event, upload progress included (`HttpEventType.UploadProgress`, then `Response` with the JSON body).
+   *
+   * The request carries ONLY `headers` (such as an upload ticket): no bearer token, no request signature (it is sent
+   * `UNSIGNED_REQUEST`) and no cookies. Its failures are the caller's (no error dialog), and its 401 is the service's
+   * answer, never an expired session. The URL must lie under one of `origins.attachment` (origin and path segment);
+   * anything else errors with {@link UntrustedUploadUrlError} and nothing is sent.
+   */
+  uploadMultipart<T>(
+    absoluteUrl: string,
+    formData: FormData,
+    headers: Readonly<Record<string, string>>,
+  ): Observable<HttpEvent<T>> {
+    if (this.attachmentRoots(absoluteUrl) === null) {
+      return throwError(() => new UntrustedUploadUrlError());
+    }
+    return this.http.request<T>(UPLOAD_METHOD, absoluteUrl, {
+      body: formData,
+      headers: { ...headers },
+      context: unsignedSelfHandledContext(),
+      observe: 'events',
+      reportProgress: true,
+      responseType: 'json',
+      withCredentials: false,
+    });
   }
 
   /** The absolute URL a path resolves to. */

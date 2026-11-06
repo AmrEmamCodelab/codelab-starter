@@ -1,0 +1,8 @@
+<Project>
+  <!--
+    Build settings for the separately released services (services/<service>/). Imports the repo-root
+    Directory.Build.props first (Codelab.Build.Sdk from source or feed, ADR-002), so every service project builds with
+    the same analyzers, quality gates and release stamping as backend/.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

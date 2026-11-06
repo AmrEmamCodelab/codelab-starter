@@ -26,6 +26,21 @@
       "description": "See the roles, their permissions and the permission catalog."
     },
     {
+      "key": "attachments.remove",
+      "module": "Attachments",
+      "description": "Remove a record's attachments (where the record allows it)."
+    },
+    {
+      "key": "attachments.upload",
+      "module": "Attachments",
+      "description": "Upload files and link them to a record (where the record allows it)."
+    },
+    {
+      "key": "attachments.view",
+      "module": "Attachments",
+      "description": "List attachment types and a record's attachments, and download them (where the record allows it)."
+    },
+    {
       "key": "audit.view",
       "module": "Audit",
       "description": "Read the audit trail of every audited table (personal data masked)."

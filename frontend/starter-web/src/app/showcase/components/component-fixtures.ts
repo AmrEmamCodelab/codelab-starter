@@ -152,7 +152,7 @@ export function nextPickedNumber(items: readonly DgaFileUploadItem[]): number {
 }
 
 /**
- * The upload rows after a pick: every accepted file is appended as a pending row (the demo has no server), with an id
+ * The upload rows after a pick: every accepted file is appended as a queued row (the demo has no server), with an id
  * that stays unique however many picks and removals follow.
  */
 export function appendPicked(items: readonly DgaFileUploadItem[], accepted: readonly File[]): DgaFileUploadItem[] {
@@ -160,7 +160,7 @@ export function appendPicked(items: readonly DgaFileUploadItem[], accepted: read
   const added = accepted.map((file, index) => ({
     id: `${PICKED_ID_PREFIX}${first + index}`,
     name: file.name,
-    status: DgaFileUploadStatus.Pending,
+    status: DgaFileUploadStatus.Queued,
   }));
   return [...items, ...added];
 }

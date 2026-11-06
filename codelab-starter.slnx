@@ -31,6 +31,8 @@
     <Project Path="backend/tests/Modules/Starter.Modules.Notifications.Tests/Starter.Modules.Notifications.Tests.csproj" />
     <Project Path="backend/src/Modules/Portal/Starter.Modules.Portal.csproj" />
     <Project Path="backend/tests/Modules/Starter.Modules.Portal.Tests/Starter.Modules.Portal.Tests.csproj" />
+    <Project Path="backend/src/Modules/Attachments/Starter.Modules.Attachments.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Attachments.Tests/Starter.Modules.Attachments.Tests.csproj" />
   </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />
@@ -48,6 +50,12 @@
     <Project Path="packages/dotnet/Codelab.Security.Tests/Codelab.Security.Tests.csproj" />
     <Project Path="packages/dotnet/Codelab.Testing/Codelab.Testing.csproj" />
     <Project Path="packages/dotnet/Codelab.Testing.Tests/Codelab.Testing.Tests.csproj" />
+  </Folder>
+  <Folder Name="/services/attachment-service/">
+    <Project Path="services/attachment-service/src/Codelab.Attachments.Core/Codelab.Attachments.Core.csproj" />
+    <Project Path="services/attachment-service/src/Codelab.Attachments.Api/Codelab.Attachments.Api.csproj" />
+    <Project Path="services/attachment-service/tests/Codelab.Attachments.Core.Tests/Codelab.Attachments.Core.Tests.csproj" />
+    <Project Path="services/attachment-service/tests/Codelab.Attachments.Api.Tests/Codelab.Attachments.Api.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Starter.ArchitectureSpike.Fixture.Api/Starter.ArchitectureSpike.Fixture.Api.csproj" />

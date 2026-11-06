@@ -1,0 +1,47 @@
+{
+  "batch": "p6-deploy-attachment-kit",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p6-deploy-attachment-kit -Manifest <scratch copy of allowlist.manifest.yaml plus the p6-deploy-attachment-kit batch> -Clean (staging %TEMP%/codelab-extract/p6-deploy-attachment-kit, outside the repo; scrub findings are expected before the rewrite, secret scan clean)",
+  "promotion": "Each staged script was read as a reference and its patterns rewritten into deploy/kits/Install-Attachment.ps1 (tests in deploy/kits/tests/Install-Attachment.Tests.ps1, operator template in deploy/kits/templates/attachment); \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. Hosts, ports, paths, accounts, certificate notes and product names were dropped.",
+  "origins": [
+    {
+      "batch": "p6-deploy-attachment-kit",
+      "entryId": "attachment-deploy",
+      "source": "deploy/deploy-attachment.ps1",
+      "target": "deploy/kits/Install-Attachment.ps1",
+      "mode": "copy",
+      "sourceGitBlob": "0335b36b37e8d1c52db8379a4793c6f87e0c87f3",
+      "sourceSha256": "b46ac52fa4f396e6a4a2ae6864bda78fae6c9a55dfbca3b830996c0ffb4b64d5",
+      "stagedSha256": "b46ac52fa4f396e6a4a2ae6864bda78fae6c9a55dfbca3b830996c0ffb4b64d5",
+      "stagedTarget": "reference/p6/deploy-attachment-kit/deploy/deploy-attachment.ps1",
+      "promotion": "rewritten",
+      "note": "Rewritten on Install-Common.psm1. Carried as patterns: the storage root must be fully qualified and outside the app folder because the deploy mirror deletes what is inside it (now Assert-AttachmentStorageRootSafe, which also refuses a root that contains the app folder), the storage folder created before first use (now a planned CreateFolder plus a Modify grant for the app pool identity), validation before anything is taken offline, app_offline.htm around the copy and always removed in finally, logs kept out of the mirror, the health poll with a list of likely startup causes on failure, and the 'settings not supplied' list (now a check of the merged settings that names empty keys by path, never by value). Not carried: the per-parameter secrets written into the Production file (the kit never ships values; operators fill the template), the JWT and shared-secret settings (replaced by the sealed-ticket, receipt and S2S key rings), the config-file loader, backup pruning, the skip-health switch and its certificate note, and every default host, port, path and site name."
+    },
+    {
+      "batch": "p6-deploy-attachment-kit",
+      "entryId": "attachment-deploy",
+      "source": "deploy/diagnose-attachment-upload.ps1",
+      "target": "deploy/kits/Install-Attachment.ps1",
+      "mode": "copy",
+      "sourceGitBlob": "9a2ad943d6c3628f1cc1a61dbfe57201e5788be3",
+      "sourceSha256": "e005a836e8915ca095ec156f74d95c762dd7e682d1b3fb559201bf1c500a795e",
+      "stagedSha256": "e005a836e8915ca095ec156f74d95c762dd7e682d1b3fb559201bf1c500a795e",
+      "stagedTarget": "reference/p6/deploy-attachment-kit/deploy/diagnose-attachment-upload.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only: the HTML-versus-JSON discriminator (an HTML body means IIS or the ASP.NET Core Module answered, not the service) became Get-AttachmentHealthDiagnosis, and reading the response body of a 4xx/5xx WebException became Invoke-AttachmentHealthRequest. The http.sys log scan, port-conflict and request-filtering checks and the site log tail were not carried (an Ops Console concern in phase 8); the default folders, base URL and site name were dropped."
+    },
+    {
+      "batch": "p6-deploy-attachment-kit",
+      "entryId": "install-template",
+      "source": ".claude/skills/prep-deploy/templates/Install-Api.ps1",
+      "target": "deploy/kits/Install-Attachment.ps1",
+      "mode": "copy",
+      "sourceGitBlob": "5ec78cdeae2d1ffc7a78bd9cf445853337bc5f0e",
+      "sourceSha256": "c37a7c21cc8397d9fd9b62e8ba5d7b3d496985b8501afdeaf9b5477173b24f07",
+      "stagedSha256": "c37a7c21cc8397d9fd9b62e8ba5d7b3d496985b8501afdeaf9b5477173b24f07",
+      "stagedTarget": "reference/p6/deploy-attachment-kit/templates/Install-Api.ps1",
+      "promotion": "rewritten",
+      "note": "Pattern only (its settings, backup and copy mechanics already live in Install-Common.psm1 via p6-deploy-common): the kit step order (checks, backup, offline page, copy, settings, back online, health), the offline page wait before copying, and the failure message that names the backup to restore. Site discovery by entry assembly, the HTTPS binding warning, the app-pool environment listing, the pool recycle and the certificate-ignoring health call were not carried; the kit takes -SiteName and -HealthBaseUrl explicitly. No host, path or product name was carried."
+    }
+  ]
+}

@@ -58,7 +58,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | `backend/tools/Starter.DevIdp` (+ `.Tests`) | Dev-only OpenID Connect issuer (code + PKCE S256, RS256 id_token, JWKS, userinfo, end-session) on :5190 and in process for tests (`DevIdpInProcessServer`); refuses any environment but Development, never deployed. | [MODULE.md](backend/tools/Starter.DevIdp/MODULE.md) |
 | `backend/src/Modules/{Identity,Access,Users}/` | Module 1 identity and login (basic, AD, SSO via `Auth:Modes`; lockout, activation, auth event trail), module 3 roles and permissions (roles, virtual roles, direct grants, org scope, live resolve) and module 2 users, organizations and the Excel import. | the module's `MODULE.md` |
 | `docs/generated/` | DERIVED: `openapi.v1.json`, `permissions.json/.md`, `endpoints.md`, `error-codes.md`, `config-keys.md`. Never hand-edited. | [README.md](docs/generated/README.md) |
-| `frontend/starter-web/` | Angular 22 app (standalone, signals, Vitest, an npm workspace): `src/app/core` (ApiService, auth, permissions, i18n, session, branding), `layouts/` (WebLayouts: staff shell, portal shell, requester shell, footer, notifications menu and feed, error dialog), `features/{auth,dashboard,admin,errors,portal,notifications}` (admin: users, organizations, import, and access: roles list, role editor, user grants, see `features/admin/access/README.md`; portal: the public pages under `/portal`), `shared/` (WebShared: the `*hasPermission` directive, file picker, geo select), `patterns/` (WebPatterns: the 8 page patterns) and `showcase/` (WebShowcase: the `/showcase` gallery, behind the `showcase` flag of `config.json`). | [MODULE.md](frontend/starter-web/MODULE.md) |
+| `frontend/starter-web/` | Angular 22 app (standalone, signals, Vitest, an npm workspace): `src/app/core` (ApiService, auth, permissions, i18n, session, branding), `layouts/` (WebLayouts: staff shell, portal shell, requester shell, footer, notifications menu and feed, error dialog), `features/{auth,dashboard,admin,errors,portal,notifications,attachments}` (admin: users, organizations, import, and access: roles list, role editor, user grants, see `features/admin/access/README.md`; portal: the public pages under `/portal`), `shared/` (WebShared: the `*hasPermission` directive, file picker, geo select), `patterns/` (WebPatterns: the 8 page patterns) and `showcase/` (WebShowcase: the `/showcase` gallery, behind the `showcase` flag of `config.json`). | [MODULE.md](frontend/starter-web/MODULE.md) |
 | `frontend/starter-web/tools/` | ESLint and Stylelint config, `i18n-parity.mjs`, `no-inline-styles.mjs`, `permission-gates.mjs`, `rtl-lint.mjs`, `icons-subset.mjs`, `api-gen` (the generated client and `permission-keys.generated.ts`), the lint-fixture spec. | [README.md](frontend/starter-web/tools/README.md) |
 | `frontend/starter-web/e2e/` | The visual and accessibility harness (`npm run visual`): screenshots in `ar` and `en` at 1440 and 390 px against baselines or a design target, plus axe. Baselines and evidence live in `docs/evidence/P4/`. | [README.md](frontend/starter-web/e2e/README.md) |
 | `docs/design/` | The design kit: the generated component catalog and tokens, the 8 page patterns and a page per pattern. | [README.md](docs/design/README.md) |
@@ -72,13 +72,15 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | `feed/` | Local package feed filled by `tools/build.ps1 -Pack` (contents gitignored). | [feed/README.md](feed/README.md) |
 | `tools/build.ps1` | The one build entry for CI and humans: the CI steps, `-Pack`, `-Pack -Release`. | [tools/README.md](tools/README.md) |
 | `tools/scaffold/` | `new-module.mjs`, `new-endpoint.mjs`, `new-permission.mjs`: deterministic generators, and the only sanctioned editor of the slnx and the host's module list. | [README.md](tools/scaffold/README.md) |
-| `tools/devseed/` | `New-LocalSecrets.ps1` writes the gitignored `backend/src/Starter.Api/appsettings.Development.local.json` with fresh random values (`-Force` replaces it). | [MODULE.md](backend/src/Starter.Api/MODULE.md) |
-| `run-local.ps1`, `tools/run-local/` | The one-command local stack: API :5180, web :4280, Seq :5341 when available; `-Stop` stops only what it started. | [README.md](tools/run-local/README.md) |
+| `tools/devseed/` | `New-LocalSecrets.ps1` writes the gitignored local secrets of the API (`backend/src/Starter.Api/appsettings.Development.local.json`) and of the Attachment service (`services/attachment-service/src/Codelab.Attachments.Api/appsettings.Development.local.json`) with fresh random values: one shared ticket and receipt ring and an ES256 S2S key pair. An existing file only gets its missing keys; `-Force` regenerates both. | [README.md](tools/devseed/README.md) |
+| `run-local.ps1`, `tools/run-local/` | The one-command local stack: API :5180, then the Attachment service :5185, then web :4280, plus Seq :5341 when available. `-NoWeb`, `-NoSeq`, `-NoAttachments`; `-Stop` stops only what it started. | [README.md](tools/run-local/README.md) |
 | `docs/recipes/` | Step-by-step recipes (add an endpoint, add a permission). | [README.md](docs/recipes/README.md) |
 | `tools/extract/` | Allowlist extraction from the harvest copy, scrub sweep, secret scan, provenance (`generate-source.mjs`, `check-origins.mjs`). | `README.md` in the folder |
 | `tools/rules-engine/`, `rules/` | Rules schema, base rules, the compiler to `rules/rules.compiled.json`, `rules/codelab.globalconfig` and the per-module files, the content check. | `README.md` in the folder |
 | `tools/docs-gate/`, `tools/ci/`, `tools/vectors/` | The MODULE.md and dead-reference gate; host-neutral CI checks and the pack planner; the C# against TS vector check. | `README.md` in each folder |
 | `deploy/handover/` | The offline handover kit and its proof (ADR-008). | `README.md` in the folder |
+| `deploy/kits/` | IIS deploy kits: `Install-Common.psm1` (prerequisites, backup before change, settings merge that keeps server values and adds only new keys, payload mirror that never touches server settings/logs, idempotent IIS app pool + site/child-app helper with a deterministic -WhatIf plan) and the kits built on it (`Install-Attachment.ps1` in P6; Api/Web/Gateway/Ops in P8). Pester 3.4 tests in `tests/`. | [MODULE.md](deploy/kits/MODULE.md) |
+| `services/attachment-service/` | The attachment service deployable (P6): Codelab.Attachments.Core (file-share store, streaming upload pipeline) and Codelab.Attachments.Api (http://localhost:5185; POST /api/uploads with a one-time upload ticket, S2S-only GET/DELETE /api/files/{fileId}, /health/live and /health/ready); its own Codelab.Attachments.slnx. | [MODULE.md](services/attachment-service/MODULE.md) |
 | `.claude/hooks/`, `.claude/skills/`, `.claude/agents/` | Hooks that refuse rule violations early (ADR-006); skills (`coding-standards`, `do-work`, `write-a-skill`, `new-module`, `new-endpoint`, `new-permission`, `new-screen`); the review and commit-gate agents, and the design agents (`dga-design-capture`, `screen-builder`, `dga-reviewer`, `i18n-keeper`, `visual-verifier`). | [CLAUDE.md](CLAUDE.md) routing table |
 | `docs/standards/`, `docs/adr/` | Coding standards, error handling, examples; architecture decisions. | [docs/standards/SKILL.md](docs/standards/SKILL.md), [docs/adr/README.md](docs/adr/README.md) |
 | `provenance/` | Harvest source commit, tree hash and per-file origin map (`origins/*.json`; `SOURCE.md` is generated). | `SOURCE.md` in the folder |
@@ -88,7 +90,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 
 | Path | Phase | What it will hold |
 | --- | --- | --- |
-| `services/{attachment-service,integration-gateway,ops-console}` | P6, P8 | Separately released deployables. |
+| `services/{integration-gateway,ops-console}` | P8 | Separately released deployables. |
 | `deploy/` | P6, P8, P10 | IIS kits, security headers, SQL scripts for the DBA, Seq; the handover kit is finished in P10. |
 | `docs/runbooks/` | P6 onward | Runbooks. |
 
@@ -108,7 +110,7 @@ Codelab delivers request portals for Saudi ministries and government entities. A
 | 10 | Deadlines and SLA timers | planned | P7 |
 | 11 | Detail and oversight views | planned | P7 |
 | 12 | Notifications: bilingual templates seeded by migration, the bell items and feed API (GET /api/notifications, unread-count, mark read), the admin test send (notifications.test), e-mail and SMS through the outbox (SMTP to the internal relay or .eml file drop; SMS file sink, gateway sender in P8), INotificationService / INotificationRecipients kernel ports; the UI part (bell source and /notifications page) is [WebNotifications](frontend/starter-web/src/app/features/notifications/MODULE.md). | [Starter.Modules.Notifications](backend/src/Modules/Notifications/MODULE.md), schema `notifications` | P5, P8 |
-| 13 | Attachments (service, typed links, upload UI) | planned | P6 |
+| 13 | Attachments: the attachment type catalog (`ServiceAttachment`, ids from `Starter.Domain.Attachments.AttachmentTypeIds`, seeded by migration) and typed links of files to any record (`RecordAttachment`, soft remove); sealed upload tickets for direct browser upload to the attachment service, receipt-verified links (scope = record, type, user), S2S download and outbox delete (`attachments.delete-file`); `attachments.view`, `attachments.upload`, `attachments.remove`; the required-attachments interlock; Development demo record type `attachments-demo`. The UI part is the shared `app-record-attachments` widget ([MODULE.md](frontend/starter-web/src/app/shared/record-attachments/MODULE.md)) and the development-only `/attachments/demo` page ([WebAttachments](frontend/starter-web/src/app/features/attachments/MODULE.md)). | [Starter.Modules.Attachments](backend/src/Modules/Attachments/MODULE.md), schema `attachments`; `services/attachment-service` | P6 |
 | 14 | Integrations | deferred (gateway extension point in P8) | - |
 | 15 | Public portal pages and contact us: the UI (landing, service guide, FAQ, contact, privacy and terms under /portal) reads its content from the API and the contact form shows the CU-YYYY-NNN receipt; the backend stores contact messages under a CU-YYYY-NNN number (anonymous, rate-limited, announced to Portal:Contact:InboxEmail via the contact-received template) and serves the bilingual FAQ, service guide, privacy and terms content (seeded by migration, cached public read, admin replace with portal.content.view / portal.content.manage) | [Starter.Modules.Portal](backend/src/Modules/Portal/MODULE.md), schema `portal`; [WebPortal](frontend/starter-web/src/app/features/portal/MODULE.md) (UI) | P4, P5 |
 | 16 | Logs, error reference codes, ops console | packages since P1; console planned | P1, P8 |
@@ -123,9 +125,10 @@ Run from the repo root. Put `E:\codelab-tools\node24` first on PATH in any shell
 | Task | Command |
 | --- | --- |
 | Install Node tooling | `npm install` (repo root) |
-| Local secrets (once; `-Force` replaces them) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1` |
-| Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`) |
+| Local secrets (API + Attachment service; adds missing keys, `-Force` regenerates both) | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\devseed\New-LocalSecrets.ps1` |
+| Run the local stack | `powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1` (`-Stop`, `-NoWeb`, `-NoSeq`, `-NoAttachments`) |
 | API only | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend\src\Starter.Api` (http://localhost:5180) |
+| Attachment service only | `E:\codelab-tools\dotnet10\dotnet.exe run --project services\attachment-service\src\Codelab.Attachments.Api` (http://localhost:5185, health /health/ready); test: `E:\codelab-tools\dotnet10\dotnet.exe test services\attachment-service\Codelab.Attachments.slnx` |
 | Dev IdP for local SSO | `E:\codelab-tools\dotnet10\dotnet.exe run --project backend/tools/Starter.DevIdp` (http://localhost:5190) |
 | Web only | `npm start --workspace frontend/starter-web` (http://localhost:4280) |
 | Full CI | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI` |
@@ -151,6 +154,7 @@ The .NET 10 SDK is not on PATH on this machine; see [CLAUDE.md](CLAUDE.md#build)
 | What | Where |
 | --- | --- |
 | API | http://localhost:5180 (launch profile Development; the Development CORS policy allows the web origin) |
+| Attachment service | http://localhost:5185 (Development; health `/health/live`, `/health/ready`; CORS allows the web origin; files under `%LOCALAPPDATA%\codelab-starter\attachments`) |
 | Web | http://localhost:4280 (`public/config.json` points at the API); the public portal at `/portal`, the showcase at `/showcase` when `config.json` has `"showcase": true` |
 | Seq (optional) | http://localhost:5341 |
 | Dev database | LocalDB `(localdb)\MSSQLLocalDB`, database `StarterDev`; migrations run on start in Development only |
@@ -182,5 +186,7 @@ The permission, endpoint, error-code and config-key lists are generated into `do
 | `IOrganizationScope` | Access (`CurrentUserOrganizationScope`) | no module yet; for modules that filter records by the caller's organization (P7) |
 | `ICurrentUserContext` (`IsAuthenticated`, `SubjectId`, `SessionId`) | the kernel (`HttpCurrentUserContext`) | every module |
 | `IStartupTask` (`ReferenceData` = 1, then `Accounts` = 2) | Access (catalog sync), Identity (account seeding) | the kernel `StartupTaskRunner` |
+| `IAttachableRecordAccess` (`RecordType`, `CanViewAsync`, `CanChangeAsync`) | the module that owns each record type (Attachments only for the Development `attachments-demo` type) | Attachments (every list, ticket, link, download and remove) |
+| `IRequiredAttachments` (`FindMissingTypeKeysAsync`; refuse with `AttachmentErrorCodes.RequiredMissing`, 409) | Attachments (`RequiredAttachmentsCheck`) | modules that submit a record (Records, P7) |
 
 Identity, Access and Users never reference each other (`mustNotDependOn` in each `module.rules.yaml`); they meet only through these ports.

@@ -1,0 +1,23 @@
+.record-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.record-attachments__loading,
+.record-attachments__empty,
+.record-attachments__failed-text {
+  margin: 0;
+  color: var(--dga-color-text-muted);
+}
+
+.record-attachments__failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.record-attachments__type {
+  min-inline-size: 0;
+}

@@ -11,6 +11,12 @@ export const PermissionKeys = {
   AccessRolesManage: 'access.roles.manage',
   /** See the roles, their permissions and the permission catalog. (module Access) */
   AccessRolesView: 'access.roles.view',
+  /** Remove a record's attachments (where the record allows it). (module Attachments) */
+  AttachmentsRemove: 'attachments.remove',
+  /** Upload files and link them to a record (where the record allows it). (module Attachments) */
+  AttachmentsUpload: 'attachments.upload',
+  /** List attachment types and a record's attachments, and download them (where the record allows it). (module Attachments) */
+  AttachmentsView: 'attachments.view',
   /** Read the audit trail of every audited table (personal data masked). (module Audit) */
   AuditView: 'audit.view',
   /** Open the dashboard. (module Access) */

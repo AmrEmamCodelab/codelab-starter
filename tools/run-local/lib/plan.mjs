@@ -15,6 +15,7 @@ import {
   PRIVATE_NODE_DIR,
   SEQ_SERVER_URL_ENV,
   SEQ_URL_ENV,
+  START_ORDER,
   URLS_ENV,
   Urls,
 } from './constants.mjs';
@@ -22,10 +23,12 @@ import {
 /** Bad arguments (exit 2). */
 export class UsageError extends Error {}
 
-/** Parses the CLI flags into { stop, noWeb, noSeq, root, help }. */
+/** Parses the CLI flags into { stop, noWeb, noSeq, noAttachments, root, help }. */
 export function parseArguments(argv, defaultRoot) {
-  const options = { stop: false, noWeb: false, noSeq: false, help: false, root: defaultRoot };
-  const switches = { [Flags.stop]: 'stop', [Flags.noWeb]: 'noWeb', [Flags.noSeq]: 'noSeq', [Flags.help]: 'help' };
+  const options = { stop: false, noWeb: false, noSeq: false, noAttachments: false, help: false, root: defaultRoot };
+  const switches = {
+    [Flags.stop]: 'stop', [Flags.noWeb]: 'noWeb', [Flags.noSeq]: 'noSeq', [Flags.noAttachments]: 'noAttachments', [Flags.help]: 'help',
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     if (switches[flag]) {
@@ -72,11 +75,21 @@ export function usesDefaultLocalDb(env) {
   return !override || override.toLowerCase().includes(LOCALDB_INSTANCE.toLowerCase());
 }
 
-/** The environment of the API process: Development, plus the Seq URL when one was chosen. */
-export function apiEnvironment(env, chosenSeqUrl) {
-  const result = { ...env, [ENVIRONMENT_ENV]: DEVELOPMENT, [URLS_ENV]: Urls.api };
+/** The environment of a .NET host: Development on `url`, plus the Seq URL when one was chosen. */
+export function hostEnvironment(env, url, chosenSeqUrl) {
+  const result = { ...env, [ENVIRONMENT_ENV]: DEVELOPMENT, [URLS_ENV]: url };
   if (chosenSeqUrl) result[SEQ_SERVER_URL_ENV] = chosenSeqUrl;
   return result;
+}
+
+/** The environment of the API process (http://localhost:5180). */
+export function apiEnvironment(env, chosenSeqUrl) {
+  return hostEnvironment(env, Urls.api, chosenSeqUrl);
+}
+
+/** The environment of the Attachment service process (http://localhost:5185). */
+export function attachmentsEnvironment(env, chosenSeqUrl) {
+  return hostEnvironment(env, Urls.attachments, chosenSeqUrl);
 }
 
 /** The API assembly among the build output's target-framework folders (the newest framework wins), or null. */
@@ -102,6 +115,50 @@ export function webDecision({ noWeb, manifest, hasNodeModules, startScript }) {
   if (!manifest.scripts?.[startScript]) return { start: false, reason: `the frontend has no "${startScript}" script` };
   if (!hasNodeModules) return { start: false, reason: 'node_modules is missing; run npm install at the repo root first' };
   return { start: true };
+}
+
+/**
+ * Decides whether the Attachment service starts: it needs its project (a fork may have removed the service).
+ * @returns {{ start: boolean, reason?: string }}
+ */
+export function attachmentsDecision({ noAttachments, projectExists }) {
+  if (noAttachments) return { start: false, reason: 'skipped (-NoAttachments)' };
+  if (!projectExists) return { start: false, reason: 'the Attachment service project does not exist in this repository' };
+  return { start: true };
+}
+
+/** The services to start, in start and health-check order (the API always; the others when decided). */
+export function startPlan({ attachments, web }) {
+  const wanted = { api: true, attachments, web };
+  return START_ORDER.filter((name) => wanted[name]);
+}
+
+/** The URLs that must be free before a start: one per service in the plan. */
+export function portsToCheck(plan) {
+  return plan.map((name) => Urls[name]);
+}
+
+/**
+ * True when the local secrets must be (re)seeded: the API file is missing, or the Attachment service starts and its
+ * file is missing or the API file lacks the attachment keys (an API file from before the service or from before the
+ * dedicated upload-ticket ring). The seeding script
+ * only adds missing keys, so existing values are never changed.
+ */
+export function secretsNeedSeeding({ apiSecretsText, serviceSecretsExists, withAttachments }) {
+  if (apiSecretsText === null || apiSecretsText === undefined) return true;
+  if (!withAttachments) return false;
+  if (!serviceSecretsExists) return true;
+  try {
+    const security = JSON.parse(apiSecretsText)?.Codelab?.Security;
+    return (
+      !security?.Tickets?.ActiveKeyId ||
+      !security?.UploadTickets?.ActiveKeyId ||
+      !security?.Uploads?.ActiveKeyId ||
+      !security?.ServiceAssertions?.Client?.PrivateKeyPem
+    );
+  } catch {
+    return true;
+  }
 }
 
 /**

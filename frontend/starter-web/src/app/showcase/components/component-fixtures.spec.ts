@@ -42,8 +42,8 @@ describe('the upload demo list', () => {
     const rows = appendPicked([uploaded], [file('one.pdf'), file('two.png')]);
     expect(rows).toEqual([
       uploaded,
-      { id: `${PICKED_ID_PREFIX}0`, name: 'one.pdf', status: DgaFileUploadStatus.Pending },
-      { id: `${PICKED_ID_PREFIX}1`, name: 'two.png', status: DgaFileUploadStatus.Pending },
+      { id: `${PICKED_ID_PREFIX}0`, name: 'one.pdf', status: DgaFileUploadStatus.Queued },
+      { id: `${PICKED_ID_PREFIX}1`, name: 'two.png', status: DgaFileUploadStatus.Queued },
     ]);
   });
 

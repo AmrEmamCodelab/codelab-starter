@@ -1,9 +1,13 @@
+using System.Security.Cryptography;
 using Codelab.Observability;
+using Codelab.Security;
 using Codelab.Security.Keys;
 using Codelab.Security.PublicIds;
+using Codelab.Security.ServiceAuth;
 using Codelab.Security.Signing;
 using Codelab.Security.Storage;
 using Codelab.Security.Tickets;
+using Codelab.Security.Uploads;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Identity.Infrastructure.Options;
 
@@ -27,6 +31,16 @@ public static class StarterHostSettings
 
     // The jobs module's job-server switch as a plain key, so the support code does not reference the module.
     private const string JobsEnabledKey = "Jobs:Enabled";
+
+    // The Attachments module's service root as a plain key, so the support code does not reference the module; a reserved name that never resolves.
+    private const string AttachmentsServiceBaseUrlKey = "Attachments:ServiceBaseUrl";
+    private const string UnusedAttachmentServiceRoot = "https://attachments.invalid";
+    private const string AttachmentsClientServiceName = "starter-api";
+    private const string AttachmentsAudience = "starter-attachments";
+
+    // The Attachments module's upload-ticket ring as a plain section: its own keys, never the API's ticket ring.
+    private const string UploadTicketsSection = SecuritySections.Root + ":UploadTickets";
+    private const string UploadTicketsEnabledKey = UploadTicketsSection + ":Enabled";
 
     /// <summary>The settings for <paramref name="options"/> and <paramref name="accounts"/>.</summary>
     public static IReadOnlyDictionary<string, string?> For(StarterHostOptions options, StarterTestAccounts accounts)
@@ -52,10 +66,20 @@ public static class StarterHostSettings
             [Key(SealedTicketOptions.SectionName, nameof(SealedTicketOptions.Enabled))] = Flag(true),
             // No background job server: it would open SQL on start and run jobs against a throwaway database.
             [JobsEnabledKey] = Flag(false),
+            // Attachments (phase 6): the service root, the ES256 client key of the service assertion and the upload receipt ring, all generated at run time.
+            [AttachmentsServiceBaseUrlKey] = UnusedAttachmentServiceRoot,
+            [Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.ServiceName))] = AttachmentsClientServiceName,
+            [Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.Audience))] = AttachmentsAudience,
+            [Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.KeyId))] = StarterTestAccounts.NewKeyId(),
+            [Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.PrivateKeyPem))] = NewServiceAssertionKeyPem(),
+            [Key(UploadSafetyOptions.SectionName, nameof(UploadSafetyOptions.ReceiptsEnabled))] = Flag(true),
+            [UploadTicketsEnabledKey] = Flag(true),
         };
         AddKeyRing(settings, PublicIdKeyringOptions.SectionName);
         AddKeyRing(settings, RequestSigningOptions.SectionName);
         AddKeyRing(settings, SealedTicketOptions.SectionName);
+        AddKeyRing(settings, UploadSafetyOptions.SectionName);
+        AddKeyRing(settings, UploadTicketsSection);
         return settings;
     }
 
@@ -68,6 +92,12 @@ public static class StarterHostSettings
         settings[Key(section, nameof(KeyRingOptions.ActiveKeyId))] = keyId;
         settings[Key(section, nameof(KeyRingOptions.Keys), FirstItem, nameof(KeyEntryOptions.KeyId))] = keyId;
         settings[Key(section, nameof(KeyRingOptions.Keys), FirstItem, nameof(KeyEntryOptions.MaterialBase64))] = StarterTestAccounts.NewKeyBase64();
+    }
+
+    private static string NewServiceAssertionKeyPem()
+    {
+        using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        return key.ExportPkcs8PrivateKeyPem();
     }
 
     private static string Flag(bool value) => value ? bool.TrueString : bool.FalseString;

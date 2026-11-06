@@ -14,7 +14,7 @@ export const FlowExitCodes = Object.freeze({
   Environment: 3,
 });
 
-/** The four phase-5 exit-criteria flows, by command-line name. */
+/** The phase-5 and phase-6 exit-criteria flows, by command-line name. */
 export const FlowNames = Object.freeze({
   /** Admin edits a runtime setting, runs a job and sees its run history. */
   SettingsJobs: 'settings-jobs',
@@ -24,6 +24,8 @@ export const FlowNames = Object.freeze({
   Activation: 'activation',
   /** Contact-us returns a CU-YYYY-NNN number and notifies; an admin FAQ edit shows on the portal in ar and en. */
   ContactFaq: 'contact-faq',
+  /** A PDF is uploaded on the demo record, listed, downloaded; an oversized file is refused in ar and en with a reference code. */
+  Attachments: 'attachments',
 });
 
 export const ALL_FLOWS = Object.freeze(Object.values(FlowNames));
@@ -78,6 +80,8 @@ export const AppPaths = Object.freeze({
   Notifications: '/notifications',
   PortalContact: '/portal/contact',
   PortalFaq: '/portal/faq',
+  /** The attachments demo page (features/attachments/attachments.routes.ts, development builds only). */
+  AttachmentsDemo: '/attachments/demo',
   /** Query of the login page after a successful activation (RouteQueryParams.Notice = LoginNotices.Activated). */
   ActivatedNotice: 'notice=activated',
 });
@@ -92,8 +96,12 @@ export const ApiPaths = Object.freeze({
   AdminPortalContentPrefix: '/api/admin/portal/content/',
   AdminSettingsPrefix: '/api/admin/settings',
   NotificationsTest: '/api/admin/notifications/test',
+  /** shared/attachments/attachments-api.ts: POST .../attachments links a receipt; DELETE /api/attachments/{id} removes. */
+  RecordAttachmentsPrefix: '/api/records/',
+  AttachmentsSuffix: '/attachments',
+  AttachmentPrefix: '/api/attachments/',
 });
-export const HttpMethods = Object.freeze({ Post: 'POST', Put: 'PUT' });
+export const HttpMethods = Object.freeze({ Post: 'POST', Put: 'PUT', Delete: 'DELETE' });
 /** The largest HTTP status that is a success. */
 export const MAX_SUCCESS_STATUS = 299;
 /** The MIME type of an .xlsx upload. */
@@ -155,6 +163,17 @@ export const Sel = Object.freeze({
   ContentSave: '[data-testid="content-save"] button',
   ContentSaved: '[data-testid="content-saved"]',
   PortalMain: 'main',
+  /** app-record-attachments (shared/record-attachments/record-attachments-keys.ts RecordAttachmentsTestIds.Type). */
+  AttachmentType: '[data-testid="record-attachments-type"]',
+  /** Inside one type section: the ng-dga file-upload control (dga-file-upload.component.html). */
+  AttachmentFileInput: 'input.dga-file-upload__input[type="file"]',
+  AttachmentRow: 'li.dga-file-upload__file',
+  AttachmentRowError: '.dga-file-upload__file-error',
+  AttachmentRowReference: '.dga-file-upload__reference-code',
+  AttachmentDownload: '.dga-file-upload__download button',
+  AttachmentRemove: '.dga-file-upload__remove button',
+  /** The widget's page-feedback banner message (dga-page-feedback.component.html). */
+  FeedbackMessage: '.dga-page-feedback__message',
 });
 
 /** Status-tag tones of a finished job run (features/admin/jobs/job-labels.ts: Succeeded success, Failed error). */
@@ -183,6 +202,36 @@ export const FlowData = Object.freeze({
   NewPasswordPrefix: 'E2e!Flow#',
   SettingDelta: 1,
 });
+
+/** dga-file-upload's row status attribute (DGA_FILE_UPLOAD_STATUS_NAMES). */
+export const AttachmentRowStatus = Object.freeze({ Attribute: 'data-status', Uploaded: 'uploaded', Failed: 'failed' });
+
+/**
+ * The attachment service's Codelab:Security:Uploads:MaxFileBytes (services/attachment-service/.../appsettings.json,
+ * 10 MiB). The oversized file is one byte more. A fork that lowers the limit still sees a refusal; one that raises it
+ * must raise this too, or the oversized step fails by being accepted.
+ */
+export const ATTACHMENT_MAX_FILE_BYTES = 10 * 1024 * 1024;
+/** The refusal code of a file over MaxFileBytes (shared/attachments/attachment-error-codes.ts FileTooLarge). */
+export const FILE_TOO_LARGE_CODE = 'ATTACHMENTS_FILE_TOO_LARGE';
+/**
+ * errors.ATTACHMENTS_FILE_TOO_LARGE in src/assets/i18n/{ar,en}.json: the row's error text of the refused file
+ * (tests/attachment-checks.test.mjs fails when a bundle changes and this copy does not).
+ */
+export const FileTooLargeTexts = Object.freeze({ ar: 'حجم الملف أكبر من الحجم المسموح به.', en: 'The file is larger than the allowed size.' });
+/** The PDF MIME type and the bytes the service's signature check reads (header first). */
+export const PDF_MIME = 'application/pdf';
+export const PDF_HEADER = '%PDF-1.7\n';
+export const PDF_TRAILER = '%%EOF\n';
+export const PDF_EXTENSION = '.pdf';
+/** The padding byte of the oversized file (a space: still a well-formed PDF comment area for the header check). */
+export const PDF_PADDING_BYTE = 0x20;
+/** Names of the flow's files: e2e-<token>.pdf (kept, then removed) and e2e-<token>-oversized-<lang>.pdf (refused). */
+export const AttachmentFileNames = Object.freeze({ Prefix: 'e2e-', OversizedInfix: '-oversized-' });
+/** The ticket header the browser sends to the attachment service (attachments-api.ts UPLOAD_TICKET_HEADER_PATTERN). */
+export const UPLOAD_TICKET_HEADER_PATTERN = /^x-[a-z][a-z0-9]*-upload-ticket$/i;
+/** A server reference code (Codelab.Observability ReferenceCode: 5 + 5 upper-case hex characters). */
+export const REFERENCE_CODE_PATTERN = /\b[0-9A-F]{5}-[0-9A-F]{5}\b/;
 
 /** The contact reference number: CU-YYYY-NNN (at least three digits). */
 export const CONTACT_REFERENCE_PREFIX = 'CU';

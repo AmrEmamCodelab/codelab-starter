@@ -57,7 +57,11 @@ Breaking changes are allowed before 1.0.0 but must be listed under **Changed** o
 
 ## Codelab.Security
 
-### [Unreleased] - 0.5.2
+### [Unreleased] - 0.6.0
+
+#### Added
+
+- `UploadContentTypes`: the one upload MIME allowlist (extension -> content type for every `FileSignatureSniffer.KnownSignatures` entry, `TryGetContentType` on a file name or extension), shared by the attachment service and the API. **Migration:** none.
 
 #### Fixed
 
@@ -341,6 +345,7 @@ values name this line. 1.0.0 itself is released in Phase 10.
   steps that emit `stepSelect` with a roving tabindex, `linear`, `compact`, and per-step `completed`, `invalid` and
   `disabled` with an `invalidLabel`. `DgaStepState` is now a constant object plus its type, with an `invalid` state.
   **Migration:** none for a progress-only stepper; string values `'completed' | 'current' | 'upcoming'` still match.
+- `dga-file-upload` carries the attachment flow: per-file state `DgaFileUploadStatus` is now an integer enum (`Queued = 0`, `Uploading = 1`, `Uploaded = 2`, `Failed = 3`; `Pending` is renamed `Queued`) with transition helpers in `file-upload-state.ts` (`queuedFileUpload`, `uploadingFileUpload`, `uploadedFileUpload`, `failedFileUpload`, `requeuedFileUpload`, `canMoveFileUpload`); items carry a `referenceCode` shown on failed rows after `referenceCodeLabel`; new inputs `statusLabels` (polite live-region announcements), `downloadable` + `downloadLabel`, `required` + `requiredLabel` + `missingText`, and `readonly`; outputs `download(item)` and `remove(item)` replace `removed(id)`. The client size pre-check is optional (`maxSizeBytes` null leaves the size to the server). `DgaFileRejectionReason` is an integer enum (`Type = 0`, `Size = 1`, `Empty = 2`, `Count = 3`). **Migration:** replace `DgaFileUploadStatus.Pending` with `.Queued`, compare statuses only through the constants, and bind `(remove)="handler($event.id)"` instead of `(removed)="handler($event)"`.
 
 ### [0.1.0] - prerelease only (Phase 2)
 

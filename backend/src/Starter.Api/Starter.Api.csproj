@@ -22,6 +22,11 @@
     <ProjectReference Include="..\Starter.Infrastructure\Starter.Infrastructure.csproj" />
   </ItemGroup>
 
+  <!-- The gitignored per-machine secrets (appsettings.*.local.json, tools/devseed/New-LocalSecrets.ps1) never reach a publish folder. -->
+  <ItemGroup>
+    <Content Update="appsettings.*.local.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
   <ItemGroup Label="Modules">
     <ProjectReference Include="..\Modules\Identity\Starter.Modules.Identity.csproj" />
     <ProjectReference Include="..\Modules\Access\Starter.Modules.Access.csproj" />
@@ -32,5 +37,6 @@
     <ProjectReference Include="..\Modules\Jobs\Starter.Modules.Jobs.csproj" />
     <ProjectReference Include="..\Modules\Notifications\Starter.Modules.Notifications.csproj" />
     <ProjectReference Include="..\Modules\Portal\Starter.Modules.Portal.csproj" />
+    <ProjectReference Include="..\Modules\Attachments\Starter.Modules.Attachments.csproj" />
   </ItemGroup>
 </Project>

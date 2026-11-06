@@ -1,0 +1,58 @@
+{
+  "kind": "codelab-flows",
+  "baseUrl": "http://localhost:4280",
+  "browserVersion": "156.0.4314.58",
+  "startedAt": "2026-11-06T19:54:58.175Z",
+  "finishedAt": "2026-11-06T19:55:05.140Z",
+  "passed": false,
+  "flows": [
+    {
+      "name": "attachments",
+      "status": "failed",
+      "steps": [
+        {
+          "title": "Admin signs in (en) and opens the attachments demo record",
+          "status": "passed",
+          "detail": "signed in as breakglass; /attachments/demo shows its attachment type",
+          "screenshot": "attachments-01.png"
+        },
+        {
+          "title": "Admin uploads e2e-6t195457544z.pdf: browser -> attachment service (ticket header) -> API link",
+          "status": "passed",
+          "detail": "service http://localhost:5185 took it (200, header x-starter-upload-ticket); API linked it (201)",
+          "screenshot": "attachments-02.png"
+        },
+        {
+          "title": "After a reload the record lists the PDF (read back from the API)",
+          "status": "passed",
+          "detail": "e2e-6t195457544z.pdf is listed as uploaded",
+          "screenshot": "attachments-03.png"
+        },
+        {
+          "title": "A file over MaxFileBytes is refused with the English text and a reference code",
+          "status": "passed",
+          "detail": "10485761 bytes refused by the service (413): \"The file is larger than the allowed size.\", reference code 65C67-9D98F",
+          "screenshot": "attachments-04.png"
+        },
+        {
+          "title": "The same refusal shows the Arabic text and a reference code",
+          "status": "passed",
+          "detail": "10485761 bytes refused by the service (413): \"حجم الملف أكبر من الحجم المسموح به.\", reference code FDE94-10ECB",
+          "screenshot": "attachments-05.png"
+        },
+        {
+          "title": "Admin downloads it and gets the same bytes",
+          "status": "failed",
+          "detail": "The download was refused: \"The server could not be reached. Check your connection and try again.\"",
+          "screenshot": "attachments-06.png"
+        },
+        {
+          "title": "Admin removes e2e-6t195457544z.pdf from the demo record",
+          "status": "passed",
+          "detail": "removed (204)",
+          "screenshot": "attachments-07.png"
+        }
+      ]
+    }
+  ]
+}

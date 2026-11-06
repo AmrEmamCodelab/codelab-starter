@@ -837,6 +837,154 @@ batches:
         target: 'reference/p5/p5-notifications/notifications-feed/'
         mode: copy
 
+  p6-fe-att-adapter:
+    description: 'Phase 6 input (owner: fe-att-adapter): the browser-side attachment upload and file-save helpers (patterns only; rewritten into the shared attachment adapter).'
+    entries:
+      - id: attachment-upload-util
+        source: 'frontend/modhs-web/src/app/shared/attachments/attachment-upload.util{,.spec}.ts'
+        target: 'reference/p6/fe-att-adapter/'
+        mode: copy
+      - id: file-save-util
+        source: 'frontend/modhs-web/src/app/shared/attachments/file-save.util{,.spec}.ts'
+        target: 'reference/p6/fe-att-adapter/'
+        mode: copy
+
+  p6-deploy-common:
+    description: 'Phase 6 input (owner: deploy-common): the deploy-kit install templates and deploy helpers behind deploy/kits/Install-Common.psm1 (patterns only; hosts, accounts, paths and product names are dropped).'
+    entries:
+      # Scripts only. The skill reference file and deploy/config/*.json stay hard-denied.
+      - id: install-templates
+        source: '.claude/skills/prep-deploy/templates/{Install-Api,Install-Web}.ps1'
+        target: 'reference/p6/deploy-common/templates/'
+        mode: copy
+      - id: deploy-helpers
+        source: 'deploy/{DeployConfig,archive-build,backup-database}.ps1'
+        target: 'reference/p6/deploy-common/helpers/'
+        mode: copy
+
+  p6-deploy-attachment-kit:
+    description: 'Phase 6 input (owner: deploy-attachment-kit): the attachment-service deploy and upload diagnosis scripts plus the API install template behind deploy/kits/Install-Attachment.ps1 (patterns only; hosts, accounts, paths and product names are dropped).'
+    entries:
+      # Scripts only. The skill reference file and deploy/config/*.json stay hard-denied.
+      - id: attachment-deploy
+        source: 'deploy/{deploy-attachment,diagnose-attachment-upload}.ps1'
+        target: 'reference/p6/deploy-attachment-kit/deploy/'
+        mode: copy
+      - id: install-template
+        source: '.claude/skills/prep-deploy/templates/Install-Api.ps1'
+        target: 'reference/p6/deploy-attachment-kit/templates/Install-Api.ps1'
+        mode: copy
+
+  p6-svc-core:
+    description: 'Phase 6 input (owner: svc-core): the attachment-service storage, extension validation, upload helpers, receipts and their tests, plus the multipart API doc and security advisories (patterns only; rewritten as Codelab.Attachments.Core).'
+    entries:
+      # Pattern extraction only: zip and loose-files multi-upload modes, base64-in-DB, the module enum, the GUID helper and the JWT/permission auth are left behind.
+      - id: storage
+        source: 'services/attachment-service/MODHS.Attachments.Infrastructure/{Implementations/LocalFileStorageService,Implementations/FileExtensionValidatorService,Interfaces/IFileStorageService,Interfaces/IFileExtensionValidatorService,Extensions/StorageServiceCollectionExtensions}.cs'
+        target: 'reference/p6/p6-svc-core/infrastructure/'
+        mode: copy
+      - id: business-logic
+        source: 'services/attachment-service/MODHS.Attachments.BusinessLogic/{Implementations/AttachmentService,Interfaces/IAttachmentService}.cs'
+        target: 'reference/p6/p6-svc-core/business-logic/'
+        mode: copy
+      - id: dtos
+        source: 'services/attachment-service/MODHS.Attachments.DTOs/{ApplicationSettings/AppSettings,ApplicationSettings/FileStorage,Constants/AttachmentPolicies,Exceptions/AttachmentNotFoundException,Exceptions/UploadValidationException,Records/AttachmentMetadata,Records/StagedUploadFile,Records/StoredFileInfoDto,UploadErrorResponse}.cs'
+        target: 'reference/p6/p6-svc-core/dtos/'
+        mode: copy
+      - id: upload-helper
+        source: 'services/attachment-service/MODHS.Attachments.Utilities/Helpers/UploadHelper.cs'
+        target: 'reference/p6/p6-svc-core/utilities/'
+        mode: copy
+      - id: docs
+        source: 'services/attachment-service/{README.md,docs/multipart-upload-api.md}'
+        target: 'reference/p6/p6-svc-core/docs/'
+        mode: copy
+      - id: context
+        source: '{attachment_handling.md,ProjectContext/09-attachments.md}'
+        target: 'reference/p6/p6-svc-core/context/'
+        mode: copy
+      - id: tests
+        source: 'services/attachment-service/tests/MODHS.Attachments.Tests/{FileExtensionValidatorServiceTests,LocalFileStorageServiceTests,MultipartUploadServiceTests,ReceiptSignerTests,UploadHelperTests,Testing/TempStorageFixture,Testing/TestFiles,Testing/MultipartFormDataBuilder}.cs'
+        target: 'reference/p6/p6-svc-core/tests/'
+        mode: copy
+
+  p6-svc-host:
+    description: 'Phase 6 input (owner: svc-host): the attachment-service HTTP host (controllers, multipart helper, form-binding filter, IIS Web.config, Program.cs), its controller, authorization-coverage and registration tests, the multipart API doc and the README security advisories (patterns only; rewritten as Codelab.Attachments.Api).'
+    entries:
+      # Pattern extraction only: JWT bearer auth, X-Api-Key, the permission handler and the local correlation-id, exception-handler, security-headers and failure-classification copies are left behind (Codelab.Observability/Errors/Security own them).
+      - id: host
+        source: 'services/attachment-service/MODHS.Attachments.API/{Program.cs,Web.config,Properties/launchSettings.json,appsettings.json}'
+        target: 'reference/p6/p6-svc-host/host/'
+        mode: copy
+      - id: controllers
+        source: 'services/attachment-service/MODHS.Attachments.API/Controllers/{AttachmentController,UploadController}.cs'
+        target: 'reference/p6/p6-svc-host/controllers/'
+        mode: copy
+      - id: multipart
+        source: 'services/attachment-service/MODHS.Attachments.API/{Helpers/MultipartRequestHelper,Filters/DisableFormValueModelBindingAttribute,Extensions/ServiceCollectionExtensions}.cs'
+        target: 'reference/p6/p6-svc-host/multipart/'
+        mode: copy
+      - id: tests
+        source: 'services/attachment-service/tests/MODHS.Attachments.Tests/{AttachmentControllerTests,ControllerAuthorizationCoverageTests,ApiServiceCollectionExtensionsTests}.cs'
+        target: 'reference/p6/p6-svc-host/tests/'
+        mode: copy
+      - id: docs
+        source: 'services/attachment-service/{README.md,docs/multipart-upload-api.md}'
+        target: 'reference/p6/p6-svc-host/docs/'
+        mode: copy
+      - id: advisories
+        source: 'attachment_handling.md'
+        target: 'reference/p6/p6-svc-host/context/'
+        mode: copy
+
+  p6-be-att-core:
+    description: 'Phase 6 input (owner: be-att-core): the typed attachment metadata service, the receipt policy, the per-file metadata rules and their tests (patterns only; base64-in-DB attachments, the dual-source DTO, untyped uploads and source-product attachment types are left behind).'
+    entries:
+      - id: application
+        source: 'backend/MODHS.Application/Attachments/{ServiceAttachmentService,ServiceAttachmentMetadataValidator,TypedAttachmentUploads,AttachmentUploadReceipts,AttachmentUploadLimits,RecordAttachmentsResult,IServiceAttachmentService}.cs'
+        target: 'reference/p6/p6-be-att-core/application/'
+        mode: copy
+      - id: tests
+        source: 'backend/MODHS.Application.Tests/{ServiceAttachmentServiceTests,AttachmentReceiptIntegrityTests,ServiceAttachmentDownloadTests}.cs'
+        target: 'reference/p6/p6-be-att-core/tests/'
+        mode: copy
+      - id: context-attachments
+        source: 'ProjectContext/09-attachments.md'
+        target: 'reference/p6/p6-be-att-core/context/09-attachments.md'
+        mode: copy
+
+  p6-be-att-infra:
+    description: 'Phase 6 input (owner: be-att-infra): the attachment storage client adapter, the offline receipt verifier, the attachment EF configurations and repository, the retention sweep and their tests (patterns only; the JWT service token, the base64 download envelope, the relayed upload and the source-product module/folder ids are left behind).'
+    entries:
+      - id: api-adapters
+        source: 'backend/MODHS.Api/Services/{AttachmentStorageClient,AttachmentReceiptVerifier}.cs'
+        target: 'reference/p6/p6-be-att-infra/api/'
+        mode: copy
+      - id: api-adapter-tests
+        source: 'backend/MODHS.Api.Tests/{AttachmentStorageClientTests,AttachmentReceiptVerifierTests}.cs'
+        target: 'reference/p6/p6-be-att-infra/tests/'
+        mode: copy
+      - id: persistence
+        source: 'backend/MODHS.Infrastructure/{Repositories/ServiceAttachmentRepository,Data/Configurations/ServiceAttachmentConfiguration,Data/Configurations/RequestServiceAttachmentConfiguration}.cs'
+        target: 'reference/p6/p6-be-att-infra/persistence/'
+        mode: copy
+      - id: retention
+        source: 'backend/MODHS.Application/Attachments/AttachmentRetentionService.cs'
+        target: 'reference/p6/p6-be-att-infra/application/'
+        mode: copy
+
+  p6-fe-att-widget:
+    description: 'Phase 6 input (owner: fe-att-widget): the request-detail attachments card and the requester attachments section (patterns only; rewritten into the generalized record-attachments widget).'
+    entries:
+      - id: request-attachments-card
+        source: 'frontend/modhs-web/src/app/shared/request-detail-cards/attachments/request-attachments.component{.ts,.html}'
+        target: 'reference/p6/fe-att-widget/'
+        mode: copy
+      - id: attachments-section
+        source: 'frontend/modhs-web/src/app/features/requester/request-detail/attachments/attachments-section.component{.ts,.html}'
+        target: 'reference/p6/fe-att-widget/'
+        mode: copy
+
 secretDigests:
   # Values found here are hashed (SHA-256) into tools/extract/secret-digests.json; the values are never stored.
   output: 'tools/extract/secret-digests.json'

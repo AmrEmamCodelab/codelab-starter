@@ -57,3 +57,4 @@ could not be read. The tool needs no local secrets file and no SQL Server.
 - An options class whose only bindable member is a get-only collection (for example `Identity:DevUsers`) is documented
   as an array at the section root, because that is how the module binds it.
 - Health endpoints map plain request delegates, so their owner shows as `Platform` and their method as `ANY`.
+- Settings a module validates on start must be supplied by `DocsHostSettings` as plain keys (no module types). Phase 6: `Attachments:ServiceBaseUrl` (an unreachable `https://attachments.invalid`) and a throwaway `Codelab:Security:ServiceAssertions:Client` with a P-256 key generated per run; DocsGen never calls the service.

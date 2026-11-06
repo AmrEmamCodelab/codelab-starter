@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Codelab.Attachments.Core/Codelab.Attachments.Core.csproj" />
+    <Project Path="src/Codelab.Attachments.Api/Codelab.Attachments.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Codelab.Attachments.Core.Tests/Codelab.Attachments.Core.Tests.csproj" />
+    <Project Path="tests/Codelab.Attachments.Api.Tests/Codelab.Attachments.Api.Tests.csproj" />
+  </Folder>
+</Solution>

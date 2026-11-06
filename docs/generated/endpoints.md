@@ -43,6 +43,10 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | POST | `/api/admin/users/{id:publicid}/deactivate` | permission `users.manage` | Users | Deactivates the account; its open sessions answer 401 from their next call. |
 | POST | `/api/admin/users/{id:publicid}/reactivate` | permission `users.manage` | Users | Reactivates the account. |
 | POST | `/api/admin/users/{id:publicid}/unlock` | permission `users.manage` | Users | Ends a lockout. |
+| GET | `/api/attachments/demo-record` | permission `attachments.view` | Attachments | The Development demo record the attachments demo page works on; 404 `ATTACHMENTS_RECORD_TYPE_UNKNOWN` when the demo record type is not registered (every environment but Development). |
+| GET | `/api/attachments/types` | permission `attachments.view` | Attachments | The active attachment types of one record type, ordered by key; 404 for an unknown record type. |
+| DELETE | `/api/attachments/{id:publicid}` | permission `attachments.remove` | Attachments | Removes an attachment (soft; the bytes are deleted later through the outbox): 204, or 404 for a missing or removed attachment or a record the user may not change. |
+| GET | `/api/attachments/{id:publicid}/content` | permission `attachments.view` | Attachments | The file (`Content-Disposition: attachment`, nosniff); 404 for a missing or removed attachment, a record the user may not view, or bytes the service no longer has; 503 when the service is unreachable. |
 | POST | `/api/auth/activate` | anonymous (allowlisted) | Identity | Sets the account's password from an activation link; the link is spent. |
 | POST | `/api/auth/ad/login` | anonymous (allowlisted) | Identity | Signs in with a directory user name and password. |
 | POST | `/api/auth/login` | anonymous (allowlisted) | Identity | Signs in with a user name and password. |
@@ -62,6 +66,9 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | POST | `/api/notifications/{id:publicid}/read` | authenticated (allowlisted) | Notifications | Marks one of the caller's notifications read (idempotent). |
 | POST | `/api/portal/contact-messages` | anonymous (allowlisted) | Portal | Stores a contact message and answers its reference number (201), the field errors (400), 409 while an administrator has switched the form off, or 429. |
 | GET | `/api/portal/content/{page}` | anonymous (allowlisted) | Portal | One page's content; 404 for an unknown page key. |
+| GET | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.view` | Attachments | The record's live attachments and the required types it still misses; 404 for an unknown or hidden record. |
+| POST | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.upload` | Attachments | Links an uploaded file to the record by its receipt (201 with the attachment); 400 for an invalid, tampered or foreign receipt or an extension the type refuses, 404, or 409 when the type is full. |
+| POST | `/api/records/{recordType}/{recordId:publicid}/attachments/upload-ticket` | permission `attachments.upload` | Attachments | A sealed, single-use ticket to upload files of one type straight to the attachment service; 400, 404, or 409 when the record already holds the type's most files. |
 | GET | `/api/security/session-signing-key` | authenticated (allowlisted) | Codelab.Security |  |
 | ANY | `/health/live` | anonymous (allowlisted) | Platform |  |
 | ANY | `/health/ready` | anonymous (allowlisted) | Platform |  |

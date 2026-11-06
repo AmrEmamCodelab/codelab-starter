@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// run-local v1: starts the local stack (secrets, LocalDB, optional Seq, the API on :5180 and the web app on :4280),
-// health-checks it and prints the URLs and the break-glass user; --stop stops only the PIDs it recorded under
-// %TEMP%\codelab-starter. It never installs or deletes anything. run-local.ps1 at the repo root wraps it.
+// run-local v1: starts the local stack (secrets, LocalDB, optional Seq, the API on :5180, the Attachment service on
+// :5185 and the web app on :4280), health-checks it and prints the URLs and the break-glass user; --stop stops only
+// the PIDs it recorded under %TEMP%\codelab-starter. It never installs or deletes anything. run-local.ps1 at the repo
+// root wraps it.
 //
-// Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--root <dir>]
+// Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--no-attachments] [--root <dir>]
 // Exit codes: 0 ok, 1 refused or failed, 2 usage.
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';

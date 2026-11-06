@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    Codelab.Attachments.Api: the attachment service host, a separate deployable (IIS child application or Kestrel).
+    Program.cs wires the Codelab packages (Observability, Errors, Security) and Codelab.Attachments.Core; the
+    endpoints and the two authentication schemes (the S2S service assertion and the one-time upload ticket) live in
+    Endpoints/ and Authentication/. See services/attachment-service/MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.Attachments.Api</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- The rules engine emits the module files at the service root (services/attachment-service/module.rules.yaml). -->
+    <CodelabProjectBannedSymbolsFile>../../BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
+    <CodelabProjectCodeMetricsFile>../../CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Observability" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Attachments.Core\Codelab.Attachments.Core.csproj" />
+  </ItemGroup>
+
+  <!--
+    The gitignored per-machine secrets (appsettings.*.local.json, written by tools/devseed/New-LocalSecrets.ps1: the
+    ticket and receipt key rings, the trusted S2S keys) must never reach a publish folder, a zip or a handover kit.
+  -->
+  <ItemGroup>
+    <Content Update="appsettings.*.local.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.Attachments.Api.Tests" />
+  </ItemGroup>
+</Project>

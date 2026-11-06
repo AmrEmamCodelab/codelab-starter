@@ -1,0 +1,14 @@
+<app-requester-detail-pattern
+  [titleKey]="keys.Title"
+  [loading]="loading()"
+  [error]="error()"
+  [translatedCodes]="translatedCodes()"
+  (retry)="load()"
+>
+  <p detailSummary class="attachments-demo__intro">{{ keys.Intro | t }}</p>
+  @if (record(); as demo) {
+    <div detailAttachments>
+      <app-record-attachments [recordType]="demo.recordType" [recordId]="demo.recordId" />
+    </div>
+  }
+</app-requester-detail-pattern>

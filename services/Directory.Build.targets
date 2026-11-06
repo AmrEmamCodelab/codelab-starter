@@ -1,0 +1,26 @@
+<Project>
+  <!--
+    Build targets for the separately released services. Imports the repo-root Directory.Build.targets first
+    (Codelab.Build.Sdk targets), then adds CodelabPackageReference items exactly as backend/ does (ADR-002):
+
+      <CodelabPackageReference Include="Codelab.Security" />
+
+    becomes a ProjectReference to packages/dotnet/<Id>/<Id>.csproj while UseCodelabPackageSource=true (the starter
+    monorepo), or a PackageReference from the feed (version pinned in Directory.Packages.props) when it is false (feed
+    mode, every fork after init.ps1 removed packages/). Services are not module hosts, so the backend's module
+    discovery target is not repeated here.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <CodelabPackageSourceDirectory>$(CodelabRepoRoot)packages\dotnet\</CodelabPackageSourceDirectory>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseCodelabPackageSource)' == 'true'">
+    <ProjectReference Include="@(CodelabPackageReference->'$(CodelabPackageSourceDirectory)%(Identity)\%(Identity).csproj')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseCodelabPackageSource)' != 'true'">
+    <PackageReference Include="@(CodelabPackageReference)" />
+  </ItemGroup>
+</Project>

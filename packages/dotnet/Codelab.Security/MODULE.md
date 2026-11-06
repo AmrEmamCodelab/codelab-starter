@@ -50,7 +50,7 @@ Everyday calls:
 - **Signing markers:** `.WithSignatureExemption(SignatureExemption.WholeRequest, "why")` on anonymous endpoints, `BodyOnly` on multipart uploads, `.WithUnsignedResponse("why")` on file downloads (attributes for MVC).
 - **Revocation:** logout calls `ISessionRevocationStore.RevokeAsync(new SessionRevocation(sid, sessionExpiry))`; password change, deactivation and permission changes call `ISessionVersionStore.BumpAsync(userId)`.
 - **Tickets:** `ISealedTicketService.Seal(new TicketRequest(purpose, subject, lifetime))` and `OpenAsync(purpose, token)`; a ticket opens once.
-- **Uploads:** `FileSignatureSniffer`, `FileNames.SafeLeafName` / `TryResolveWithin`, `UploadCapCounter`, `UploadDigest`, `IUploadReceiptSigner`.
+- **Uploads:** `FileSignatureSniffer`, `FileNames.SafeLeafName` / `TryResolveWithin`, `UploadCapCounter`, `UploadDigest`, `IUploadReceiptSigner`, `UploadContentTypes` (the one MIME allowlist).
 - **Purge hook:** the P5 jobs module runs `SecurityStorePurgeJob.RunAsync` (key `codelab-security-store-purge`) on its own schedule; the package schedules nothing.
 - **SQL schema:** `SecuritySqlSchema.EnsureCreatedAsync` runs on start when a store is `SqlServer`; the DBA copy ships in the package as `sql/codelab-security-stores.sql` (idempotent).
 
@@ -58,7 +58,7 @@ Everyday calls:
 - **A new signed construction** (a token or a MAC): add a profile constant and build its bytes with `CanonicalFraming`, never by concatenation. Bind the protocol prefix (take a `SecurityProtocol`), derive keys with HKDF over a framed info, and register its options with a validator that calls `KeyRingGuard.Check`.
 - **A new replay-protected family:** call `IReplayGuard.TryConsumeAsync(new ReplayNonce(scope, nonce, expiresAt))` with a scope prefix of its own (`ticket/`, `s2s/`) and treat `StoreUnavailable` as a refusal.
 - **A new store with expiring rows:** implement `IExpiredEntryPurger` and register it; the purge job picks it up. Add its table to `Storage/Sql/codelab-security-stores.sql` behind an `IF OBJECT_ID(...) IS NULL` guard (never alter or drop).
-- **A new upload type:** add its magic bytes to `FileSignatureSniffer.KnownSignatures`, then allow it in `Codelab:Security:Uploads:AllowedExtensions`.
+- **A new upload type:** add its magic bytes to `FileSignatureSniffer.KnownSignatures`, then allow it in `Codelab:Security:Uploads:AllowedExtensions`, and add its content type to `UploadContentTypes.ByExtension` (a test fails otherwise).
 - **Golden vectors (wave 3):** generate them with the public API (`SecurityProtocol.Create`, `CanonicalFraming`, `SignatureCanonicalForm`, `HmacSignature`, `SessionKeyDerivation`, `PublicIdKeyring` + `PublicIdCodec`). Fixture keys go on the denylist through `PublishedMaterial/published-material.fixtures.json` in the file format described under Rules.
 - Every public type change updates `PublicAPI.Unshipped.txt` (RS0016/RS0017 fail the build otherwise).
 

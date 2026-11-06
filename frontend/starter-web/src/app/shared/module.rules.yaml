@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: WebShared
 kind: angular
-description: "Starter web shared building blocks used by two or more features that are neither page patterns nor ng-dga components: the *hasPermission structural directive and its matching helper. Shared imports only core and @codelab/ng-dga (ESLint boundaries)."
+description: "Starter web shared building blocks used by two or more features that are neither page patterns nor ng-dga components: the *hasPermission structural directive and its matching helper, the app-wired attachment adapter (attachments/) over core ApiService, and the app-record-attachments widget (record-attachments/) over the attachments adapter. Shared imports only core and @codelab/ng-dga (ESLint boundaries)."
 mayDependOn: []
 mustNotDependOn: []

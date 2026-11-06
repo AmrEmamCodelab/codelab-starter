@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Attachments module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs, written to
+# the module anatomy. After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Attachments
+kind: dotnet
+description: "Attachments (module 13): the attachment type catalog (ServiceAttachment, seeded by migration) and typed links of files to any record (RecordAttachment) in schema attachments; sealed upload tickets for the browser, receipt-verified links, downloads and removals relayed to the attachment service over the ES256 service assertion, and the required-attachments interlock (IRequiredAttachments)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+mustNotDependOn: [Identity, Users, Access, Lookups, Audit, Settings, Jobs, Notifications, Portal]
+required:
+  - id: attachments.thin-endpoints
+    statement: Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with an AttachmentsPermissionKeys constant and maps the Outcome with OutcomeResults; ids on the wire are PublicId<AttachmentIds> and PublicId<AttachableRecordIds>.
+    enforcedBy: [contract-test, review]
+  - id: attachments.data-through-ports
+    statement: Application code reads and writes data only through ports it declares (IAttachmentStore, IAttachmentReceiptVerifier, IAttachmentStorageClient, IAttachmentFileCleanup, IUploadTicketIssuer); the implementations live in Infrastructure.
+    enforcedBy: [architecture-test, review]
+  # Tested by AttachableRecordsTests and every use case's access-denied tests.
+  - id: attachments.record-access-gate
+    statement: Every use case that touches a record's attachments passes AttachableRecords.RefuseAsync (View for list and download, Change for ticket, link and remove) before reading or writing; a missing record and a denied one answer the same 404 (ATTACHMENTS_NOT_FOUND).
+    enforcedBy: [review]
+  # Tested by LinkUploadedFileTests (tampered, foreign-scope, idempotent).
+  - id: attachments.receipt-only-metadata
+    statement: A link stores only what IAttachmentReceiptVerifier verified (file id, name, size, SHA-256; MIME type from the extension) after the receipt scope equals UploadScopes.For(record, type, user); never a client-sent hash, size or name.
+    enforcedBy: [review]
+  - id: attachments.types-seeded-by-migrations
+    statement: Attachment types are created and changed only by a migration (docs/recipes/add-attachment-type.md) with an id from Starter.Domain.Attachments.AttachmentTypeIds and a key from AttachmentTypeKeys; their extensions stay inside Codelab:Security:Uploads AllowedExtensions (AttachmentTypeCatalog.FindViolations at start).
+    enforcedBy: [review]
+  - id: attachments.cleanup-after-save
+    statement: A removal is soft and saved first; the deletion of the bytes is enqueued afterwards through IAttachmentFileCleanup (outbox type attachments.delete-file), never called inline.
+    enforcedBy: [review]
+forbidden:
+  - id: attachments.no-module-reference
+    description: Record types plug in through the kernel port IAttachableRecordAccess; a reference to another module couples them and breaks removing one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Users|Access|Lookups|Audit|Settings|Jobs|Notifications|Portal)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (the owning module implements IAttachableRecordAccess and registers it).
+  - id: attachments.no-file-bytes-in-database
+    description: File bytes live only on the attachment service; a byte[] or base64 column in this module brings back the in-database attachments the starter left behind.
+    pattern: '\bbyte\[\]\s+(?:Content|File|Bytes|Data)\b|\bFileBase64\b'
+    appliesTo: ["**/*.cs"]
+    fix: Store the file on the attachment service and keep only its receipt-verified metadata in RecordAttachment.
+  - id: attachments.no-has-data
+    description: Attachment types are seeded by explicit migration InsertData calls, never by HasData in the model.
+    pattern: '[.]HasData\('
+    appliesTo: ["**/*.cs"]
+    fix: Seed the type in a migration as docs/recipes/add-attachment-type.md shows.
+recipes: [docs/recipes/add-attachment-type.md, docs/recipes/add-endpoint.md]

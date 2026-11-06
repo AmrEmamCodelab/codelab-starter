@@ -1680,6 +1680,925 @@
       "exemptions": []
     },
     {
+      "module": "Attachments",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Attachments",
+      "rulesFile": "backend/src/Modules/Attachments/module.rules.yaml",
+      "description": "Attachments (module 13): the attachment type catalog (ServiceAttachment, seeded by migration) and typed links of files to any record (RecordAttachment) in schema attachments; sealed upload tickets for the browser, receipt-verified links, downloads and removals relayed to the attachment service over the ES256 service assertion, and the required-attachments interlock (IRequiredAttachments).",
+      "owners": [
+        "@platform-owner"
+      ],
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Users",
+        "Access",
+        "Lookups",
+        "Audit",
+        "Settings",
+        "Jobs",
+        "Notifications",
+        "Portal"
+      ],
+      "required": [
+        {
+          "id": "base.thin-controllers",
+          "source": "base",
+          "statement": "Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access.",
+          "enforcedBy": [
+            "architecture-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.application-ports-only",
+          "source": "base",
+          "statement": "Application code depends only on Domain types and ports (interfaces); it never references EF Core, DbContext or infrastructure types.",
+          "enforcedBy": [
+            "architecture-test",
+            "hook"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.module-boundaries",
+          "source": "base",
+          "statement": "A module references another module only when listed in its mayDependOn, and never one listed in mustNotDependOn.",
+          "enforcedBy": [
+            "architecture-test",
+            "eslint"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.endpoint-contract",
+          "source": "base",
+          "statement": "Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.lookups-via-migrations",
+          "source": "base",
+          "statement": "Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "base.platform-owner-review",
+          "source": "base",
+          "statement": "Changes to rules/, packages/, .claude/, the exemptions of any module.rules.yaml, deploy/, .github/, docs/adr/, provenance/, tools/extract/, tools/build.ps1 and the repo-wide build settings need platform-owner review.",
+          "enforcedBy": [
+            "codeowners",
+            "hook"
+          ]
+        },
+        {
+          "id": "base.enums-as-int",
+          "source": "base",
+          "statement": "Enums are stored and sent as integers and every enum member has an explicit numeric value (Approved = 3), so reordering never changes stored data; labels come from i18n, never from enum names.",
+          "enforcedBy": [
+            "hook",
+            "analyzer"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.no-magic-values",
+          "source": "base",
+          "statement": "Status ids, role keys, permission keys, error codes, config keys, claim types, route names, cache keys, job ids and limits live in typed constants or options classes; numeric literals other than the allowed ones need a named constant.",
+          "enforcedBy": [
+            "hook",
+            "analyzer",
+            "eslint"
+          ],
+          "availableFrom": "P1",
+          "settings": {
+            "allowedNumbers": [
+              -1,
+              0,
+              1
+            ],
+            "excludeTests": true
+          }
+        },
+        {
+          "id": "base.clean-code",
+          "source": "base",
+          "statement": "Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.",
+          "enforcedBy": [
+            "analyzer",
+            "review"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.unit-tests-mandatory",
+          "source": "base",
+          "statement": "Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.",
+          "enforcedBy": [
+            "scaffold",
+            "commit-gate",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-ui-library",
+          "source": "base",
+          "statement": "Screens are built only from @codelab/ng-dga components and the 8 page patterns.",
+          "enforcedBy": [
+            "eslint",
+            "hook",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-no-raw-text",
+          "source": "base",
+          "statement": "No user-visible raw text in templates or components; every string is an i18n key present in both ar and en.",
+          "enforcedBy": [
+            "i18n-check",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-tokens-logical-css",
+          "source": "base",
+          "statement": "Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.",
+          "enforcedBy": [
+            "stylelint",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-permission-gated",
+          "source": "base",
+          "statement": "Every route and every action button is gated by a typed permission key (base.fe-routes-gated, base.fe-buttons-gated); the backend endpoint behind it carries [HasPermission] with the same key. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "scaffold",
+            "review"
+          ],
+          "availableFrom": "P3"
+        },
+        {
+          "id": "base.fe-routes-gated",
+          "source": "base",
+          "statement": "Every route that renders a page (component or loadComponent) carries data.permission (RouteDataKeys.Permission, a generated PermissionKeys value) on itself or an ancestor, with permissionGuard() (tagged with Symbol.for('codelab.ng-tools.permission-guard'); an untagged guard fails as missing-guard) on itself or an ancestor, or its full path is in PUBLIC_ROUTE_PATHS (src/app/public-routes.ts); redirects are exempt and every lazily loaded child table is passed to the route-gates spec. Fix: add data: { [RouteDataKeys.Permission]: PermissionKeys.<Key> } or, for a page every visitor may open, the public path. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/**/*.routes.ts",
+            "frontend/starter-web/src/app/app.routes.ts"
+          ]
+        },
+        {
+          "id": "base.fe-buttons-gated",
+          "source": "base",
+          "statement": "Every action element (a <dga-button>; a <button> with any event binding, a submit button or a typeless one in a submitting form; a role=button element with an event binding; any element binding (click) or (confirm), such as a dialog host) in features/**/*.html and in the inline templates of features/**/*.ts carries *hasPermission=\"PermissionKeys.<Key>\" (on itself, on an ancestor element, or [hasPermission] on an <ng-template> wrapper) or an explicit data-public-action for an action every visitor may take. Fix: add the directive with a generated key, or data-public-action. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/features/**/*.html",
+            "frontend/starter-web/src/app/features/**/*.ts"
+          ]
+        },
+        {
+          "id": "attachments.thin-endpoints",
+          "source": "module",
+          "statement": "Every endpoint is a thin controller action in Api/ that calls one Application use case, carries [HasPermission] with an AttachmentsPermissionKeys constant and maps the Outcome with OutcomeResults; ids on the wire are PublicId<AttachmentIds> and PublicId<AttachableRecordIds>.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachments.data-through-ports",
+          "source": "module",
+          "statement": "Application code reads and writes data only through ports it declares (IAttachmentStore, IAttachmentReceiptVerifier, IAttachmentStorageClient, IAttachmentFileCleanup, IUploadTicketIssuer); the implementations live in Infrastructure.",
+          "enforcedBy": [
+            "architecture-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachments.record-access-gate",
+          "source": "module",
+          "statement": "Every use case that touches a record's attachments passes AttachableRecords.RefuseAsync (View for list and download, Change for ticket, link and remove) before reading or writing; a missing record and a denied one answer the same 404 (ATTACHMENTS_NOT_FOUND).",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "attachments.receipt-only-metadata",
+          "source": "module",
+          "statement": "A link stores only what IAttachmentReceiptVerifier verified (file id, name, size, SHA-256; MIME type from the extension) after the receipt scope equals UploadScopes.For(record, type, user); never a client-sent hash, size or name.",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "attachments.types-seeded-by-migrations",
+          "source": "module",
+          "statement": "Attachment types are created and changed only by a migration (docs/recipes/add-attachment-type.md) with an id from Starter.Domain.Attachments.AttachmentTypeIds and a key from AttachmentTypeKeys; their extensions stay inside Codelab:Security:Uploads AllowedExtensions (AttachmentTypeCatalog.FindViolations at start).",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "attachments.cleanup-after-save",
+          "source": "module",
+          "statement": "A removal is soft and saved first; the deletion of the bytes is enqueued afterwards through IAttachmentFileCleanup (outbox type attachments.delete-file), never called inline.",
+          "enforcedBy": [
+            "review"
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "base.time-provider",
+          "source": "base",
+          "description": "Reading the system clock directly makes time untestable.",
+          "pattern": "\\bDateTime(?:Offset)?\\.(?:Now|UtcNow|Today)\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-thread-sleep",
+          "source": "base",
+          "description": "Thread.Sleep blocks a thread and makes waits untestable; it is also a global banned API (RS0030) in Codelab.Build.Sdk.",
+          "pattern": "\\bThread[.]Sleep\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-scheduler-dashboard-mapping",
+          "source": "base",
+          "description": "The Hangfire dashboard exposes enqueue, delete and requeue of every job behind its own authorization; the starter never maps it.",
+          "pattern": "\\bUseHangfireDashboard\\b|\\bMapHangfireDashboard\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use the admin Jobs endpoints (jobs.view, jobs.run) and the log.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-static-scheduler-storage",
+          "source": "base",
+          "description": "Static Hangfire storage hides the database from DI and from tests; the storage comes from the JobStorage singleton of SchedulerRegistration.",
+          "pattern": "\\bUseSqlServerStorage\\b|\\bJobStorage[.]Current\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Resolve JobStorage from DI (SchedulerRegistration.AddJobScheduler registers it).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-opt-out",
+          "source": "base",
+          "description": "Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).",
+          "pattern": "<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\\b[^>]*>\\s*(?!true\\s*<)|<EnableNETAnalyzers\\b[^>]*>\\s*(?!true\\s*<)|<AnalysisLevel\\w*\\b[^>]*>[^<]*\\bnone\\b|<AnalysisMode\\w*\\b[^>]*>\\s*none\\b|<NoWarn>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable\\b[^\\r\\n]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|dotnet_diagnostic\\.(?:RS0030|CA1502|CLB\\d{4})\\.severity\\s*=\\s*(?:none|silent|suggestion)|SuppressMessage\\([^)]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable[ \\t]*(?://[^\\r\\n]*)?(?:\\r?\\n|$)|dotnet_analyzer_diagnostic\\.(?:category-[\\w.-]+\\.)?severity\\s*=\\s*(?:none|silent|suggestion)|\\bgenerated_code\\s*=\\s*true|<TreatWarningsAsErrors>\\s*false|<WarningsNotAsErrors>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|<RunAnalyzers(?:DuringBuild)?>\\s*false",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-inline-suppression",
+          "source": "base",
+          "description": "An inline suppression (a pragma, with or without a space after the '#'; the SuppressMessage attribute named anywhere, so an alias such as 'using SM = ...SuppressMessageAttribute' is caught too; a unicode escape outside a string or comment, which could spell that name; a NoWarn or WarningsNotAsErrors entry; WarningLevel 0; or a diagnostic severity set to none, silent or suggestion) switches an analyzer off without platform-owner review.",
+          "pattern": "#\\s*pragma\\s+warning\\s+disable\\b|\\b(?:Unconditional)?SuppressMessage(?:Attribute)?\\b|^[^\"'/\\r\\n]*\\\\[uU][0-9a-fA-F]{4}|<WarningLevel\\b[^>]*>\\s*0\\s*<|<NoWarn\\b[^>]*>(?!\\s*(?:\\$\\(NoWarn\\)\\s*;?\\s*)?<)|<WarningsNotAsErrors\\b[^>]*>(?!\\s*(?:\\$\\(WarningsNotAsErrors\\)\\s*;?\\s*)?<)|dotnet_diagnostic\\.[\\w-]+\\.severity\\s*=\\s*(?:none|silent|suggestion)\\b",
+          "flags": "im",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "*/**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*",
+            "rules/codelab.globalconfig",
+            "backend/src/Modules/Attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Fix the code. A justified suppression is a module.rules.yaml `analyzers` severity (generated into the module .editorconfig) or an `exemptions` entry, both reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-config-redirect",
+          "source": "base",
+          "description": "A CodeAnalysisRuleSet, GlobalAnalyzerConfigFiles, EditorConfigFiles, AdditionalFiles or Analyzer item in a project file points the analyzers at configuration (or a suppressor) that no platform owner reviewed, so it can switch any diagnostic off.",
+          "pattern": "<(?:CodeAnalysisRuleSet\\w*|GlobalAnalyzerConfigFiles|EditorConfigFiles|AnalyzerConfigFiles|AdditionalFiles|Analyzer)\\b|\\bOutputItemType\\s*=\\s*\"\\s*Analyzer\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*"
+          ],
+          "fix": "Remove the item. Analyzer severities and thresholds come from the module.rules.yaml (generated into the module .editorconfig); a new analyzer or analyzer config is a platform-owner change to Codelab.Build.Sdk.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ruleset-file",
+          "source": "base",
+          "description": "A .ruleset file can set any diagnostic to Action=\"None\"; the starter configures analyzers only through the rules engine, so no ruleset may exist.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ruleset"
+          ],
+          "excludes": [],
+          "fix": "Delete the file. Set analyzer severities in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-lint-suppression",
+          "source": "base",
+          "description": "An eslint, stylelint or TypeScript suppression comment (eslint-disable, an inline eslint config, stylelint-disable, @ts-ignore, @ts-nocheck) switches a frontend gate off without platform-owner review.",
+          "pattern": "eslint-disable|eslint-enable|/\\*\\s*eslint\\s|stylelint-disable|@ts-ignore|@ts-nocheck",
+          "flags": "",
+          "appliesTo": [
+            "frontend/**/*.ts",
+            "frontend/**/*.html",
+            "frontend/**/*.scss"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/node_modules/**",
+            "frontend/starter-web/lint-fixtures/**",
+            "frontend/starter-web/tools/README.md"
+          ],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-editorconfig",
+          "source": "base",
+          "description": "A nested .editorconfig applies to every file below it, so a hand-written one can switch analyzers off or change thresholds for part of a module; the only nested ones are those the rules engine emits at each module root.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "*/**/.editorconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "backend/src/Modules/Attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Delete the file. Set analyzer severities and thresholds in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-fixture-gate-opt-out",
+          "source": "base",
+          "description": "CodelabFixtureGateOptOut lets a build switch the quality gates off without CODELAB002; only the SDK's own fixture builds may pass it.",
+          "pattern": "\\bCodelabFixtureGateOptOut\\b",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/*.rsp",
+            "**/*.ps1",
+            "**/*.mjs",
+            "**/*.json"
+          ],
+          "excludes": [
+            "packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.targets",
+            "packages/dotnet/Codelab.Build.Analyzers.Tests/SdkFixture/**",
+            "rules/**",
+            "tools/rules-engine/tests/**"
+          ],
+          "fix": "Remove it. The quality gates stay on for every project; fix the code instead.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-globalconfig",
+          "source": "base",
+          "description": "Roslyn loads any .globalconfig it is given, at any global_level, so a hand-written one can raise the clean-code thresholds or switch rules off for a whole project; the only one is the generated rules/codelab.globalconfig.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig"
+          ],
+          "fix": "Delete the file. Change thresholds in rules/base.rules.yaml or a module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-auto-generated-marker",
+          "source": "base",
+          "description": "An auto-generated header makes every analyzer skip the file (CLB1001-CLB1005 ignore generated code), so hand-written code must not carry one.",
+          "pattern": "^[ \\t]*(?://|/\\*)[^\\r\\n]*<auto-generated",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Remove the header. Real generator output is written under obj/ by the build and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-generated-file-name",
+          "source": "base",
+          "description": "A *.g.cs, *.generated.cs or *.designer.cs name makes the analyzers treat a hand-written file as generated and skip it.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.g.cs",
+            "**/*.g.i.cs",
+            "**/*.generated.cs",
+            "**/*.designer.cs",
+            "**/*.Designer.cs"
+          ],
+          "excludes": [],
+          "fix": "Rename the file to a plain *.cs name. Generator output lives under obj/ and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-test-project-opt-in",
+          "source": "base",
+          "description": "Only a *.Tests project is a test project (CLB1004 magic numbers skips test projects). Production code may not declare IsTestProject, reference a test framework (Microsoft.NET.Test.Sdk sets IsTestProject) or rename its assembly to *.Tests.",
+          "pattern": "<IsTestProject>\\s*true|<PackageReference\\b[^>]*\\bInclude\\s*=\\s*\"(?:Microsoft\\.NET\\.Test\\.Sdk|xunit|NUnit|MSTest)|<AssemblyName>[^<]*\\.Tests?\\s*<",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "**/*.Tests/**",
+            "**/*.Tests.csproj"
+          ],
+          "fix": "Put tests in a project named <Module>.Tests; production code never declares IsTestProject.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-accept-any-certificate",
+          "source": "base",
+          "description": "A certificate validator that accepts everything turns TLS into plain text for an attacker in the path (the harvest source's internal calls did this).",
+          "pattern": "\\bDangerousAcceptAnyServerCertificateValidator\\b|(?:ServerCertificateCustomValidationCallback|RemoteCertificateValidationCallback|ServerCertificateValidationCallback)\\s*[+]?=\\s*(?:delegate\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+true\\s*;\\s*\\}|(?:static\\s+)?(?:\\([^)]*\\)|\\w+)\\s*=>\\s*true\\b)",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep certificate validation on. Trust an internal CA through Codelab.Integration's ServerCertificatePolicy (pinned or chain-validated), never by returning true.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-threshold-override",
+          "source": "base",
+          "description": "Clean-code thresholds (codelab_* keys) written by hand bypass the rules files and their review; only the files the rules engine emits, at their own paths (rules/codelab.globalconfig and each module's .editorconfig), may set them. A GENERATED marker in the content proves nothing.",
+          "pattern": "(?:^|\\n)[ \\t]*codelab_\\w+[ \\t]*=",
+          "flags": "",
+          "appliesTo": [
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "backend/src/Modules/Attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Change the thresholds or settings in rules/base.rules.yaml or the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-permission-key",
+          "source": "base",
+          "description": "Permission keys passed as string literals drift from the permission catalog.",
+          "pattern": "\\b(?:HasPermission|RequirePermission|hasPermission)\\(\\s*['\"`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/*.Tests/**"
+          ],
+          "fix": "Use the typed permission constant (Permissions.<Area>.<Action> in C#, PermissionKeys.<KEY> in TypeScript).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-role-check",
+          "source": "base",
+          "description": "Role checks with string literals bypass the permission model.",
+          "pattern": "\\bIsInRole\\(\\s*\"",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Check a permission with [HasPermission(Permissions.<Area>.<Action>)] instead of a role name.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-config-key",
+          "source": "base",
+          "description": "Configuration read by string key is untyped and unvalidated.",
+          "pattern": "\\bconfiguration\\s*\\[\\s*\"|\\.GetSection\\(\\s*\"|\\.GetValue<[^>]+>\\(\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Bind a typed options class with a SectionName constant and ValidateOnStart, then inject IOptions<T>.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-stored-as-int",
+          "source": "base",
+          "description": "Enums stored or serialized as strings break when a member is renamed.",
+          "pattern": "HasConversion<string>\\s*\\(|\\bEnumToStringConverter\\b|\\bJsonStringEnumConverter\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-explicit-values",
+          "source": "base",
+          "description": "An enum member without an explicit value changes meaning when members are reordered (CLB1005 is the build gate).",
+          "pattern": "\\benum\\s+\\w+(?:\\s*:\\s*\\w+)?\\s*\\{(?:[^{}]*?[{,])?\\s*[A-Za-z_]\\w*\\s*(?:,|\\})",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-dbcontext-in-api",
+          "source": "base",
+          "description": "The Api layer must not touch the database directly.",
+          "pattern": "\\b\\w*DbContext\\b|\\bSaveChanges(?:Async)?\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Api/**/*.cs",
+            "**/*.Api/**/*.cs",
+            "**/*Controller.cs"
+          ],
+          "excludes": [
+            "**/Composition/**",
+            "**/Program.cs",
+            "**/*.Tests/**"
+          ],
+          "fix": "Call an Application use case; only the composition root registers the DbContext.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ef-in-application",
+          "source": "base",
+          "description": "Application code must depend on ports, not on EF Core.",
+          "pattern": "\\busing\\s+Microsoft\\.EntityFrameworkCore\\b|\\b\\w*DbContext\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Application/**/*.cs",
+            "**/*.Application/**/*.cs"
+          ],
+          "excludes": [
+            "**/*.Tests/**"
+          ],
+          "fix": "Declare a port (repository or IUnitOfWork interface) in Application and implement it in Infrastructure.",
+          "severity": "error"
+        },
+        {
+          "id": "base.public-id-routes",
+          "source": "base",
+          "description": "Raw numeric or Guid database ids in routes leak internal keys.",
+          "pattern": "\\{\\w*[Ii]d:(?:int|long|guid)\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Take a PublicId route value ({id}) and resolve it in the Application layer.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-empty-catch",
+          "source": "base",
+          "description": "An empty catch block hides failures.",
+          "pattern": "\\bcatch\\s*(?:\\([^)]*\\))?\\s*\\{\\s*\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Handle the error, or let it reach the global exception handler; log with the reference code when you rethrow.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-commented-out-code",
+          "source": "base",
+          "description": "Commented-out code is dead code; git keeps the history.",
+          "pattern": "^\\s*//\\s*(?:var|let|const|if|for|foreach|while|return|await|public|private|using|import|throw)\\b.*[;{]\\s*$",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Delete the commented-out code.",
+          "severity": "warning"
+        },
+        {
+          "id": "base.fe-http-via-api-service",
+          "source": "base",
+          "description": "Feature code must not call HTTP directly.",
+          "pattern": "\\bHttpClient\\b|\\bfetch\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/http/**",
+            "**/core/api/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Inject ApiService (or the generated API client) from core/api; it owns the base URL, auth and signing headers.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-hardcoded-paths",
+          "source": "base",
+          "description": "Route and API paths typed as literals drift from the route and API catalogs.",
+          "pattern": "navigate(?:ByUrl)?\\(\\s*\\[?\\s*['\"`]/|['\"`]/api/",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/api/generated/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the typed route constants (AppRoutes) and the generated API client instead of path literals.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-only",
+          "source": "base",
+          "description": "Third-party UI kits and external DGA packages are not allowed (D5).",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:/|['\"]))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-styles-and-deps",
+          "source": "base",
+          "description": "Third-party UI kit stylesheets, dependencies (including npm aliases) and angular.json styles/scripts are not allowed (D5).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?['\"]?|\\bload-css\\(\\s*['\"]?|\"(?:[^\"\\s]*?[:/])?)~?(?:\\.{1,2}/)*(?:node_modules/)?(?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:[/'\"#@]|\\.git\\b))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css",
+            "**/package.json",
+            "**/angular.json"
+          ],
+          "excludes": [],
+          "fix": "Remove the UI kit's stylesheet, dependency (or its npm alias) or angular.json entry and use @codelab/ng-dga components and tokens, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-remote-stylesheet",
+          "source": "base",
+          "description": "Stylesheets imported from a remote URL (CDN) are not allowed (D5, no egress).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?|\\bload-css\\(\\s*)['\"]?(?:https?:)?//",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Install the stylesheet's package through the platform owner (or self-host the asset) and import it locally; UI kits stay refused (D5).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-shared-no-features",
+          "source": "base",
+          "description": "Shared building blocks (shared/, patterns/, layouts/) must not import feature code.",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:\\.\\./)+features/",
+          "flags": "",
+          "appliesTo": [
+            "**/src/app/shared/**/*.ts",
+            "**/src/app/patterns/**/*.ts",
+            "**/src/app/layouts/**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Move what both need into shared/ (or core/), or pass it in through an input; a feature may import shared code, never the reverse.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-template",
+          "source": "base",
+          "description": "Raw text in a template is not translated.",
+          "pattern": ">(?:[^<>{}&\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.html"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/src/index.html"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-inline-template",
+          "source": "base",
+          "description": "Raw text in an inline component template is not translated.",
+          "pattern": "\\btemplate\\s*:\\s*(?:`[^`]*?|'[^']*?|\"[^\"]*?)>(?:[^<>{}&`'\"\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}`'\"]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-string-permission-key-in-template",
+          "source": "base",
+          "description": "A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too).",
+          "pattern": "\\[?\\*?hasPermission\\]?\\s*=\\s*\"\\s*['`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.html",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the generated key, *hasPermission=\"PermissionKeys.<Key>\" (docs/recipes/add-permission.md).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-logical-css",
+          "source": "base",
+          "description": "Physical left/right properties break RTL.",
+          "pattern": "\\b(?:margin|padding|border)-(?:left|right)\\b|(?:^|[\\s;{])(?:left|right)\\s*:|\\btext-align\\s*:\\s*(?:left|right)\\b|\\bfloat\\s*:\\s*(?:left|right)\\b",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Use logical properties (margin-inline-start, inset-inline-end, text-align start/end).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-design-tokens",
+          "source": "base",
+          "description": "Raw colours bypass the design tokens.",
+          "pattern": "#[0-9a-fA-F]{3,8}\\b|\\brgba?\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [
+            "**/tokens/**",
+            "**/_tokens*.scss"
+          ],
+          "fix": "Use a design token, e.g. var(--codelab-color-primary).",
+          "severity": "error"
+        },
+        {
+          "id": "attachments.no-module-reference",
+          "source": "module",
+          "description": "Record types plug in through the kernel port IAttachableRecordAccess; a reference to another module couples them and breaks removing one.",
+          "pattern": "(?<![A-Za-z0-9_])Modules[.](?:Identity|Users|Access|Lookups|Audit|Settings|Jobs|Notifications|Portal)(?![A-Za-z0-9_])",
+          "flags": "",
+          "appliesTo": [
+            "backend/src/Modules/Attachments/**/*.cs",
+            "backend/src/Modules/Attachments/**/*.csproj"
+          ],
+          "excludes": [],
+          "fix": "Use a kernel port in Starter.Application (the owning module implements IAttachableRecordAccess and registers it).",
+          "severity": "error"
+        },
+        {
+          "id": "attachments.no-file-bytes-in-database",
+          "source": "module",
+          "description": "File bytes live only on the attachment service; a byte[] or base64 column in this module brings back the in-database attachments the starter left behind.",
+          "pattern": "\\bbyte\\[\\]\\s+(?:Content|File|Bytes|Data)\\b|\\bFileBase64\\b",
+          "flags": "",
+          "appliesTo": [
+            "backend/src/Modules/Attachments/**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Store the file on the attachment service and keep only its receipt-verified metadata in RecordAttachment.",
+          "severity": "error"
+        },
+        {
+          "id": "attachments.no-has-data",
+          "source": "module",
+          "description": "Attachment types are seeded by explicit migration InsertData calls, never by HasData in the model.",
+          "pattern": "[.]HasData\\(",
+          "flags": "",
+          "appliesTo": [
+            "backend/src/Modules/Attachments/**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Seed the type in a migration as docs/recipes/add-attachment-type.md shows.",
+          "severity": "error"
+        }
+      ],
+      "bannedSymbols": [],
+      "thresholds": {
+        "methodLines": 40,
+        "fileLines": 400,
+        "cyclomaticComplexity": 10,
+        "parameters": 5,
+        "backendLineCoverage": 80,
+        "frontendLineCoverage": 70
+      },
+      "analyzers": {
+        "RS0030": "error",
+        "CLB1001": "error",
+        "CLB1002": "error",
+        "CLB1003": "error",
+        "CLB1004": "error",
+        "CLB1005": "error",
+        "CA1502": "warning"
+      },
+      "recipes": [
+        "docs/standards/SKILL.md",
+        "docs/recipes/add-attachment-type.md",
+        "docs/recipes/add-endpoint.md"
+      ],
+      "exemptions": []
+    },
+    {
       "module": "Audit",
       "kind": "dotnet",
       "path": "backend/src/Modules/Audit",
@@ -15536,6 +16455,817 @@
       "exemptions": []
     },
     {
+      "module": "WebAttachments",
+      "kind": "angular",
+      "path": "frontend/starter-web/src/app/features/attachments",
+      "rulesFile": "frontend/starter-web/src/app/features/attachments/module.rules.yaml",
+      "description": "Starter web attachments (module 13 UI sample): the development-only /attachments/demo page inside the staff shell (attachments.view), which loads the API's demo record and hosts the shared app-record-attachments widget in the requester-detail pattern; the page the Phase 6 Playwright exit check runs on.",
+      "owners": [
+        "@platform-owner"
+      ],
+      "mayDependOn": [],
+      "mustNotDependOn": [],
+      "required": [
+        {
+          "id": "base.thin-controllers",
+          "source": "base",
+          "statement": "Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access.",
+          "enforcedBy": [
+            "architecture-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.application-ports-only",
+          "source": "base",
+          "statement": "Application code depends only on Domain types and ports (interfaces); it never references EF Core, DbContext or infrastructure types.",
+          "enforcedBy": [
+            "architecture-test",
+            "hook"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.module-boundaries",
+          "source": "base",
+          "statement": "A module references another module only when listed in its mayDependOn, and never one listed in mustNotDependOn.",
+          "enforcedBy": [
+            "architecture-test",
+            "eslint"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.endpoint-contract",
+          "source": "base",
+          "statement": "Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.lookups-via-migrations",
+          "source": "base",
+          "statement": "Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "base.platform-owner-review",
+          "source": "base",
+          "statement": "Changes to rules/, packages/, .claude/, the exemptions of any module.rules.yaml, deploy/, .github/, docs/adr/, provenance/, tools/extract/, tools/build.ps1 and the repo-wide build settings need platform-owner review.",
+          "enforcedBy": [
+            "codeowners",
+            "hook"
+          ]
+        },
+        {
+          "id": "base.enums-as-int",
+          "source": "base",
+          "statement": "Enums are stored and sent as integers and every enum member has an explicit numeric value (Approved = 3), so reordering never changes stored data; labels come from i18n, never from enum names.",
+          "enforcedBy": [
+            "hook",
+            "analyzer"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.no-magic-values",
+          "source": "base",
+          "statement": "Status ids, role keys, permission keys, error codes, config keys, claim types, route names, cache keys, job ids and limits live in typed constants or options classes; numeric literals other than the allowed ones need a named constant.",
+          "enforcedBy": [
+            "hook",
+            "analyzer",
+            "eslint"
+          ],
+          "availableFrom": "P1",
+          "settings": {
+            "allowedNumbers": [
+              -1,
+              0,
+              1
+            ],
+            "excludeTests": true
+          }
+        },
+        {
+          "id": "base.clean-code",
+          "source": "base",
+          "statement": "Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.",
+          "enforcedBy": [
+            "analyzer",
+            "review"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.unit-tests-mandatory",
+          "source": "base",
+          "statement": "Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.",
+          "enforcedBy": [
+            "scaffold",
+            "commit-gate",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-ui-library",
+          "source": "base",
+          "statement": "Screens are built only from @codelab/ng-dga components and the 8 page patterns.",
+          "enforcedBy": [
+            "eslint",
+            "hook",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-no-raw-text",
+          "source": "base",
+          "statement": "No user-visible raw text in templates or components; every string is an i18n key present in both ar and en.",
+          "enforcedBy": [
+            "i18n-check",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-tokens-logical-css",
+          "source": "base",
+          "statement": "Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.",
+          "enforcedBy": [
+            "stylelint",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-permission-gated",
+          "source": "base",
+          "statement": "Every route and every action button is gated by a typed permission key (base.fe-routes-gated, base.fe-buttons-gated); the backend endpoint behind it carries [HasPermission] with the same key. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "scaffold",
+            "review"
+          ],
+          "availableFrom": "P3"
+        },
+        {
+          "id": "base.fe-routes-gated",
+          "source": "base",
+          "statement": "Every route that renders a page (component or loadComponent) carries data.permission (RouteDataKeys.Permission, a generated PermissionKeys value) on itself or an ancestor, with permissionGuard() (tagged with Symbol.for('codelab.ng-tools.permission-guard'); an untagged guard fails as missing-guard) on itself or an ancestor, or its full path is in PUBLIC_ROUTE_PATHS (src/app/public-routes.ts); redirects are exempt and every lazily loaded child table is passed to the route-gates spec. Fix: add data: { [RouteDataKeys.Permission]: PermissionKeys.<Key> } or, for a page every visitor may open, the public path. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/**/*.routes.ts",
+            "frontend/starter-web/src/app/app.routes.ts"
+          ]
+        },
+        {
+          "id": "base.fe-buttons-gated",
+          "source": "base",
+          "statement": "Every action element (a <dga-button>; a <button> with any event binding, a submit button or a typeless one in a submitting form; a role=button element with an event binding; any element binding (click) or (confirm), such as a dialog host) in features/**/*.html and in the inline templates of features/**/*.ts carries *hasPermission=\"PermissionKeys.<Key>\" (on itself, on an ancestor element, or [hasPermission] on an <ng-template> wrapper) or an explicit data-public-action for an action every visitor may take. Fix: add the directive with a generated key, or data-public-action. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/features/**/*.html",
+            "frontend/starter-web/src/app/features/**/*.ts"
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "base.time-provider",
+          "source": "base",
+          "description": "Reading the system clock directly makes time untestable.",
+          "pattern": "\\bDateTime(?:Offset)?\\.(?:Now|UtcNow|Today)\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-thread-sleep",
+          "source": "base",
+          "description": "Thread.Sleep blocks a thread and makes waits untestable; it is also a global banned API (RS0030) in Codelab.Build.Sdk.",
+          "pattern": "\\bThread[.]Sleep\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-scheduler-dashboard-mapping",
+          "source": "base",
+          "description": "The Hangfire dashboard exposes enqueue, delete and requeue of every job behind its own authorization; the starter never maps it.",
+          "pattern": "\\bUseHangfireDashboard\\b|\\bMapHangfireDashboard\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use the admin Jobs endpoints (jobs.view, jobs.run) and the log.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-static-scheduler-storage",
+          "source": "base",
+          "description": "Static Hangfire storage hides the database from DI and from tests; the storage comes from the JobStorage singleton of SchedulerRegistration.",
+          "pattern": "\\bUseSqlServerStorage\\b|\\bJobStorage[.]Current\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Resolve JobStorage from DI (SchedulerRegistration.AddJobScheduler registers it).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-opt-out",
+          "source": "base",
+          "description": "Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).",
+          "pattern": "<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\\b[^>]*>\\s*(?!true\\s*<)|<EnableNETAnalyzers\\b[^>]*>\\s*(?!true\\s*<)|<AnalysisLevel\\w*\\b[^>]*>[^<]*\\bnone\\b|<AnalysisMode\\w*\\b[^>]*>\\s*none\\b|<NoWarn>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable\\b[^\\r\\n]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|dotnet_diagnostic\\.(?:RS0030|CA1502|CLB\\d{4})\\.severity\\s*=\\s*(?:none|silent|suggestion)|SuppressMessage\\([^)]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable[ \\t]*(?://[^\\r\\n]*)?(?:\\r?\\n|$)|dotnet_analyzer_diagnostic\\.(?:category-[\\w.-]+\\.)?severity\\s*=\\s*(?:none|silent|suggestion)|\\bgenerated_code\\s*=\\s*true|<TreatWarningsAsErrors>\\s*false|<WarningsNotAsErrors>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|<RunAnalyzers(?:DuringBuild)?>\\s*false",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-inline-suppression",
+          "source": "base",
+          "description": "An inline suppression (a pragma, with or without a space after the '#'; the SuppressMessage attribute named anywhere, so an alias such as 'using SM = ...SuppressMessageAttribute' is caught too; a unicode escape outside a string or comment, which could spell that name; a NoWarn or WarningsNotAsErrors entry; WarningLevel 0; or a diagnostic severity set to none, silent or suggestion) switches an analyzer off without platform-owner review.",
+          "pattern": "#\\s*pragma\\s+warning\\s+disable\\b|\\b(?:Unconditional)?SuppressMessage(?:Attribute)?\\b|^[^\"'/\\r\\n]*\\\\[uU][0-9a-fA-F]{4}|<WarningLevel\\b[^>]*>\\s*0\\s*<|<NoWarn\\b[^>]*>(?!\\s*(?:\\$\\(NoWarn\\)\\s*;?\\s*)?<)|<WarningsNotAsErrors\\b[^>]*>(?!\\s*(?:\\$\\(WarningsNotAsErrors\\)\\s*;?\\s*)?<)|dotnet_diagnostic\\.[\\w-]+\\.severity\\s*=\\s*(?:none|silent|suggestion)\\b",
+          "flags": "im",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "*/**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*",
+            "rules/codelab.globalconfig",
+            "frontend/starter-web/src/app/features/attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Fix the code. A justified suppression is a module.rules.yaml `analyzers` severity (generated into the module .editorconfig) or an `exemptions` entry, both reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-config-redirect",
+          "source": "base",
+          "description": "A CodeAnalysisRuleSet, GlobalAnalyzerConfigFiles, EditorConfigFiles, AdditionalFiles or Analyzer item in a project file points the analyzers at configuration (or a suppressor) that no platform owner reviewed, so it can switch any diagnostic off.",
+          "pattern": "<(?:CodeAnalysisRuleSet\\w*|GlobalAnalyzerConfigFiles|EditorConfigFiles|AnalyzerConfigFiles|AdditionalFiles|Analyzer)\\b|\\bOutputItemType\\s*=\\s*\"\\s*Analyzer\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*"
+          ],
+          "fix": "Remove the item. Analyzer severities and thresholds come from the module.rules.yaml (generated into the module .editorconfig); a new analyzer or analyzer config is a platform-owner change to Codelab.Build.Sdk.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ruleset-file",
+          "source": "base",
+          "description": "A .ruleset file can set any diagnostic to Action=\"None\"; the starter configures analyzers only through the rules engine, so no ruleset may exist.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ruleset"
+          ],
+          "excludes": [],
+          "fix": "Delete the file. Set analyzer severities in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-lint-suppression",
+          "source": "base",
+          "description": "An eslint, stylelint or TypeScript suppression comment (eslint-disable, an inline eslint config, stylelint-disable, @ts-ignore, @ts-nocheck) switches a frontend gate off without platform-owner review.",
+          "pattern": "eslint-disable|eslint-enable|/\\*\\s*eslint\\s|stylelint-disable|@ts-ignore|@ts-nocheck",
+          "flags": "",
+          "appliesTo": [
+            "frontend/**/*.ts",
+            "frontend/**/*.html",
+            "frontend/**/*.scss"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/node_modules/**",
+            "frontend/starter-web/lint-fixtures/**",
+            "frontend/starter-web/tools/README.md"
+          ],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-editorconfig",
+          "source": "base",
+          "description": "A nested .editorconfig applies to every file below it, so a hand-written one can switch analyzers off or change thresholds for part of a module; the only nested ones are those the rules engine emits at each module root.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "*/**/.editorconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "frontend/starter-web/src/app/features/attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Delete the file. Set analyzer severities and thresholds in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-fixture-gate-opt-out",
+          "source": "base",
+          "description": "CodelabFixtureGateOptOut lets a build switch the quality gates off without CODELAB002; only the SDK's own fixture builds may pass it.",
+          "pattern": "\\bCodelabFixtureGateOptOut\\b",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/*.rsp",
+            "**/*.ps1",
+            "**/*.mjs",
+            "**/*.json"
+          ],
+          "excludes": [
+            "packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.targets",
+            "packages/dotnet/Codelab.Build.Analyzers.Tests/SdkFixture/**",
+            "rules/**",
+            "tools/rules-engine/tests/**"
+          ],
+          "fix": "Remove it. The quality gates stay on for every project; fix the code instead.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-globalconfig",
+          "source": "base",
+          "description": "Roslyn loads any .globalconfig it is given, at any global_level, so a hand-written one can raise the clean-code thresholds or switch rules off for a whole project; the only one is the generated rules/codelab.globalconfig.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig"
+          ],
+          "fix": "Delete the file. Change thresholds in rules/base.rules.yaml or a module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-auto-generated-marker",
+          "source": "base",
+          "description": "An auto-generated header makes every analyzer skip the file (CLB1001-CLB1005 ignore generated code), so hand-written code must not carry one.",
+          "pattern": "^[ \\t]*(?://|/\\*)[^\\r\\n]*<auto-generated",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Remove the header. Real generator output is written under obj/ by the build and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-generated-file-name",
+          "source": "base",
+          "description": "A *.g.cs, *.generated.cs or *.designer.cs name makes the analyzers treat a hand-written file as generated and skip it.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.g.cs",
+            "**/*.g.i.cs",
+            "**/*.generated.cs",
+            "**/*.designer.cs",
+            "**/*.Designer.cs"
+          ],
+          "excludes": [],
+          "fix": "Rename the file to a plain *.cs name. Generator output lives under obj/ and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-test-project-opt-in",
+          "source": "base",
+          "description": "Only a *.Tests project is a test project (CLB1004 magic numbers skips test projects). Production code may not declare IsTestProject, reference a test framework (Microsoft.NET.Test.Sdk sets IsTestProject) or rename its assembly to *.Tests.",
+          "pattern": "<IsTestProject>\\s*true|<PackageReference\\b[^>]*\\bInclude\\s*=\\s*\"(?:Microsoft\\.NET\\.Test\\.Sdk|xunit|NUnit|MSTest)|<AssemblyName>[^<]*\\.Tests?\\s*<",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "**/*.Tests/**",
+            "**/*.Tests.csproj"
+          ],
+          "fix": "Put tests in a project named <Module>.Tests; production code never declares IsTestProject.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-accept-any-certificate",
+          "source": "base",
+          "description": "A certificate validator that accepts everything turns TLS into plain text for an attacker in the path (the harvest source's internal calls did this).",
+          "pattern": "\\bDangerousAcceptAnyServerCertificateValidator\\b|(?:ServerCertificateCustomValidationCallback|RemoteCertificateValidationCallback|ServerCertificateValidationCallback)\\s*[+]?=\\s*(?:delegate\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+true\\s*;\\s*\\}|(?:static\\s+)?(?:\\([^)]*\\)|\\w+)\\s*=>\\s*true\\b)",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep certificate validation on. Trust an internal CA through Codelab.Integration's ServerCertificatePolicy (pinned or chain-validated), never by returning true.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-threshold-override",
+          "source": "base",
+          "description": "Clean-code thresholds (codelab_* keys) written by hand bypass the rules files and their review; only the files the rules engine emits, at their own paths (rules/codelab.globalconfig and each module's .editorconfig), may set them. A GENERATED marker in the content proves nothing.",
+          "pattern": "(?:^|\\n)[ \\t]*codelab_\\w+[ \\t]*=",
+          "flags": "",
+          "appliesTo": [
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "frontend/starter-web/src/app/features/attachments/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Change the thresholds or settings in rules/base.rules.yaml or the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-permission-key",
+          "source": "base",
+          "description": "Permission keys passed as string literals drift from the permission catalog.",
+          "pattern": "\\b(?:HasPermission|RequirePermission|hasPermission)\\(\\s*['\"`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/*.Tests/**"
+          ],
+          "fix": "Use the typed permission constant (Permissions.<Area>.<Action> in C#, PermissionKeys.<KEY> in TypeScript).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-role-check",
+          "source": "base",
+          "description": "Role checks with string literals bypass the permission model.",
+          "pattern": "\\bIsInRole\\(\\s*\"",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Check a permission with [HasPermission(Permissions.<Area>.<Action>)] instead of a role name.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-config-key",
+          "source": "base",
+          "description": "Configuration read by string key is untyped and unvalidated.",
+          "pattern": "\\bconfiguration\\s*\\[\\s*\"|\\.GetSection\\(\\s*\"|\\.GetValue<[^>]+>\\(\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Bind a typed options class with a SectionName constant and ValidateOnStart, then inject IOptions<T>.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-stored-as-int",
+          "source": "base",
+          "description": "Enums stored or serialized as strings break when a member is renamed.",
+          "pattern": "HasConversion<string>\\s*\\(|\\bEnumToStringConverter\\b|\\bJsonStringEnumConverter\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-explicit-values",
+          "source": "base",
+          "description": "An enum member without an explicit value changes meaning when members are reordered (CLB1005 is the build gate).",
+          "pattern": "\\benum\\s+\\w+(?:\\s*:\\s*\\w+)?\\s*\\{(?:[^{}]*?[{,])?\\s*[A-Za-z_]\\w*\\s*(?:,|\\})",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-dbcontext-in-api",
+          "source": "base",
+          "description": "The Api layer must not touch the database directly.",
+          "pattern": "\\b\\w*DbContext\\b|\\bSaveChanges(?:Async)?\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Api/**/*.cs",
+            "**/*.Api/**/*.cs",
+            "**/*Controller.cs"
+          ],
+          "excludes": [
+            "**/Composition/**",
+            "**/Program.cs",
+            "**/*.Tests/**"
+          ],
+          "fix": "Call an Application use case; only the composition root registers the DbContext.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ef-in-application",
+          "source": "base",
+          "description": "Application code must depend on ports, not on EF Core.",
+          "pattern": "\\busing\\s+Microsoft\\.EntityFrameworkCore\\b|\\b\\w*DbContext\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Application/**/*.cs",
+            "**/*.Application/**/*.cs"
+          ],
+          "excludes": [
+            "**/*.Tests/**"
+          ],
+          "fix": "Declare a port (repository or IUnitOfWork interface) in Application and implement it in Infrastructure.",
+          "severity": "error"
+        },
+        {
+          "id": "base.public-id-routes",
+          "source": "base",
+          "description": "Raw numeric or Guid database ids in routes leak internal keys.",
+          "pattern": "\\{\\w*[Ii]d:(?:int|long|guid)\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Take a PublicId route value ({id}) and resolve it in the Application layer.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-empty-catch",
+          "source": "base",
+          "description": "An empty catch block hides failures.",
+          "pattern": "\\bcatch\\s*(?:\\([^)]*\\))?\\s*\\{\\s*\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Handle the error, or let it reach the global exception handler; log with the reference code when you rethrow.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-commented-out-code",
+          "source": "base",
+          "description": "Commented-out code is dead code; git keeps the history.",
+          "pattern": "^\\s*//\\s*(?:var|let|const|if|for|foreach|while|return|await|public|private|using|import|throw)\\b.*[;{]\\s*$",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Delete the commented-out code.",
+          "severity": "warning"
+        },
+        {
+          "id": "base.fe-http-via-api-service",
+          "source": "base",
+          "description": "Feature code must not call HTTP directly.",
+          "pattern": "\\bHttpClient\\b|\\bfetch\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/http/**",
+            "**/core/api/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Inject ApiService (or the generated API client) from core/api; it owns the base URL, auth and signing headers.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-hardcoded-paths",
+          "source": "base",
+          "description": "Route and API paths typed as literals drift from the route and API catalogs.",
+          "pattern": "navigate(?:ByUrl)?\\(\\s*\\[?\\s*['\"`]/|['\"`]/api/",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/api/generated/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the typed route constants (AppRoutes) and the generated API client instead of path literals.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-only",
+          "source": "base",
+          "description": "Third-party UI kits and external DGA packages are not allowed (D5).",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:/|['\"]))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-styles-and-deps",
+          "source": "base",
+          "description": "Third-party UI kit stylesheets, dependencies (including npm aliases) and angular.json styles/scripts are not allowed (D5).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?['\"]?|\\bload-css\\(\\s*['\"]?|\"(?:[^\"\\s]*?[:/])?)~?(?:\\.{1,2}/)*(?:node_modules/)?(?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:[/'\"#@]|\\.git\\b))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css",
+            "**/package.json",
+            "**/angular.json"
+          ],
+          "excludes": [],
+          "fix": "Remove the UI kit's stylesheet, dependency (or its npm alias) or angular.json entry and use @codelab/ng-dga components and tokens, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-remote-stylesheet",
+          "source": "base",
+          "description": "Stylesheets imported from a remote URL (CDN) are not allowed (D5, no egress).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?|\\bload-css\\(\\s*)['\"]?(?:https?:)?//",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Install the stylesheet's package through the platform owner (or self-host the asset) and import it locally; UI kits stay refused (D5).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-shared-no-features",
+          "source": "base",
+          "description": "Shared building blocks (shared/, patterns/, layouts/) must not import feature code.",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:\\.\\./)+features/",
+          "flags": "",
+          "appliesTo": [
+            "**/src/app/shared/**/*.ts",
+            "**/src/app/patterns/**/*.ts",
+            "**/src/app/layouts/**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Move what both need into shared/ (or core/), or pass it in through an input; a feature may import shared code, never the reverse.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-template",
+          "source": "base",
+          "description": "Raw text in a template is not translated.",
+          "pattern": ">(?:[^<>{}&\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.html"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/src/index.html"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-inline-template",
+          "source": "base",
+          "description": "Raw text in an inline component template is not translated.",
+          "pattern": "\\btemplate\\s*:\\s*(?:`[^`]*?|'[^']*?|\"[^\"]*?)>(?:[^<>{}&`'\"\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}`'\"]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-string-permission-key-in-template",
+          "source": "base",
+          "description": "A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too).",
+          "pattern": "\\[?\\*?hasPermission\\]?\\s*=\\s*\"\\s*['`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.html",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the generated key, *hasPermission=\"PermissionKeys.<Key>\" (docs/recipes/add-permission.md).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-logical-css",
+          "source": "base",
+          "description": "Physical left/right properties break RTL.",
+          "pattern": "\\b(?:margin|padding|border)-(?:left|right)\\b|(?:^|[\\s;{])(?:left|right)\\s*:|\\btext-align\\s*:\\s*(?:left|right)\\b|\\bfloat\\s*:\\s*(?:left|right)\\b",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Use logical properties (margin-inline-start, inset-inline-end, text-align start/end).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-design-tokens",
+          "source": "base",
+          "description": "Raw colours bypass the design tokens.",
+          "pattern": "#[0-9a-fA-F]{3,8}\\b|\\brgba?\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [
+            "**/tokens/**",
+            "**/_tokens*.scss"
+          ],
+          "fix": "Use a design token, e.g. var(--codelab-color-primary).",
+          "severity": "error"
+        }
+      ],
+      "bannedSymbols": [],
+      "thresholds": {
+        "methodLines": 40,
+        "fileLines": 400,
+        "cyclomaticComplexity": 10,
+        "parameters": 5,
+        "backendLineCoverage": 80,
+        "frontendLineCoverage": 70
+      },
+      "analyzers": {
+        "RS0030": "error",
+        "CLB1001": "error",
+        "CLB1002": "error",
+        "CLB1003": "error",
+        "CLB1004": "error",
+        "CLB1005": "error",
+        "CA1502": "warning"
+      },
+      "recipes": [
+        "docs/standards/SKILL.md"
+      ],
+      "exemptions": []
+    },
+    {
       "module": "WebAuth",
       "kind": "angular",
       "path": "frontend/starter-web/src/app/features/auth",
@@ -21217,7 +22947,7 @@
       "kind": "angular",
       "path": "frontend/starter-web/src/app/shared",
       "rulesFile": "frontend/starter-web/src/app/shared/module.rules.yaml",
-      "description": "Starter web shared building blocks used by two or more features that are neither page patterns nor ng-dga components: the *hasPermission structural directive and its matching helper. Shared imports only core and @codelab/ng-dga (ESLint boundaries).",
+      "description": "Starter web shared building blocks used by two or more features that are neither page patterns nor ng-dga components: the *hasPermission structural directive and its matching helper, the app-wired attachment adapter (attachments/) over core ApiService, and the app-record-attachments widget (record-attachments/) over the attachments adapter. Shared imports only core and @codelab/ng-dga (ESLint boundaries).",
       "owners": [
         "@platform-owner"
       ],
@@ -30963,6 +32693,906 @@
             "**/_tokens*.scss"
           ],
           "fix": "Use a design token, e.g. var(--codelab-color-primary).",
+          "severity": "error"
+        }
+      ],
+      "bannedSymbols": [],
+      "thresholds": {
+        "methodLines": 40,
+        "fileLines": 400,
+        "cyclomaticComplexity": 10,
+        "parameters": 5,
+        "backendLineCoverage": 80,
+        "frontendLineCoverage": 70
+      },
+      "analyzers": {
+        "RS0030": "error",
+        "CLB1001": "error",
+        "CLB1002": "error",
+        "CLB1003": "error",
+        "CLB1004": "error",
+        "CLB1005": "error",
+        "CA1502": "warning"
+      },
+      "recipes": [
+        "docs/standards/SKILL.md"
+      ],
+      "exemptions": []
+    },
+    {
+      "module": "AttachmentsService",
+      "kind": "dotnet",
+      "path": "services/attachment-service",
+      "rulesFile": "services/attachment-service/module.rules.yaml",
+      "description": "The attachment service deployable: browser uploads authenticated only by a one-time sealed ticket, S2S-only download and delete (ES256 service assertions), streamed multipart with magic bytes, caps, path containment, SHA-256 and signed receipts, on a file share.",
+      "owners": [
+        "@platform-owner"
+      ],
+      "mayDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "CodelabIntegration",
+        "CodelabTesting",
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure"
+      ],
+      "required": [
+        {
+          "id": "base.thin-controllers",
+          "source": "base",
+          "statement": "Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access.",
+          "enforcedBy": [
+            "architecture-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.application-ports-only",
+          "source": "base",
+          "statement": "Application code depends only on Domain types and ports (interfaces); it never references EF Core, DbContext or infrastructure types.",
+          "enforcedBy": [
+            "architecture-test",
+            "hook"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.module-boundaries",
+          "source": "base",
+          "statement": "A module references another module only when listed in its mayDependOn, and never one listed in mustNotDependOn.",
+          "enforcedBy": [
+            "architecture-test",
+            "eslint"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.endpoint-contract",
+          "source": "base",
+          "statement": "Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.lookups-via-migrations",
+          "source": "base",
+          "statement": "Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "base.platform-owner-review",
+          "source": "base",
+          "statement": "Changes to rules/, packages/, .claude/, the exemptions of any module.rules.yaml, deploy/, .github/, docs/adr/, provenance/, tools/extract/, tools/build.ps1 and the repo-wide build settings need platform-owner review.",
+          "enforcedBy": [
+            "codeowners",
+            "hook"
+          ]
+        },
+        {
+          "id": "base.enums-as-int",
+          "source": "base",
+          "statement": "Enums are stored and sent as integers and every enum member has an explicit numeric value (Approved = 3), so reordering never changes stored data; labels come from i18n, never from enum names.",
+          "enforcedBy": [
+            "hook",
+            "analyzer"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.no-magic-values",
+          "source": "base",
+          "statement": "Status ids, role keys, permission keys, error codes, config keys, claim types, route names, cache keys, job ids and limits live in typed constants or options classes; numeric literals other than the allowed ones need a named constant.",
+          "enforcedBy": [
+            "hook",
+            "analyzer",
+            "eslint"
+          ],
+          "availableFrom": "P1",
+          "settings": {
+            "allowedNumbers": [
+              -1,
+              0,
+              1
+            ],
+            "excludeTests": true
+          }
+        },
+        {
+          "id": "base.clean-code",
+          "source": "base",
+          "statement": "Use named arguments for non-obvious parameters, small single-purpose methods, guard clauses instead of nesting, meaningful names, and no dead or commented-out code; size and complexity stay within the module thresholds.",
+          "enforcedBy": [
+            "analyzer",
+            "review"
+          ],
+          "availableFrom": "P1"
+        },
+        {
+          "id": "base.unit-tests-mandatory",
+          "source": "base",
+          "statement": "Every Application use case, validator, workflow transition, domain rule and Angular service or component with logic ships with unit tests, and each module meets its line-coverage threshold.",
+          "enforcedBy": [
+            "scaffold",
+            "commit-gate",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-ui-library",
+          "source": "base",
+          "statement": "Screens are built only from @codelab/ng-dga components and the 8 page patterns.",
+          "enforcedBy": [
+            "eslint",
+            "hook",
+            "review"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-no-raw-text",
+          "source": "base",
+          "statement": "No user-visible raw text in templates or components; every string is an i18n key present in both ar and en.",
+          "enforcedBy": [
+            "i18n-check",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-tokens-logical-css",
+          "source": "base",
+          "statement": "Styles use design tokens (CSS variables) and logical properties (inline-start/end) so RTL and LTR both work.",
+          "enforcedBy": [
+            "stylelint",
+            "hook"
+          ],
+          "availableFrom": "P2"
+        },
+        {
+          "id": "base.fe-permission-gated",
+          "source": "base",
+          "statement": "Every route and every action button is gated by a typed permission key (base.fe-routes-gated, base.fe-buttons-gated); the backend endpoint behind it carries [HasPermission] with the same key. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "scaffold",
+            "review"
+          ],
+          "availableFrom": "P3"
+        },
+        {
+          "id": "base.fe-routes-gated",
+          "source": "base",
+          "statement": "Every route that renders a page (component or loadComponent) carries data.permission (RouteDataKeys.Permission, a generated PermissionKeys value) on itself or an ancestor, with permissionGuard() (tagged with Symbol.for('codelab.ng-tools.permission-guard'); an untagged guard fails as missing-guard) on itself or an ancestor, or its full path is in PUBLIC_ROUTE_PATHS (src/app/public-routes.ts); redirects are exempt and every lazily loaded child table is passed to the route-gates spec. Fix: add data: { [RouteDataKeys.Permission]: PermissionKeys.<Key> } or, for a page every visitor may open, the public path. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/**/*.routes.ts",
+            "frontend/starter-web/src/app/app.routes.ts"
+          ]
+        },
+        {
+          "id": "base.fe-buttons-gated",
+          "source": "base",
+          "statement": "Every action element (a <dga-button>; a <button> with any event binding, a submit button or a typeless one in a submitting form; a role=button element with an event binding; any element binding (click) or (confirm), such as a dialog host) in features/**/*.html and in the inline templates of features/**/*.ts carries *hasPermission=\"PermissionKeys.<Key>\" (on itself, on an ancestor element, or [hasPermission] on an <ng-template> wrapper) or an explicit data-public-action for an action every visitor may take. Fix: add the directive with a generated key, or data-public-action. Recipe docs/recipes/add-permission.md.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ],
+          "availableFrom": "P3",
+          "appliesTo": [
+            "frontend/starter-web/src/app/features/**/*.html",
+            "frontend/starter-web/src/app/features/**/*.ts"
+          ]
+        },
+        {
+          "id": "attachmentsservice.two-credentials-only",
+          "source": "module",
+          "statement": "The service authenticates only two credentials, each on its own endpoints - the CodelabServiceAssertion scheme (S2S, the fallback policy) for GET and DELETE /api/files/{fileId}, and the one-time upload ticket for POST /api/uploads. No JWT bearer, no API key, no cookie, no default scheme.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachmentsservice.ticket-opens-once",
+          "source": "module",
+          "statement": "An upload ticket is opened with ISealedTicketService.OpenAsync for UploadTickets.Purpose (single use) and its subject is the scope of every receipt the upload returns; the header name comes from the protocol prefix (UploadTickets.HeaderName), never a literal product name.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachmentsservice.coded-refusals",
+          "source": "module",
+          "statement": "Every refusal is the Codelab.Errors problem+json envelope with a code from AttachmentServiceErrorCodes (or Codelab.Errors ErrorCodes for authentication and retryable failures) and a referenceCode; no endpoint writes an error body by hand.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachmentsservice.one-allowlist",
+          "source": "module",
+          "statement": "Upload extensions, caps and receipts come from Codelab:Security:Uploads (the same section as the API) and content types from Codelab.Security UploadContentTypes; the service keeps no second allowlist.",
+          "enforcedBy": [
+            "review"
+          ]
+        },
+        {
+          "id": "attachmentsservice.streamed-upload",
+          "source": "module",
+          "statement": "The upload endpoint reads the raw body through IUploadPipeline (no form binding, no IFormFile) behind UploadBodyCeilingFilter, and web.config maxAllowedContentLength stays at least the ceiling of the shipped settings.",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        },
+        {
+          "id": "attachmentsservice.no-key-material",
+          "source": "module",
+          "statement": "Committed appsettings and web.config carry no key material; keys come from the environment or a secret store (Development - the gitignored appsettings.Development.local.json from tools/devseed/New-LocalSecrets.ps1). The service holds no PublicId ring of its own (EphemeralPublicIdRing).",
+          "enforcedBy": [
+            "contract-test",
+            "review"
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "base.time-provider",
+          "source": "base",
+          "description": "Reading the system clock directly makes time untestable.",
+          "pattern": "\\bDateTime(?:Offset)?\\.(?:Now|UtcNow|Today)\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-thread-sleep",
+          "source": "base",
+          "description": "Thread.Sleep blocks a thread and makes waits untestable; it is also a global banned API (RS0030) in Codelab.Build.Sdk.",
+          "pattern": "\\bThread[.]Sleep\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use await Task.Delay(delay, timeProvider, cancellationToken) so waits are async and testable.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-scheduler-dashboard-mapping",
+          "source": "base",
+          "description": "The Hangfire dashboard exposes enqueue, delete and requeue of every job behind its own authorization; the starter never maps it.",
+          "pattern": "\\bUseHangfireDashboard\\b|\\bMapHangfireDashboard\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use the admin Jobs endpoints (jobs.view, jobs.run) and the log.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-static-scheduler-storage",
+          "source": "base",
+          "description": "Static Hangfire storage hides the database from DI and from tests; the storage comes from the JobStorage singleton of SchedulerRegistration.",
+          "pattern": "\\bUseSqlServerStorage\\b|\\bJobStorage[.]Current\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Resolve JobStorage from DI (SchedulerRegistration.AddJobScheduler registers it).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-opt-out",
+          "source": "base",
+          "description": "Turning off the banned-API, complexity or clean-code (CLB) analyzers removes a build gate for everyone after you (a gate switch set to anything but true, the .NET analyzers or the analysis level off, by id, by a bare pragma, by category severity, by marking code generated, or by relaxing warnings-as-errors). Codelab.Build.Sdk also fails the build (CODELAB002, CODELAB003).",
+          "pattern": "<Codelab(?:EnableBannedApis|EnableBuildAnalyzers)\\b[^>]*>\\s*(?!true\\s*<)|<EnableNETAnalyzers\\b[^>]*>\\s*(?!true\\s*<)|<AnalysisLevel\\w*\\b[^>]*>[^<]*\\bnone\\b|<AnalysisMode\\w*\\b[^>]*>\\s*none\\b|<NoWarn>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable\\b[^\\r\\n]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|dotnet_diagnostic\\.(?:RS0030|CA1502|CLB\\d{4})\\.severity\\s*=\\s*(?:none|silent|suggestion)|SuppressMessage\\([^)]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|#\\s*pragma\\s+warning\\s+disable[ \\t]*(?://[^\\r\\n]*)?(?:\\r?\\n|$)|dotnet_analyzer_diagnostic\\.(?:category-[\\w.-]+\\.)?severity\\s*=\\s*(?:none|silent|suggestion)|\\bgenerated_code\\s*=\\s*true|<TreatWarningsAsErrors>\\s*false|<WarningsNotAsErrors>[^<]*\\b(?:RS0030|CA1502|CLB\\d{4})\\b|<RunAnalyzers(?:DuringBuild)?>\\s*false",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-inline-suppression",
+          "source": "base",
+          "description": "An inline suppression (a pragma, with or without a space after the '#'; the SuppressMessage attribute named anywhere, so an alias such as 'using SM = ...SuppressMessageAttribute' is caught too; a unicode escape outside a string or comment, which could spell that name; a NoWarn or WarningsNotAsErrors entry; WarningLevel 0; or a diagnostic severity set to none, silent or suggestion) switches an analyzer off without platform-owner review.",
+          "pattern": "#\\s*pragma\\s+warning\\s+disable\\b|\\b(?:Unconditional)?SuppressMessage(?:Attribute)?\\b|^[^\"'/\\r\\n]*\\\\[uU][0-9a-fA-F]{4}|<WarningLevel\\b[^>]*>\\s*0\\s*<|<NoWarn\\b[^>]*>(?!\\s*(?:\\$\\(NoWarn\\)\\s*;?\\s*)?<)|<WarningsNotAsErrors\\b[^>]*>(?!\\s*(?:\\$\\(WarningsNotAsErrors\\)\\s*;?\\s*)?<)|dotnet_diagnostic\\.[\\w-]+\\.severity\\s*=\\s*(?:none|silent|suggestion)\\b",
+          "flags": "im",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "*/**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*",
+            "rules/codelab.globalconfig",
+            "services/attachment-service/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Fix the code. A justified suppression is a module.rules.yaml `analyzers` severity (generated into the module .editorconfig) or an `exemptions` entry, both reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-analyzer-config-redirect",
+          "source": "base",
+          "description": "A CodeAnalysisRuleSet, GlobalAnalyzerConfigFiles, EditorConfigFiles, AdditionalFiles or Analyzer item in a project file points the analyzers at configuration (or a suppressor) that no platform owner reviewed, so it can switch any diagnostic off.",
+          "pattern": "<(?:CodeAnalysisRuleSet\\w*|GlobalAnalyzerConfigFiles|EditorConfigFiles|AnalyzerConfigFiles|AdditionalFiles|Analyzer)\\b|\\bOutputItemType\\s*=\\s*\"\\s*Analyzer\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "packages/**",
+            "**/Directory.Build.*"
+          ],
+          "fix": "Remove the item. Analyzer severities and thresholds come from the module.rules.yaml (generated into the module .editorconfig); a new analyzer or analyzer config is a platform-owner change to Codelab.Build.Sdk.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ruleset-file",
+          "source": "base",
+          "description": "A .ruleset file can set any diagnostic to Action=\"None\"; the starter configures analyzers only through the rules engine, so no ruleset may exist.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ruleset"
+          ],
+          "excludes": [],
+          "fix": "Delete the file. Set analyzer severities in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-lint-suppression",
+          "source": "base",
+          "description": "An eslint, stylelint or TypeScript suppression comment (eslint-disable, an inline eslint config, stylelint-disable, @ts-ignore, @ts-nocheck) switches a frontend gate off without platform-owner review.",
+          "pattern": "eslint-disable|eslint-enable|/\\*\\s*eslint\\s|stylelint-disable|@ts-ignore|@ts-nocheck",
+          "flags": "",
+          "appliesTo": [
+            "frontend/**/*.ts",
+            "frontend/**/*.html",
+            "frontend/**/*.scss"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/node_modules/**",
+            "frontend/starter-web/lint-fixtures/**",
+            "frontend/starter-web/tools/README.md"
+          ],
+          "fix": "Fix the code instead. A justified exception is a module.rules.yaml exemption with a reason, reviewed by the platform owner.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-editorconfig",
+          "source": "base",
+          "description": "A nested .editorconfig applies to every file below it, so a hand-written one can switch analyzers off or change thresholds for part of a module; the only nested ones are those the rules engine emits at each module root.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "*/**/.editorconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "services/attachment-service/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Delete the file. Set analyzer severities and thresholds in the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-fixture-gate-opt-out",
+          "source": "base",
+          "description": "CodelabFixtureGateOptOut lets a build switch the quality gates off without CODELAB002; only the SDK's own fixture builds may pass it.",
+          "pattern": "\\bCodelabFixtureGateOptOut\\b",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets",
+            "**/*.rsp",
+            "**/*.ps1",
+            "**/*.mjs",
+            "**/*.json"
+          ],
+          "excludes": [
+            "packages/dotnet/Codelab.Build.Sdk/Sdk/Sdk.targets",
+            "packages/dotnet/Codelab.Build.Analyzers.Tests/SdkFixture/**",
+            "rules/**",
+            "tools/rules-engine/tests/**"
+          ],
+          "fix": "Remove it. The quality gates stay on for every project; fix the code instead.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-hand-written-globalconfig",
+          "source": "base",
+          "description": "Roslyn loads any .globalconfig it is given, at any global_level, so a hand-written one can raise the clean-code thresholds or switch rules off for a whole project; the only one is the generated rules/codelab.globalconfig.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig"
+          ],
+          "fix": "Delete the file. Change thresholds in rules/base.rules.yaml or a module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-auto-generated-marker",
+          "source": "base",
+          "description": "An auto-generated header makes every analyzer skip the file (CLB1001-CLB1005 ignore generated code), so hand-written code must not carry one.",
+          "pattern": "^[ \\t]*(?://|/\\*)[^\\r\\n]*<auto-generated",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Remove the header. Real generator output is written under obj/ by the build and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-generated-file-name",
+          "source": "base",
+          "description": "A *.g.cs, *.generated.cs or *.designer.cs name makes the analyzers treat a hand-written file as generated and skip it.",
+          "pattern": "^[\\s\\S]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.g.cs",
+            "**/*.g.i.cs",
+            "**/*.generated.cs",
+            "**/*.designer.cs",
+            "**/*.Designer.cs"
+          ],
+          "excludes": [],
+          "fix": "Rename the file to a plain *.cs name. Generator output lives under obj/ and is never committed.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-test-project-opt-in",
+          "source": "base",
+          "description": "Only a *.Tests project is a test project (CLB1004 magic numbers skips test projects). Production code may not declare IsTestProject, reference a test framework (Microsoft.NET.Test.Sdk sets IsTestProject) or rename its assembly to *.Tests.",
+          "pattern": "<IsTestProject>\\s*true|<PackageReference\\b[^>]*\\bInclude\\s*=\\s*\"(?:Microsoft\\.NET\\.Test\\.Sdk|xunit|NUnit|MSTest)|<AssemblyName>[^<]*\\.Tests?\\s*<",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.csproj",
+            "**/*.props",
+            "**/*.targets"
+          ],
+          "excludes": [
+            "**/*.Tests/**",
+            "**/*.Tests.csproj"
+          ],
+          "fix": "Put tests in a project named <Module>.Tests; production code never declares IsTestProject.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-accept-any-certificate",
+          "source": "base",
+          "description": "A certificate validator that accepts everything turns TLS into plain text for an attacker in the path (the harvest source's internal calls did this).",
+          "pattern": "\\bDangerousAcceptAnyServerCertificateValidator\\b|(?:ServerCertificateCustomValidationCallback|RemoteCertificateValidationCallback|ServerCertificateValidationCallback)\\s*[+]?=\\s*(?:delegate\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+true\\s*;\\s*\\}|(?:static\\s+)?(?:\\([^)]*\\)|\\w+)\\s*=>\\s*true\\b)",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep certificate validation on. Trust an internal CA through Codelab.Integration's ServerCertificatePolicy (pinned or chain-validated), never by returning true.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-threshold-override",
+          "source": "base",
+          "description": "Clean-code thresholds (codelab_* keys) written by hand bypass the rules files and their review; only the files the rules engine emits, at their own paths (rules/codelab.globalconfig and each module's .editorconfig), may set them. A GENERATED marker in the content proves nothing.",
+          "pattern": "(?:^|\\n)[ \\t]*codelab_\\w+[ \\t]*=",
+          "flags": "",
+          "appliesTo": [
+            "**/.editorconfig",
+            "**/*.globalconfig"
+          ],
+          "excludes": [
+            "rules/codelab.globalconfig",
+            "services/attachment-service/.editorconfig"
+          ],
+          "exemptEmittedFiles": true,
+          "fix": "Change the thresholds or settings in rules/base.rules.yaml or the module.rules.yaml, then run node tools/rules-engine/compile.mjs.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-permission-key",
+          "source": "base",
+          "description": "Permission keys passed as string literals drift from the permission catalog.",
+          "pattern": "\\b(?:HasPermission|RequirePermission|hasPermission)\\(\\s*['\"`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts",
+            "**/*.Tests/**"
+          ],
+          "fix": "Use the typed permission constant (Permissions.<Area>.<Action> in C#, PermissionKeys.<KEY> in TypeScript).",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-role-check",
+          "source": "base",
+          "description": "Role checks with string literals bypass the permission model.",
+          "pattern": "\\bIsInRole\\(\\s*\"",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Check a permission with [HasPermission(Permissions.<Area>.<Action>)] instead of a role name.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-string-config-key",
+          "source": "base",
+          "description": "Configuration read by string key is untyped and unvalidated.",
+          "pattern": "\\bconfiguration\\s*\\[\\s*\"|\\.GetSection\\(\\s*\"|\\.GetValue<[^>]+>\\(\\s*\"",
+          "flags": "i",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Bind a typed options class with a SectionName constant and ValidateOnStart, then inject IOptions<T>.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-stored-as-int",
+          "source": "base",
+          "description": "Enums stored or serialized as strings break when a member is renamed.",
+          "pattern": "HasConversion<string>\\s*\\(|\\bEnumToStringConverter\\b|\\bJsonStringEnumConverter\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.",
+          "severity": "error"
+        },
+        {
+          "id": "base.enum-explicit-values",
+          "source": "base",
+          "description": "An enum member without an explicit value changes meaning when members are reordered (CLB1005 is the build gate).",
+          "pattern": "\\benum\\s+\\w+(?:\\s*:\\s*\\w+)?\\s*\\{(?:[^{}]*?[{,])?\\s*[A-Za-z_]\\w*\\s*(?:,|\\})",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-dbcontext-in-api",
+          "source": "base",
+          "description": "The Api layer must not touch the database directly.",
+          "pattern": "\\b\\w*DbContext\\b|\\bSaveChanges(?:Async)?\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Api/**/*.cs",
+            "**/*.Api/**/*.cs",
+            "**/*Controller.cs"
+          ],
+          "excludes": [
+            "**/Composition/**",
+            "**/Program.cs",
+            "**/*.Tests/**"
+          ],
+          "fix": "Call an Application use case; only the composition root registers the DbContext.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-ef-in-application",
+          "source": "base",
+          "description": "Application code must depend on ports, not on EF Core.",
+          "pattern": "\\busing\\s+Microsoft\\.EntityFrameworkCore\\b|\\b\\w*DbContext\\b",
+          "flags": "",
+          "appliesTo": [
+            "**/Application/**/*.cs",
+            "**/*.Application/**/*.cs"
+          ],
+          "excludes": [
+            "**/*.Tests/**"
+          ],
+          "fix": "Declare a port (repository or IUnitOfWork interface) in Application and implement it in Infrastructure.",
+          "severity": "error"
+        },
+        {
+          "id": "base.public-id-routes",
+          "source": "base",
+          "description": "Raw numeric or Guid database ids in routes leak internal keys.",
+          "pattern": "\\{\\w*[Ii]d:(?:int|long|guid)\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Take a PublicId route value ({id}) and resolve it in the Application layer.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-empty-catch",
+          "source": "base",
+          "description": "An empty catch block hides failures.",
+          "pattern": "\\bcatch\\s*(?:\\([^)]*\\))?\\s*\\{\\s*\\}",
+          "flags": "",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Handle the error, or let it reach the global exception handler; log with the reference code when you rethrow.",
+          "severity": "error"
+        },
+        {
+          "id": "base.no-commented-out-code",
+          "source": "base",
+          "description": "Commented-out code is dead code; git keeps the history.",
+          "pattern": "^\\s*//\\s*(?:var|let|const|if|for|foreach|while|return|await|public|private|using|import|throw)\\b.*[;{]\\s*$",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.cs",
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Delete the commented-out code.",
+          "severity": "warning"
+        },
+        {
+          "id": "base.fe-http-via-api-service",
+          "source": "base",
+          "description": "Feature code must not call HTTP directly.",
+          "pattern": "\\bHttpClient\\b|\\bfetch\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/http/**",
+            "**/core/api/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Inject ApiService (or the generated API client) from core/api; it owns the base URL, auth and signing headers.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-hardcoded-paths",
+          "source": "base",
+          "description": "Route and API paths typed as literals drift from the route and API catalogs.",
+          "pattern": "navigate(?:ByUrl)?\\(\\s*\\[?\\s*['\"`]/|['\"`]/api/",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/core/api/generated/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the typed route constants (AppRoutes) and the generated API client instead of path literals.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-only",
+          "source": "base",
+          "description": "Third-party UI kits and external DGA packages are not allowed (D5).",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:/|['\"]))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Use the matching component from @codelab/ng-dga, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-ui-library-styles-and-deps",
+          "source": "base",
+          "description": "Third-party UI kit stylesheets, dependencies (including npm aliases) and angular.json styles/scripts are not allowed (D5).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?['\"]?|\\bload-css\\(\\s*['\"]?|\"(?:[^\"\\s]*?[:/])?)~?(?:\\.{1,2}/)*(?:node_modules/)?(?:@angular/material|primeng|primeicons|ng-zorro-antd|ngx-bootstrap|@ng-bootstrap/|@(?:dev-)?dga(?:-[a-z]+)?[/@'\"]|@angular-material-components/|@swimlane/ngx-|@clr/|@progress/kendo-angular|devextreme-angular|@syncfusion/ej2-angular|@ionic/angular|@nebular/|@taiga-ui/|bootstrap(?:[/'\"#@]|\\.git\\b))",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css",
+            "**/package.json",
+            "**/angular.json"
+          ],
+          "excludes": [],
+          "fix": "Remove the UI kit's stylesheet, dependency (or its npm alias) or angular.json entry and use @codelab/ng-dga components and tokens, or ask the platform owner to add one.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-remote-stylesheet",
+          "source": "base",
+          "description": "Stylesheets imported from a remote URL (CDN) are not allowed (D5, no egress).",
+          "pattern": "(?:@(?:use|import|forward)\\s+(?:url\\(\\s*)?|\\bload-css\\(\\s*)['\"]?(?:https?:)?//",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Install the stylesheet's package through the platform owner (or self-host the asset) and import it locally; UI kits stay refused (D5).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-shared-no-features",
+          "source": "base",
+          "description": "Shared building blocks (shared/, patterns/, layouts/) must not import feature code.",
+          "pattern": "(?:\\bfrom|\\bimport)\\s*\\(?\\s*['\"](?:\\.\\./)+features/",
+          "flags": "",
+          "appliesTo": [
+            "**/src/app/shared/**/*.ts",
+            "**/src/app/patterns/**/*.ts",
+            "**/src/app/layouts/**/*.ts"
+          ],
+          "excludes": [],
+          "fix": "Move what both need into shared/ (or core/), or pass it in through an input; a feature may import shared code, never the reverse.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-template",
+          "source": "base",
+          "description": "Raw text in a template is not translated.",
+          "pattern": ">(?:[^<>{}&\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.html"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/src/index.html"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-raw-text-in-inline-template",
+          "source": "base",
+          "description": "Raw text in an inline component template is not translated.",
+          "pattern": "\\btemplate\\s*:\\s*(?:`[^`]*?|'[^']*?|\"[^\"]*?)>(?:[^<>{}&`'\"\\p{L}]|&#?[\\p{L}\\d]{1,10};)*\\p{L}[^<>{}`'\"]*<",
+          "flags": "u",
+          "appliesTo": [
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/showcase/**",
+            "**/*.spec.ts"
+          ],
+          "fix": "Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-no-string-permission-key-in-template",
+          "source": "base",
+          "description": "A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too).",
+          "pattern": "\\[?\\*?hasPermission\\]?\\s*=\\s*\"\\s*['`]",
+          "flags": "",
+          "appliesTo": [
+            "**/*.html",
+            "**/*.ts"
+          ],
+          "excludes": [
+            "**/*.spec.ts"
+          ],
+          "fix": "Use the generated key, *hasPermission=\"PermissionKeys.<Key>\" (docs/recipes/add-permission.md).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-logical-css",
+          "source": "base",
+          "description": "Physical left/right properties break RTL.",
+          "pattern": "\\b(?:margin|padding|border)-(?:left|right)\\b|(?:^|[\\s;{])(?:left|right)\\s*:|\\btext-align\\s*:\\s*(?:left|right)\\b|\\bfloat\\s*:\\s*(?:left|right)\\b",
+          "flags": "m",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [],
+          "fix": "Use logical properties (margin-inline-start, inset-inline-end, text-align start/end).",
+          "severity": "error"
+        },
+        {
+          "id": "base.fe-design-tokens",
+          "source": "base",
+          "description": "Raw colours bypass the design tokens.",
+          "pattern": "#[0-9a-fA-F]{3,8}\\b|\\brgba?\\s*\\(",
+          "flags": "",
+          "appliesTo": [
+            "**/*.scss",
+            "**/*.css"
+          ],
+          "excludes": [
+            "**/tokens/**",
+            "**/_tokens*.scss"
+          ],
+          "fix": "Use a design token, e.g. var(--codelab-color-primary).",
+          "severity": "error"
+        },
+        {
+          "id": "attachmentsservice.no-other-credential",
+          "source": "module",
+          "description": "A bearer, API-key or cookie scheme would let a browser token or a shared secret reach stored files; the only credentials are the service assertion and the upload ticket.",
+          "pattern": "(AddJwtBearer|JwtBearerDefaults|AddCookie\\s*\\(|ApiKey\\w*(?:Handler|Scheme|Authentication))",
+          "flags": "",
+          "appliesTo": [
+            "services/attachment-service/src/**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Use the CodelabServiceAssertion scheme for service callers, or an upload ticket sealed by the API for browsers.",
+          "severity": "error"
+        },
+        {
+          "id": "attachmentsservice.no-form-binding",
+          "source": "module",
+          "description": "Form binding buffers the whole multipart body before any cap or magic-byte check runs.",
+          "pattern": "(IFormFile|ReadFormAsync|Request\\.Form\\b|\\[FromForm\\])",
+          "flags": "",
+          "appliesTo": [
+            "services/attachment-service/src/**/*.cs"
+          ],
+          "excludes": [],
+          "fix": "Stream the raw body through IUploadPipeline.",
           "severity": "error"
         }
       ],

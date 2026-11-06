@@ -4,7 +4,7 @@
 
 Presentational building blocks that two or more features use and that are neither page patterns
 (`src/app/patterns`) nor `@codelab/ng-dga` components. They render inputs and emit outputs; services and state
-belong in `core`.
+belong in `core`, except the app-wired adapters such as `attachments/`.
 
 | Piece | What it gives the app | Files |
 | --- | --- | --- |
@@ -13,6 +13,8 @@ belong in `core`.
 | Permission matching | `holdsPermissions(has, required, mode)`, `PermissionMatchMode`, `PermissionRequirement`, re-exported from core (`core/permissions/permission-match.ts`, which `permissionGuard()` also uses) | `permissions/permission-match.ts` |
 | Geo data source | `StaticGeoDataSource` (implements `DgaGeoDataSource`) over the static bilingual seed in `geo-seed-data.ts` (stable slug ids; never store them as lookup ids). Features take `inject(GEO_DATA_SOURCE)`; Phase 5 provides an API-backed source behind the same token | `geo-select/` |
 | `app-file-picker` (P4) | Now composed on ng-dga `dga-file-upload`; same inputs and `fileChange` output; a file outside `accept` is still emitted. Keys and test ids in `file-picker-keys.ts` | `file-picker/` |
+| Attachments adapter | `RecordAttachmentsAdapter` (types, list, upload: ticket → attachment service → receipt → link with progress, download, remove), `AttachmentsClient`, `AttachmentUploadService`, `AttachmentError` {code, referenceCode, status}; see [attachments/MODULE.md](attachments/MODULE.md) | `attachments/` |
+| `app-record-attachments` | The typed attachments of any record: inputs `recordType`, `recordId`, `readonly`; one `dga-file-upload` per attachment type; upload/download/remove through the attachments adapter; gated by attachments.view/upload/remove; the server's required-missing verdict; failures as page feedback with `errors.<CODE>` and the reference code; see [record-attachments/MODULE.md](record-attachments/MODULE.md) | `record-attachments/` |
 
 ## Use
 
@@ -51,7 +53,7 @@ still authorizes every call, and routes are gated separately by `permissionGuard
 ## Rules
 
 - Shared imports only `core` and `@codelab/ng-dga` (ESLint boundaries). Never a feature, a layout or a pattern.
-- No business logic and no API calls; no raw text; design tokens and logical CSS only.
+- No business logic. API calls only in app-wired adapters (attachments/), and only through core ApiService; no raw text; design tokens and logical CSS only.
 - Permission keys come from the generated `PermissionKeys`, never string literals (`base.no-string-permission-key`).
 - An empty key list never renders (fail closed), in either mode.
 

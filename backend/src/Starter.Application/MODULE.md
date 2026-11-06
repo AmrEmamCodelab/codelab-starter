@@ -20,6 +20,7 @@ interfaces; adapters live in Starter.Infrastructure or in the module that owns t
 | Auditing | `IAuditContextAccessor`, `AuditContext`, `IAuditTrailQueries` (`AuditTrailQuery`, `AuditTrailPage`, `AuditTrailEntry`, `AuditPropertyChange`), `AuditActors` (`System` = "SYSTEM") | kernel (`HttpAuditContextAccessor`, `EfAuditTrailQueries`) |
 | Jobs | IJob (Key, NameAr, NameEn, Cron or null, RunAsync(JobRunContext)), JobRunContext, JobRunStatus (Queued = 1, Running = 2, Succeeded = 3, Failed = 4), JobTrigger (Schedule = 1, Manual = 2), SystemActor (Name = "SYSTEM", = AuditActors.System), ISystemActorScope (IsActive, BeginSystemScope), JobKeyFormat (lowercase kebab, 3-64) | jobs module (catalog, runs, Hangfire); kernel (SystemActorScope) |
 | Lookups | `ILookupValues` (`FindActiveAsync(typeKey, id)`), `ActiveLookupValue` | Lookups module (`ActiveLookupValues`, over its per-node cache) |
+| Attachments | `IAttachableRecordAccess` (`RecordType`, `CanViewAsync`, `CanChangeAsync`), `IRequiredAttachments` (`FindMissingTypeKeysAsync`; call it through `RequiredAttachmentsGate.RefuseWhileMissingAsync`, which answers the 409 refusal or null), `AttachmentErrorCodes.RequiredMissing` (`ATTACHMENTS_REQUIRED_MISSING`) | owning modules (record access); Attachments module (`RequiredAttachmentsCheck`) |
 | Localization | `ICurrentLanguage` | kernel (HTTP) |
 
 ## Use
