@@ -1,0 +1,9 @@
+{
+  "id": "new-lookup",
+  "kind": "scaffold",
+  "skill": "new-lookup",
+  "description": "A new reference-data list must route to the lookup scaffold.",
+  "prompt": "Request forms need a dropdown of submission channels: web portal, walk-in counter, phone call and e-mail, each with an Arabic and an English name. Add that reference list.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

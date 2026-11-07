@@ -1,0 +1,24 @@
+# Stale-fact terms: text that describes the platform as it used to be (or as the harvest source was), not as it is.
+# Read by tools/facts-drift/check.mjs over its scope (.claude/agents, .claude/skills, CLAUDE.md, CONTEXT.md, docs/**
+# minus docs/adr, docs/evidence and docs/generated). Each rule id becomes "stale-<id>" in findings and in
+# tools/facts-drift/allowlist.txt.
+#
+# Format (the scrub sweep's term format, parsed by the same code): one rule per line:   <id>[/<flags>]: <JavaScript regex>
+#   flags: "i" = case-insensitive (default is case-sensitive). Blank lines and lines starting with "#" are ignored.
+# Source-product names are NOT listed here: they live once in tools/extract/modhs-terms.txt, which this gate reuses.
+
+# The frontend is Angular 22 (ADR, package.json). Any older major version named in prose is stale.
+angular-old-version/i: \bangular\s*v?(?:[2-9]|1\d|2[01])(?:\.\d+)*\b
+
+# Authorization is permission-based, resolved per user (rule 8: every endpoint has [HasPermission]).
+role-based-auth/i: \brole[- ]based\s+(?:auth\w*|access(?:\s+control)?)\b|\brole\s+auth\w*\b|\bRBAC\b
+
+# Frontend tests run on Vitest; Karma (and its Jasmine runner config) is gone.
+karma/i: \bkarma\b
+
+# OpenAPI comes from the built-in .NET OpenAPI support; the Swashbuckle generator is not used.
+swashbuckle/i: \bswashbuckle\b
+
+# The external DGA npm scope (D5: the starter owns its DGA components in @codelab/ng-dga). Written with a character
+# class so this file never matches the scrub sweep's own DGA package rule.
+external-dga-scope/i: @dev[-]dga\b

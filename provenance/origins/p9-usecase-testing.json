@@ -1,0 +1,73 @@
+{
+  "batch": "p9-usecase-testing",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p9-usecase-testing -Manifest <scratch copy of allowlist.manifest.yaml with the p9-usecase-testing batch> -Clean (scrub findings and one known-secret-digest finding in the staged command are expected before the rewrite; nothing from them was carried)",
+  "promotion": "Each staged file was read as a reference only and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. The skill and the command are merged into one skill (commands become skills): input is a use-case ID plus any HLS-format workbook path (no fixed docs folder or workbook version), the live stack is a run-local -Slot stack on its own throwaway database, and the report is an .xlsx or a Markdown bug report generated from results.json by a PowerShell script (no Python). Left behind: the source product's roles, ports, service names, test project names, docs folders and versions, seeded account names and the password, machine-specific SQL notes and every findings sample.",
+  "origins": [
+    {
+      "batch": "p9-usecase-testing",
+      "entryId": "usecase-testing-skill",
+      "source": ".claude/skills/usecase-testing/SKILL.md",
+      "target": ".claude/skills/usecase-testing/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "b6bc70f4fcd3229da882d5d88c241983146d71ca",
+      "sourceSha256": "40c7f71758b3bdc8bc13f21c074e35b24adf83d88833424de3b2109f8d4aaf5a",
+      "stagedSha256": "40c7f71758b3bdc8bc13f21c074e35b24adf83d88833424de3b2109f8d4aaf5a",
+      "stagedTarget": "reference/p9/usecase-testing/skill/SKILL.md",
+      "promotion": "rewritten",
+      "note": "Kept: the phase structure (inspect, read workbook, plan, run existing tests, investigate, root cause, report), the two oracle rules (workbook wins; a gap is not a defect), honest Confirmed/Probable confidence, Blocked never Pass, and always emitting a report. Rewritten for any project: no hard-coded workbook folder or version, starter test map, slot stack, no Python generator."
+    },
+    {
+      "batch": "p9-usecase-testing",
+      "entryId": "usecase-testing-skill",
+      "source": ".claude/skills/usecase-testing/SKILL.md",
+      "target": ".claude/skills/usecase-testing/REFERENCE.md",
+      "mode": "copy",
+      "sourceGitBlob": "b6bc70f4fcd3229da882d5d88c241983146d71ca",
+      "sourceSha256": "40c7f71758b3bdc8bc13f21c074e35b24adf83d88833424de3b2109f8d4aaf5a",
+      "stagedSha256": "40c7f71758b3bdc8bc13f21c074e35b24adf83d88833424de3b2109f8d4aaf5a",
+      "stagedTarget": "reference/p9/usecase-testing/skill/SKILL.md",
+      "promotion": "rewritten",
+      "note": "The sheet-by-sheet workbook table and the error-handling table were generalized (match by header text, any generation); the results.json contract, severity and confidence rubrics and the tracing chain were written for the starter's layers."
+    },
+    {
+      "batch": "p9-usecase-testing",
+      "entryId": "test-use-case-command",
+      "source": ".claude/commands/test-use-case.md",
+      "target": ".claude/skills/usecase-testing/REFERENCE.md",
+      "mode": "copy",
+      "sourceGitBlob": "a7e79de3ce4dd7eb62b87bed14f3683c1793b7e4",
+      "sourceSha256": "eade9b30a04c622869ab744c87e84895f5dfe90f1262f88d98fe1251023c29bf",
+      "stagedSha256": "eade9b30a04c622869ab744c87e84895f5dfe90f1262f88d98fe1251023c29bf",
+      "stagedTarget": "reference/p9/usecase-testing/command/test-use-case.md",
+      "promotion": "rewritten",
+      "note": "The Markdown findings template became the -Format Markdown output of scripts/Write-UseCaseReport.ps1 (sections and issue fields kept, shaped for prd-and-plan). The role list, port list, test project names, seed accounts and password were not carried."
+    },
+    {
+      "batch": "p9-usecase-testing",
+      "entryId": "test-use-case-command",
+      "source": ".claude/commands/test-use-case.md",
+      "target": ".claude/skills/usecase-testing/scripts/Write-UseCaseReport.ps1",
+      "mode": "copy",
+      "sourceGitBlob": "a7e79de3ce4dd7eb62b87bed14f3683c1793b7e4",
+      "sourceSha256": "eade9b30a04c622869ab744c87e84895f5dfe90f1262f88d98fe1251023c29bf",
+      "stagedSha256": "eade9b30a04c622869ab744c87e84895f5dfe90f1262f88d98fe1251023c29bf",
+      "stagedTarget": "reference/p9/usecase-testing/command/test-use-case.md",
+      "promotion": "rewritten",
+      "note": "Report sections and the per-issue fields (problem, expected, actual, repro, root cause, location, fix, acceptance criteria, blast radius) informed the generated report; counts are derived by the script."
+    },
+    {
+      "batch": "p9-usecase-testing",
+      "entryId": "read-xlsx-script",
+      "source": ".claude/scripts/Read-Xlsx.ps1",
+      "target": ".claude/skills/usecase-testing/scripts/Read-Xlsx.ps1",
+      "mode": "copy",
+      "sourceGitBlob": "061d673d60e27844bba71217c09d8bee7c0e852d",
+      "sourceSha256": "72f79c25d12604798877bc81415322011ec035e948b2b5a092047e775eac0ddf",
+      "stagedSha256": "72f79c25d12604798877bc81415322011ec035e948b2b5a092047e775eac0ddf",
+      "stagedTarget": "reference/p9/usecase-testing/scripts/Read-Xlsx.ps1",
+      "promotion": "rewritten",
+      "note": "Approach kept (System.IO.Compression OOXML read, shared strings with rich and phonetic runs, inline strings, relationship-resolved sheets). Added -Sheet, -AsJson, -OutFile (UTF-8), booleans, cells without a reference, terminating errors, strict mode, ASCII-only source for Windows PowerShell 5.1; Pester 3.4 tests build the workbook in %TEMP%."
+    }
+  ]
+}

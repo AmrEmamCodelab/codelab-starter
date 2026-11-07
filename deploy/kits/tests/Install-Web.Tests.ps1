@@ -359,6 +359,8 @@ Describe 'Install-Web web.config merge' {
 
 Describe 'Install-Web -WhatIf' {
     Mock Get-WebPrerequisiteFacts $PrerequisiteFactsPresent
+    Mock Get-WebAllowedServerVariables { @() }
+    Mock Add-WebAllowedServerVariable { throw 'no IIS change is expected under -WhatIf' }
     Mock -ModuleName Install-Common Get-KitIisState $IisStateWithSite
     Mock -ModuleName Install-Common Invoke-KitIisAction { }
     Mock Invoke-WebHttpRequest { throw 'no HTTP call is expected under -WhatIf' }
@@ -402,6 +404,8 @@ Describe 'Install-Web -WhatIf' {
 
 Describe 'Install-Web install (IIS and HTTP mocked)' {
     Mock Get-WebPrerequisiteFacts $PrerequisiteFactsPresent
+    Mock Get-WebAllowedServerVariables { @() }
+    Mock Add-WebAllowedServerVariable { }
     Mock -ModuleName Install-Common Get-KitIisState $IisStateWithSite
     Mock -ModuleName Install-Common Invoke-KitIisAction $IisApplyCreatesFolder
     Mock Start-Sleep { }
@@ -514,5 +518,28 @@ Describe 'Install-Web health findings' {
 
     It 'builds probe URLs from the base without a double slash' {
         Join-WebUrl 'https://portal.example.test/' '/api/ops/health' | Should BeExactly 'https://portal.example.test/api/ops/health'
+    }
+}
+
+Describe 'Install-Web allowed server variables' {
+    It 'names the trace server variables from the psd1' {
+        (Get-WebStrippedServerVariables $HeaderTable) -join ',' | Should BeExactly 'HTTP_TRACEPARENT,HTTP_TRACESTATE,HTTP_BAGGAGE'
+    }
+
+    It 'adds only the missing allowed server variables' {
+        Mock Get-WebAllowedServerVariables { @('HTTP_TRACEPARENT') }
+        Mock Add-WebAllowedServerVariable { }
+        $result = New-WebKitResult -Preview $false -TargetPath $TestDrive
+        Invoke-WebAllowedServerVariablesStep -Result $result -SiteName $TestSiteName -HeaderData $HeaderTable -Preview $false
+        Assert-MockCalled Add-WebAllowedServerVariable -Times 2 -Exactly -Scope It
+    }
+
+    It 'only plans the change under -WhatIf, even when IIS cannot be read' {
+        Mock Get-WebAllowedServerVariables { throw 'no WebAdministration' }
+        Mock Add-WebAllowedServerVariable { }
+        $result = New-WebKitResult -Preview $true -TargetPath $TestDrive
+        Invoke-WebAllowedServerVariablesStep -Result $result -SiteName $TestSiteName -HeaderData $HeaderTable -Preview $true
+        Assert-MockCalled Add-WebAllowedServerVariable -Times 0 -Exactly -Scope It
+        @($result.PlannedActions | Where-Object { $_ -like '*allow URL Rewrite server variable*' }).Count | Should Be 3
     }
 }

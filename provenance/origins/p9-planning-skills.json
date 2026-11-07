@@ -1,0 +1,73 @@
+{
+  "batch": "p9-planning-skills",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "extractedWith": "tools/extract/extract.ps1 -Batch p9-planning-skills -Manifest <scratch copy of allowlist.manifest.yaml with the p9-planning-skills batch> -Staging <scratch folder outside the repo> -Clean (scrub findings are expected before the rewrite; secret scan clean)",
+  "promotion": "Each staged file was read as a reference only and rewritten with starter names and structure; \"target\" is the repo file it informed, \"stagedTarget\" the path in the staging folder. Content is a rewrite, so the repo file hash differs from stagedSha256. Left behind: the source-product tracker server, agent and credential handling, its roles, workflow and orientation section, and its comment markers.",
+  "origins": [
+    {
+      "batch": "p9-planning-skills",
+      "entryId": "prd-to-plan",
+      "source": ".claude/skills/prd-to-plan/SKILL.md",
+      "target": ".claude/skills/prd-to-plan/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "a5da1c2f1fbc3c956c801418d57f0ef37fef9dd7",
+      "sourceSha256": "96fa3e558ad0b88c8776d3cee3eb50e41808273d053b5fecc3c80d4ccde9cc38",
+      "stagedSha256": "96fa3e558ad0b88c8776d3cee3eb50e41808273d053b5fecc3c80d4ccde9cc38",
+      "stagedTarget": "reference/p9/planning-skills/prd-to-plan/SKILL.md",
+      "promotion": "rewritten",
+      "note": "Rewritten for the starter: the plan goes to the tracked plans/<slug>.md, each phase names its feature spec and the starter skills that build it, acceptance criteria end in the starter test tiers; the plan template moved to PLAN-TEMPLATE.md."
+    },
+    {
+      "batch": "p9-planning-skills",
+      "entryId": "prd-and-plan",
+      "source": ".claude/skills/prd-and-plan/SKILL.md",
+      "target": ".claude/skills/prd-and-plan/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "a71a864276883a39da31822e4c29882aab0a62ea",
+      "sourceSha256": "b6396180e509c9b7db6496b86867bb8fc4035d63bf6da78ece0988464ec5e8d2",
+      "stagedSha256": "b6396180e509c9b7db6496b86867bb8fc4035d63bf6da78ece0988464ec5e8d2",
+      "stagedTarget": "reference/p9/planning-skills/prd-and-plan/SKILL.md",
+      "promotion": "rewritten",
+      "note": "Rewritten for the starter: the PRD goes to plans/<slug>-prd.md (not a gitignored agent folder), the tracker is optional and configured in plans/README.md (no hard-coded server, agent or credentials), the source-product orientation, roles and workflow were dropped; the PRD template moved to PRD-TEMPLATE.md."
+    },
+    {
+      "batch": "p9-planning-skills",
+      "entryId": "reduce-comments",
+      "source": ".claude/skills/reduce-comments/REFERENCE.md",
+      "target": ".claude/skills/reduce-comments/REFERENCE.md",
+      "mode": "copy",
+      "sourceGitBlob": "48aabef7d002a30d6708be07455b0ba3a444ac40",
+      "sourceSha256": "9fdf8db36aa6de1de018f49a035044ca1901f4254427f97c038ef269a8ff06c8",
+      "stagedSha256": "9fdf8db36aa6de1de018f49a035044ca1901f4254427f97c038ef269a8ff06c8",
+      "stagedTarget": "reference/p9/planning-skills/reduce-comments/REFERENCE.md",
+      "promotion": "rewritten",
+      "note": "Rewritten: the Remove/Simplify/Keep taxonomy kept with neutral examples; the source-product marker table replaced by starter markers (ADR, error codes, permission keys, analyzer ids); a differ section documents dialects, normalization and known limits."
+    },
+    {
+      "batch": "p9-planning-skills",
+      "entryId": "reduce-comments",
+      "source": ".claude/skills/reduce-comments/SKILL.md",
+      "target": ".claude/skills/reduce-comments/SKILL.md",
+      "mode": "copy",
+      "sourceGitBlob": "fb67a6ffadb58007fb4652678d87de9cd9ab390a",
+      "sourceSha256": "356272d5bffdeb8542f1b0fd54e9d23164226849380bd9cf216ecb9325a08cae",
+      "stagedSha256": "356272d5bffdeb8542f1b0fd54e9d23164226849380bd9cf216ecb9325a08cae",
+      "stagedTarget": "reference/p9/planning-skills/reduce-comments/SKILL.md",
+      "promotion": "rewritten",
+      "note": "Rewritten: workflow kept (ask, locate, classify, snapshot, verify, report); the verifier is now scripts/comment-diff.mjs; source-product examples and marker list replaced with starter ones."
+    },
+    {
+      "batch": "p9-planning-skills",
+      "entryId": "reduce-comments",
+      "source": ".claude/skills/reduce-comments/scripts/comment_tool.py",
+      "target": ".claude/skills/reduce-comments/scripts/comment-diff.mjs",
+      "mode": "copy",
+      "sourceGitBlob": "abfda539b90b38a2a084ca18b5a74190432cc59b",
+      "sourceSha256": "1fdabe8484caf5c6e6a6b5c904f550b3daa4839fa665a7c5797100b9012f60a8",
+      "stagedSha256": "1fdabe8484caf5c6e6a6b5c904f550b3daa4839fa665a7c5797100b9012f60a8",
+      "stagedTarget": "reference/p9/planning-skills/reduce-comments/scripts/comment_tool.py",
+      "promotion": "rewritten",
+      "note": "Ported from Python to zero-dependency Node ESM and redesigned: per-language scanners (C# verbatim/interpolated/raw strings and char literals, script template holes and regex literals, HTML attributes and raw-text elements, T-SQL nested comments and bracket identifiers; SQL no longer treats // as a comment), literals compared byte for byte, line breaks kept significant, first-difference line report; unit tests in scripts/tests."
+    }
+  ]
+}

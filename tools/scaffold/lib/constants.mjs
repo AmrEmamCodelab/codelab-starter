@@ -1,4 +1,5 @@
-// Every name, path, pattern and message of the scaffold generators (new-module, new-endpoint, new-permission).
+// Every name, path, pattern and message of the scaffold generators (new-module, new-endpoint, new-permission,
+// new-lookup; new-transition keeps its own in lib/transition/constants.mjs).
 // No other file in tools/scaffold holds a literal of these.
 //
 // RENAME SAFETY (ADR-003): the starter-named literals below (SOLUTION_TOKEN, SOLUTION_FILE, API_PROJECT, ...) are
@@ -42,6 +43,16 @@ export const CONTENT_TOKEN = /\{\{([A-Za-z]+)\}\}/g;
 export const PASCAL_NAME_PATTERN = /^[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)*$/;
 export const KEBAB_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 export const ROUTE_SEGMENT_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\/[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*$/;
+/**
+ * The --route value of an endpoint on the module root itself (api/<module>). '/' and '' are accepted too, but Git Bash
+ * rewrites a lone '/' into a Windows path and Windows PowerShell 5.1 drops an empty argument, so docs show '.'.
+ */
+export const MODULE_ROOT_ROUTE = '.';
+export const MODULE_ROOT_ROUTE_ALIASES = Object.freeze(['', '/']);
+/** ApiRoutes.Prefix (Starter.Infrastructure.Hosting): the first segment of every API route. */
+export const API_ROUTE_PREFIX = 'api';
+/** Separates the segments of an endpoint route. */
+export const ROUTE_SEPARATOR = '/';
 /** PermissionKeyFormat.Pattern (Starter.Application), mirrored so a key is checked before any file is written. */
 export const PERMISSION_KEY_PATTERN = /^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/;
 export const PERMISSION_KEY_MAX_LENGTH = 128;
@@ -61,7 +72,10 @@ export const ENDPOINT_SHAPES = Object.freeze({
   [HttpMethod.PUT]: { templateSet: 'endpoint-put', hasId: true, hasBody: true, defaultAction: 'manage', errorSuffix: 'NotFound', errorCodeSuffix: 'NOT_FOUND', errorSummary: 'The record to update does not exist' },
   [HttpMethod.DELETE]: { templateSet: 'endpoint-delete', hasId: true, hasBody: false, defaultAction: 'manage', errorSuffix: 'NotFound', errorCodeSuffix: 'NOT_FOUND', errorSummary: 'The record to delete does not exist' },
 });
-/** How an endpoint's route reads in docs: the id segment of an endpoint that addresses one record. */
+/**
+ * The id segment of an endpoint that addresses one record, as it reads in docs and as --route may place it
+ * ('{id}/draft', 'widgets/{id}/archive'); without it the id goes last.
+ */
 export const ID_ROUTE_DOC = '{id}';
 /** The namespaces an endpoint's registrations need in <Module>ModuleRegistration.cs. */
 export const VALIDATION_NAMESPACE = 'Starter.Application.Validation';
@@ -90,6 +104,9 @@ export const ModuleFiles = Object.freeze({
   registration: (module) => `Infrastructure/${module}ModuleRegistration.cs`,
   project: (module) => `${SOLUTION_TOKEN}.Modules.${module}.csproj`,
   testProject: (module) => `${SOLUTION_TOKEN}.Modules.${module}.Tests.csproj`,
+  /** The module's documentation (Purpose, Use, Extend, Rules, Gotchas) and its rules file. */
+  doc: 'MODULE.md',
+  rules: 'module.rules.yaml',
 });
 
 /** Downstream generators, run after a scaffold when they exist. */
@@ -121,6 +138,7 @@ export const Flags = Object.freeze({
   description: '--description',
   skipGenerate: '--skip-generate',
   noGenerate: '--no-gen',
+  dryRun: '--dry-run',
   help: '--help',
   type: '--type',
   codes: '--codes',
@@ -146,7 +164,36 @@ export const Report = Object.freeze({
   frontendKey: 'frontend key:',
   /** A fact the user should know (new-lookup: no i18n or permission key is needed). */
   note: 'note:',
+  /** --dry-run: a file the run would create or change. */
+  wouldCreate: 'would create',
+  wouldChange: 'would change',
 });
+
+/**
+ * The recipe each generator lists in the module's module.rules.yaml `recipes` (shown in the generated nested
+ * CLAUDE.md), so the next change of the same kind starts from the right document. Each must exist (rules validate).
+ */
+export const Recipes = Object.freeze({
+  endpoint: 'docs/recipes/add-endpoint.md',
+  permission: 'docs/recipes/add-permission.md',
+  lookup: 'docs/recipes/add-lookup.md',
+  transition: '.claude/skills/new-transition/SKILL.md',
+});
+
+/** The module.rules.yaml shapes the generators edit (block keys at column 0, a one-line `recipes: [...]`). */
+export const RulesYaml = Object.freeze({
+  recipesLine: /^recipes:[ \t]*\[(.*)\][ \t]*$/m,
+  recipesKey: 'recipes',
+  requiredKey: 'required',
+  /** A top-level key line: it ends the block above it. */
+  topLevelKey: /^[A-Za-z][A-Za-z0-9]*:/,
+  listSeparator: ', ',
+  itemIndent: '  ',
+  fieldIndent: '    ',
+});
+
+/** The optional marker a MODULE.md may carry to place the generators' notes; else they go at the end of "Use". */
+export const MODULE_DOC_MARKER = '<!-- scaffold:use -->';
 
 /** new-lookup (module 4, Lookups): where a lookup's constants and its seed migration live. */
 export const LOOKUP_TEMPLATE_SET = 'lookup';
@@ -166,6 +213,13 @@ export const LOOKUP_KEY_MAX_LENGTH = 64;
 export const LOOKUP_NAME_MAX_LENGTH = 200;
 /** The most values one new-lookup run seeds; a longer list is a hand-written migration. */
 export const MAX_LOOKUP_CODES = 100;
+/** The Lookups module: its docs (seeded-types table) and its tests (the migration list, one seed test per type). */
+export const LOOKUP_MODULE_DIR = 'backend/src/Modules/Lookups';
+export const LOOKUP_SEEDED_TYPES_HEADER = '| Type | Ids | Values |';
+export const LOOKUP_TESTS_PROJECT = 'backend/tests/Modules/Starter.Modules.Lookups.Tests';
+export const LOOKUP_MODEL_TESTS_FILE = 'backend/tests/Modules/Starter.Modules.Lookups.Tests/Infrastructure/PersistenceTests.cs';
+/** The model test's exact migration list: `[LookupsMigrationIds.InitialCreate, ...], context.Database.GetMigrations()`. */
+export const LOOKUP_MIGRATION_LIST = /(\[LookupsMigrationIds\.InitialCreate[^\]]*)(\],\s*context\.Database\.GetMigrations\(\)\))/;
 /** The gap between seeded sort orders (10, 20, 30, ...), leaving room to insert a value between two. */
 export const LOOKUP_SORT_STEP = 10;
 /** Separators of the list arguments: codes by comma, display names by semicolon (names may hold commas). */

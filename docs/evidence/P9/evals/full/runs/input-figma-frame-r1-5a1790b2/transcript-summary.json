@@ -1,0 +1,22 @@
+{
+    "SkillsInvoked":  [
+                          "build-feature"
+                      ],
+    "ToolUseCounts":  {
+                          "Read":  4,
+                          "Bash":  11,
+                          "Grep":  3,
+                          "Edit":  2,
+                          "Write":  2,
+                          "PowerShell":  3,
+                          "Skill":  1
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  28,
+    "TotalCostUsd":  1.3223883999999997,
+    "PermissionDenials":  4,
+    "ResultText":  "I\u0027ve written the draft spec for the feedback feature. No code has been written: the build waits until you approve the spec.\n\n- **The spec:** `docs/features/service-feedback.md`. It is a draft and passes the spec check with 0 errors and 0 warnings.\n- **The form\u0027s design notes:** `docs/features/service-feedback/screens/feedback-new/screen-spec.md`. It covers the parts, Arabic and English texts, states and gaps.\n\nI wrote both myself rather than through the spec-writer, workflow-designer and design-capture agents.\n\n**The image you sent is not this form.** `showcase-wizard.en.1440.png` is the showcase \"Multi-step wizard\" page (Applicant step, Full name, Email), not a rendering of the feedback frame. I\u0027ve used it as the wizard layout\u0027s reference image rather than as the target for this page. The Arabic version and the phone-width version are compared against the same stored wizard images.\n\n**What gets built**\n- **New module `Feedback`:** each item is a `feedback-entry` record numbered `FB-\u003cyear\u003e-\u003cn\u003e`. It stores the service (a new reference list), a rating from 1 to 5, comments (up to 1000 characters) and the \"contact me\" box.\n- **Statuses:** Draft 1, New 2, Closed 3.\n\n| From | Action | To | Permission | Reason required |\n| --- | --- | --- | --- | --- |\n| Draft | submit | New | feedback.create | no |\n| New | close | Closed | feedback.close | yes (the note) |\n\n- **Permissions:** `feedback.create`, `feedback.view-own`, `feedback.queue` and `feedback.close`.\n- **New endpoints:** `POST /api/feedback` creates and submits in one call and returns `{id, number}`; `GET /api/feedback/{id}` returns one item. The list, the detail and the close action reuse the existing generic queue and record endpoints.\n- **Screens:**\n  - `/feedback/new`: a one-step form that shows the reference number after sending.\n  - `/staff/feedback`: the staff list, filtered by New or Closed.\n  - `/staff/feedback/:id`: the item, with a Close dialog that requires a note.\n- **Build order:** module → permissions →"
+}

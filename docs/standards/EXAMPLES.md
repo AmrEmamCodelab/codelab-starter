@@ -14,24 +14,24 @@ Rows follow the standards in [SKILL.md](SKILL.md). A **rule** answers a question
 
 | # | Standard | Reference shape |
 | --- | --- | --- |
-| 1 | Name same-type arguments | Typed route IDs (`PublicId<IdDomains.ServiceRequest>`, `PublicId<IdDomains.User>`); named arguments on existing `long` ports such as `IRoleAdminService.AssignUserAsync`. |
+| 1 | Name same-type arguments | Typed route IDs (`PublicId<IdDomains.ServiceRequest>`, `PublicId<IdDomains.User>`); named arguments on calls with two same-type parameters, such as `RepositoryPaths.ToFullPath(root: root, relativePath: path)` in the docs gate. |
 | 2 | Give each rule one owner | The workflow transition table owns which actions a status offers; the permission map owns which permission each action needs. |
 | 3 | Hide implementation details | `IRecordNumberAllocator.AllocateAsync(year)` hides the per-year sequence row and its atomic increment. |
 | 4 | Make modules earn their interfaces | Domain ports in `Starter.Domain`, which Application tests replace with hand-written fakes. |
 | 5 | Keep reusable mechanisms independent | Email and SMS senders only transport; the module's notification dispatcher decides who receives what. |
-| 6 | Make common usage simple | `IServiceRequestRepository.TryTransitionStatusAsync` checks and changes a status in one conditional UPDATE. |
+| 6 | Make common usage simple | `IJobRuns.AbandonOtherRunningAsync` checks and changes the status of every other running run in one conditional UPDATE. |
 | 7 | Use precise, consistent names | `SlaWindow.Duration` is a `TimeSpan`, not an `int` of unknown unit; domain terms follow the glossary in the root `CONTEXT.md`. |
 | 8 | Make necessary contracts explicit | The XML doc on `TryTransitionStatusAsync`: it returns false when the record already left the FROM status, and the caller aborts. |
 | 9 | Simplify errors without hiding failures | [ERROR-HANDLING.md](ERROR-HANDLING.md). |
 | 10 | Keep the change coherent and bounded | A boundary bug fix corrects the rule and tests below, at and above the boundary. |
 | 11 | Justify performance complexity | A replay guard on `IMemoryCache` with a deliberate `SizeLimit`; a static dictionary only for data fixed after startup. |
-| 12 | Use named lookup values | `ServiceRequestStatusIds`, matching the IDs the reference-data migration writes. |
-| 13 | Enums stored as integers | `JobRunState { Queued = 1, Running = 2, Succeeded = 3, Failed = 4 }`, mapped to an `int` column. |
-| 14 | No magic strings or numbers | `PermissionKeys.ServiceRequests.Approve`, `ConfigKeys.Sla.DefaultDays`, `SlaOptions.MaxEscalations`. |
+| 12 | Use named lookup values | `ContactTopicIds`, matching the IDs the reference-data migration writes. |
+| 13 | Enums stored as integers | `JobRunStatus` (`Queued = 1`, `Running = 2`, ...), mapped to an `int` column. |
+| 14 | No magic strings or numbers | `ServiceRequestsPermissionKeys.Decide`, `LookupLimits.CodeMaxLength`, `DeadlinesJobKeys`. |
 | 15 | Small, single-purpose code | A use case `Handle` method of guard clauses plus calls to named steps. |
-| 16 | No business logic in controllers or components | `ServiceRequestsEndpoints` binds, authorizes, calls `SubmitServiceRequest` and maps the result. |
+| 16 | No business logic in controllers or components | `ServiceRequestsController` binds, authorizes, calls `SubmitServiceRequest` and maps the result. |
 | 17 | Time from `TimeProvider` | `timeProvider.GetUtcNow()`; tests pass a `FakeTimeProvider`. |
-| 18 | Unit tests mandatory | `SubmitServiceRequestTests` next to `SubmitServiceRequest`, covering success, each refusal and the race. |
+| 18 | Unit tests mandatory | `DraftUseCaseTests` covers `SubmitServiceRequest`: success, the invalid draft and each refusal. |
 
 BAD/GOOD examples follow for rows 1, 2, 6, 12, 13 and 14; the other rows rely on their reference shape and red flag.
 

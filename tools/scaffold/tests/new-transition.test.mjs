@@ -19,7 +19,7 @@ import {
 } from '../lib/transition/csharp-source.mjs';
 import { addBundleKeys, bundleHas } from '../lib/transition/i18n.mjs';
 import { addModuleDocNotes } from '../lib/transition/module-doc.mjs';
-import { addKitReference, usingLines } from '../lib/transition/tests.mjs';
+import { actorCalls, addKitReference, usingLines } from '../lib/transition/tests.mjs';
 
 const MODULE_DIR = 'backend/src/Modules/Demo';
 const TESTS_DIR = 'backend/tests/Modules/Starter.Modules.Demo.Tests';
@@ -30,6 +30,11 @@ const NOTIFICATIONS_FILE = `${MODULE_DIR}/Application/DemoNotificationKeys.cs`;
 const TEST_PROJECT = `${TESTS_DIR}/Starter.Modules.Demo.Tests.csproj`;
 const EN = 'frontend/starter-web/src/assets/i18n/en.json';
 const AR = 'frontend/starter-web/src/assets/i18n/ar.json';
+const RULES_FILE = `${MODULE_DIR}/module.rules.yaml`;
+const RULES = 'schemaVersion: 1\nmodule: Demo\nkind: dotnet\nrequired:\n  - id: demo.thin-endpoints\n    statement: Thin.\n    enforcedBy: [review]\n# the recipes\nrecipes: [docs/recipes/add-endpoint.md]\n';
+/** A later flow change: a new action between existing statuses. */
+const SECOND_CHANGE = Object.freeze(['--action', 'close', '--from', 'draft', '--to', 'closed', '--permission', 'demo.decide', '--side', 'staff',
+  '--notify', 'none', '--label-en', 'Close', '--label-ar', 'إغلاق']);
 
 const RECORD = `namespace Starter.Modules.Demo.Domain;
 
@@ -359,6 +364,27 @@ describe('new-transition: a status and a transition into it', () => {
     assert.ok(lines.includes(`would change ${RECORD_FILE}`));
     assert.ok(lines.includes(`would create ${TESTS_DIR}/Workflow/EscalatedStatusTests.cs`));
     assert.ok(lines.includes('note: dry run: nothing was written'));
+    assert.ok(lines.includes('next: node tools/rules-engine/compile.mjs'), 'a dry run names the generated-docs refresh');
+  });
+
+  it('adds the workflow-in-the-catalog rule and the new-transition recipe to the module rules, once', () => {
+    write(RULES_FILE, RULES);
+    run([...STATUS_ARGS, ...RULE_ARGS]);
+
+    const rules = read(RULES_FILE);
+    assert.match(rules, /required:\n {2}- id: demo\.thin-endpoints\n {4}statement: Thin\.\n {4}enforcedBy: \[review\]\n {2}- id: demo\.workflow-in-the-catalog\n {4}statement: "The statuses, [^\n]*DemoWorkflowDefinition[^\n]*"\n {4}enforcedBy: \[review\]\n# the recipes\nrecipes: \[docs\/recipes\/add-endpoint\.md, \.claude\/skills\/new-transition\/SKILL\.md\]\n$/);
+    run(SECOND_CHANGE);
+    assert.equal(read(RULES_FILE), rules, 'a second change keeps the rules as they are');
+  });
+
+  it('keeps a hand-named workflow rule and notes a module without rules', () => {
+    write(RULES_FILE, RULES.replace('demo.thin-endpoints', 'demo.workflow-in-the-catalog'));
+    run([...STATUS_ARGS, ...RULE_ARGS]);
+    assert.equal(read(RULES_FILE).split('workflow-in-the-catalog').length, 2);
+
+    fs.rmSync(path.join(root, RULES_FILE));
+    const lines = run(SECOND_CHANGE);
+    assert.ok(lines.some((line) => line.startsWith(`note: no ${RULES_FILE}: add the workflow-in-the-catalog rule`)));
   });
 });
 
@@ -379,6 +405,16 @@ describe('new-transition: a transition between existing statuses', () => {
     assert.doesNotMatch(draft, /needs_a_reason/);
     assert.ok(fs.existsSync(path.join(root, TESTS_DIR, 'Workflow', 'WithdrawFromSubmittedTransitionTests.cs')));
     assert.doesNotMatch(read(NOTIFICATIONS_FILE), /Withdraw/);
+  });
+
+  it('a system-side rule writes tests that act from the system side, which the engine accepts', () => {
+    run(['--action', 'auto-close', '--from', 'draft', '--to', 'closed', '--permission', 'demo.decide', '--side', 'system',
+      '--label-en', 'Close automatically', '--label-ar', 'إغلاق تلقائي', '--notify', 'none']);
+
+    const test = read(`${TESTS_DIR}/Workflow/AutoCloseFromDraftTransitionTests.cs`);
+    assert.match(test, /\.WithPermissions\(DemoPermissionKeys\.Decide\)\.OnSide\(TransitionSide\.System\)\n\s+\.Do\(DemoActions\.AutoClose\)/);
+    assert.match(test, /\.WithPermissions\(\)\.OnSide\(TransitionSide\.System\)\n\s+\.Do\(DemoActions\.AutoClose\)\.ExpectRefused\(WorkflowRefusal\.Forbidden\)/);
+    assert.match(test, /isOwner: false, TransitionSide\.System\)/);
   });
 
   it('a second from-status for an existing action reuses its constant and its label', () => {
@@ -597,6 +633,15 @@ describe('new-transition: bundles, docs and tests helpers', () => {
     assert.equal(addModuleDocNotes(use, ['- one']), '## Use\n\n- a\n- one\n\n## Extend\n');
     assert.equal(addModuleDocNotes(addModuleDocNotes(use, ['- one']), ['- one']), '## Use\n\n- a\n- one\n\n## Extend\n');
     assert.equal(addModuleDocNotes('# Doc\n', ['- one']), '# Doc\n\n- one\n');
+  });
+
+  it('makes the fixture act as the rule actor: OnSide only when Do would pick another side', () => {
+    assert.equal(actorCalls({ owner: true, side: 'requester' }), '.AsOwner()');
+    assert.equal(actorCalls({ owner: false, side: 'staff' }), '');
+    assert.equal(actorCalls({ owner: false, side: 'system' }), '.OnSide(TransitionSide.System)');
+    assert.equal(actorCalls({ owner: true, side: 'system' }), '.AsOwner().OnSide(TransitionSide.System)');
+    assert.equal(actorCalls({ owner: false, side: 'requester' }), '.OnSide(TransitionSide.Requester)');
+    assert.equal(actorCalls({ owner: true, side: 'staff' }), '.AsOwner().OnSide(TransitionSide.Staff)');
   });
 
   it('adds the kit reference once and builds sorted usings without parents of the test namespace', () => {

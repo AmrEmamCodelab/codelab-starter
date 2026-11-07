@@ -1,0 +1,24 @@
+{
+    "SkillsInvoked":  [
+                          "new-endpoint",
+                          "coding-standards"
+                      ],
+    "ToolUseCounts":  {
+                          "Glob":  2,
+                          "Read":  22,
+                          "Bash":  2,
+                          "PowerShell":  13,
+                          "Grep":  12,
+                          "Edit":  22,
+                          "Write":  3,
+                          "Skill":  2
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  82,
+    "TotalCostUsd":  2.8112312,
+    "PermissionDenials":  4,
+    "ResultText":  "The docs gate now passes. It had failed because adding the endpoint regenerated two frontend core files, the API client (`openapi.ts`) and the permission keys (`permission-keys.generated.ts`), and the frontend core module\u0027s `MODULE.md` hadn\u0027t changed with them. Nothing is committed yet, so there was no commit message to carry a `Docs-Not-Needed` reason.\n\nI added a Gotcha to `frontend/starter-web/src/app/core/MODULE.md`. It says those two files are rewritten from the backend by `npm run api:gen` and the permission catalog generator whenever a backend module adds an endpoint or permission, and are never edited by hand. It uses this change as the example: the new count endpoint and `PermissionKeys.ServiceRequestsViewReviewCount`. It also notes that a key in that file does nothing on the frontend until a screen gates a route or button on it.\n\nI changed no code, so the earlier test and drift-check results still stand."
+}

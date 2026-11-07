@@ -1,8 +1,7 @@
 using Codelab.Security.PublicIds;
 using Microsoft.AspNetCore.Mvc;
 using Starter.Infrastructure.Authorization;
-using Starter.Infrastructure.Hosting;
-using Starter.Infrastructure.Results;
+{{HostingUsing}}using Starter.Infrastructure.Results;
 using Starter.Modules.{{Module}}.Application;
 
 namespace Starter.Modules.{{Module}}.Api;
@@ -18,10 +17,10 @@ public sealed record {{Name}}Response([property: WireId] PublicId<{{Module}}Ids>
 public sealed class {{Name}}Controller({{Name}} useCase) : ControllerBase
 {
     /// <summary>The route of this endpoint.</summary>
-    public const string Route = {{Module}}Routes.Root + ApiRoutes.Separator + "{{Route}}";
+    public const string Route = {{ControllerRoute}};
 
     /// <summary>Updates one record.</summary>
-    [HttpPut({{Module}}Routes.IdTemplate)]
+    [HttpPut({{IdTemplate}})]
     public async Task<ActionResult<{{Name}}Response>> Handle(PublicId<{{Module}}Ids> id, {{Name}}Command command, CancellationToken cancellationToken) =>
         (await useCase.ExecuteAsync(id.Value, command, cancellationToken))
             .ToActionResult(result => new {{Name}}Response(PublicId<{{Module}}Ids>.From(result.Id)));

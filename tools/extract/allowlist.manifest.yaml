@@ -985,6 +985,46 @@ batches:
         target: 'reference/p6/fe-att-widget/'
         mode: copy
 
+  p9-agents-builders:
+    description: 'Phase 9 input (owner: agents-builders): the source feature-builder agent behind backend-builder (rewritten: scaffold skills, feature spec, module rules); also informs test-writer.'
+    entries:
+      - id: agent-feature-builder
+        source: '.claude/agents/modhs-feature-builder.md'
+        target: 'reference/p9/agents/feature-builder.md'
+        mode: copy
+
+  p9-usecase-testing:
+    description: 'Phase 9 input (owner: usecase-testing): the use-case testing skill, the test-use-case command and the dependency-free xlsx reader (merged and rewritten into the generalized usecase-testing skill; commands become skills).'
+    entries:
+      - id: usecase-testing-skill
+        source: '.claude/skills/usecase-testing/SKILL.md'
+        target: 'reference/p9/usecase-testing/skill/SKILL.md'
+        mode: copy
+      - id: test-use-case-command
+        source: '.claude/commands/test-use-case.md'
+        target: 'reference/p9/usecase-testing/command/test-use-case.md'
+        mode: copy
+      - id: read-xlsx-script
+        source: '.claude/scripts/Read-Xlsx.ps1'
+        target: 'reference/p9/usecase-testing/scripts/Read-Xlsx.ps1'
+        mode: copy
+
+  p9-planning-skills:
+    description: 'Phase 9 input (owner: planning-skills): the planning skills (PRD to plan, PRD and plan) and the comment-reduction skill with its comments-only differ (rewritten as zero-dependency Node ESM).'
+    entries:
+      - id: prd-to-plan
+        source: '.claude/skills/prd-to-plan/**'
+        target: 'reference/p9/planning-skills/prd-to-plan/'
+        mode: copy
+      - id: prd-and-plan
+        source: '.claude/skills/prd-and-plan/**'
+        target: 'reference/p9/planning-skills/prd-and-plan/'
+        mode: copy
+      - id: reduce-comments
+        source: '.claude/skills/reduce-comments/**'
+        target: 'reference/p9/planning-skills/reduce-comments/'
+        mode: copy
+
 secretDigests:
   # Values found here are hashed (SHA-256) into tools/extract/secret-digests.json; the values are never stored.
   output: 'tools/extract/secret-digests.json'

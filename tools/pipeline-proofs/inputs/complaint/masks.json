@@ -1,0 +1,21 @@
+{
+  "description": "Visual target and masks for the Complaint proof's 'File a complaint' screen. 'routes' and 'mask' follow the routes-file format of frontend/starter-web/e2e/visual.mjs; 'regions' records why each mask exists (visual-verifier masks table). The route path is the one the proof is expected to build; screen-builder confirms it in the feature spec.",
+  "targets": {
+    "ar": { "1440": "tools/pipeline-proofs/inputs/complaint/target.ar.1440.png", "390": "tools/pipeline-proofs/inputs/complaint/target.ar.390.png" },
+    "en": { "1440": "tools/pipeline-proofs/inputs/complaint/target.en.1440.png", "390": "tools/pipeline-proofs/inputs/complaint/target.en.390.png" }
+  },
+  "routes": [
+    {
+      "name": "complaint-new",
+      "path": "/complaints/new",
+      "waitFor": "main",
+      "mask": [".shell__brand", ".footer__brand", "[data-visual-mask]"]
+    }
+  ],
+  "mask": [],
+  "regions": [
+    { "selector": ".shell__brand", "kind": "branding", "reason": "The target comes from the starter showcase, whose header carries the showcase title instead of the portal brand." },
+    { "selector": ".footer__brand", "kind": "branding", "reason": "Footer brand and year differ between the showcase and a portal page." },
+    { "selector": "[data-visual-mask]", "kind": "dynamic text", "reason": "Draft-saved time, step counters filled from data and any reference number." }
+  ]
+}

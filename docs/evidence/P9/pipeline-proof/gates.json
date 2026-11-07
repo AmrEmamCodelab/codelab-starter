@@ -1,0 +1,42 @@
+﻿[
+    {
+        "name":  "build",
+        "status":  "passed",
+        "exitCode":  0,
+        "durationSeconds":  57,
+        "detail":  "",
+        "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\gates\\build.log"
+    },
+    {
+        "name":  "rulesCheck",
+        "status":  "passed",
+        "exitCode":  0,
+        "durationSeconds":  0.6,
+        "detail":  "",
+        "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\gates\\rulesCheck.log"
+    },
+    {
+        "name":  "contentRules",
+        "status":  "passed",
+        "exitCode":  0,
+        "durationSeconds":  1.3,
+        "detail":  "",
+        "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\gates\\contentRules.log"
+    },
+    {
+        "name":  "contractTests",
+        "status":  "passed",
+        "exitCode":  0,
+        "durationSeconds":  30.2,
+        "detail":  "",
+        "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\gates\\contractTests.log"
+    },
+    {
+        "name":  "docsGate",
+        "status":  "passed",
+        "exitCode":  0,
+        "durationSeconds":  3.2,
+        "detail":  "",
+        "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\gates\\docsGate.log"
+    }
+]

@@ -50,3 +50,8 @@ Thumbs.db
 # Claude Code local state
 .claude/settings.local.json
 .claude/handoffs/
+# Claude memory is local only and never shipped (it can hold secrets). The secret scan still scans it when present.
+.claude/memory/
+
+# usecase-testing skill output (workbook dumps, results.json, reports); not tracked
+test-reports/

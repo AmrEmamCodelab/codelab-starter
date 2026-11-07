@@ -1,0 +1,18 @@
+{
+  "proof": "complaint",
+  "recordType": "Complaint",
+  "inputType": "BRD + DGA screenshot",
+  "scenarioFile": "scenario.txt",
+  "inputs": [
+    "tools/pipeline-proofs/inputs/complaint/brd-complaint.md",
+    "tools/pipeline-proofs/inputs/complaint/target.ar.1440.png",
+    "tools/pipeline-proofs/inputs/complaint/target.en.1440.png",
+    "tools/pipeline-proofs/inputs/complaint/target.ar.390.png",
+    "tools/pipeline-proofs/inputs/complaint/target.en.390.png",
+    "tools/pipeline-proofs/inputs/complaint/masks.json"
+  ],
+  "expectedSteps": ["build-feature", "new-module", "new-transition", "deadline-recipe", "new-permission", "new-endpoint", "new-screen"],
+  "requiresFigmaUrl": false,
+  "maxTurns": 300,
+  "timeoutMinutes": 300
+}

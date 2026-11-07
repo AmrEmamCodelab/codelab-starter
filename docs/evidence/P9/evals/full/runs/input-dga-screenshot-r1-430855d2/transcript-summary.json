@@ -1,0 +1,24 @@
+{
+    "SkillsInvoked":  [
+                          "build-feature"
+                      ],
+    "ToolUseCounts":  {
+                          "Glob":  10,
+                          "Read":  45,
+                          "Bash":  6,
+                          "Agent":  1,
+                          "Grep":  22,
+                          "Edit":  35,
+                          "Write":  3,
+                          "PowerShell":  3,
+                          "Skill":  1
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  40,
+    "TotalCostUsd":  4.455695,
+    "PermissionDenials":  0,
+    "ResultText":  "I\u0027ve written the draft spec for the training-applications queue and stopped at the approval gate. It is in `docs/features/training-applications.md` with `status: draft`; I did not approve it and wrote no app code. The spec check and the facts-drift check both pass with 0 findings.\n\n**Scenario**\n- An applicant files an application to a course through a short 2-step form (course from a list, motivation, phone) and gets a number `TA-\u003cyear\u003e-\u003cn\u003e`.\n- A reviewer works the queue that looks like your screenshot: tabs *Assigned to me / Unassigned / All*, search by reference number, a status filter, and the due date with its on-time / due-soon badge. They claim an application, start the review, then approve or reject. A reason is required on reject.\n- Applicants are notified in Arabic or English, in-app and by e-mail.\n\n**Status flow**\n\n| From | Action | To | Permission | Reason required |\n| --- | --- | --- | --- | --- |\n| Draft | submit | Submitted | training-applications.create | no |\n| Draft | cancel | Cancelled | training-applications.create | no |\n| Submitted | cancel | Cancelled | training-applications.create | no |\n| Submitted | start-review | UnderReview | training-applications.review | no |\n| UnderReview | approve | Approved | training-applications.decide | no (optional note) |\n| UnderReview | reject | Rejected | training-applications.decide | yes |\n\nThe status values are Draft 1 to Cancelled 6. The spec also has the Mermaid diagram, who gets notified on each action, and five permissions: create, view-own, queue, review, decide.\n\n**What gets built**\n- **Backend:** a new `TrainingApplications` module copied from the ServiceRequests sample, a seeded course list, six notification templates, and five new endpoints.\n- **Reused as is:** claiming, the queue itself, record detail and the approve/reject actions use the existing generic endpoints.\n- **Four screens:**\n  - staff queue, compared against your screenshot\n  - staff detail, compared against the matching showcase detail"
+}

@@ -254,6 +254,37 @@ describe('pre-tool-use: shell writes', () => {
     }
   });
 
+  it('refuses a shell delete of a source file with a fix that can delete it (git rm / git clean)', () => {
+    for (const [command, toolName] of [
+      ['rm backend/src/Modules/ServiceRequests/Application/SubmitRequest.cs', 'Bash'],
+      ['rm -rf docs/notes', 'Bash'],
+      ['Remove-Item -Path backend/src/A.cs', 'PowerShell'],
+      ['del backend\\src\\A.cs', 'PowerShell'],
+    ]) {
+      const { output } = shell(command, toolName);
+      assert.equal(decisionOf(output), DENY, command);
+      assert.match(reasonOf(output), /\[hooks\.no-shell-source-writes\] .* deletes the source path/, command);
+      assert.match(reasonOf(output), /`git rm -- <path>`/, command);
+      assert.match(reasonOf(output), /`git clean -f -- <path>`/, command);
+      assert.doesNotMatch(reasonOf(output), /use the Edit or Write tool/, command);
+    }
+  });
+
+  it('does not refuse the git deletions the delete fix names', () => {
+    for (const command of [
+      'git rm -- backend/src/Modules/ServiceRequests/Application/SubmitRequest.cs',
+      'git rm -r -- docs/notes',
+      'git clean -f -- backend/src/A.cs',
+    ]) {
+      assert.equal(shell(command).output, null, command);
+    }
+  });
+
+  it('keeps the Edit/Write fix for shell writes that are not deletions', () => {
+    const { output } = shell('echo "class A {}" > backend/src/A.cs');
+    assert.match(reasonOf(output), /writes into the source path backend\/src\/A\.cs[\s\S]*use the Edit or Write tool/);
+  });
+
   it('refuses PowerShell Set-Content, Out-File and Add-Content into source paths', () => {
     for (const command of [
       "Set-Content -Path backend/src/A.cs -Value 'class A {}'",

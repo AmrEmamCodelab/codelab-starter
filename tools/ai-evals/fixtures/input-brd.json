@@ -1,0 +1,9 @@
+{
+  "id": "input-brd",
+  "kind": "input",
+  "skill": "build-feature",
+  "description": "A business requirements document must route to the feature pipeline and give a valid feature spec.",
+  "prompt": "Our business analyst wrote a requirements document for equipment loans: tools/ai-evals/fixtures/inputs/brd-equipment-loan.md. Turn it into a feature we can build and prepare the feature spec for my review before anything is built.",
+  "inputs": ["tools/ai-evals/fixtures/inputs/brd-equipment-loan.md"],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "specValid", "skillInvoked"]
+}

@@ -1,0 +1,11 @@
+{
+  "proof": "feedback",
+  "recordType": "Feedback",
+  "inputType": "Figma frame (one screen in a Codelab Figma file)",
+  "scenarioFile": "scenario.txt",
+  "inputs": [],
+  "expectedSteps": ["build-feature", "new-module", "new-transition", "deadline-recipe", "new-permission", "new-endpoint", "new-screen"],
+  "requiresFigmaUrl": true,
+  "maxTurns": 300,
+  "timeoutMinutes": 300
+}

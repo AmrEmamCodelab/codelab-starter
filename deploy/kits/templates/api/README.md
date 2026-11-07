@@ -60,3 +60,13 @@ shell. Restrict `appsettings.Production.json` to administrators and the app pool
 
 Key material is generated per environment and rotated with [../../../../docs/runbooks/key-rotation.md](../../../../docs/runbooks/key-rotation.md).
 It is never copied from another environment and never committed.
+
+## Inbound trace context
+
+The API's `web.config` is package-owned (the publish output; the mirror replaces it every run), so the edge rule
+that strips a caller's `traceparent`, `tracestate` and `baggage` lives in the **front site's** template
+([../web/web.config](../web/web.config), rule `Strip inbound trace context` in `<location path="api">`): with the API
+installed as the `/api` child application of that site (the default topology), the rule covers every request from
+the internet. A request through the API's own binding (the Ops Console API, the gateway) is not stripped at the
+edge; the API itself still ignores an inbound trace context (Codelab.Observability), so it never becomes the trace
+or the reference code.

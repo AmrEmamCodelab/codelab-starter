@@ -1,0 +1,1 @@
+Clients send feedback about a service from one screen that our designer drew in Figma; staff read the feedback and close it; feedback still open after 3 days escalates to the supervisor.

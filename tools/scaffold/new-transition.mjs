@@ -11,9 +11,9 @@ import { pathToFileURL } from 'node:url';
 import { runCli } from './lib/cli.mjs';
 import { DOCS_GENERATED_DIR, DOCSGEN_PROJECT, Report } from './lib/constants.mjs';
 import { parseTransitionArguments, transitionRequest } from './lib/transition/arguments.mjs';
-import { DryRunReport, TransitionFlags as F, TransitionSwitches as S } from './lib/transition/constants.mjs';
+import { TransitionFlags as F, TransitionSwitches as S } from './lib/transition/constants.mjs';
 import { planTransition } from './lib/transition/plan.mjs';
-import { ChangeSet, regenerate, resolveDotnet } from './lib/workspace.mjs';
+import { ChangeSet, DRY_RUN_NOTE, downstreamCommands, regenerate, resolveDotnet } from './lib/workspace.mjs';
 
 export const USAGE = [
   `Usage: node tools/scaffold/new-transition.mjs ${F.module} <Module>`,
@@ -32,14 +32,15 @@ function docsCommand(env) {
   return `${resolveDotnet(env)} run --project ${DOCSGEN_PROJECT} -- --out ${DOCS_GENERATED_DIR}`;
 }
 
-function dryRunLines(changes) {
-  return [...changes.files.keys()].map((file) => `${changes.exists(file) ? DryRunReport.wouldChange : DryRunReport.wouldCreate} ${file}`);
+/** The generated-docs refresh a run without the generators leaves to the user (rules compile, DocsGen). */
+function nextCommands(request, env) {
+  return downstreamCommands({ apiClient: false, env }).map((command) => `${Report.next} ${command}`);
 }
 
 function generatorLines(request, env) {
   if (!request.generate) {
     return request.skipGenerate
-      ? [`${Report.skipped} downstream generators: ${S.skipGenerate}`]
+      ? [`${Report.skipped} downstream generators: ${S.skipGenerate}`, ...nextCommands(request, env)]
       : [`${Report.next} ${docsCommand(env)}`];
   }
   return regenerate(request.root, { apiClient: false, env });
@@ -53,7 +54,7 @@ export function newTransition(argv, env = process.env) {
   const changes = new ChangeSet(request.root);
   const plan = planTransition(changes, request);
   const notes = plan.notes.map((note) => `${Report.note} ${note}`);
-  if (request.dryRun) return [...dryRunLines(changes), ...notes, `${Report.note} dry run: nothing was written`];
+  if (request.dryRun) return [...changes.preview(), ...notes, `${Report.note} ${DRY_RUN_NOTE}`, ...nextCommands(request, env)];
   const written = changes.commit();
   const lines = written.length === 0 ? [`${Report.unchanged} the workflow of ${request.module} already holds every part of this request`] : written;
   const statusLine = plan.statusValue === null ? [] : [`${Report.note} status ${request.status.key} = ${plan.statusValue}`];

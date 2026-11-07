@@ -1,0 +1,9 @@
+{
+  "id": "new-transition",
+  "kind": "scaffold",
+  "skill": "new-transition",
+  "description": "A changed status flow must route to the transition skill.",
+  "prompt": "A reviewer must be able to put a service request that is under review on hold, with a mandatory reason, and later resume it back to under review. Add this to the service request flow.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

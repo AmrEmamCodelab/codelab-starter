@@ -51,13 +51,24 @@ export function blockStopOutput(reason) {
 /**
  * Runs a hook: reads stdin, calls handler(input), prints its output (if any) and exits 0.
  * A crash never blocks the tool: it is reported as a warning, because CI is the authoritative gate (ADR-006).
+ * onOutput(input, output), when given, sees every outcome (crash warnings included) before it is printed; it feeds
+ * the decision log. A throw from it becomes a warning; the decision itself is still printed.
  */
-export async function runHook(hookName, handler) {
+export async function runHook(hookName, handler, { onOutput } = {}) {
+  let input = {};
   let output;
   try {
-    output = await handler(await readHookInput());
+    input = await readHookInput();
+    output = await handler(input);
   } catch (error) {
     output = { systemMessage: `codelab ${hookName} hook failed and did not check this action: ${error.message}` };
+  }
+  if (onOutput) {
+    try {
+      onOutput(input, output ?? null);
+    } catch (error) {
+      output = { ...(output ?? {}), systemMessage: `codelab ${hookName} hook could not log its decision: ${error.message}` };
+    }
   }
   if (output) process.stdout.write(`${JSON.stringify(output)}\n`);
   process.exitCode = ExitCodes.Success;

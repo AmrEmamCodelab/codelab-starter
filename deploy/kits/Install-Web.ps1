@@ -21,7 +21,9 @@
       8. web.config: the kit template (templates\web\web.config), with connect-src and the CSP report target adapted
          to config.json's origins, merged into the server's web.config. Elements the server has (a header, a rule,
          a location) are kept as they are and reported when they differ; only new elements are added. The edge
-         block must stay ahead of every rewrite rule, or the kit refuses.
+         block must stay ahead of every rewrite rule, or the kit refuses. The trace-context strip rule needs
+         HTTP_TRACEPARENT, HTTP_TRACESTATE and HTTP_BAGGAGE in the site's allowedServerVariables (applicationHost.config);
+         the kit adds the missing ones (elevated) or prints them under -WhatIf.
       9. Payload copy (config.json, web.config and build-info.json are kit-owned and never copied). Old hashed bundles
          are kept so open sessions can still load their lazy chunks; -Purge mirrors instead.
      10. build-info.json stamped with the build id.
@@ -167,6 +169,13 @@ $script:IisMajorVersionValue        = 'MajorVersion'
 $script:IisServiceName              = 'W3SVC'
 $script:WebAdministrationModule     = 'WebAdministration'
 $script:UrlRewriteModuleRelative    = 'System32\inetsrv\rewrite.dll'
+
+# URL Rewrite allowed server variables (the trace-context strip rule sets HTTP_TRACEPARENT and friends).
+$script:IisApphostPsPath             = 'MACHINE/WEBROOT/APPHOST'
+$script:AllowedServerVariablesFilter = 'system.webServer/rewrite/allowedServerVariables'
+$script:ServerVariableNameProperty   = 'name'
+$script:HeaderNameSeparator          = '-'
+$script:ServerVariableSeparator      = '_'
 $script:CheckAdministrator          = 'Administrator'
 $script:CheckIis                    = 'IIS'
 $script:CheckWebAdministration      = 'WebAdministration'
@@ -740,6 +749,35 @@ function Write-WebSettingsGaps([object] $Result) {
     foreach ($gap in $Result.SettingsGaps) { Write-WebLog "  $gap" -Level $script:LogWarning }
 }
 
+function Get-WebStrippedServerVariables([hashtable] $HeaderData) {
+    return [string[]] @($HeaderData.StrippedRequestHeaders | ForEach-Object { $HeaderData.TraceStripServerVariablePrefix + $_.ToUpperInvariant().Replace($script:HeaderNameSeparator, $script:ServerVariableSeparator) })
+}
+
+# Thin IIS wrappers (mocked by the tests).
+function Get-WebAllowedServerVariables([string] $SiteName) {
+    Import-Module $script:WebAdministrationModule -ErrorAction Stop -Verbose:$false
+    return [string[]] @(Get-WebConfigurationProperty -PSPath $script:IisApphostPsPath -Location $SiteName -Filter $script:AllowedServerVariablesFilter -Name Collection -ErrorAction Stop | ForEach-Object { $_.$script:ServerVariableNameProperty })
+}
+
+function Add-WebAllowedServerVariable([string] $SiteName, [string] $Name) {
+    Import-Module $script:WebAdministrationModule -ErrorAction Stop -Verbose:$false
+    Add-WebConfigurationProperty -PSPath $script:IisApphostPsPath -Location $SiteName -Filter $script:AllowedServerVariablesFilter -Name '.' -Value @{ name = $Name } -ErrorAction Stop
+}
+
+function Invoke-WebAllowedServerVariablesStep([object] $Result, [string] $SiteName, [hashtable] $HeaderData, [bool] $Preview) {
+    $existing = @()
+    try { $existing = @(Get-WebAllowedServerVariables $SiteName) }
+    catch {
+        if (-not $Preview) { throw }
+        Write-WebLog "Allowed server variables could not be read ($($_.Exception.Message)); the preview lists all of them." -Level $script:LogWarning
+    }
+    foreach ($name in (Get-WebStrippedServerVariables $HeaderData)) {
+        if ($existing -contains $name) { continue }
+        Add-WebAction $Result "applicationHost.config: allow URL Rewrite server variable $name for site '$SiteName'"
+        if (-not $Preview) { Add-WebAllowedServerVariable -SiteName $SiteName -Name $name }
+    }
+}
+
 function Invoke-WebConfigXmlStep {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param([object] $Result, [hashtable] $Effective, [hashtable] $HeaderData, [string] $SiteOrigin)
@@ -870,6 +908,7 @@ function Invoke-WebKit {
         Add-WebAction $result 'Stop: the new build is not deployed while settings are incomplete (the running build keeps serving)'
         return $result
     }
+    Invoke-WebAllowedServerVariablesStep -Result $result -SiteName $SiteName -HeaderData $headerData -Preview $preview
     Invoke-WebConfigXmlStep -Result $result -Effective $effective -HeaderData $headerData -SiteOrigin (Get-WebOrigin $HealthBaseUrl) -WhatIf:$preview
     Invoke-WebPayloadStep -Result $result -Purge ([bool] $Purge)
     Invoke-WebStampStep -Result $result -WhatIf:$preview

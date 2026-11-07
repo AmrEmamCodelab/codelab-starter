@@ -1,0 +1,21 @@
+{
+    "SkillsInvoked":  [
+                          "new-lookup",
+                          "coding-standards"
+                      ],
+    "ToolUseCounts":  {
+                          "Read":  6,
+                          "PowerShell":  7,
+                          "Grep":  1,
+                          "Edit":  2,
+                          "Skill":  2
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  22,
+    "TotalCostUsd":  0.7694374000000002,
+    "PermissionDenials":  0,
+    "ResultText":  "I fixed the docs-gate failure, and the gate now passes.\n\nThe new lookup adds two files under `Starter.Domain`, and the gate requires that project\u0027s `MODULE.md` to change with them. I updated `backend/src/Starter.Domain/MODULE.md`:\n- `submission-channels` is now in the list of seeded type keys.\n- `SubmissionChannelIds` (WebPortal 1, WalkIn 2, Phone 3, Email 4, seeded by `AddSubmissionChannelsLookup`) is now in the list of ids classes.\n\nThe `new-lookup` scaffold updates the Lookups `MODULE.md` but not this one, so every new lookup will hit the same failure. That\u0027s a gap in the scaffold for the platform owner to fix in `tools/scaffold/new-lookup.mjs`.\n\nEverything else from the earlier summary is unchanged. The lookup is still uncommitted, and the Arabic names still need a native-speaker review."
+}

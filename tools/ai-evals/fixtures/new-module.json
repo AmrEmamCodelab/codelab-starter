@@ -1,0 +1,9 @@
+{
+  "id": "new-module",
+  "kind": "scaffold",
+  "skill": "new-module",
+  "description": "A new business area must route to the module scaffold.",
+  "prompt": "We are starting a new business area for site inspections: inspectors will record their visits to licensed facilities. Set up the backend home for this area, called Inspections, with its rules file, its docs and its test project. No endpoints, screens or statuses yet.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

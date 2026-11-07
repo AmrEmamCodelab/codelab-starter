@@ -1,0 +1,11 @@
+{"ts":"2026-11-07T14:32:00.144Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:32:03.581Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:32:08.343Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:32:11.089Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:32:19.547Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:35:12.201Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:35:50.149Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"deny","ruleIds":["hooks.stop-docs-gate"],"skill":null}
+{"ts":"2026-11-07T14:35:56.353Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Starter.Domain/MODULE.md","paths":["backend/src/Starter.Domain/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:35:58.041Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Starter.Domain/MODULE.md","paths":["backend/src/Starter.Domain/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:35:59.754Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:36:08.314Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}

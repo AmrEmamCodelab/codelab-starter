@@ -1,0 +1,36 @@
+{
+  "batch": "p9-agents-builders",
+  "sourceCommit": "a6a4b1346c5f94cfc91c52749dfb5720a80e6c96",
+  "sourceRoot": "E:\\codelab-harvest\\modhs-a6a4b134",
+  "sourceContentDigest": null,
+  "extractedWith": "tools/extract/extract.ps1 -Batch p9-agents-builders -Manifest <temp copy with the p9-agents-builders batch> -Clean (staging %TEMP%/codelab-extract/p9-agents-builders, outside the repo; scrub findings expected before the rewrite). Promoted by the phase 9 agents-builders owner: the agent rewrite is recorded as rewritten (target = the agent file, stagedTarget = the staging path).",
+  "origins": [
+    {
+      "batch": "p9-agents-builders",
+      "entryId": "agent-feature-builder",
+      "source": ".claude/agents/modhs-feature-builder.md",
+      "target": ".claude/agents/backend-builder.md",
+      "mode": "copy",
+      "sourceGitBlob": "0098b02ce8094f1e7537e463e9e5c20e53527549",
+      "sourceSha256": "36ab5ce329d8488e4b2502eec6dc38e7adc2350eb28e3a7a0e4d27dc25b76ecc",
+      "stagedSha256": "36ab5ce329d8488e4b2502eec6dc38e7adc2350eb28e3a7a0e4d27dc25b76ecc",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p9/agents/feature-builder.md",
+      "note": "Rewritten and renamed backend-builder: kept the copy-the-existing-pattern discipline, inward references, result-not-exception refusals, injected time, the definition of done and the hand-off to commit-gate. Replaced the hand-written vertical-slice recipes with the scaffold skills (new-module, new-transition, new-permission, new-lookup, new-endpoint) and docs/recipes in the approved feature spec's Skill plan order, module.rules.yaml, the TransitionCatalog engine, Outcome/OutcomeResults, PublicIds and the Hand-edit log. Dropped role-based authorization, the single shared Program.cs registration, the source-product services and their API-key and certificate-bypass styles, and the frontend recipes (screen-builder and new-screen own the frontend)."
+    },
+    {
+      "batch": "p9-agents-builders",
+      "entryId": "agent-feature-builder",
+      "source": ".claude/agents/modhs-feature-builder.md",
+      "target": ".claude/agents/test-writer.md",
+      "mode": "copy",
+      "sourceGitBlob": "0098b02ce8094f1e7537e463e9e5c20e53527549",
+      "sourceSha256": "36ab5ce329d8488e4b2502eec6dc38e7adc2350eb28e3a7a0e4d27dc25b76ecc",
+      "stagedSha256": "36ab5ce329d8488e4b2502eec6dc38e7adc2350eb28e3a7a0e4d27dc25b76ecc",
+      "promotion": "rewritten",
+      "stagedTarget": "reference/p9/agents/feature-builder.md",
+      "note": "Rewritten in part into test-writer: the source agent's default test seam (pure use-case tests with hand-written fakes, faked time, no database) became the unit-test step; the rest of test-writer (TransitionFixture walks, contract, architecture and throwaway-SQL integration tests, Vitest specs) is new starter content."
+    }
+  ],
+  "denied": []
+}

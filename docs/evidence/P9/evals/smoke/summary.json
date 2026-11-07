@@ -1,0 +1,27 @@
+{
+    "runs":  2,
+    "conclusive":  2,
+    "inconclusive":  0,
+    "passed":  2,
+    "passRate":  1,
+    "threshold":  0.9,
+    "minimumRuns":  10,
+    "meetsCriteria":  false,
+    "verdict":  "not enough runs",
+    "perFixture":  {
+                       "new-lookup":  {
+                                          "runs":  1,
+                                          "conclusive":  1,
+                                          "inconclusive":  0,
+                                          "passed":  1,
+                                          "passRate":  1
+                                      },
+                       "new-permission":  {
+                                              "runs":  1,
+                                              "conclusive":  1,
+                                              "inconclusive":  0,
+                                              "passed":  1,
+                                              "passRate":  1
+                                          }
+                   }
+}

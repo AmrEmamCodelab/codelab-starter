@@ -1,0 +1,9 @@
+{
+  "id": "input-usecase-workbook",
+  "kind": "input",
+  "skill": "build-feature",
+  "description": "A use-case workbook must route to the feature pipeline and give a valid feature spec.",
+  "prompt": "The analyst sent the use-case workbook tools/ai-evals/fixtures/inputs/usecase-site-visit.xlsx (sheets Scenarios and Rules) for booking site visits. Plan the feature it describes and write the spec for my approval; do not build anything yet.",
+  "inputs": ["tools/ai-evals/fixtures/inputs/usecase-site-visit.xlsx"],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "specValid", "skillInvoked"]
+}

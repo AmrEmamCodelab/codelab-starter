@@ -13,6 +13,7 @@ import {
   ContextLimits,
   DefaultBaseRefs,
   EnvVars,
+  HookRuleIds,
   ModuleScaffoldFiles,
   PrivateDotnetPath,
   RepoPaths,
@@ -112,10 +113,11 @@ function hasDocsGate(projectRoot) {
   return fs.existsSync(dir) && fs.readdirSync(dir).some((name) => name.endsWith('.csproj'));
 }
 
-function commandFailure(label, result) {
+/** A failed check, led by its rule id so the decision log can name it ([hooks.stop-docs-gate] Docs gate ...). */
+function commandFailure({ ruleId, label, result }) {
   if (result.status === SUCCESS_STATUS) return null;
   const why = result.error ? result.error.message : `exit ${result.status}`;
-  return `${label} failed (${why}):\n${tail(`${result.stdout}\n${result.stderr}`)}`;
+  return `[${ruleId}] ${label} failed (${why}):\n${tail(`${result.stdout}\n${result.stderr}`)}`;
 }
 
 function docsGateArgs(base) {
@@ -130,7 +132,9 @@ function runDocsGate({ projectRoot, env, runner, notes, base }) {
     args: docsGateArgs(base),
     cwd: projectRoot, timeoutMs: StopGateTimeouts.DocsGateMs, env,
   });
-  return commandFailure('Docs gate (`dotnet run --project tools/docs-gate -- check --root .`)', result);
+  return commandFailure({
+    ruleId: HookRuleIds.StopDocsGate, label: 'Docs gate (`dotnet run --project tools/docs-gate -- check --root .`)', result,
+  });
 }
 
 function runRulesCheck({ projectRoot, env, runner, notes }) {
@@ -142,7 +146,9 @@ function runRulesCheck({ projectRoot, env, runner, notes }) {
     command: process.execPath, args: [RepoPaths.RulesCompiler, '--check'],
     cwd: projectRoot, timeoutMs: StopGateTimeouts.RulesCheckMs, env,
   });
-  return commandFailure('Rules check (`node tools/rules-engine/compile.mjs --check`)', result);
+  return commandFailure({
+    ruleId: HookRuleIds.StopRulesDrift, label: 'Rules check (`node tools/rules-engine/compile.mjs --check`)', result,
+  });
 }
 
 function baseVersion({ projectRoot, relativePath, runner, base }) {

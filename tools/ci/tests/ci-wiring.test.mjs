@@ -21,11 +21,25 @@ const DELETABILITY_STEP = '21 module deletability';
 const NOT_FOUND = -1;
 const DEPLOY_KIT_TESTS_STEP = '19 deploy-kit tests';
 const DEPLOY_KIT_SCRIPT = 'tools/kit/New-DeployKit.ps1';
-// Every folder that holds a deploy-side Pester suite; step 19 must run each of them.
-const PESTER_FOLDERS = ['deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests'];
+// Every folder that holds a Pester suite must be run by step 19; these are the ones known today (a new one found by
+// the repository walk below fails the test until build.ps1 runs it).
+const PESTER_FOLDERS = ['deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests',
+  'tools/pipeline-proofs/tests', 'tools/ai-evals/tests', '.claude/skills/usecase-testing/scripts/tests'];
 const PESTER_SUITE = /\.Tests\.ps1$/;
+// Folders never walked for Pester suites: git data, build output and installed packages.
+const SKIPPED_FOLDERS = new Set(['.git', 'node_modules', 'bin', 'obj', 'artifacts', 'publish', 'dist', '.angular', 'feed']);
 
 const script = readFileSync(BUILD_SCRIPT, 'utf8');
+
+/** Repo-relative folders (forward slashes) that directly hold a *.Tests.ps1 suite. */
+function pesterSuiteFolders(relative = '') {
+  const entries = readdirSync(path.join(REPO_ROOT, relative), { withFileTypes: true });
+  const own = entries.some((entry) => entry.isFile() && PESTER_SUITE.test(entry.name)) ? [relative] : [];
+  const nested = entries
+    .filter((entry) => entry.isDirectory() && !SKIPPED_FOLDERS.has(entry.name))
+    .flatMap((entry) => pesterSuiteFolders(relative === '' ? entry.name : `${relative}/${entry.name}`));
+  return [...own, ...nested];
+}
 
 /** The `@{ Name = '<name>'; ... }` line of a CI step in Invoke-CiTarget, or undefined. */
 function stepLine(name) {
@@ -105,6 +119,14 @@ describe('build.ps1 wires the phase 8 deploy side', () => {
       assert.ok(existsSync(absolute), `${folder} exists`);
       assert.ok(readdirSync(absolute).some((file) => PESTER_SUITE.test(file)), `${folder} holds a *.Tests.ps1 suite`);
     }
+  });
+
+  it('runs every Pester suite folder of the repository in step 19, the ai-evals delete guards included', () => {
+    const folders = arrayConstant('PesterTestFolders');
+    for (const folder of pesterSuiteFolders()) {
+      assert.ok(folders.includes(folder), `${folder} holds a *.Tests.ps1 suite but step 19 does not run it`);
+    }
+    assert.ok(folders.includes('tools/ai-evals/tests'));
   });
 
   it('declares -Kit and -KitComponent and builds the kit through the builder, after CI and pack', () => {

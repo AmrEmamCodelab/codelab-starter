@@ -1,11 +1,9 @@
 // The MODULE.md note new-transition adds: one bullet per status or transition it wrote, under the
 // `<!-- scaffold:workflow -->` marker when the file has one, else at the end of its "Use" section. Pure; idempotent.
-import { NEWLINE } from '../constants.mjs';
-import { WorkflowMarkers } from './constants.mjs';
+import { addUseNotes } from '../module-docs.mjs';
+import { WORKFLOW_RULE_ENFORCED_BY, WORKFLOW_RULE_SUFFIX, WorkflowMarkers } from './constants.mjs';
 import { labelKey, wordingKey } from './entries.mjs';
 
-const USE_HEADING = /^#{1,6}\s+Use\s*$/im;
-const NEXT_HEADING = /^#{1,6}\s+\S/m;
 const SCAFFOLD = 'added with tools/scaffold/new-transition.mjs';
 
 function notificationText(notification) {
@@ -32,20 +30,20 @@ export function moduleDocLines(request, status, rule, testFiles) {
   return lines;
 }
 
-/** Inserts `lines` (each once) into the MODULE.md text. */
+/** Inserts `lines` (each once) into the MODULE.md text: before the workflow marker, else at the end of "Use". */
 export function addModuleDocNotes(doc, lines) {
-  const missing = lines.filter((line) => !doc.includes(line));
-  if (missing.length === 0) return doc;
-  const eol = doc.includes('\r\n') ? '\r\n' : NEWLINE;
-  const block = missing.join(eol) + eol;
-  const marker = doc.indexOf(WorkflowMarkers.moduleDoc);
-  if (marker >= 0) return doc.slice(0, marker) + block + doc.slice(marker);
-  const use = USE_HEADING.exec(doc);
-  if (!use) return `${doc.replace(/\s*$/, '')}${eol}${eol}${block}`;
-  const afterUse = use.index + use[0].length;
-  const next = NEXT_HEADING.exec(doc.slice(afterUse));
-  if (!next) return `${doc.replace(/\s*$/, '')}${eol}${block}`;
-  const sectionEnd = afterUse + next.index;
-  const body = doc.slice(0, sectionEnd).replace(/\s*$/, '');
-  return `${body}${eol}${block}${eol}${doc.slice(sectionEnd)}`;
+  return addUseNotes(doc, lines, WorkflowMarkers.moduleDoc);
+}
+
+/**
+ * The required rule a module with a workflow carries: the flow lives only in its catalog class. The id prefix is the
+ * lower-cased module name (the rules engine's module prefix).
+ */
+export function workflowRule(module, definitionClass) {
+  return {
+    id: `${module.toLowerCase()}.${WORKFLOW_RULE_SUFFIX}`,
+    idSuffix: WORKFLOW_RULE_SUFFIX,
+    statement: `The statuses, actions, permissions, reasons, wording keys and notification decisions live only in ${definitionClass} (one TransitionCatalog); no code switches on a status to decide an action. Change the flow with the new-transition skill (tools/scaffold/new-transition.mjs).`,
+    enforcedBy: [...WORKFLOW_RULE_ENFORCED_BY],
+  };
 }

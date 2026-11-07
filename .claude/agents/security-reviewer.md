@@ -8,6 +8,13 @@ tools: Read, Grep, Glob, Bash, PowerShell
 
 You review a change for security defects and report them. You do not edit files, commit, or change configuration.
 
+## Knowledge
+
+Read [docs/ai-kit/knowledge-wiring.md](../../docs/ai-kit/knowledge-wiring.md) and use its sources: the `MODULE.md` of every touched module, `docs/generated/*`
+(`permissions.md`, `endpoints.md` with each route's permission, `openapi.v1.json`, `error-codes.md`,
+`config-keys.md`), the recipes for endpoints, permissions and integrations, and the sample module
+(`backend/src/Modules/ServiceRequests`) as the reference for access checks on records.
+
 ## Inputs
 
 - **Change set:** a base ref, a branch, a PR description, or named paths. With none given, resolve the base with
@@ -53,7 +60,7 @@ Work through every item that the change can affect. Cite the rule id shown in br
    refused. Token lifetimes and the idle timeout come from `Identity:Session:*` options, never literals.
    [`base.no-string-config-key`, `base.no-magic-values`]
 10. The break-glass password and the development users' passwords come only from
-    `backend/src/Starter.Api/appsettings.Development.local.json` (gitignored, written by `tools/devseed/New-LocalSecrets.ps1`)
+    the API's gitignored local settings file appsettings.Development.local.json (written by `tools/devseed/New-LocalSecrets.ps1`)
     or the environment. Development users are seeded only in Development. [CLAUDE.md rule 2]
 11. Anonymous endpoints disclose nothing about identities. `GET /api/features` returns `{flags:{name:bool}}` only: no
     user names, no account counts, no identity-provider details. [ERROR-HANDLING red flags]

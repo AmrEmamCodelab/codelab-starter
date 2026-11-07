@@ -1,0 +1,9 @@
+{
+  "id": "new-endpoint",
+  "kind": "scaffold",
+  "skill": "new-endpoint",
+  "description": "A new read operation on an existing module must route to the endpoint scaffold.",
+  "prompt": "Staff need to know how many service requests are currently waiting for review. Add a read-only API operation to the existing ServiceRequests module that returns that count, protected by a permission. No screen yet.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

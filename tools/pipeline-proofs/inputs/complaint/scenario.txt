@@ -1,0 +1,1 @@
+Citizens file a complaint about one of our services and can follow it; a complaints officer resolves it with a response or rejects it with a reason, and can ask the citizen for more information; a complaint still open 10 days after it was filed escalates to the complaints manager.

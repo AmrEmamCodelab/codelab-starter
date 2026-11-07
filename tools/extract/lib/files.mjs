@@ -57,6 +57,37 @@ export function listFiles(root) {
   return files.filter((path) => isRegularFile(join(root, path))).sort();
 }
 
+/**
+ * Gitignored folders the secret scan reads anyway: local state that never ships but can hold credentials, so a
+ * secret in it is still reported (build plan phase 9: ".claude/memory is gitignored and still scanned").
+ */
+export const ALWAYS_SECRET_SCANNED_DIRECTORIES = Object.freeze(['.claude/memory']);
+
+/**
+ * listFiles(root) plus every file under ALWAYS_SECRET_SCANNED_DIRECTORIES that exists, even when .gitignore hides
+ * it (the secret scan's file list; the scrub sweep and the content check keep honouring .gitignore).
+ * @param {string} root directory to scan
+ * @returns {string[]} forward-slash paths relative to root, sorted, without duplicates
+ */
+export function listSecretScanFiles(root) {
+  const files = new Set(listFiles(root));
+  for (const directory of ALWAYS_SECRET_SCANNED_DIRECTORIES) {
+    const absolute = join(root, directory);
+    if (!isDirectory(absolute)) continue;
+    for (const path of walk(root, absolute)) files.add(path);
+  }
+  return [...files].sort();
+}
+
+function isDirectory(path) {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    // The folder does not exist (the usual case outside a developer's machine): nothing extra to scan.
+    return false;
+  }
+}
+
 function tryListGitFiles(root) {
   try {
     const inside = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: root, stdio: QUIET_STDIO });

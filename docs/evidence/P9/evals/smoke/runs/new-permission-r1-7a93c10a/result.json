@@ -1,0 +1,73 @@
+{
+    "fixture":  "new-permission",
+    "kind":  "scaffold",
+    "expectedSkill":  "new-permission",
+    "run":  1,
+    "passed":  true,
+    "inconclusive":  false,
+    "infrastructureError":  "",
+    "exitCode":  0,
+    "timedOut":  false,
+    "durationSeconds":  242.7,
+    "skillsInvoked":  [
+                          "new-permission"
+                      ],
+    "failedChecks":  [
+
+                     ],
+    "baselineFailures":  [
+
+                         ],
+    "checks":  [
+                   {
+                       "name":  "build",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  11.8,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-permission-r1-7a93c10a\\build.log"
+                   },
+                   {
+                       "name":  "rulesCheck",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  0.6,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-permission-r1-7a93c10a\\rulesCheck.log"
+                   },
+                   {
+                       "name":  "contentRules",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1.2,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-permission-r1-7a93c10a\\contentRules.log"
+                   },
+                   {
+                       "name":  "contractTests",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  28.1,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-permission-r1-7a93c10a\\contractTests.log"
+                   },
+                   {
+                       "name":  "docsGate",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  3.1,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-permission-r1-7a93c10a\\docsGate.log"
+                   },
+                   {
+                       "name":  "skillInvoked",
+                       "status":  "passed",
+                       "exitCode":  null,
+                       "durationSeconds":  0,
+                       "detail":  "invoked: new-permission",
+                       "logPath":  ""
+                   }
+               ],
+    "runId":  "new-permission-r1-7a93c10a",
+    "transcriptPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\transcripts\\new-permission-r1-7a93c10a.jsonl"
+}

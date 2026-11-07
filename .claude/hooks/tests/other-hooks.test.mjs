@@ -77,6 +77,9 @@ describe('on-stop-gate', () => {
     assert.equal(output.decision, 'block');
     assert.match(output.reason, /Docs gate .* failed[\s\S]*missing section Gotchas/);
     assert.match(output.reason, /Rules check .* failed[\s\S]*rules\.compiled\.json is stale/);
+    // Each failed check carries a rule id, so the decision log names it instead of logging ruleIds [].
+    assert.match(output.reason, /\[hooks\.stop-docs-gate\] Docs gate/);
+    assert.match(output.reason, /\[hooks\.stop-rules-drift\] Rules check/);
     const docsGateCall = calls.find((call) => call.command === 'fake-dotnet');
     assert.deepEqual(docsGateCall.args, ['run', '--project', 'tools/docs-gate', '--', 'check', '--root', '.']);
   });

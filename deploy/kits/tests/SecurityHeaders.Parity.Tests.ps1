@@ -1,6 +1,7 @@
 # Pester 3.4 parity test for the SPA front site's security edge (Windows PowerShell 5.1). Fails when the IIS template
-# deploy/kits/templates/web/web.config or the nginx files deploy/nginx/{security-headers,edge-blocks}.conf drift from
-# the single source deploy/kits/templates/web/security-headers.psd1 (build plan phase 8 exit criterion).
+# deploy/kits/templates/web/web.config or the nginx files deploy/nginx/{security-headers,edge-blocks,trace-context}.conf
+# drift from the single source deploy/kits/templates/web/security-headers.psd1 (build plan phase 8 exit criterion):
+# the response headers, the blocked paths, and the inbound trace headers stripped before a request reaches a backend.
 #   powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester deploy/kits/tests/SecurityHeaders.Parity.Tests.ps1 -EnableExit"
 Set-StrictMode -Version Latest
 
@@ -12,6 +13,23 @@ $NginxFolder = Join-Path $RepoRoot 'deploy\nginx'
 $NginxHeadersPath = Join-Path $NginxFolder 'security-headers.conf'
 $NginxBlocksPath = Join-Path $NginxFolder 'edge-blocks.conf'
 $NginxExamplePath = Join-Path $NginxFolder 'starter-web.conf.example'
+$NginxTraceContextPath = Join-Path $NginxFolder 'trace-context.conf'
+
+# The W3C Trace Context and W3C Baggage request headers (the contract the .psd1 list must keep).
+$ExpectedStrippedHeaders = @('traceparent', 'tracestate', 'baggage')
+$NoActionType = 'None'
+$MatchEveryUrl = '.*'
+$TrueText = 'true'
+$ListSeparator = ','
+$HeaderNameSeparator = '-'
+$ServerVariableSeparator = '_'
+$SpaFallbackRuleName = 'SPA fallback'
+$PathSeparators = [char[]] @('/', '\')
+$LocationXPath = '/configuration/location'
+$LocationRuleXPathFormat = "system.webServer/rewrite/rules/rule[@name='{0}']"
+# proxy_set_header <name> "";
+$NginxClearHeaderLine = '^\s*proxy_set_header\s+(?<name>[A-Za-z0-9-]+)\s+""\s*;\s*$'
+$NginxTraceIncludePattern = 'include [^;]*/trace-context\.conf;'
 
 $EdgeBlockRuleName = 'Block internal and ops API'
 $CustomResponseAction = 'CustomResponse'
@@ -61,6 +79,40 @@ function Get-CspDirectives([string] $Value) {
 
 function Get-SourceHeaderValue([string] $Name) {
     return (@($HeaderData.Headers | Where-Object { $_.Name -eq $Name })[0]).Value
+}
+
+# traceparent -> HTTP_TRACEPARENT: the IIS server variable that carries a request header.
+function ConvertTo-TraceServerVariable([string] $Header) {
+    return $HeaderData.TraceStripServerVariablePrefix + $Header.ToUpperInvariant().Replace($HeaderNameSeparator, $ServerVariableSeparator)
+}
+
+function Get-ExpectedTraceServerVariables {
+    return (@($HeaderData.StrippedRequestHeaders | ForEach-Object { ConvertTo-TraceServerVariable $_ }) -join $ListSeparator)
+}
+
+# One entry per <location> of $Document whose rewrite rules hold the trace strip rule, in document order.
+function Get-IisTraceStripLocations([Xml.XmlDocument] $Document) {
+    $found = @()
+    foreach ($location in @($Document.SelectNodes($LocationXPath))) {
+        $rule = $location.SelectSingleNode(($LocationRuleXPathFormat -f $HeaderData.TraceStripRuleName))
+        if ($null -eq $rule) { continue }
+        $sets = @($rule.SelectNodes('serverVariables/set'))
+        $found += [pscustomobject]@{
+            Path           = $location.GetAttribute('path')
+            Variables      = (@($sets | ForEach-Object { $_.GetAttribute('name') }) -join $ListSeparator)
+            NonEmptyValues = @($sets | Where-Object { $_.GetAttribute('value') -ne '' }).Count
+            MatchUrl       = $rule.SelectSingleNode('match').GetAttribute('url')
+            ActionType     = $rule.SelectSingleNode('action').GetAttribute('type')
+            StopProcessing = $rule.GetAttribute('stopProcessing')
+            RuleCount      = @($location.SelectNodes('system.webServer/rewrite/rules/rule')).Count
+        }
+    }
+    return $found
+}
+
+# The header names an nginx file clears with proxy_set_header <name> "";, in order.
+function Get-NginxClearedHeaders([string[]] $Lines) {
+    return @($Lines | ForEach-Object { [regex]::Match($_, $NginxClearHeaderLine) } | Where-Object { $_.Success } | ForEach-Object { $_.Groups['name'].Value })
 }
 
 Describe 'Security headers: one source, two servers' {
@@ -171,5 +223,86 @@ Describe 'Edge blocks: /api/internal and /api/ops answer 404 at the front site' 
             $body = $location.Groups['body'].Value
             if ($body -match 'add_header') { $body | Should Match 'include [^;]*/security-headers\.conf;' }
         }
+    }
+}
+
+Describe 'Inbound trace context: stripped at the front site before a request reaches a backend' {
+    $iisLocations = @(Get-IisTraceStripLocations $WebConfig)
+    $traceLines = [IO.File]::ReadAllLines($NginxTraceContextPath)
+    $expectedVariables = Get-ExpectedTraceServerVariables
+
+    It 'the source strips exactly the W3C trace context and baggage headers' {
+        ($HeaderData.StrippedRequestHeaders -join $ListSeparator) | Should BeExactly ($ExpectedStrippedHeaders -join $ListSeparator)
+        $HeaderData.TraceStripRuleName | Should Not BeNullOrEmpty
+        @($HeaderData.TraceStripPaths).Count | Should BeGreaterThan 0
+    }
+
+    It 'names the IIS server variable of a header as URL Rewrite does (HTTP_, upper case, - as _)' {
+        ConvertTo-TraceServerVariable 'traceparent' | Should BeExactly 'HTTP_TRACEPARENT'
+        ConvertTo-TraceServerVariable 'x-request-id' | Should BeExactly 'HTTP_X_REQUEST_ID'
+        $expectedVariables | Should BeExactly 'HTTP_TRACEPARENT,HTTP_TRACESTATE,HTTP_BAGGAGE'
+    }
+
+    It 'strips under child application paths (one segment each) that the SPA fallback excludes' {
+        $fallback = $WebConfig.SelectSingleNode(("/configuration/system.webServer/rewrite/rules/rule[@name='{0}']" -f $SpaFallbackRuleName))
+        $excluded = $fallback.SelectSingleNode("conditions/add[@negate='true' and @input='{URL}']").GetAttribute('pattern')
+        foreach ($path in $HeaderData.TraceStripPaths) {
+            [regex]::IsMatch("/$path/x", $excluded, 'IgnoreCase') | Should Be $true
+            ($path.IndexOfAny($PathSeparators) -lt 0) | Should Be $true
+        }
+    }
+
+    It 'IIS: exactly one <location> per stripped path carries the rule, in source order' {
+        (@($iisLocations | ForEach-Object { $_.Path }) -join $ListSeparator) | Should BeExactly ($HeaderData.TraceStripPaths -join $ListSeparator)
+    }
+
+    It 'IIS: each rule sets exactly the stripped headers'' server variables to empty, for every URL, and only sets variables' {
+        foreach ($location in $iisLocations) {
+            $location.Variables | Should BeExactly $expectedVariables
+            $location.NonEmptyValues | Should Be 0
+            $location.MatchUrl | Should BeExactly $MatchEveryUrl
+            $location.ActionType | Should BeExactly $NoActionType
+            $location.StopProcessing | Should Not Be $TrueText
+            $location.RuleCount | Should Be 1
+        }
+    }
+
+    It 'IIS: no site-level rule carries the trace strip rule (it belongs under the backend paths only)' {
+        $WebConfig.SelectSingleNode(("/configuration/system.webServer/rewrite/rules/rule[@name='{0}']" -f $HeaderData.TraceStripRuleName)) | Should BeNullOrEmpty
+    }
+
+    It 'nginx: trace-context.conf clears exactly the stripped headers, in order, and holds nothing else' {
+        ((Get-NginxClearedHeaders $traceLines) -join $ListSeparator) | Should BeExactly ($HeaderData.StrippedRequestHeaders -join $ListSeparator)
+        $stray = @($traceLines | Where-Object { $_ -notmatch $NginxClearHeaderLine -and $_ -notmatch $NginxCommentLine })
+        ($stray -join "`n") | Should BeExactly ''
+    }
+
+    It 'nginx: every proxying location of the example includes trace-context.conf and clears no header by hand' {
+        $example = [IO.File]::ReadAllText($NginxExamplePath)
+        $proxying = 0
+        foreach ($location in [regex]::Matches($example, '(?s)location [^{]*\{(?<body>[^}]*)\}')) {
+            $body = $location.Groups['body'].Value
+            if ($body -notmatch 'proxy_pass') { continue }
+            $proxying++
+            $body | Should Match $NginxTraceIncludePattern
+        }
+        $proxying | Should BeGreaterThan 0
+        @(Get-NginxClearedHeaders ($example -split "`n")).Count | Should Be 0
+    }
+
+    It 'detects drift: a template or conf missing one header no longer matches the source' {
+        $drifted = New-Object Xml.XmlDocument
+        $drifted.LoadXml($WebConfig.OuterXml)
+        $set = $drifted.SelectSingleNode("/configuration/location/system.webServer/rewrite/rules/rule/serverVariables/set[@name='HTTP_BAGGAGE']")
+        [void] $set.ParentNode.RemoveChild($set)
+        (@(Get-IisTraceStripLocations $drifted)[0]).Variables | Should Not Be $expectedVariables
+
+        $valued = New-Object Xml.XmlDocument
+        $valued.LoadXml($WebConfig.OuterXml)
+        $valued.SelectSingleNode("/configuration/location/system.webServer/rewrite/rules/rule/serverVariables/set").SetAttribute('value', 'kept')
+        (@(Get-IisTraceStripLocations $valued)[0]).NonEmptyValues | Should Be 1
+
+        $shortConf = @($traceLines | Where-Object { $_ -notmatch 'baggage' })
+        ((Get-NginxClearedHeaders $shortConf) -join $ListSeparator) | Should Not Be ($HeaderData.StrippedRequestHeaders -join $ListSeparator)
     }
 }

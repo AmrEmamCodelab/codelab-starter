@@ -1,6 +1,6 @@
 ---
 name: new-transition
-description: "Add a status and/or a transition to a record type's workflow (module 8): the status constant with the next explicit int and its status key, the TransitionRule entry with permission, side, reason requirement and field, label and an explicit notification decision, the ar and en wording and label keys, TransitionFixture test stubs, the MODULE.md note, then the regenerated workflow sheet (docs/generated/workflows/<record-type>.md, Mermaid) and statuses.md. Use when the work needs a new status, a new step in an approval flow, a new decision (approve, reject, return, escalate, put on hold, reopen) or a changed status flow."
+description: "Use when the work needs a new status, a new step in an approval flow, a new decision (approve, reject, return, escalate, put on hold, reopen) or any changed status flow of a record type, and whenever a hook or CI refusal says 'Use the `new-transition` skill' (a transition or status outside the workflow catalog). Adds the status and/or transition to the record type's catalog (module 8) in one run: the status constant with the next explicit int and its status key, the TransitionRule entry with permission, side, reason, label and an explicit notification decision, the ar and en wording and label keys, TransitionFixture unit tests, the MODULE.md note, the workflow-in-the-catalog rule and recipe in module.rules.yaml, then the regenerated workflow sheet (docs/generated/workflows/<record-type>.md, Mermaid) and statuses.md."
 ---
 
 # New transition
@@ -10,6 +10,27 @@ contracts: the Workflow sections of [Starter.Domain](../../../backend/src/Starte
 [Starter.Application](../../../backend/src/Starter.Application/MODULE.md); test kit
 [backend/tests/Starter.Workflow.Testing/README.md](../../../backend/tests/Starter.Workflow.Testing/README.md). A whole
 new record type is not this skill: follow [docs/recipes/add-workflow-type.md](../../../docs/recipes/add-workflow-type.md).
+
+## When this applies
+
+- A record type that already has a workflow gains a status, an action between statuses, or a changed rule (who, from
+  where, with which reason, who is told). A time limit on a status is the deadline recipe
+  ([docs/recipes/add-deadline.md](../../../docs/recipes/add-deadline.md)) after this skill.
+- **Refusal counterpart:** the flow lives only in the module's catalog class (one `TransitionCatalog`). The PreToolUse
+  hook and the CI content check (`node tools/rules-engine/check-content.mjs`) refuse a transition or status written
+  outside it with the message "Use the `new-transition` skill"; the host's `WorkflowCatalogStartupCheck` and the
+  contract tests refuse an incomplete rule. The module's rule `<lower-case module>.workflow-in-the-catalog` (added by
+  the first run when missing) states it.
+
+## What one run emits
+
+| Part | Emitted |
+| --- | --- |
+| Code | yes: `<Entity>Statuses` (+ `<Entity>StatusKeys`), `<Entity>Actions`, the `Statuses` and `Rules` lists of the workflow class (the catalog), the notification template constant, ar and en wording and label keys |
+| Rules | yes: the required rule `<lower-case module>.workflow-in-the-catalog` (unless the module already has a rule ending in `.workflow-in-the-catalog`) and `.claude/skills/new-transition/SKILL.md` in `recipes`; only when the run added something |
+| MODULE.md | yes: one Use note per new status and per new transition (under `<!-- scaffold:workflow -->` when present) |
+| Unit tests | yes: `Workflow/<Status>StatusTests.cs` and `Workflow/<Action>From<Status>TransitionTests.cs` on `TransitionFixture`, plus the test-kit reference |
+| Generated docs | rerun automatically (rules compile, `Starter.DocsGen`: `docs/generated/workflows/<record-type>.md` and `statuses.md`); `--no-gen` prints the DocsGen command, `--skip-generate` and `--dry-run` print the refresh as `next:` lines |
 
 ## Quick start
 
@@ -57,7 +78,8 @@ usage error (for example a transition out of the new terminal status, a missing 
    workflow class (above `// scaffold:workflow-statuses` / `// scaffold:workflow-rules` when present), the template
    constant in `<Entity>NotificationKeys` (and its `All` list), `ar.json` and `en.json`, one test class per new status
    (`Workflow/<Status>StatusTests.cs`) and per new rule (`Workflow/<Action>From<Status>TransitionTests.cs`), the test
-   kit reference, and a note in the module's `MODULE.md`.
+   kit reference, a note in the module's `MODULE.md`, and (first time only) the workflow rule and the recipe in its
+   `module.rules.yaml`.
 3. **Read the generated entries and stubs.** Entries use named arguments; keep them. Extend the stubs with the cases
    the business adds (for example "only the assignee may escalate"). Update the module's own table tests that pin
    the whole flow (the sample's `ServiceRequestWorkflowTests`: allowed actions per status, terminal list, notified
@@ -69,7 +91,8 @@ usage error (for example a transition out of the new terminal status, a missing 
    `& "E:\codelab-tools\dotnet10\dotnet.exe" run --project backend/tools/Starter.DocsGen -- --out docs/generated`.
    Review `docs/generated/workflows/<record-type>.md` (diagram and transition table) with the user; it is the client
    sign-off sheet. `statuses.md` lists the new status with its three wording keys.
-6. **Docs:** the run adds the MODULE.md note; add any new rule or gotcha by hand.
+6. **Docs:** the run adds the MODULE.md note and the rules entry (the rules compile then refreshes the nested
+   `CLAUDE.md`); add any new business rule or gotcha by hand.
 
 ## Verify
 

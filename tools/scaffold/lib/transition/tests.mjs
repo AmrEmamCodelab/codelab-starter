@@ -8,6 +8,9 @@ const TEST_REASON = '"A reason given in the test."';
 const PATH_SEPARATOR = '/';
 const CSPROJ_SEPARATOR = '\\';
 const PROJECT_REFERENCE = /^([ \t]*)<ProjectReference\b[^\r\n]*$/gm;
+/** The side (Sides key) TransitionFixture.Do acts from when no OnSide is given: the requester for the owner, staff otherwise. */
+const IMPLICIT_OWNER_SIDE = 'requester';
+const IMPLICIT_OTHER_SIDE = 'staff';
 
 /** The namespace of a module's generated workflow tests. */
 export function testNamespaceOf(module) {
@@ -58,10 +61,22 @@ export function statusTestTokens({ module, sources }, statusRequest, status, tes
   };
 }
 
+/**
+ * The fixture calls that make TransitionFixture.Do act as the rule's actor: `.AsOwner()` for an owner-only rule and
+ * `.OnSide(TransitionSide.<Side>)` when the rule's side is not the one Do picks by itself (a system rule, a staff rule
+ * taken by the owner, a requester rule without ownership).
+ */
+export function actorCalls({ owner, side }) {
+  const implicitSide = owner ? IMPLICIT_OWNER_SIDE : IMPLICIT_OTHER_SIDE;
+  const ownerCall = owner ? '.AsOwner()' : '';
+  const sideCall = side === implicitSide ? '' : `.OnSide(TransitionSide.${Sides[side]})`;
+  return `${ownerCall}${sideCall}`;
+}
+
 /** Tokens of one transition test (templates/transition/rule) for the rule from `from`. */
 export function ruleTestTokens({ module, sources }, request, rule, from, testClass) {
   const { rule: asked } = request;
-  const ownerCall = asked.owner ? '.AsOwner()' : '';
+  const ownerCall = actorCalls(asked);
   const reasonArgument = asked.reason === 'none' ? '' : `, ${TEST_REASON}`;
   let extras = '';
   if (asked.reason === 'required') {

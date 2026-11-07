@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[hooks.module-without-rules] backend/src/Modules/ProofProbe has no module.rules.yaml. Every module needs its rules before its code. Fix: Use the `new-module` skill (/new-module) to create the module; it writes module.rules.yaml, MODULE.md and the generated CLAUDE.md."}}

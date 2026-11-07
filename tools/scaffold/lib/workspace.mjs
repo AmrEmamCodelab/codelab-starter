@@ -29,6 +29,9 @@ import {
 /** The repo root: two folders above tools/scaffold/lib's parent. */
 export const DEFAULT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
+/** The last line of every --dry-run report. */
+export const DRY_RUN_NOTE = 'dry run: nothing was written';
+
 /** Raised for a failed downstream generator. */
 export class GeneratorError extends Error {}
 
@@ -50,6 +53,12 @@ export class ChangeSet {
   write(relativePath, content) {
     if (this.read(relativePath) === content) return;
     this.files.set(relativePath, content);
+  }
+
+  /** The --dry-run report: "would create <path>" / "would change <path>" for every pending write. Writes nothing. */
+  preview() {
+    return [...this.files.keys()].map((relativePath) =>
+      `${this.exists(relativePath) ? Report.wouldChange : Report.wouldCreate} ${relativePath}`);
   }
 
   /** True when the file exists on disk. */
@@ -120,9 +129,19 @@ function frontendHasScript(root, script) {
  * new-permission --no-gen; `regenerate` runs the same two.
  */
 export function catalogCommands(env = process.env) {
+  return downstreamCommands({ apiClient: true, env }).slice(1);
+}
+
+/**
+ * The generated-docs refresh commands a run leaves to the user when it does not run them itself (--dry-run,
+ * --skip-generate): the rules compile (nested CLAUDE.md after a module.rules.yaml change), DocsGen (docs/generated) and,
+ * with `apiClient`, api:gen (the TypeScript client and PermissionKeys).
+ */
+export function downstreamCommands({ apiClient, docs = true, env = process.env }) {
   return [
-    `${resolveDotnet(env)} run --project ${DOCSGEN_PROJECT} -- --out ${DOCS_GENERATED_DIR}`,
-    `npm run ${API_GEN_SCRIPT} --workspace ${FRONTEND_WORKSPACE}`,
+    `node ${RULES_COMPILE_SCRIPT}`,
+    ...(docs ? [`${resolveDotnet(env)} run --project ${DOCSGEN_PROJECT} -- --out ${DOCS_GENERATED_DIR}`] : []),
+    ...(apiClient ? [`npm run ${API_GEN_SCRIPT} --workspace ${FRONTEND_WORKSPACE}`] : []),
   ];
 }
 

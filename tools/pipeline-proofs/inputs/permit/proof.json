@@ -1,0 +1,17 @@
+{
+  "proof": "permit",
+  "recordType": "Permit",
+  "inputType": "Use-case workbook (HLS format, 2 use cases)",
+  "scenarioFile": "scenario.txt",
+  "inputs": ["tools/pipeline-proofs/inputs/permit/permit-use-cases.xlsx"],
+  "workbook": {
+    "path": "tools/pipeline-proofs/inputs/permit/permit-use-cases.xlsx",
+    "useCaseSheet": "Summary",
+    "useCaseIdPattern": "^UC-[A-Z]+-[0-9]+$",
+    "useCaseCount": 2
+  },
+  "expectedSteps": ["build-feature", "new-module", "new-transition", "deadline-recipe", "new-permission", "new-endpoint", "new-screen"],
+  "requiresFigmaUrl": false,
+  "maxTurns": 300,
+  "timeoutMinutes": 300
+}

@@ -1,6 +1,6 @@
 # Example nginx server block for the SPA front site (the IIS equivalent is deploy/kits/templates/web/web.config).
 # Copy it to the nginx host, replace every <...> value there (never commit hosts, certificates or paths of a real
-# environment), and keep the two includes. See deploy/nginx/README.md.
+# environment), and keep the includes. See deploy/nginx/README.md.
 
 server {
     listen 443 ssl;
@@ -24,9 +24,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         # Drop caller-supplied trace context (an empty value removes the header): the API starts its own trace.
-        proxy_set_header traceparent "";
-        proxy_set_header tracestate "";
-        proxy_set_header baggage "";
+        include <this folder>/trace-context.conf;
     }
 
     # Hashed bundles (<name>-<8 hash characters>.<ext>): a new build is a new URL, so cache for a year.

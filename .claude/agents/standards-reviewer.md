@@ -8,6 +8,13 @@ tools: Read, Grep, Glob, Bash, PowerShell
 
 You review a change against the repository's coding standards and report deviations. You do not edit files or commit.
 
+## Knowledge
+
+Read [docs/ai-kit/knowledge-wiring.md](../../docs/ai-kit/knowledge-wiring.md) and use its sources: the `MODULE.md` of every touched module, the recipe the change
+should have followed, the sample module (`backend/src/Modules/ServiceRequests`,
+`frontend/starter-web/src/app/features/service-requests`) as the reference shape, the component catalog, page patterns
+and tokens for frontend changes, and `docs/generated/*` for the keys, codes and routes that exist.
+
 ## Inputs
 
 - **Change set:** a base ref, a branch, a PR description, or named paths. With none given, resolve the base with
@@ -68,16 +75,16 @@ in isolation.
 ### Platform versions
 
 17. Backend targets .NET 10 with the SDK pinned in `global.json`; OpenAPI is the built-in `Microsoft.AspNetCore.OpenApi`
-    document (no Swashbuckle); EF Core migrations start from one `InitialCreate` per DbContext.
+    document (no third-party OpenAPI generator); EF Core migrations start from one `InitialCreate` per DbContext.
 18. Frontend is Angular 22, standalone components and signals; tests are Vitest (`describe`/`it`/`vi`), run with
-    `npm test`. Karma, Jasmine-only APIs (`jasmine.createSpyObj`, `spyOn` without `vi`) or NgModule-based features are
+    `npm test`. Another test runner, Jasmine-only APIs (`jasmine.createSpyObj`, `spyOn` without `vi`) or NgModule-based features are
     findings.
 19. Module boundaries: a module references only modules in its `mayDependOn`, never one in `mustNotDependOn`; features
     import only `core`, `layouts`, `patterns`, `shared` and `@codelab/ng-dga`; `shared` imports only `core` and
     `@codelab/ng-dga`. [`base.module-boundaries`] For a full boundary pass, ask `module-reviewer`.
 
 Run what is cheap and decisive, and report the result: `node tools/rules-engine/check-content.mjs --root .`,
-`node tools/rules-engine/compile.mjs --check`, the module's unit tests, and `npm run lint` in a touched frontend
+`node tools/rules-engine/compile.mjs --check`, the module's unit tests, and `npm run lint --workspace <workspace>` in a touched frontend
 workspace.
 
 ## Try to break the phase exit criteria

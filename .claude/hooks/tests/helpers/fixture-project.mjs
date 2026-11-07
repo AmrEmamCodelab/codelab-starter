@@ -16,6 +16,7 @@ const FIXTURE_GITIGNORE = `bin/\nobj/\nnode_modules/\n/feed/*\n/${FIXTURE_TEMP_D
 const TEMP_ENV_VARS = ['TEMP', 'TMP', 'TMPDIR'];
 const HOOK_ENV_VARS_TO_CLEAR = [
   'CLAUDE_PROJECT_DIR', 'CODELAB_PLATFORM_OWNER', 'CODELAB_DOCS_NOT_NEEDED', 'CODELAB_BASE_REF', 'CODELAB_HOOK_BUDGET_MS',
+  'CODELAB_HOOK_LOG',
 ];
 
 /** Files of the standard fixture project: one compiled module (ServiceRequests) with docs and code. */

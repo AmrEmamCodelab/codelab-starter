@@ -1,14 +1,19 @@
 {
-  "$comment": "Intent -> skill routing table added to every prompt by user-prompt-submit.mjs. Keep it in sync with the routing table in the root CLAUDE.md. A skill without .claude/skills/<skill>/SKILL.md is shown as not built yet.",
+  "$comment": "Intent -> skill routing table added to every prompt by user-prompt-submit.mjs. Keep it in sync with the routing table in the root CLAUDE.md (same skills; tests/routing-table.test.mjs checks it). keywords match whole words, case-insensitive; patterns are case-insensitive regex sources. A prompt that matches nothing gets the default route. A skill without .claude/skills/<skill>/SKILL.md (or a recipe file that does not exist) is shown as not built yet.",
+  "default": { "skill": "build-feature", "intent": "any business scenario with no more specific match" },
   "routes": [
+    { "intent": "any business scenario (\"we need...\"), a BRD, a use-case workbook, a DGA screenshot or a Figma frame", "skill": "build-feature", "keywords": ["we need", "they need", "should be able to", "scenario", "feature", "brd", "business requirement", "use case", "workbook", "screenshot", "figma", "design", "permit", "approval", "escalation", "escalates", "complaint", "complaints"] },
     { "intent": "a new business area, record type or module", "skill": "new-module", "keywords": ["module", "business area", "record type", "new area"] },
     { "intent": "a new API action or endpoint", "skill": "new-endpoint", "keywords": ["endpoint", "api", "action", "route"] },
     { "intent": "a new page or screen", "skill": "new-screen", "keywords": ["page", "screen", "form", "ui", "view"], "also": "docs/design/page-patterns.md (the 8 page patterns)" },
     { "intent": "a new permission or access rule", "skill": "new-permission", "keywords": ["permission", "access", "role", "grant"] },
-    { "intent": "a new status, transition or approval step", "skill": "new-transition", "keywords": ["status", "transition", "workflow", "approve", "reject"] },
+    { "intent": "a new status, transition or approval step", "skill": "new-transition", "keywords": ["status", "transition", "workflow", "approve", "reject", "approval", "escalation"] },
     { "intent": "a new lookup or reference list", "skill": "new-lookup", "keywords": ["lookup", "reference data", "dropdown", "list of values"] },
-    { "intent": "a time limit, deadline or SLA", "recipe": "docs/recipes (deadline recipe)", "keywords": ["deadline", "sla", "time limit", "timer", "overdue"] },
-    { "intent": "a whole feature from a BRD, use case or design", "skill": "build-feature", "keywords": ["feature", "brd", "use case", "figma", "design"] },
+    { "intent": "a time limit, deadline or SLA", "recipe": "docs/recipes/add-deadline.md", "keywords": ["deadline", "sla", "time limit", "timer", "overdue", "escalation", "escalates"] },
+    { "intent": "testing, verifying or investigating one use case end to end (UC id, High Level Scenarios workbook)", "skill": "usecase-testing", "keywords": ["test the use case", "verify the use case", "usecase testing", "use-case testing"], "patterns": ["\\buc-?\\d+\\b"] },
+    { "intent": "turning a PRD into a phased implementation plan (tracer bullets, tracked in plans/)", "skill": "prd-to-plan", "keywords": ["prd", "implementation plan", "tracer bullet", "tracer bullets", "plan phases"] },
+    { "intent": "a PRD and its implementation plan in one go", "skill": "prd-and-plan", "keywords": ["prd and plan", "prd and implementation plan", "prd + plan"] },
+    { "intent": "removing noise comments from one class or file without changing code", "skill": "reduce-comments", "keywords": ["reduce comments", "too many comments", "over-commented", "noise comments", "clean up comments"] },
     { "intent": "executing a planned unit of work or a plan phase", "skill": "do-work", "keywords": ["plan phase", "unit of work", "do the work"] },
     { "intent": "creating or changing a skill", "skill": "write-a-skill", "keywords": ["skill", "new skill"] },
     { "intent": "any implementation or review", "skill": "coding-standards", "keywords": [] }

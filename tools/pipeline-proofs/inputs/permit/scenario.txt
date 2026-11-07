@@ -1,0 +1,1 @@
+Clients request a site-visit permit; the inspector approves or rejects it with a reason; undecided after 5 days it escalates to the manager.

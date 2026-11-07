@@ -1,0 +1,67 @@
+{
+  "$comment": "facts-drift gate configuration. See tools/facts-drift/MODULE.md (Extend) before changing a list.",
+  "scope": {
+    "include": [
+      ".claude/agents/**/*.md",
+      ".claude/skills/**/*.md",
+      "CLAUDE.md",
+      "CONTEXT.md",
+      "docs/**/*.md"
+    ],
+    "exclude": [
+      "docs/adr/**",
+      "docs/evidence/**",
+      "docs/generated/**",
+      "provenance/**"
+    ]
+  },
+  "paths": {
+    "extensions": [
+      "bat", "cmd", "config", "cs", "csproj", "css", "docx", "editorconfig", "html", "js", "json", "jsonc", "md",
+      "mjs", "cjs", "mts", "png", "props", "ps1", "psd1", "psm1", "scss", "sh", "sln", "slnx", "sql", "svg",
+      "targets", "toml", "ts", "txt", "xlsx", "xml", "yaml", "yml"
+    ]
+  },
+  "commands": {
+    "shellFenceLanguages": ["", "powershell", "pwsh", "ps", "ps1", "bash", "sh", "shell", "console", "cmd", "bat"],
+    "powershellCommonParameters": [
+      "Verbose", "Debug", "ErrorAction", "WarningAction", "InformationAction", "ProgressAction", "ErrorVariable",
+      "WarningVariable", "InformationVariable", "OutVariable", "OutBuffer", "PipelineVariable", "WhatIf", "Confirm"
+    ]
+  },
+  "types": {
+    "sourceRoots": ["backend", "packages", "frontend", "services", "tools", "deploy"],
+    "sourceExtensions": [".cs", ".ts", ".mts", ".ps1", ".psm1"],
+    "excludedDirectories": ["bin", "obj", "node_modules", "dist", ".angular", "artifacts", "TestResults", "publish"],
+    "suffixes": [
+      "Accessor", "Attribute", "Builder", "Catalog", "Check", "Client", "Codec", "Codes", "Command", "Component",
+      "Configuration", "Constants", "Context", "Controller", "Directive", "Dto", "Endpoints", "Exception",
+      "Extensions", "Factory", "Filter", "Gate", "Guard", "Handler", "Ids", "Interceptor", "Job", "Keys", "Mapper",
+      "Middleware", "Options", "Pipe", "Policy", "Provider", "Query", "Reader", "Registry", "Repository", "Request",
+      "Resolver", "Response", "Result", "Results", "Ring", "Sender", "Service", "Settings", "Sink", "Store", "Tests",
+      "Validator", "Writer"
+    ],
+    "extraTypeNames": ["CodedRefusal", "PublicId", "WireId", "OutcomeResults"],
+    "externalSymbols": [
+      "ApiController", "ConfigurePrimaryHttpMessageHandler", "FakeTimeProvider", "IMemoryCache", "JsonIgnore", "Migration",
+      "ArgumentException", "ArgumentNullException", "ArgumentOutOfRangeException", "BackgroundService",
+      "ControllerBase", "DbContext", "DbUpdateConcurrencyException", "DbUpdateException", "HttpClient",
+      "HttpRequestException", "IConfiguration", "IExceptionHandler", "IHostedService", "IHttpClientFactory", "ILogger",
+      "IOptions", "IOptionsMonitor", "IServiceCollection", "IServiceProvider", "InvalidOperationException",
+      "JsonException", "NotSupportedException", "ObjectDisposedException", "OperationCanceledException",
+      "ProblemDetails", "SqlException", "TaskCanceledException", "TimeProvider", "TimeoutException",
+      "UnauthorizedAccessException", "ValidationProblemDetails", "WebApplicationFactory", "HttpInterceptor",
+      "HttpClientModule", "CanActivateFn", "ActivatedRoute", "ChangeDetectorRef", "DestroyRef", "ElementRef",
+      "ErrorHandler", "HttpErrorResponse", "HttpResponse", "HttpHeaders", "HttpParams", "NgModule", "Router",
+      "AbstractValidator", "ValidationResult", "IEntityTypeConfiguration", "ModelBuilder", "MigrationBuilder",
+      "IAuthorizationHandler", "IAuthorizationRequirement", "AuthorizationHandler", "AuthorizationPolicy",
+      "IActionFilter", "IAsyncActionFilter", "ActionFilterAttribute", "AuthorizeAttribute", "AllowAnonymousAttribute"
+    ]
+  },
+  "references": {
+    "externalSkills": [],
+    "externalAgents": [],
+    "skillColumnHeaders": ["skill", "skills"],
+    "agentColumnHeaders": ["agent", "agents"]
+  }
+}

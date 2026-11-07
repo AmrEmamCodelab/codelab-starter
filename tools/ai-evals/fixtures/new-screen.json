@@ -1,0 +1,9 @@
+{
+  "id": "new-screen",
+  "kind": "scaffold",
+  "skill": "new-screen",
+  "description": "A new page must route to the screen skill.",
+  "prompt": "The public portal needs an accessibility statement page: a heading and three short paragraphs of static content in Arabic and English, built like the other portal content pages and linked from the portal footer. No backend change.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

@@ -1,0 +1,74 @@
+{
+    "fixture":  "new-lookup",
+    "kind":  "scaffold",
+    "expectedSkill":  "new-lookup",
+    "run":  1,
+    "passed":  true,
+    "inconclusive":  false,
+    "infrastructureError":  "",
+    "exitCode":  0,
+    "timedOut":  false,
+    "durationSeconds":  259.7,
+    "skillsInvoked":  [
+                          "new-lookup",
+                          "coding-standards"
+                      ],
+    "failedChecks":  [
+
+                     ],
+    "baselineFailures":  [
+
+                         ],
+    "checks":  [
+                   {
+                       "name":  "build",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  12.7,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-lookup-r1-cef86795\\build.log"
+                   },
+                   {
+                       "name":  "rulesCheck",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  0.3,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-lookup-r1-cef86795\\rulesCheck.log"
+                   },
+                   {
+                       "name":  "contentRules",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-lookup-r1-cef86795\\contentRules.log"
+                   },
+                   {
+                       "name":  "contractTests",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  22.8,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-lookup-r1-cef86795\\contractTests.log"
+                   },
+                   {
+                       "name":  "docsGate",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1.9,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-lookup-r1-cef86795\\docsGate.log"
+                   },
+                   {
+                       "name":  "skillInvoked",
+                       "status":  "passed",
+                       "exitCode":  null,
+                       "durationSeconds":  0,
+                       "detail":  "invoked: new-lookup, coding-standards",
+                       "logPath":  ""
+                   }
+               ],
+    "runId":  "new-lookup-r1-cef86795",
+    "transcriptPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\transcripts\\new-lookup-r1-cef86795.jsonl"
+}

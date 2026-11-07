@@ -1,0 +1,11 @@
+{"ts":"2026-11-07T14:42:14.815Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:19.294Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:21.658Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:39.035Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:53.214Z","hook":"pre-tool-use","tool":"Edit","path":"backend/tests/Modules/Starter.Modules.Audit.Tests/AuditModuleTests.cs","paths":["backend/tests/Modules/Starter.Modules.Audit.Tests/AuditModuleTests.cs"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:55.726Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Modules/Audit/MODULE.md","paths":["backend/src/Modules/Audit/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:42:58.785Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:44:07.052Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"deny","ruleIds":["hooks.stop-docs-gate"],"skill":null}
+{"ts":"2026-11-07T14:44:16.616Z","hook":"pre-tool-use","tool":"Edit","path":"frontend/starter-web/src/app/core/MODULE.md","paths":["frontend/starter-web/src/app/core/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:44:18.191Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:44:26.276Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}

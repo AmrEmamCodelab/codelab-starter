@@ -1,0 +1,12 @@
+{"ts":"2026-11-07T14:38:06.558Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:10.824Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:12.930Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:31.623Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:38.011Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Modules/Inspections/module.rules.yaml","paths":["backend/src/Modules/Inspections/module.rules.yaml"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:41.460Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Modules/Inspections/MODULE.md","paths":["backend/src/Modules/Inspections/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:44.011Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Modules/Inspections/MODULE.md","paths":["backend/src/Modules/Inspections/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:47.555Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:38:59.379Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:40:02.530Z","hook":"pre-tool-use","tool":"Edit","path":"backend/src/Starter.Api/MODULE.md","paths":["backend/src/Starter.Api/MODULE.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:40:04.895Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:40:21.395Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}

@@ -1,6 +1,6 @@
 ---
 name: new-screen
-description: "Build a new Angular page in frontend/starter-web from one of the 8 page patterns using only @codelab/ng-dga components: feature page component, permission-gated route with a path constant, ar and en i18n keys, RTL-safe logical CSS with design tokens, Vitest specs and the MODULE.md update, then the visual + axe check in ar/en at 1440/390. Runs the design loop (dga-design-capture, screen-builder, visual-verifier, dga-reviewer) when the user provides a DGA screenshot or a Figma frame. Use when the work needs a new page, screen, dialog flow or view."
+description: "Use when the work needs a new page, screen, form, dialog flow or view in the web app, when the user hands over a DGA screenshot, a set of images or a Figma frame to build, and whenever a hook or CI refusal says 'Use the `new-screen` skill' (raw UI text in a template, or a feature folder without module.rules.yaml). Builds the Angular page in frontend/starter-web from one of the 8 page patterns with only @codelab/ng-dga components: the area's module.rules.yaml and MODULE.md, the page component, a permission-gated route with a path constant, ar and en i18n keys, RTL-safe logical CSS with design tokens and Vitest specs, then the visual + axe check in ar/en at 1440/390. Runs the design loop (dga-design-capture, screen-builder, visual-verifier, dga-reviewer) for a screenshot or Figma frame."
 ---
 
 # New screen
@@ -8,6 +8,34 @@ description: "Build a new Angular page in frontend/starter-web from one of the 8
 Load the `coding-standards` skill first ([docs/standards/SKILL.md](../../../docs/standards/SKILL.md)), then read
 [docs/design/README.md](../../../docs/design/README.md). A screen is a pattern plus configuration: if you are writing
 a table, a stepper, a dialog frame or a status timeline by hand, you picked the wrong starting point.
+
+## When this applies
+
+- The scenario needs something a person sees or uses in the browser: a list, a form, a wizard, a detail page with a
+  decision, a portal page. The data behind it comes first (`new-endpoint`, then `npm run api:gen --workspace frontend/starter-web`).
+- **Refusal counterpart:** the PreToolUse hook and the CI content check (`node tools/rules-engine/check-content.mjs`)
+  refuse raw text in a template (`base.fe-raw-text-in-template`, `base.fe-raw-text-in-inline-template`) and code in a
+  feature folder without `module.rules.yaml` (`hooks.module-without-rules`), with the message "Use the `new-screen`
+  skill". Lint refuses an ungated route or button (`base.fe-routes-gated`, `base.fe-buttons-gated`), a UI library other
+  than `@codelab/ng-dga` (`base.fe-ui-library-only`) and physical CSS or raw colours (`base.fe-logical-css`,
+  `base.fe-design-tokens`).
+
+## What one run emits
+
+There is **no screen generator**: the pattern is chosen and configured by judgment, so the steps below are the
+scaffold and each one names the file it writes. Decision (phase 9): a new-screen generator in tools/scaffold would have to
+emit eight pattern-specific component shapes that compile under Angular strict mode, ESLint and Vitest, and that can
+only be proved by a frontend build in a throwaway copy; the cheap parts it could do (keys, route snippet) are already
+one-line edits. The checklist below is the contract instead.
+
+| Part | Emitted by | Files |
+| --- | --- | --- |
+| Code | steps 3 and 4 | `features/<area>/<page>/<page>-page.component.{ts,html,scss}`, the store, the route entry and its path constant |
+| Rules | step 2 (new area only) | `features/<area>/module.rules.yaml`, then `node tools/rules-engine/compile.mjs` (nested `CLAUDE.md`) |
+| MODULE.md | steps 2 and 7 | `features/<area>/MODULE.md` (new area: all five sections; else the page in Purpose and Use) |
+| Unit tests | step 6 | `<page>-page.component.spec.ts`, the store spec, helper specs |
+| i18n | step 5 | `src/assets/i18n/ar.json` and `en.json` keys + the area's translation-keys constant |
+| Generated docs | step 2 (new permission) | `npm run api:gen --workspace frontend/starter-web` after `new-permission`; nothing else under `docs/generated` changes for a page |
 
 ## Quick start
 
@@ -37,13 +65,13 @@ the platform owner; never build a replacement component.
   `features/dashboard/` with its own `MODULE.md` and `module.rules.yaml`; then run
   `node tools/rules-engine/compile.mjs` from the repo root to generate its nested `CLAUDE.md`.
   Write `module.rules.yaml` and `MODULE.md` before any other file: the PreToolUse hook refuses code in a
-  feature folder without `module.rules.yaml` (`hooks.module-without-rules`). There is no screen generator in
-  `tools/scaffold` yet, so these steps are done by hand.
+  feature folder without `module.rules.yaml` (`hooks.module-without-rules`). There is no screen generator (see
+  "What one run emits"), so these steps are done by hand, in this order.
 - **Page:** `src/app/features/<area>/<page>/<page>-page.component.{ts,html,scss,spec.ts}`, selector `app-<page>-page`.
 - **Route path:** a constant, never a literal in the router: `RoutePaths.<Page>` in `core/routing/route-paths.ts` for a
   top-level page, or the area's paths file (like `features/admin/admin.paths.ts`) for a page inside an area.
 - **Permission:** an existing key from `core/permissions/permission-keys.generated.ts`, or a new one through the
-  `new-permission` skill (backend catalogue, then `npm run api:gen`). Public portal pages carry no key and are
+  `new-permission` skill (backend catalogue, then `npm run api:gen --workspace frontend/starter-web`). Public portal pages carry no key and are
   listed in `public-routes.ts` instead.
 
 ### 3. Build the page on the pattern
@@ -82,7 +110,7 @@ export class <Page>PageComponent {
 
 Inside the staff shell the route is a child of `SHELL_ROUTE` in `app.routes.ts` (or of the area's routes file), which
 already applies `authGuard`. Every action button carries `*hasPermission="PermissionKeys.<Key>"`, or
-`data-public-action` when any visitor may use it. `npm run lint` (permission gates) and `route-gates.spec.ts` refuse
+`data-public-action` when any visitor may use it. `npm run lint --workspace frontend/starter-web` (permission gates) and `route-gates.spec.ts` refuse
 anything else.
 
 ### 5. Add the texts in both languages
@@ -107,6 +135,7 @@ its row in `frontend/starter-web/MODULE.md`.
 ### 8. Verify
 
 ```powershell
+Set-Location frontend/starter-web
 npx vitest run src/app/features/<area>
 npm run lint          # ESLint, Stylelint (tokens, logical CSS), i18n parity, no inline styles, permission gates
 # with run-local.ps1 running (web :4280):

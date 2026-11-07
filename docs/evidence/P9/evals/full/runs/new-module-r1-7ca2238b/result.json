@@ -1,0 +1,73 @@
+{
+    "fixture":  "new-module",
+    "kind":  "scaffold",
+    "expectedSkill":  "new-module",
+    "run":  1,
+    "passed":  true,
+    "inconclusive":  false,
+    "infrastructureError":  "",
+    "exitCode":  0,
+    "timedOut":  false,
+    "durationSeconds":  142,
+    "skillsInvoked":  [
+                          "new-module"
+                      ],
+    "failedChecks":  [
+
+                     ],
+    "baselineFailures":  [
+
+                         ],
+    "checks":  [
+                   {
+                       "name":  "build",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  8.4,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-module-r1-7ca2238b\\build.log"
+                   },
+                   {
+                       "name":  "rulesCheck",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  0.4,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-module-r1-7ca2238b\\rulesCheck.log"
+                   },
+                   {
+                       "name":  "contentRules",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-module-r1-7ca2238b\\contentRules.log"
+                   },
+                   {
+                       "name":  "contractTests",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  23.3,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-module-r1-7ca2238b\\contractTests.log"
+                   },
+                   {
+                       "name":  "docsGate",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1.9,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\new-module-r1-7ca2238b\\docsGate.log"
+                   },
+                   {
+                       "name":  "skillInvoked",
+                       "status":  "passed",
+                       "exitCode":  null,
+                       "durationSeconds":  0,
+                       "detail":  "invoked: new-module",
+                       "logPath":  ""
+                   }
+               ],
+    "runId":  "new-module-r1-7ca2238b",
+    "transcriptPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\transcripts\\new-module-r1-7ca2238b.jsonl"
+}

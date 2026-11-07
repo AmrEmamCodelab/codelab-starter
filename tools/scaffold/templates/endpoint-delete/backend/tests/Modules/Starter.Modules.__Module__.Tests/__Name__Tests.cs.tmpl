@@ -43,7 +43,7 @@ public sealed class {{Name}}Tests
         var controller = typeof({{Name}}Controller);
 
         Assert.Equal({{Module}}PermissionKeys.{{PermissionConst}}, Assert.Single(controller.GetCustomAttributes<HasPermissionAttribute>()).Permission);
-        Assert.Equal("api/{{ModuleKebab}}/{{Route}}", controller.GetCustomAttribute<RouteAttribute>()!.Template);
+        Assert.Equal("{{ControllerRouteText}}", controller.GetCustomAttribute<RouteAttribute>()!.Template);
     }
 
     private sealed class FakeStore(bool deletes) : I{{Name}}Store

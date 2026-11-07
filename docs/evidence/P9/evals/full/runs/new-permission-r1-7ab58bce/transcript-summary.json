@@ -1,0 +1,22 @@
+{
+    "SkillsInvoked":  [
+                          "new-permission",
+                          "coding-standards"
+                      ],
+    "ToolUseCounts":  {
+                          "Read":  3,
+                          "Bash":  1,
+                          "Grep":  3,
+                          "Edit":  3,
+                          "PowerShell":  5,
+                          "Skill":  2
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  21,
+    "TotalCostUsd":  0.8032656,
+    "PermissionDenials":  1,
+    "ResultText":  "The docs check that stopped me now passes. My change touched two generated files in the frontend core module (the permission-key constants and the API client), and the check requires that module\u0027s `MODULE.md` to change with them.\n\nI added a short note to the \"Extend\" section of `frontend/starter-web/src/app/core/MODULE.md`. It says how to add a permission key: never hand-edit the two generated files, run the `new-permission` scaffold instead, which regenerates them (`PermissionKeys.AuditExport` is the example), and `api:gen:check` fails if they drift.\n\nThe rest of the earlier summary is unchanged: `audit.export` is added and tested, it gates nothing until the export endpoint exists, and nothing is committed or pushed."
+}

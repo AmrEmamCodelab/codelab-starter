@@ -61,8 +61,28 @@ as the exact expected text.
 
 Steps: checks, prerequisites, storage root (the server value wins over -StorageRoot), IIS pool + child application, backup, app_offline.htm, payload mirror, Merge-AppSettings for appsettings.json and appsettings.Production.json (from templates/attachment/appsettings.Production.template.json), storage folder + Modify for IIS AppPool\<pool>, required-settings check, GET <app>/health/ready (the readiness route; /health alone is not mapped and answers 401). The keys an operator fills are listed in templates/attachment/README.md. Tests: `Invoke-Pester deploy/kits/tests/Install-Attachment.Tests.ps1`.
 
+### The front site's security edge (templates/web)
+
+`templates/web/security-headers.psd1` is the single source of the front site's edge: the response headers, the
+blocked `/api/internal` and `/api/ops` paths, and the inbound trace context stripped before a request reaches a
+backend (`StrippedRequestHeaders` = `traceparent`, `tracestate`, `baggage`; `TraceStripRuleName`; `TraceStripPaths`
+= `api`, `attachments`, `ops-api`). The IIS template `templates/web/web.config` carries one `<location>` per stripped
+path with the rule `Strip inbound trace context` (server variables `HTTP_TRACEPARENT`, `HTTP_TRACESTATE`,
+`HTTP_BAGGAGE` set to empty, action `None`); `deploy/nginx/trace-context.conf` clears the same headers with
+`proxy_set_header <name> "";`. The parity test fails when either drifts:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester deploy/kits/tests/SecurityHeaders.Parity.Tests.ps1 -EnableExit"
+```
+
 ## Extend
 
+- **Strip another inbound header at the edge:** add it to `StrippedRequestHeaders` in `templates/web/security-headers.psd1`,
+  then a `<set name="HTTP_<NAME>" value="" />` in every `Strip inbound trace context` rule of `templates/web/web.config`,
+  a `proxy_set_header <name> "";` line in `deploy/nginx/trace-context.conf`, and the new server variable in the site's
+  allowed server variables (`templates/web/README.md`). Run the parity test.
+- **A new backend child application under the front site:** add its path to the SPA fallback exclusion and to
+  `TraceStripPaths`, then a matching `<location>` with the strip rule in `templates/web/web.config`.
 - **A new kit (`Install-<Name>.ps1`):** follow the sequence in Use. Put the kit's own names (default site, pool and
   folder names, health path) in a constants block at its top. Give it `[CmdletBinding(SupportsShouldProcess = $true)]`,
   and pass `-WhatIf:$WhatIfPreference` on every call into this module.
@@ -120,4 +140,12 @@ Steps: checks, prerequisites, storage root (the server value wins over -StorageR
 - **Install-Attachment: a first install ends with exit 2.** The Production file is created with empty key rings, CORS origins and S2S key, so the health probe is skipped until an operator fills them. Then recycle the pool or rerun the kit.
 - **Install-Attachment: web.config is package-owned.** The mirror replaces it on every run, so put server-specific values in appsettings.Production.json or the app pool environment, not in web.config.
 - **Child applications inherit the site's URL Rewrite rules.** The front site's `SPA fallback` (templates/web/web.config) rewrites every path its `{URL}` exclusion does not name to `/index.html`, also inside child applications. A new child path goes into that exclusion; Install-Web never rewrites an existing server rule, so an older site needs the edit by hand. Install-Ops reads the site's web.config and refuses (nothing changed) while a Rewrite rule would capture `-ApiAppPath` or `-WebAppPath`.
+- **The trace-context rule needs allowed server variables.** URL Rewrite refuses to set a server variable that
+  `system.webServer/rewrite/allowedServerVariables` does not list, and that section lives in `applicationHost.config`
+  (locked for `web.config`). Until `HTTP_TRACEPARENT`, `HTTP_TRACESTATE` and `HTTP_BAGGAGE` are allowed for the site,
+  every request under `/api`, `/attachments` and `/ops-api` answers 500.50. The `appcmd` commands are in
+  `templates/web/README.md`; `Install-Web.ps1` does not register them yet.
+- **Only requests through the front site are stripped.** The rule sits in the front site's `<location>` elements, so a
+  backend reached through its own binding (the Ops Console API, the gateway) gets no edge stripping; the API's own
+  Codelab.Observability pipeline still ignores an inbound trace context.
 - **Install-Gateway: the template follows the host's options.** `Codelab:Integration:Gateway:Profiles` is a list of profile keys (not objects), the upstreams live in `Gateway:Sso` and `Gateway:Sms`, and the audience is `integration-gateway`. A requirement's `when` can be a list of `{ path, equals }` conditions (an item of a list counts), which is how the upstream keys apply only to a listed profile. `DeployKitTemplateTests` (gateway tests) binds the template into the host's options and validators, so a renamed host setting fails there.

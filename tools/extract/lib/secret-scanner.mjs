@@ -1,6 +1,6 @@
 // Secret scan: regex rules plus the known-secret digest denylist (SHA-256 of source-product key material).
 import { readFileSync } from 'node:fs';
-import { listFiles, readScannable } from './files.mjs';
+import { listSecretScanFiles, readScannable } from './files.mjs';
 import { createFinding, splitLines, unscannableFinding } from './findings.mjs';
 import { sha256Hex } from './hashing.mjs';
 import { digestsOf } from './key-material.mjs';
@@ -149,12 +149,13 @@ export function scanTextForSecrets(path, text, digests) {
 }
 
 /**
- * Scans every file under root (git-aware, see files.mjs): UTF-8 and UTF-16 text and the entries of zip containers.
+ * Scans every file under root (git-aware, plus the gitignored .claude/memory; see listSecretScanFiles in files.mjs):
+ * UTF-8 and UTF-16 text and the entries of zip containers.
  * A binary that cannot be scanned (not an allowlisted image or font) is a finding: a key must not hide in one.
  * @param {{ glob: string, ruleIds: string[] }[]} [exceptions] from loadSecretExceptions (never the digest rule)
  */
 export function scanTreeForSecrets(root, digests, exceptions = []) {
-  const paths = listFiles(root);
+  const paths = listSecretScanFiles(root);
   const findings = [];
   for (const item of paths.flatMap((path) => readScannable(root, path))) {
     if (item.text !== null) findings.push(...scanTextForSecrets(item.path, item.text, digests));

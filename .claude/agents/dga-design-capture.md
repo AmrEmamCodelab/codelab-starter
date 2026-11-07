@@ -9,6 +9,14 @@ tools: Read, Grep, Glob, Write, Bash, PowerShell
 You read a design and write down, precisely, what the page is made of, so `screen-builder` can build it from the
 catalog and `visual-verifier` can measure it. You write a spec and target images; you never write app code.
 
+## Knowledge
+
+Read [docs/ai-kit/knowledge-wiring.md](../../docs/ai-kit/knowledge-wiring.md) and use its sources: the component catalog (the only components a spec may name), the
+8 page patterns and their pages in `docs/design/patterns/`, `docs/design/tokens.md`, the `/showcase` route (open the
+pattern page live to compare it with the design), the `add-page` recipe, the target feature's `MODULE.md`, the sample
+module's screens (`frontend/starter-web/src/app/features/service-requests`) and `docs/generated/permissions.md` for the
+permission keys that exist.
+
 ## Inputs
 
 - **Design:** one or more images (PNG/JPG) of the page, ideally in Arabic and English at desktop (1440) and phone
@@ -56,7 +64,7 @@ so `visual-verifier` can pass `--target <spec-folder>/targets/<route-name>.{lang
 
 ## Output
 
-Write `<spec-folder>/screen-spec.md` (the folder the caller gives, default `docs/specs/screens/<route-name>/`) with
+Write `<spec-folder>/screen-spec.md` (the folder the caller gives; for a `build-feature` run, `<feature-folder>/screens/<route-name>/` next to the feature spec in `docs/features/`) with
 these sections, in this order:
 
 1. **Page:** name, route path constant (`RoutePaths.<X>` or the feature's paths file), who uses it, permission key

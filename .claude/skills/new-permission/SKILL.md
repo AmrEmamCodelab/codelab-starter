@@ -1,12 +1,32 @@
 ---
 name: new-permission
-description: "Add a permission key to both catalogs (the module's <Module>PermissionKeys constant and catalog description in C#, and the generated frontend PermissionKeys), then gate the endpoint with [HasPermission], the route with data.permission and the buttons with *hasPermission. Use when the work needs a new permission, a new access right, or gating an action, route, menu or button."
+description: "Use when the work needs a new permission or access right ('only inspectors may approve', 'managers can export'), or gating an action, route, menu or button behind one, and whenever a check flags a permission key written as a string literal. Adds the key to both catalogs in one run (the module's <Module>PermissionKeys constant and catalog description in C#, the MODULE.md note and the add-permission recipe in module.rules.yaml, then the generated docs/generated/permissions.* and frontend PermissionKeys), then gates the endpoint with [HasPermission], the route with data.permission and the buttons with *hasPermission."
 ---
 
 # New permission
 
 Load the `coding-standards` skill first ([docs/standards/SKILL.md](../../../docs/standards/SKILL.md)). The full
 recipe is [docs/recipes/add-permission.md](../../../docs/recipes/add-permission.md).
+
+## When this applies
+
+- Someone must be allowed (or not) to do or see something, and no key in the module's `<Module>PermissionKeys` fits.
+  A key for a new endpoint comes with `new-endpoint --permission <action>`; a status flow names an existing key.
+- **Refusal counterpart:** no hook refusal names this skill directly. The rules `base.no-string-permission-key`
+  (C#) and `base.fe-no-string-permission-key-in-template` (templates) in `rules/base.rules.yaml` refuse a key
+  written as a string literal, and `base.fe-routes-gated` / `base.fe-buttons-gated` refuse an ungated route or
+  button: the fix is a generated constant, which this skill creates. An endpoint without `[HasPermission]` is
+  refused with "Use the `new-endpoint` skill".
+
+## What one run emits
+
+| Part | Emitted |
+| --- | --- |
+| Code | yes: the `<Module>PermissionKeys` constant and its `<Module>PermissionCatalogSource` description |
+| Rules | yes: `docs/recipes/add-permission.md` kept in the module's `module.rules.yaml` `recipes` (added once), then the rules compile |
+| MODULE.md | yes: one note at the end of Use (key, constant, description); none when the key already existed |
+| Unit tests | covered by the module's existing `<Module>ModuleTests` (every declared key is in the catalog and well formed); add guard and button specs where you wire the key (step 4) |
+| Generated docs | rerun automatically (rules compile, `Starter.DocsGen`, `npm run api:gen --workspace frontend/starter-web`); `--no-gen` prints the two catalog commands, `--skip-generate` and `--dry-run` print all three as `next:` lines |
 
 ## Quick start
 
@@ -21,8 +41,9 @@ The key is `<module-kebab>.<action>` (`records.approve`), the C# constant is the
 (`RecordsPermissionKeys.Approve`) and the frontend constant is the PascalCase of every word
 (`PermissionKeys.RecordsApprove`, printed as the last line). The command updates both catalogs: it writes the C#
 constant and the catalog description, then reruns the rules compile, `Starter.DocsGen` (`docs/generated/permissions.*`)
-and `npm run api:gen` (`frontend/starter-web/src/app/core/permissions/permission-keys.generated.ts`). With `--no-gen`
-it writes the C# side only and prints the exact two regenerate commands (`next: ...`). Running it again is a no-op
+and `npm run api:gen --workspace frontend/starter-web` (`frontend/starter-web/src/app/core/permissions/permission-keys.generated.ts`). With `--no-gen`
+it writes the C# side only and prints the exact two regenerate commands (`next: ...`); `--dry-run` lists the files it
+would write and writes nothing. The frontend constant line comes after the generator lines. Running it again is a no-op
 (exit 0). A non-kebab action, an unknown module or a constant that already holds another key is refused (exit 1,
 nothing written).
 
@@ -42,7 +63,8 @@ nothing written).
 4. Tests: the module's `<Module>ModuleTests` already check that every declared key is in the catalog and well
    formed; add a test for each endpoint guard and a component spec showing the button with the key and hiding it
    without. `route-gates.spec.ts` covers the route table.
-5. Update the module's `MODULE.md` (Use: the key and what it gates).
+5. Read the note the run added to the module's `MODULE.md` Use section and add what the key gates (endpoint, route,
+   buttons) once you have wired it.
 
 ## Verify
 

@@ -8,7 +8,11 @@ Repo tooling. This page covers `build.ps1`, the single build entry point for CI 
 | Folder | What it holds |
 |--------|---------------|
 | `extract/`, `rules-engine/`, `docs-gate/`, `ci/`, `vectors/` | Harvest and scanners, the rules compiler, the docs gate, host-neutral CI checks, the vector check (own READMEs) |
-| `scaffold/` | `new-module`, `new-endpoint` and `new-permission` generators ([README](scaffold/README.md)) |
+| `scaffold/` | `new-module`, `new-endpoint`, `new-permission`, `new-lookup` and `new-transition` generators, each with `--dry-run` ([README](scaffold/README.md)) |
+| `feature-spec/` | Feature-spec validator for `docs/features` ([MODULE.md](feature-spec/MODULE.md)) |
+| `facts-drift/` | Docs and AI-kit facts-drift gate: `node tools/facts-drift/check.mjs --root .` ([MODULE.md](facts-drift/MODULE.md)) |
+| `ai-evals/` | Kit evals: fixtures, headless runner, grader, pass-rate gate, schedule ([MODULE.md](ai-evals/MODULE.md)) |
+| `pipeline-proofs/` | Pipeline-proof harness: `Invoke-PipelineProof.ps1 -Proof complaint|permit|feedback -EvidenceDir <dir> [-DryRun] [-PreApproveSpec]`; inputs under `inputs/<proof>/` ([MODULE.md](pipeline-proofs/MODULE.md)) |
 | `fork/`, `remove-module.ps1`, `upstream-merge.ps1` | The fork model and the fork-model test ([README](fork/README.md)) |
 | `run-local/` (+ the root `run-local.ps1`) | Local stack start and stop ([README](run-local/README.md)) |
 | `devseed/` | `New-LocalSecrets.ps1`, the gitignored local secrets file |
@@ -46,7 +50,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -
 | 7 | docs gate | `<dotnet> run --project tools/docs-gate -- check --root . --base <base ref>` (base ref from `tools/ci/base-ref.mjs`) |
 | 8 | conflict markers | `node tools/ci/conflict-markers.mjs --root .` |
 | 9 | content rules | `node tools/rules-engine/check-content.mjs --root .`: every forbidden/required rule of `rules/rules.compiled.json` over every tracked file (absolute state; the hooks' rules, enforced in CI) |
-| 10 | scanner tests | `node --test` over `tools/extract/tests`, `tools/ci/tests`, `tools/vectors/tests`, `deploy/handover/tests`, `tools/fork/tests`, `tools/scaffold/tests` (with the slow dogfood test; never set `CODELAB_SKIP_DOGFOOD` in CI), `tools/devseed/tests` and `tools/run-local` (`**/*.test.mjs`; the handover, fork and devseed tests need Windows PowerShell) |
+| 10 | scanner tests | `node --test` over `tools/extract/tests`, `tools/ci/tests`, `tools/vectors/tests`, `deploy/handover/tests`, `tools/fork/tests`, `tools/scaffold/tests` (with the slow dogfood test; never set `CODELAB_SKIP_DOGFOOD` in CI), `tools/devseed/tests`, `tools/run-local`, `tools/facts-drift/tests`, `tools/feature-spec/tests` and `.claude/skills/reduce-comments/scripts/tests` (`**/*.test.mjs`; the handover, fork and devseed tests need Windows PowerShell) |
 | 11 | npm build+test | `npm ci` (only when `node_modules` is missing), then `npm run build --workspaces`, `node tools/ci/lint-packages.mjs --root .` and `npm test --workspaces` (every workspace: the `packages/npm/*` packages and `frontend/starter-web`, whose build is `ng build`) |
 | 12 | vectors verify | `node tools/vectors/verify-vectors.mjs --prefix CODELABTEST`, then `--prefix ALTPFX`: C# and TS produce the same canonical bytes and signatures for the pinned prefix and for a second one |
 | 13 | package integration test | `packages/samples` (see its README), consumed like a fork: feed only. It refuses a Codelab `ProjectReference` in a sample and a sample in the solution, then runs `<dotnet> build` and `test` of `Package.Sample.Tests` with an empty temporary `NUGET_PACKAGES`, then `npm ci` and `npm test` of `ng-security-consumer`. The versions come from `packages/samples/Codelab.Versions.props` and the consumer's `package.json`. When one of them is not in `feed\`, as on a fresh clone, it first packs a ci prerelease (as `-Pack` does) and tests against that. |
@@ -55,9 +59,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -
 | 16 | generated drift | `<dotnet> run --project backend/tools/Starter.DocsGen -- --out docs/generated --check`, then `npm run api:gen:check --workspace frontend/starter-web` (needs no SQL and no secrets file) |
 | 17 | frontend lint | `npm run lint --workspace frontend/starter-web`: ESLint (module boundaries, HTTP only in `core/api`), Stylelint (tokens, logical CSS) and `tools/i18n-parity.mjs`. Step 11 lints `packages/npm` only |
 | 18 | fork-model test | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\fork\Test-ForkModel.ps1 -RemoveModule Demo` (ADR-003): scaffold Demo upstream, fork, `init.ps1 -Minimal -RemoveModule Demo`, upstream merge, then build and test the fork from the feed, all in `%TEMP%` |
-| 19 | deploy-kit tests | `Invoke-Pester @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests') -EnableExit` in Windows PowerShell 5.1 (Pester 3.4): every `Install-*.Tests.ps1`, the nginx/web.config security-header parity test, the kit builder (with `build.ps1 -Kit -DryRun`), the DBA SQL kit and Seq. No IIS change, no admin |
+| 19 | deploy-kit tests | `Invoke-Pester @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests', 'tools/pipeline-proofs/tests', 'tools/ai-evals/tests', '.claude/skills/usecase-testing/scripts/tests') -EnableExit` in Windows PowerShell 5.1 (Pester 3.4): every `Install-*.Tests.ps1`, the nginx/web.config security-header parity test, the kit builder (with `build.ps1 -Kit -DryRun`), the DBA SQL kit, Seq, the pipeline proofs and the kit evals (throwaway-workspace delete guard, copy exclusions, headless allowlist; claude, robocopy and npm mocked). No IIS change, no admin |
 | 20 | no dev autofill | `node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web`: the production bundle step 11 built holds no DevAutofill code |
 | 21 | module deletability | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\ci\module-deletability.ps1 -Name ServiceRequests` (ADR-004): removes the sample module from a `%TEMP%` copy, then build, backend tests (`CODELAB_TEST_SQL`), frontend tests and production build. Heavy: skipped by `-Quick` |
+| 22 | facts drift | `node tools/facts-drift/check.mjs --root .`: every path, command, switch, type, skill and agent named in `.claude/agents`, `.claude/skills`, `CLAUDE.md`, `CONTEXT.md` and `docs/**` resolves; no stale-term or source-product text |
 
 After the steps, the platform-owned paths the branch changes against the base ref are listed (owner review before a
 local merge, while no host enforces CODEOWNERS).

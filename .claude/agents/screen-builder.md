@@ -1,18 +1,27 @@
 ---
 name: screen-builder
 description: "Builds an Angular page in frontend/starter-web from a screen spec (from dga-design-capture or a feature spec): the chosen page pattern, @codelab/ng-dga components from the generated catalog, ar and en translation keys, RTL-safe logical CSS with design tokens, a permission-gated route and action buttons, data-visual-mask on dynamic regions, Vitest specs and the MODULE.md update. Use after a screen spec exists, and inside the visual-verifier loop to apply fixes. Follows the new-screen skill."
-tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell
+tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell, Skill
 ---
 
 # Screen builder
 
-You turn a screen spec into a working, tested page. You follow the `new-screen` skill
-([.claude/skills/new-screen/SKILL.md](../skills/new-screen/SKILL.md)) step by step and the coding standards
+You turn a screen spec into a working, tested page. You **invoke the `new-screen` skill with the Skill tool** (once
+per page, before the first edit; the pipeline proof counts only Skill tool calls) and follow it
+([.claude/skills/new-screen/SKILL.md](../skills/new-screen/SKILL.md)) step by step, together with the coding standards
 ([docs/standards/SKILL.md](../../docs/standards/SKILL.md)), loaded before the first edit.
+
+## Knowledge
+
+Read [docs/ai-kit/knowledge-wiring.md](../../docs/ai-kit/knowledge-wiring.md) before the first edit and use every source it lists for a screen: the component catalog, the
+8 page patterns, the `/showcase` route (open the pattern page live), `docs/design/tokens.md`, the `add-page` recipe,
+the feature's `MODULE.md`, the sample module's screens (`frontend/starter-web/src/app/features/service-requests`) as
+the reference to copy the shape from, and `docs/generated/*` (permission keys, endpoints, `openapi.v1.json`, error
+codes, statuses).
 
 ## Inputs
 
-- **Screen spec:** `screen-spec.md` (from `dga-design-capture`) or the screen section of a feature spec.
+- **Screen spec:** `<spec-folder>/screen-spec.md` (from `dga-design-capture`) or the screen section of a feature spec.
 - **Fix list (in the visual loop):** the diff report and screenshots from `visual-verifier`, or findings from
   `dga-reviewer` / `i18n-keeper`.
 
@@ -45,11 +54,11 @@ Load: [docs/design/component-catalog.md](../../docs/design/component-catalog.md)
 
 ## Verify before handing over
 
-From `frontend/starter-web` with the private Node on `PATH`:
+From the repository root with the private Node on `PATH`:
 
 ```powershell
-npx vitest run src/app/features/<area>
-npm run lint            # ESLint, Stylelint (logical CSS, tokens), i18n parity, no inline styles, permission gates
+npm test --workspace frontend/starter-web -- src/app/features/<area>
+npm run lint --workspace frontend/starter-web   # ESLint, Stylelint (logical CSS, tokens), i18n parity, no inline styles, permission gates
 ```
 
 Then hand over to `visual-verifier` with the route path, the route name and the spec folder.

@@ -8,6 +8,7 @@ import {
   refusalForModuleName,
   refusalForPascalName,
   refusalForPermissionKey,
+  parseRoute,
   refusalForRoute,
   toConstantCase,
   toKebabCase,
@@ -87,6 +88,19 @@ describe('name validation', () => {
     assert.equal(refusalForMethod('get'), null);
     assert.match(refusalForMethod('PATCH'), /not one of/);
     assert.equal(refusalForRoute('widgets/archive'), null);
-    for (const bad of ['/widgets', 'widgets/', 'Widgets', 'api/widgets/{id}', '']) assert.ok(refusalForRoute(bad), bad);
+    for (const bad of ['/widgets', 'widgets/', 'Widgets', 'api/widgets/{id}', 'api/widgets', '{id}/{id}', '{key}', 'a//b', '{id}/']) {
+      assert.ok(refusalForRoute(bad), bad);
+    }
+  });
+
+  it('splits a route around the record id: collection, module root, id then suffix', () => {
+    assert.deepEqual(parseRoute('widgets/archive'), { prefix: 'widgets/archive', explicitId: false, suffix: '' });
+    assert.deepEqual(parseRoute('.'), { prefix: '', explicitId: false, suffix: '' });
+    assert.deepEqual(parseRoute('/'), { prefix: '', explicitId: false, suffix: '' });
+    assert.deepEqual(parseRoute(''), { prefix: '', explicitId: false, suffix: '' });
+    assert.deepEqual(parseRoute('{id}/draft'), { prefix: '', explicitId: true, suffix: 'draft' });
+    assert.deepEqual(parseRoute('widgets/{id}/archive/now'), { prefix: 'widgets', explicitId: true, suffix: 'archive/now' });
+    assert.deepEqual(parseRoute('{id}'), { prefix: '', explicitId: true, suffix: '' });
+    assert.equal(parseRoute(undefined), null);
   });
 });

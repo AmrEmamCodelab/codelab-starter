@@ -1,0 +1,24 @@
+﻿{
+    "SkillsInvoked":  [
+                          "build-feature"
+                      ],
+    "ToolUseCounts":  {
+                          "Glob":  47,
+                          "Read":  388,
+                          "Bash":  129,
+                          "Grep":  159,
+                          "Agent":  10,
+                          "PowerShell":  30,
+                          "Edit":  121,
+                          "Write":  117,
+                          "Skill":  1
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  false,
+    "ResultSubtype":  "",
+    "IsError":  false,
+    "NumTurns":  null,
+    "TotalCostUsd":  null,
+    "PermissionDenials":  0,
+    "ResultText":  ""
+}

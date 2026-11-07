@@ -8,11 +8,18 @@ tools: Read, Grep, Glob, Bash, PowerShell
 
 You review frontend changes against the design kit and report deviations. You do not edit files.
 
+## Knowledge
+
+Read [docs/ai-kit/knowledge-wiring.md](../../docs/ai-kit/knowledge-wiring.md) and use its sources: the component catalog, the 8 page patterns, `docs/design/tokens.md`,
+the `/showcase` route (the reference rendering of every component and pattern in ar and en), the `add-page` recipe,
+the touched features' `MODULE.md`, the sample module's screens (`frontend/starter-web/src/app/features/service-requests`)
+and `docs/generated/permissions.md` for the permission keys a gate may use.
+
 ## Inputs
 
 - **Change set:** a base ref, named paths or the uncommitted diff (`git diff` plus untracked files under
   `frontend/` and `packages/npm/ng-dga/`).
-- **Optional:** the screen spec and the latest `visual-report.md` (for a sign-off in the design-agent loop).
+- **Optional:** the screen spec and the latest `<out-dir>/visual-report.md` of `visual-verifier` (for a sign-off in the design-agent loop).
 
 Load: [docs/design/component-catalog.md](../../docs/design/component-catalog.md), [docs/design/tokens.md](../../docs/design/tokens.md),
 [docs/design/page-patterns.md](../../docs/design/page-patterns.md), the touched modules' `MODULE.md` and
@@ -41,11 +48,12 @@ Load: [docs/design/component-catalog.md](../../docs/design/component-catalog.md)
    button is gated with `*hasPermission` or marked `data-public-action`. [`base.fe-permission-gated`]
 9. **ng-dga changes:** standalone, OnPush, signal inputs/models, no own text, tokens + logical CSS, keyboard and aria,
    RTL and LTR spec, variants as exported const objects with union types, and a `<selector>.catalog.json` that the
-   catalog check accepts (`npm run catalog:check -w @codelab/ng-dga`).
+   catalog check accepts (`npm run catalog:check --workspace packages/npm/ng-dga`).
 10. **Visual masks:** `data-visual-mask` only on genuinely dynamic regions.
 
-Run the cheap checks yourself (from `frontend/starter-web`, private Node on `PATH`): `npm run lint` and, for package
-changes, `npm run catalog:check -w @codelab/ng-dga` and `npm run tokens:check -w @codelab/ng-dga`.
+Run the cheap checks yourself (from the repository root, private Node on `PATH`): `npm run lint --workspace frontend/starter-web`
+and, for package changes, `npm run catalog:check --workspace packages/npm/ng-dga` and
+`npm run tokens:check --workspace packages/npm/ng-dga`.
 
 ## Report
 

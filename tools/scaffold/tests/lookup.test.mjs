@@ -5,7 +5,7 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { newLookup } from '../new-lookup.mjs';
 import { runCli } from '../lib/cli.mjs';
-import { ExitCode, LOOKUP_MIGRATIONS_DIR, LOOKUP_TYPES_FILE } from '../lib/constants.mjs';
+import { ExitCode, LOOKUP_MIGRATIONS_DIR, LOOKUP_MODEL_TESTS_FILE, LOOKUP_TYPES_FILE } from '../lib/constants.mjs';
 import {
   addMinutes,
   csharpString,
@@ -35,6 +35,12 @@ const ARGS = [
   '--type', 'document-kinds', '--name', 'DocumentKind', '--codes', 'passport,national-card',
   '--name-ar', 'أنواع الوثائق', '--names-ar', 'جواز سفر;بطاقة وطنية',
 ];
+const SEED_TEST_FILE = 'backend/tests/Modules/Starter.Modules.Lookups.Tests/Infrastructure/Seeds/AddDocumentKindsLookupTests.cs';
+const LOOKUPS_DOC = 'backend/src/Modules/Lookups/MODULE.md';
+const LOOKUPS_RULES = 'backend/src/Modules/Lookups/module.rules.yaml';
+const DOC = '# Lookups\n\nSeeded types:\n\n| Type | Ids | Values |\n| --- | --- | --- |\n| `contact-topics` | `ContactTopicIds` | `general` 1 (migration `AddContactTopicsLookup`) |\n\n## Use\n';
+const RULES = 'module: Lookups\nrecipes: [docs/recipes/add-endpoint.md]\n';
+const MODEL_TEST = '        Assert.Equal([LookupsMigrationIds.InitialCreate, AddContactTopicsLookup.MigrationId], context.Database.GetMigrations());\n';
 
 let root;
 
@@ -60,8 +66,8 @@ function snapshot() {
   return files;
 }
 
-function run(extra = []) {
-  return newLookup([...ARGS, ...extra, '--root', root]);
+function run(extra = [], env = {}) {
+  return newLookup([...ARGS, ...extra, '--root', root], env);
 }
 
 function exitOf(argv) {
@@ -195,6 +201,73 @@ describe('new-lookup', () => {
     assert.equal(exitOf(['--name', 'Kind']), ExitCode.usage);
     assert.equal(exitOf(['--type', 'kinds', '--name', 'Kind', '--unknown', 'x']), ExitCode.usage);
     assert.match(newLookup(['--help'])[0], /^Usage: node tools\/scaffold\/new-lookup\.mjs --type <kebab>/);
+  });
+});
+
+describe('new-lookup: tests, docs and rules move with the seed', () => {
+  beforeEach(() => {
+    write(LOOKUPS_DOC, DOC);
+    write(LOOKUPS_RULES, RULES);
+    write(LOOKUP_MODEL_TESTS_FILE, MODEL_TEST);
+  });
+
+  it('writes the seed test with one case per code through the ids constants', () => {
+    const lines = run();
+
+    assert.ok(lines.includes(`created ${SEED_TEST_FILE}`));
+    const test = read(SEED_TEST_FILE);
+    assert.match(test, /namespace Starter\.Modules\.Lookups\.Tests\.Infrastructure\.Seeds;/);
+    assert.match(test, /public sealed class AddDocumentKindsLookupTests/);
+    assert.match(test, /typeof\(AddDocumentKindsLookup\)\.GetField\(ItemsField/);
+    assert.match(test, /public void The_seed_writes_exactly_the_DocumentKindIds_values\(\)/);
+    assert.match(test, / {4}\[InlineData\("passport", DocumentKindIds\.Passport\)\]\n {4}\[InlineData\("national-card", DocumentKindIds\.NationalCard\)\]\n {4}public void Each_code_keeps_its_id/);
+    assert.match(test, /Assert\.Equal\("document-kinds", LookupTypes\.DocumentKinds\);/);
+    assert.doesNotMatch(test, /\{\{|__[A-Z]/);
+  });
+
+  it('appends the migration to the model test list, the MODULE.md row and the recipe, and names the next commands', () => {
+    const lines = run([], { CODELAB_DOTNET: 'C:/sdk/dotnet.exe' });
+
+    assert.equal(read(LOOKUP_MODEL_TESTS_FILE), MODEL_TEST.replace('AddContactTopicsLookup.MigrationId]', 'AddContactTopicsLookup.MigrationId, AddDocumentKindsLookup.MigrationId]'));
+    assert.ok(read(LOOKUPS_DOC).includes('| `contact-topics` | `ContactTopicIds` | `general` 1 (migration `AddContactTopicsLookup`) |\n| `document-kinds` | `DocumentKindIds` | `passport` 1, `national-card` 2 (migration `AddDocumentKindsLookup`) |\n\n## Use'));
+    assert.equal(read(LOOKUPS_RULES), 'module: Lookups\nrecipes: [docs/recipes/add-endpoint.md, docs/recipes/add-lookup.md]\n');
+    assert.ok(lines.includes('note: docs/generated does not change (a lookup adds no permission, endpoint, status or configuration key)'));
+    assert.deepEqual(lines.slice(-2), ['next: node tools/rules-engine/compile.mjs', 'next: C:/sdk/dotnet.exe test backend/tests/Modules/Starter.Modules.Lookups.Tests']);
+  });
+
+  it('seeds only through the migration: no HasData, no SQL file, no seeder', () => {
+    run();
+
+    const written = Object.keys(snapshot()).map((file) => file.replaceAll('\\', '/'));
+    assert.ok(written.every((file) => !file.endsWith('.sql')));
+    for (const file of written) assert.doesNotMatch(read(file), /HasData\(/, file);
+    assert.match(read(MIGRATION_FILE), /LookupSeed\.InsertType\(/);
+  });
+
+  it('--dry-run lists the files and writes nothing', () => {
+    const before = snapshot();
+
+    const lines = run(['--dry-run']);
+
+    assert.deepEqual(snapshot(), before);
+    assert.ok(lines.includes(`would create ${MIGRATION_FILE}`));
+    assert.ok(lines.includes(`would create ${SEED_TEST_FILE}`));
+    assert.ok(lines.includes(`would change ${LOOKUP_MODEL_TESTS_FILE}`));
+    assert.ok(lines.includes(`would change ${LOOKUPS_DOC}`));
+    assert.ok(lines.includes('note: dry run: nothing was written'));
+  });
+
+  it('names what to add by hand when the model test, the table or the rules file is missing', () => {
+    write(LOOKUP_MODEL_TESTS_FILE, '// another shape\n');
+    write(LOOKUPS_DOC, '# Lookups\n');
+    fs.rmSync(path.join(root, LOOKUPS_RULES));
+
+    const lines = run();
+
+    assert.ok(lines.includes(`note: add AddDocumentKindsLookup.MigrationId to the migration list the Lookups model test expects (${LOOKUP_MODEL_TESTS_FILE})`));
+    assert.ok(lines.some((line) => line.startsWith(`note: add this row to the seeded-types table of ${LOOKUPS_DOC}: | \`document-kinds\``)));
+    assert.ok(lines.includes(`note: no ${LOOKUPS_RULES}: list docs/recipes/add-lookup.md in its recipes by hand`));
+    assert.ok(fs.existsSync(path.join(root, MIGRATION_FILE)));
   });
 });
 

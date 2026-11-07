@@ -35,7 +35,7 @@ timeline by hand, and never add another UI library.
 | Area | an existing `src/app/features/<area>/`, or a new one with `MODULE.md` and `module.rules.yaml` written **first** (the hook refuses code in a folder without rules), then `node tools/rules-engine/compile.mjs` | `features/permit-applications` |
 | Page files | `<area>/<page>/<page>-page.component.{ts,html,scss,spec.ts}`, selector `app-<page>-page`; logic in `<page>.store.ts` with its own spec | `permit-history/permit-history-page.component.ts` |
 | Route path | a constant: `RoutePaths.<Page>` in `core/routing/route-paths.ts` (top-level) or the area's paths file (`<area>.paths.ts`) | `PermitPaths.History = 'history'` |
-| Permission | an existing key from `core/permissions/permission-keys.generated.ts`, or a new one ([add-permission.md](add-permission.md), then `npm run api:gen`); public portal pages carry none and are listed in `public-routes.ts` | `PermissionKeys.PermitApplicationsViewOwn` |
+| Permission | an existing key from `core/permissions/permission-keys.generated.ts`, or a new one ([add-permission.md](add-permission.md), then `npm run api:gen -w frontend/starter-web`); public portal pages carry none and are listed in `public-routes.ts` | `PermissionKeys.PermitApplicationsViewOwn` |
 | Text keys | `<area prefix>.<page>.*` (portal `portal.*`, layouts `layouts.*`) | `permitApplications.history.title` |
 
 ## 3. Route and permission gate
@@ -78,7 +78,7 @@ list to the `i18n-keeper` agent.
 | Page (`<page>-page.component.spec.ts`) | renders in `ar` and `en`; gated buttons are hidden without the permission; loading, empty and error states render; user intent reaches the store |
 | Store or service | every rule, mapping and API call (mock `ApiService`) |
 | Pure helpers (adapters, formatting) | their own spec |
-| Route gates | `route-gates.spec.ts` and `npm run lint` refuse a route or button without a gate |
+| Route gates | `route-gates.spec.ts` and `npm run lint -w frontend/starter-web` refuse a route or button without a gate |
 
 ## 7. Docs and verify
 

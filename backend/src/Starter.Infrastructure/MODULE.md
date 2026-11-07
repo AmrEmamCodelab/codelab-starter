@@ -38,6 +38,37 @@ app.UseCodelabErrors();
 app.UseStarterPipeline();               // CORS origin check (throws), CORS, routing, authentication, user log context, Codelab.Security, authorization
 app.MapStarterEndpoints(modules);       // controllers, module extras, signing-key endpoint, CSP report sink, health
 ```
+### Security edge (folder `Security`)
+
+**CSP report sink.** `MapStarterEndpoints` calls `CspReportEndpoint.MapCspReportSink`, which maps
+`POST /api/security/csp-reports` (`SecurityEdgeRoutes.CspReports`, built from `ApiRoutes.Prefix`).
+
+| Aspect | Contract |
+| --- | --- |
+| Access | Anonymous (`CspReportEndpoint.AnonymousReason`), exempt from request signing (`SignatureExemption.WholeRequest`). |
+| Formats | `CspReportContract.FormatOf`: `application/csp-report` (`CspReportFormat.ReportUri` = 1) and `application/reports+json` (`CspReportFormat.ReportingApi` = 2), parameters such as `charset` ignored. Anything else: 415. |
+| Size | `CspReportContract.MaxBodyBytes` (16 KiB): a declared `Content-Length` over it is 413 before reading; a chunked body is read by `BoundedBody.ReadAsync` at most one byte past the cap, then 413. |
+| Rate | `RequireRateLimiting(ClientRateLimitOptions.PolicyName)` (`codelab-client`): per client, `Codelab:Security:RateLimiting:PermitLimit` per `WindowSeconds` (package defaults 100 per 60 s); over it: 429. |
+| Normalizer | `CspReportNormalizer.TryNormalize`: JSON depth at most 8; a Reporting API batch keeps only `csp-violation` reports, at most `MaxViolationsPerRequest` (20); not JSON or no envelope: 400. Each report becomes a `CspViolation` (directive lowercase or `unknown`, `CspDisposition` Unspecified 0 / Enforce 1 / Report 2, URLs redacted by `CspReportUrls.Redact`, fields clipped to `MaxFieldLength` 512). |
+| Log event | `CspViolationLog.Write`: one Warning per violation, category `Starter.Security.CspReports`, EventId 1301 `CspViolation`, properties `CspDirective`, `CspDisposition`, `CspDocumentUri`, `CspBlockedUri`, `CspSourceFile`, `CspLineNumber`, `CspColumnNumber`, `CspStatusCode`, `CspReportFormat`. |
+| Answer | 204 with no body; nothing is stored. Problems use the one problem+json envelope (`FrameworkStatusCodes.Describe`). |
+
+**CORS boot check.** `UseStarterPipeline` calls `CorsOriginBootCheck.EnsureValid(app)` before `UseCors()`. It reads
+`IOptions<CodelabCorsOptions>` (section `Codelab:Security:Cors`) and throws `OptionsValidationException` listing
+every problem of `AllowedOrigins`, so the host never starts with a bad list:
+
+- a wildcard `*` with `AllowCredentials` true (always), or at all outside Development;
+- a non-https origin outside Development;
+- anything but a bare `scheme://host[:port]` (a path, query, trailing slash, or the default port spelled out);
+- an origin with user info (`https://user@host`);
+- the same origin twice, compared as the browser sends it (scheme and host case-insensitive).
+
+The first three are Codelab.Security's own rules (`CorsOriginValidator`), whose options validator may throw first;
+the last two are the starter's. The other keys of the section (`AllowedHeaders`, `ExposedHeaders`,
+`PreflightMaxAgeSeconds`) are not checked here. `CorsOriginBootCheck.Validate(options, isDevelopment)` is the pure
+form. Tests: `backend/tests/Starter.Api.Tests/SecurityEdge` (`CorsOriginBootCheckTests`, `CspReportContractTests`,
+`CspReportNormalizerTests`, `CspReportSinkHttpTests`, `CspReportUrlsTests`, `CspViolationLogTests`).
+
 A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.SchemaName)`, registers its
 `IPermissionCatalogSource`, `IFeatureFlagSource` and `IStartupTask`s in `Add<Name>Module`, and guards controllers with
 `[HasPermission(RecordsPermissionKeys.View)]`. See `backend/src/Modules/README.md`.
@@ -89,4 +120,9 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
 - `ModuleCatalog.Discover` loads assemblies by name; a module listed in the host project but missing from the output
   folder fails the start with a `FileNotFoundException`.
 - **The CSP sink is anonymous by necessity.** A browser posts reports without the page's credentials, so an authorized sink receives nothing. It is rate limited per client and stores nothing. Never log a raw report field: everything goes through `CspReportNormalizer`, which drops query strings, fragments, user info, the referrer and the script sample.
+- **An empty `AllowedOrigins` passes the boot check.** No CORS policy is built then, so every cross-origin browser call
+  fails its preflight; the deploy kit (`deploy/kits/templates/api/README.md`) reports the missing key as a gap.
+- **The sink's route is in two more places.** The front site's CSP (`report-uri`, `Reporting-Endpoints`) and the kit's
+  `deploy/kits/templates/web/security-headers.psd1` (`ReportPath`) name `/api/security/csp-reports`; moving
+  `SecurityEdgeRoutes.CspReports` without them silences every report (the parity test pins `ReportPath`).
 - **CORS origins are checked in `UseStarterPipeline`, before the host starts.** An origin is exact `scheme://host[:port]`: no trailing slash, no path, no default port, no user info, each listed once, https outside Development. `*` is refused with credentials, and outside Development always. `Codelab.Security`'s own validator may throw first with the same rules.

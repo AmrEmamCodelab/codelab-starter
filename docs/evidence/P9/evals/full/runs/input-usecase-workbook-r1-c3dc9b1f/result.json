@@ -1,0 +1,81 @@
+{
+    "fixture":  "input-usecase-workbook",
+    "kind":  "input",
+    "expectedSkill":  "build-feature",
+    "run":  1,
+    "passed":  true,
+    "inconclusive":  false,
+    "infrastructureError":  "",
+    "exitCode":  0,
+    "timedOut":  false,
+    "durationSeconds":  354.1,
+    "skillsInvoked":  [
+                          "build-feature"
+                      ],
+    "failedChecks":  [
+
+                     ],
+    "baselineFailures":  [
+
+                         ],
+    "checks":  [
+                   {
+                       "name":  "build",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  5.4,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f\\build.log"
+                   },
+                   {
+                       "name":  "rulesCheck",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  0.3,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f\\rulesCheck.log"
+                   },
+                   {
+                       "name":  "contentRules",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f\\contentRules.log"
+                   },
+                   {
+                       "name":  "contractTests",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  22.7,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f\\contractTests.log"
+                   },
+                   {
+                       "name":  "docsGate",
+                       "status":  "passed",
+                       "exitCode":  0,
+                       "durationSeconds":  1.9,
+                       "detail":  "",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f\\docsGate.log"
+                   },
+                   {
+                       "name":  "specValid",
+                       "status":  "passed",
+                       "exitCode":  null,
+                       "durationSeconds":  0.1,
+                       "detail":  "valid: docs/features/site-visit-booking.md",
+                       "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\logs\\input-usecase-workbook-r1-c3dc9b1f"
+                   },
+                   {
+                       "name":  "skillInvoked",
+                       "status":  "passed",
+                       "exitCode":  null,
+                       "durationSeconds":  0,
+                       "detail":  "invoked: build-feature",
+                       "logPath":  ""
+                   }
+               ],
+    "runId":  "input-usecase-workbook-r1-c3dc9b1f",
+    "transcriptPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-evals\\transcripts\\input-usecase-workbook-r1-c3dc9b1f.jsonl"
+}

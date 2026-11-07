@@ -32,8 +32,8 @@ Use the `new-screen` skill ([.claude/skills/new-screen/SKILL.md](../../.claude/s
    [tokens.md](tokens.md) and logical properties (`inline-size`, `margin-inline-start`, `text-align: start`).
 3. **Write the text** as `ar` and `en` keys (Arabic first), never raw text.
 4. **Gate** the route and every action button with a typed permission key.
-5. **Check** it: unit specs, then `node e2e/visual.mjs` in `ar` and `en` at 1440 and 390 with 0 serious or critical
-   axe violations.
+5. **Check** it: unit specs, then `npm run visual --workspace frontend/starter-web` in `ar` and `en` at 1440 and 390
+   with 0 serious or critical axe violations.
 
 ## Design agents
 

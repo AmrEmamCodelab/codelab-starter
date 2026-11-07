@@ -1,14 +1,19 @@
 // Name conversion and validation for the scaffold generators. Pure functions; every refusal is a message string.
 import {
+  API_ROUTE_PREFIX,
   HttpMethod,
+  ID_ROUTE_DOC,
   KEBAB_NAME_PATTERN,
   KERNEL_PROJECTS,
   MAX_NAME_LENGTH,
+  MODULE_ROOT_ROUTE,
+  MODULE_ROOT_ROUTE_ALIASES,
   PASCAL_NAME_PATTERN,
   PERMISSION_KEY_MAX_LENGTH,
   PERMISSION_KEY_PATTERN,
   RESERVED_NAMES,
   ROUTE_SEGMENT_PATTERN,
+  ROUTE_SEPARATOR,
   SOLUTION_TOKEN,
 } from './constants.mjs';
 
@@ -110,10 +115,31 @@ export function refusalForMethod(method) {
   return null;
 }
 
-/** Why `route` is not a relative route segment (lower-case kebab words separated by '/'), or null. */
+/**
+ * Splits an endpoint route into the part before the record id (the controller route under the module root) and the
+ * part after it (the action route after the id): 'widgets' -> widgets + {id}; '{id}/draft' -> module root + {id}/draft;
+ * '.' ('/', '') -> the module root. Returns null when the route is not one of these shapes.
+ * @returns {{ prefix: string, explicitId: boolean, suffix: string } | null}
+ */
+export function parseRoute(route) {
+  if (typeof route !== 'string') return null;
+  if (route === MODULE_ROOT_ROUTE || MODULE_ROOT_ROUTE_ALIASES.includes(route)) return { prefix: '', explicitId: false, suffix: '' };
+  const segments = route.split(ROUTE_SEPARATOR);
+  if (segments.includes('') || segments[0] === API_ROUTE_PREFIX) return null;
+  const idAt = segments.indexOf(ID_ROUTE_DOC);
+  if (idAt !== segments.lastIndexOf(ID_ROUTE_DOC)) return null;
+  const prefix = (idAt < 0 ? segments : segments.slice(0, idAt)).join(ROUTE_SEPARATOR);
+  const suffix = idAt < 0 ? '' : segments.slice(idAt + 1).join(ROUTE_SEPARATOR);
+  const valid = (part) => part === '' || ROUTE_SEGMENT_PATTERN.test(part);
+  if (!valid(prefix) || !valid(suffix)) return null;
+  if (idAt < 0 && prefix === '') return null;
+  return { prefix, explicitId: idAt >= 0, suffix };
+}
+
+/** Why `route` is not an endpoint route (see parseRoute), or null. */
 export function refusalForRoute(route) {
-  if (typeof route !== 'string' || !ROUTE_SEGMENT_PATTERN.test(route)) {
-    return `The route '${route}' must be relative kebab-case segments (e.g. widgets or widgets/archive), without the api prefix, slashes at the ends or parameters.`;
+  if (parseRoute(route) === null) {
+    return `The route '${route}' must be relative kebab-case segments (e.g. widgets or widgets/archive), '${MODULE_ROOT_ROUTE}' for the module root, or hold the record id once (e.g. ${ID_ROUTE_DOC}/draft), without the api prefix, slashes at the ends or other parameters.`;
   }
   return null;
 }

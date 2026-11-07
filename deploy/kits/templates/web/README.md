@@ -38,6 +38,12 @@ source and reports any `http://` value on the server as a gap.
   and `report-to` aimed at `/api/security/csp-reports`, `Reporting-Endpoints`, HSTS, COOP `same-origin`,
   `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options`, and no `X-Powered-By` or
   `Server` header. `deploy/nginx/security-headers.conf` carries the same values (parity test).
+- **Inbound trace context stripped** (`Strip inbound trace context`): under each backend child application
+  (`/api`, `/attachments`, `/ops-api`: `TraceStripPaths` in `security-headers.psd1`) a `<location>` rule sets the
+  server variables `HTTP_TRACEPARENT`, `HTTP_TRACESTATE` and `HTTP_BAGGAGE` to empty (action `None`). The caller's
+  `traceparent`, `tracestate` and `baggage` request headers never reach the backend, so a client cannot choose the
+  trace id the API logs under or plant baggage. `deploy/nginx/trace-context.conf` strips the same list (parity
+  test). The rule needs the three names in the site's **allowed server variables** (next section).
 - **Caching**: `index.html` (also when served for a deep link), `config.json` and `build-info.json` are `no-cache`.
   Hashed bundles (`<name>-<8 characters>.<ext>`) are `public, max-age=31536000, immutable`. Other static files are
   cached for a day.
@@ -46,5 +52,23 @@ When `config.json` names the API or attachment service on another `https://` ori
 the CSP `connect-src`. It also points `report-uri` and `Reporting-Endpoints` at `<apiBaseUrl>/api/security/csp-reports`.
 This applies only to a `web.config` the kit creates, or a CSP header the server does not have yet. An existing
 server header is kept, so after a topology change you edit it on the server.
+
+## Allowed server variables (trace-context stripping)
+
+URL Rewrite sets a server variable only when it is listed in `system.webServer/rewrite/allowedServerVariables`.
+That section is locked to `applicationHost.config` by default, so it cannot ship in this `web.config`. Until the
+three names are allowed for the site, every request under `/api`, `/attachments` and `/ops-api` answers
+**500.50** (URL Rewrite Module Error). Register them once per site, elevated, before (or right after) the first
+install of a template that carries the rule:
+
+```powershell
+$site = '<site name>'
+foreach ($name in 'HTTP_TRACEPARENT', 'HTTP_TRACESTATE', 'HTTP_BAGGAGE') {
+    & "$env:windir\System32\inetsrv\appcmd.exe" set config $site -section:system.webServer/rewrite/allowedServerVariables "/+[name='$name']" /commit:apphost
+}
+```
+
+`appcmd` answers "duplicate collection entry" for a name that is already allowed; that is harmless. The names come
+from `StrippedRequestHeaders` in `security-headers.psd1` (`HTTP_` + the header upper-cased, `-` as `_`).
 
 Moving the CSP from report-only to enforced: [docs/runbooks/csp-enforce.md](../../../../docs/runbooks/csp-enforce.md).

@@ -81,6 +81,27 @@ Component notes:
 - `dga-hero` projects `[dgaHeroTitle]` (the page `<h1>`), `[dgaHeroSubtitle]` and `[dgaHeroActions]`. `dga-hero-slider` takes `slides`, `[(index)]` and every control label; autoplay is off by default, never runs under prefers-reduced-motion and has a pause control. `dga-stamp-strip` takes translated `text` and `verifyLabel`.
 - Branding: the app calls `provideDgaBranding(config.branding)` once (starter-web: `provideAppBranding(config)`). A bad branding throws `DgaBrandingInvalidError(field)` at bootstrap; the logo must be a path the app serves.
 - Dialogs (`dga-confirm-dialog`, `dga-error-dialog`) are controlled native modal `<dialog>`s: bind `[open]` and set it back to false on `confirmed`/`cancelled`/`closed`. Copy in the error dialog goes through the `DGA_CLIPBOARD` token. `dga-page-feedback` takes focus for every new `state` object. `dga-portal-page-header` renders the page's only `<h1>`.
+- **Error dialog reference code** (`src/lib/error-dialog/`). The dialog shows the support reference code and, with a
+  `copyLabel`, a copy button. Its DOM contract, which unit specs and browser tests select on:
+
+  | Element | Selector / attribute | Source |
+  | --- | --- | --- |
+  | The code | `code.dga-error-dialog__reference-code[data-testid="error-reference-code"]`, `dir="ltr"`, `data-fixed-direction` (stays left-to-right in Arabic; the RTL lint skips it) | `DGA_ERROR_REFERENCE_CODE_TEST_ID` |
+  | The copy button | `dga-button.dga-error-dialog__copy[data-testid="error-reference-copy"]` | `DGA_ERROR_REFERENCE_COPY_TEST_ID` |
+  | The "copied" announcement | `p.dga-error-dialog__status[aria-live="polite"]`, filled for `DGA_COPY_FEEDBACK_MS` (2000 ms) after a copy | `error-reference.ts` |
+  | Title and message | `h2` with id `dga-error-dialog-title-<n>` (`aria-labelledby`), `p` with id `<that id>-message` (`aria-describedby`); generated per instance by `createDgaId`, so select by class or role, never by id | `dga-error-dialog.component.ts` |
+
+  The block renders only when `referenceCode` has text (`hasReference`); the button only when `showsCopyButton` (a
+  code and a `copyLabel`). Its label is `copyButtonLabel` (the `copiedLabel` right after a copy) and its accessible
+  name `copyButtonAccessibleName` (`copyAriaLabel`, else the visible label). A copy goes through `DGA_CLIPBOARD`
+  (default `browserClipboard` over `navigator.clipboard`; a refused write returns false and shows no "copied"), and a
+  successful one emits `copied` with the code.
+
+  The library holds no i18n keys: every text input arrives translated. In starter-web the host
+  (`frontend/starter-web/src/app/layouts/error-dialog/`, `ErrorDialogTranslationKeys`) passes `core.error-dialog.title`
+  and `core.error-dialog.dismiss` (close), the message `errors.<CODE>` from `ErrorDialogStore.messageKey`, and
+  `layouts.error-dialog.reference`, `layouts.error-dialog.copy`, `layouts.error-dialog.copied`, each in the `ar` and
+  `en` bundles. The Ops Console (`services/ops-console/web/ops-web`) passes its own keys.
 - `dga-file-upload` is presentational (no HTTP): it emits `filesSelected` `{ accepted, rejected }` with a `DgaFileRejectionReason` (int); the caller owns `items` (`DgaFileUploadStatus` int enum Queued/Uploading/Uploaded/Failed; move rows with the `file-upload-state.ts` helpers), and handles `download(item)` and `remove(item)`. `maxSizeBytes` is an optional pre-check (null: the server decides); failed rows show `errorText` and `referenceCode`; `required` + `missingText`, `readonly`, `statusLabels` for live announcements. See `src/lib/file-upload/README.md`.
 - Date fields hold ISO text, never a Date, and never read the clock: pass `[today]` built with `dgaTodayIso({ instant, timeZone: DGA_KSA_TIME_ZONE })`. Hijri conversion runs on the Umm al-Qura month table (the month lengths of .NET's UmAlQuraCalendar); Intl supplies only month names. `dga-unit-input` holds `number | null` with a required translated `unit`. `dga-multi-select` holds `T[]`. `dga-geo-select` is presentational over a `DgaGeoDataSource`.
 - An icon is decorative unless it has a `label`. Use `iconOnly` buttons only with a `label`.
@@ -146,6 +167,10 @@ Scripts (Node from `.nvmrc`; prepend the pinned Node to PATH):
 - `assets:import` and `icons:generate` need the pinned source packages from the root devDependencies. They run
   offline from `node_modules` and never at app build time.
 - An `iconOnly` button without a `label` has no accessible name.
+- The error dialog's `data-testid` values are a public contract (`DGA_ERROR_REFERENCE_CODE_TEST_ID`,
+  `DGA_ERROR_REFERENCE_COPY_TEST_ID`): the Ops Console specs (`ops-list.component.spec.ts`, `overview.spec.ts`) read the code through
+  `[data-testid="error-reference-code"]`. Renaming one is a breaking change of the package. Specs replace the
+  clipboard with their own `DGA_CLIPBOARD` provider; jsdom has no `navigator.clipboard`, so the default reports false.
 - The catalog check finds members by their declarations `readonly x = input(...)`, `model(...)` and `output(...)`. An aliased input or a setter input is not seen, so declare inputs in that form.
 - jsdom applies the component CSS but no media queries, so specs run the phone layout; jsdom has no `HTMLDialogElement.showModal`, so `DgaModalDialog` falls back to the `open` attribute. `dga-textarea` auto-resize needs a stubbed `scrollHeight` in specs.
 - Text colours must reach WCAG AA (4.5:1) on their surfaces: `tests/contrast.test.mjs` checks every text token pair. Placeholder text is `neutral-500` and muted text `neutral-600`; `--dga-color-text-disabled` is only for native disabled controls (axe exempts them). A plain span inside a disabled control, such as the unit of `dga-unit-input`, keeps an AA colour because axe cannot tell it is disabled.

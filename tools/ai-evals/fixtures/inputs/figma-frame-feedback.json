@@ -1,0 +1,24 @@
+{
+  "source": "Figma frame export (sample input for the kit evals; fictional)",
+  "document": "Citizen services",
+  "frame": {
+    "name": "Service feedback / form / desktop",
+    "width": 1440,
+    "height": 1024,
+    "direction": "rtl",
+    "children": [
+      { "type": "TEXT", "name": "title", "characters": "Share your feedback" },
+      { "type": "TEXT", "name": "subtitle", "characters": "Tell us how the service went. Fields marked * are required." },
+      { "type": "INSTANCE", "name": "select / service *", "component": "dga-select", "placeholder": "Choose the service" },
+      { "type": "INSTANCE", "name": "rating / 1-5 *", "component": "radio-group", "options": ["1", "2", "3", "4", "5"] },
+      { "type": "INSTANCE", "name": "textarea / comments", "component": "dga-textarea", "maxLength": 1000 },
+      { "type": "INSTANCE", "name": "checkbox / contact me", "component": "dga-checkbox", "label": "You may contact me about this feedback" },
+      { "type": "INSTANCE", "name": "button / submit", "component": "dga-button", "variant": "primary", "label": "Send feedback" },
+      { "type": "INSTANCE", "name": "button / cancel", "component": "dga-button", "variant": "secondary", "label": "Cancel" }
+    ]
+  },
+  "notes": [
+    "After sending, show the reference number of the feedback.",
+    "Staff see a list of feedback items with status New or Closed and can close an item with a note."
+  ]
+}

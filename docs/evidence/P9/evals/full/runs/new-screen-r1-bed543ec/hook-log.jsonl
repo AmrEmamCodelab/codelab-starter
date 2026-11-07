@@ -1,0 +1,6 @@
+{"ts":"2026-11-07T14:46:21.966Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:46:24.897Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:46:55.632Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:47:23.321Z","hook":"pre-tool-use","tool":"Edit","path":"frontend/starter-web/src/app/core/routing/route-paths.ts","paths":["frontend/starter-web/src/app/core/routing/route-paths.ts"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:47:25.015Z","hook":"pre-tool-use","tool":"Edit","path":"frontend/starter-web/src/app/features/portal/portal-links.ts","paths":["frontend/starter-web/src/app/features/portal/portal-links.ts"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:47:27.731Z","hook":"pre-tool-use","tool":"Write","path":"frontend/starter-web/src/app/features/portal/accessibility/accessibility-translation-keys.ts","paths":["frontend/starter-web/src/app/features/portal/accessibility/accessibility-translation-keys.ts"],"decision":"allow","ruleIds":[],"skill":null}

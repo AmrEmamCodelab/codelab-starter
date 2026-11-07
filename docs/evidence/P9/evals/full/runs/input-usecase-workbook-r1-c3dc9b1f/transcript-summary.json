@@ -1,0 +1,23 @@
+{
+    "SkillsInvoked":  [
+                          "build-feature"
+                      ],
+    "ToolUseCounts":  {
+                          "Glob":  7,
+                          "Read":  16,
+                          "Bash":  8,
+                          "Agent":  1,
+                          "PowerShell":  6,
+                          "Grep":  17,
+                          "Write":  1,
+                          "Skill":  1
+                      },
+    "UnparsedLines":  0,
+    "HasResult":  true,
+    "ResultSubtype":  "success",
+    "IsError":  false,
+    "NumTurns":  25,
+    "TotalCostUsd":  2.6056786,
+    "PermissionDenials":  10,
+    "ResultText":  "I\u0027ve written the draft spec for your approval: `docs/features/site-visit-booking.md`. The spec check (`node tools/feature-spec/check-spec.mjs`) passes with 0 errors and 0 warnings. The status is `draft` and no code was written; the spec is the only new file.\n\n**The plan**\n- **New module `SiteVisits`**, modelled on the sample `ServiceRequests` workflow. Booking numbers look like `SVB-2026-001`. It reuses three existing modules unchanged: Records (record lifecycle and visibility), Assignments (queue and assigning an inspector) and Deadlines (the escalation timer).\n- **Statuses:** Draft 1, Submitted 2, Scheduled 3, Completed 4, Rejected 5, Cancelled 6.\n- **Transitions:**\n\n  | From | Action | To | Who |\n  | --- | --- | --- | --- |\n  | Draft | submit | Submitted | requester |\n  | Draft | cancel | Cancelled | requester |\n  | Submitted | schedule | Scheduled | coordinator |\n  | Submitted | reject (reason required) | Rejected | coordinator |\n  | Submitted | cancel | Cancelled | requester |\n  | Scheduled | complete | Completed | inspector |\n\n  The spec also has these as a Mermaid diagram.\n- **Escalation (BR-02):** a 2-day timer on Submitted that warns 1 day before. It sends a notification and shows a \"Breached\" badge; the status doesn\u0027t change.\n- **Permissions:** six new ones (create, view-own, queue, schedule, reject, record-outcome), plus the existing Assignments permissions. Visit type is a new lookup, and the outcome is a fixed list (Compliant = 1, Not compliant = 2). Notes are limited to 1000 characters.\n- **Endpoints:** four new ones (book, details, schedule, record outcome); the rest reuse existing Records and Assignments routes.\n- **Screens:** six, on the work-queue, wizard, requester-detail and staff-detail page patterns.\n- **Build order:** new-module, new-permission, new-transition, deadline recipe, new-lookup, new-endpoint, new-screen.\n\n**Decisions you need to make.** The spec lists 16 assumptions in its \"Open decisions\" section. I checked these against the code:\n"
+}

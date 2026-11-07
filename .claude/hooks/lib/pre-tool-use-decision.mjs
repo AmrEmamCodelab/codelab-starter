@@ -5,13 +5,15 @@ import { askOutput, denyOutput, contextOutput } from './hook-io.mjs';
 import { findModuleForPath, loadCompiledRules, rulesForModule } from './compiled-rules.mjs';
 import { findIntroducedViolations, formatViolations } from './evaluate.mjs';
 import { simulateEdit } from './edit-simulation.mjs';
-import { detectShellWrites } from './shell-writes.mjs';
+import { detectShellWrites, WriteKinds } from './shell-writes.mjs';
 import { buildModuleContext, markModuleInjected } from './module-context.mjs';
 import {
   checkGenerated, checkModuleHasRules, checkModuleRulesExemptions, checkPlatformOwner, isGitIgnored, isNullDevice,
 } from './path-policy.mjs';
 import { resolveProjectRoot, toAbsolute, toRepoRelative } from './paths.mjs';
-import { HookEvents, HookRuleIds, RepoPaths, TemporaryTargetPattern, ToolNames } from './constants.mjs';
+import {
+  DeletionCommands, HookEvents, HookRuleIds, RemoveItemCmdlet, RepoPaths, TemporaryTargetPattern, ToolNames,
+} from './constants.mjs';
 
 const MISSING_RULES_WARNING = `${RepoPaths.CompiledRules} is missing or invalid: content rules were NOT checked `
   + '(path guards still apply). Run `node tools/rules-engine/compile.mjs`.';
@@ -78,10 +80,24 @@ function decideFileTool({ input, env, projectRoot, loaded }) {
   });
 }
 
+/** Shell commands whose write is a file deletion: no content to check, but no Edit or Write tool can do it either. */
+const DELETION_KINDS = new Set([
+  ...DeletionCommands.map((command) => `${command} ${WriteKinds.Remove}`),
+  `${WriteKinds.PowerShellCmdlet} ${RemoveItemCmdlet}`,
+]);
+
+const WRITE_FIX = 'Fix: use the Edit or Write tool for source files '
+  + '(scratch output belongs in the OS temp dir or a gitignored folder).';
+
+/** The hook does not refuse git rm or git clean; the deletion still shows in the diff and CI checks the result. */
+const DELETE_FIX = 'Fix: delete a source file with git so the removal is reviewed in the diff: '
+  + '`git rm -- <path>` for a tracked file (`git rm -r -- <folder>` for a folder), '
+  + '`git clean -f -- <path>` for an untracked file you created. Delete only files you created.';
+
 function describeShellWrite({ write, relativePath, rules, module }) {
-  const header = `[${HookRuleIds.ShellWriteIntoSource}] ${write.kind} writes into the source path ${relativePath}. `
-    + 'Shell writes bypass the rule checks. Fix: use the Edit or Write tool for source files '
-    + '(scratch output belongs in the OS temp dir or a gitignored folder).';
+  const isDeletion = DELETION_KINDS.has(write.kind);
+  const header = `[${HookRuleIds.ShellWriteIntoSource}] ${write.kind} ${isDeletion ? 'deletes' : 'writes into'} the source `
+    + `path ${relativePath}. Shell writes bypass the rule checks. ${isDeletion ? DELETE_FIX : WRITE_FIX}`;
   if (write.content === null) return header;
   const violations = findIntroducedViolations({ rules: rulesForModule(rules, module), relativePath, before: null, after: write.content });
   return violations.length > 0 ? `${header}\n${formatViolations(relativePath, violations)}` : header;

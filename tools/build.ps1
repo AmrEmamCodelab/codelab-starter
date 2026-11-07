@@ -18,7 +18,8 @@
                             rules.compiled.json over every tracked file: the hooks' rules, enforced in CI)
      10. scanner tests      node --test over tools/extract/tests, tools/ci/tests, tools/vectors/tests,
                             deploy/handover/tests, tools/fork/tests, tools/scaffold/tests (with the dogfood test),
-                            tools/devseed/tests and tools/run-local (**/*.test.mjs)
+                            tools/devseed/tests, tools/facts-drift/tests, tools/feature-spec/tests,
+                            .claude/skills/reduce-comments/scripts/tests and tools/run-local (**/*.test.mjs)
      11. npm build+lint+test npm ci (only when node_modules is missing) ; npm run build --workspaces ;
                             node tools/ci/lint-packages.mjs (ESLint: magic numbers, module boundaries) ;
                             npm test --workspaces
@@ -44,12 +45,17 @@
                             lints packages/npm only)
      18. fork-model test    tools\fork\Test-ForkModel.ps1 -RemoveModule Demo   (ADR-003; all in %TEMP%, the repo is only read)
      19. deploy-kit tests   Invoke-Pester -EnableExit over deploy/kits/tests (every Install-*.Tests.ps1 and the
-                            security-header parity test), tools/kit/tests, tools/sql-kit/tests and deploy/seq/tests
-                            (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin)
+                            security-header parity test), tools/kit/tests, tools/sql-kit/tests, deploy/seq/tests,
+                            tools/pipeline-proofs/tests, tools/ai-evals/tests and
+                            .claude/skills/usecase-testing/scripts/tests (Pester 3.4, Windows PowerShell 5.1; no IIS
+                            change, no admin; claude, robocopy and npm are mocked, so no usage is spent)
      20. no dev autofill    node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web   (the
                             production bundle step 11 built holds no DevAutofill code)
      21. module deletability tools/ci/module-deletability.ps1 -Name ServiceRequests   (removes the sample module from a
                             %TEMP% copy, then build, backend tests, frontend tests and build; ADR-004)
+     22. facts drift        node tools/facts-drift/check.mjs --root .   (every path, command, switch, type, skill and
+                            agent named in .claude/agents, .claude/skills, CLAUDE.md, CONTEXT.md and docs/** resolves;
+                            no stale-term or source-product text; tools/facts-drift/MODULE.md)
     A step whose entry point does not exist yet FAILS with a MISSING message; nothing is skipped silently.
     All steps run (unless -FailFast) and a summary is printed; the exit code is 1 when any step failed.
     The protected (platform-owned) paths the branch changes against the base ref are listed at the end, so the
@@ -207,7 +213,7 @@ $FrontendWorkspace     = 'frontend/starter-web'
 $ForkModelScript       = 'tools/fork/Test-ForkModel.ps1'
 $ForkModelModule       = 'Demo'
 # Step 19: every Pester suite of the deploy side (install scripts, header parity, kit builder, DBA SQL kit, Seq).
-$PesterTestFolders     = @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests')
+$PesterTestFolders     = @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests', 'tools/pipeline-proofs/tests', 'tools/ai-evals/tests', '.claude/skills/usecase-testing/scripts/tests')
 # -Kit: the deploy-kit builder (the prep-deploy skill) and the separator of its -Component list.
 $DeployKitScript       = 'tools/kit/New-DeployKit.ps1'
 $KitComponentSeparator = ','
@@ -673,7 +679,7 @@ function Invoke-ForkModelStep {
 
 # Step 19: every deploy-side Pester suite (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin).
 function Invoke-KitModuleTestStep {
-    if (-not (Test-EntryPoints $PesterTestFolders 'deploy/kits + tools/kit + tools/sql-kit + deploy/seq')) { return $false }
+    if (-not (Test-EntryPoints $PesterTestFolders 'deploy/kits + tools/kit + tools/sql-kit + deploy/seq + tools/pipeline-proofs + tools/ai-evals + .claude/skills/usecase-testing')) { return $false }
     $command = "Invoke-Pester @('$($PesterTestFolders -join "', '")') -EnableExit"
     $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', $command)
     return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
@@ -754,7 +760,7 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '7 docs gate';        Run = { Invoke-DocsGateStep $Dotnet } },
         @{ Name = '8 conflict markers'; Run = { Invoke-NodeScriptStep 'tools/ci/conflict-markers.mjs' @('--root', '.') 'tools/ci' } },
         @{ Name = '9 content rules';    Run = { Invoke-NodeScriptStep 'tools/rules-engine/check-content.mjs' @('--root', '.') 'tools/rules-engine' } },
-        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/devseed/user-import/tests', 'tools/run-local') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local' } },
+        @{ Name = '10 scanner tests';   Run = { Invoke-NodeTestStep @('tools/extract/tests', 'tools/ci/tests', 'tools/vectors/tests', 'deploy/handover/tests', 'tools/fork/tests', 'tools/scaffold/tests', 'tools/devseed/tests', 'tools/devseed/user-import/tests', 'tools/run-local', 'tools/facts-drift/tests', 'tools/feature-spec/tests', '.claude/skills/reduce-comments/scripts/tests') 'tools/extract + tools/ci + tools/vectors + deploy/handover + tools/fork + tools/scaffold + tools/devseed + tools/run-local + tools/facts-drift + tools/feature-spec + .claude/skills/reduce-comments' } },
         @{ Name = '11 npm build+lint+test';  Run = { Invoke-NpmStep } },
         @{ Name = '12 vectors verify';  Run = { Invoke-VectorsStep } },
         @{ Name = '13 package integration test'; Heavy = $true; Run = { Invoke-PackageIntegrationStep $Dotnet } },
@@ -765,7 +771,8 @@ function Invoke-CiTarget([string] $Dotnet) {
         @{ Name = '18 fork-model test'; Heavy = $true; Run = { Invoke-ForkModelStep } },
         @{ Name = '19 deploy-kit tests'; Run = { Invoke-KitModuleTestStep } },
         @{ Name = '20 no dev autofill'; Run = { Invoke-NoDevAutofillStep } },
-        @{ Name = '21 module deletability'; Heavy = $true; Run = { Invoke-ModuleDeletabilityStep } }
+        @{ Name = '21 module deletability'; Heavy = $true; Run = { Invoke-ModuleDeletabilityStep } },
+        @{ Name = '22 facts drift';     Run = { Invoke-NodeScriptStep 'tools/facts-drift/check.mjs' @('--root', '.') 'tools/facts-drift' } }
     )
 
     $results = New-Object System.Collections.Generic.List[object]

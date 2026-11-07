@@ -2,6 +2,7 @@
 // type's workflow). Shared scaffold constants (module paths, markers of other generators) stay in ../constants.mjs.
 //
 // RENAME SAFETY (ADR-003): starter-named literals are written whole so a fork's rename rewrites them.
+import { Report } from '../constants.mjs';
 
 /** Value flags new-transition takes. */
 export const TransitionFlags = Object.freeze({
@@ -90,6 +91,9 @@ export const WorkflowMarkers = Object.freeze({
   rules: '// scaffold:workflow-rules',
   moduleDoc: '<!-- scaffold:workflow -->',
 });
+/** The required rule new-transition adds to the module's rules (its id is `<module lower-case>.<suffix>`). */
+export const WORKFLOW_RULE_SUFFIX = 'workflow-in-the-catalog';
+export const WORKFLOW_RULE_ENFORCED_BY = Object.freeze(['review']);
 export const ListProperties = Object.freeze({ statuses: 'Statuses', rules: 'Rules' });
 
 /** C# names the generated code uses (Starter.Domain.Workflow / Starter.Workflow.Testing). */
@@ -103,6 +107,7 @@ export const CSharp = Object.freeze({
 /** Where things live, relative to the repo root. */
 export const TransitionPaths = Object.freeze({
   moduleDoc: (module) => `backend/src/Modules/${module}/MODULE.md`,
+  moduleRules: (module) => `backend/src/Modules/${module}/module.rules.yaml`,
   testsFolder: (module) => `backend/tests/Modules/Starter.Modules.${module}.Tests`,
   testProject: (module) => `backend/tests/Modules/Starter.Modules.${module}.Tests/Starter.Modules.${module}.Tests.csproj`,
   testFile: (module, testClass) => `backend/tests/Modules/Starter.Modules.${module}.Tests/Workflow/${testClass}.cs`,
@@ -119,4 +124,4 @@ export const SKIPPED_FOLDERS = Object.freeze(['bin', 'obj']);
 export const CSHARP_EXTENSION = '.cs';
 
 /** Report prefixes only new-transition prints. */
-export const DryRunReport = Object.freeze({ wouldCreate: 'would create', wouldChange: 'would change' });
+export const DryRunReport = Object.freeze({ wouldCreate: Report.wouldCreate, wouldChange: Report.wouldChange });

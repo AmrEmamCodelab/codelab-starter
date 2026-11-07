@@ -1,0 +1,9 @@
+{
+  "id": "input-figma-frame",
+  "kind": "input",
+  "skill": "build-feature",
+  "description": "A Figma frame export must route to the feature pipeline and give a valid feature spec.",
+  "prompt": "Here is the Figma frame export of a citizen feedback form: tools/ai-evals/fixtures/inputs/figma-frame-feedback.json, rendered as docs/evidence/P4/baselines/showcase-wizard.en.1440.png. Clients submit feedback about a service and staff read it and close it. Plan this feature and write the spec for my approval.",
+  "inputs": ["tools/ai-evals/fixtures/inputs/figma-frame-feedback.json", "docs/evidence/P4/baselines/showcase-wizard.en.1440.png"],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "specValid", "skillInvoked"]
+}

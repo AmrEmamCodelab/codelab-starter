@@ -111,11 +111,11 @@ function isScaffoldFile(relativePath) {
 /** The Fix of a module-without-rules refusal: a frontend feature area follows new-screen, a backend module new-module. */
 function moduleWithoutRulesFix(module) {
   if (module.root.kind === ModuleRootKinds.Frontend) {
-    return `Fix: start the feature area as step 2 of the \`${NewScreenSkill}\` skill (/${NewScreenSkill}) says: shape it `
+    return `Fix: Use the \`${NewScreenSkill}\` skill (/${NewScreenSkill}); its step 2 starts the feature area: shape it `
       + `like ${ReferenceFeatureArea} by writing ${ModuleScaffoldFiles.Rules} and ${ModuleScaffoldFiles.Docs} first, `
       + `then run \`node ${RepoPaths.RulesCompiler}\` to generate its ${ModuleScaffoldFiles.Agent}.`;
   }
-  return `Fix: create the module with the \`${NewModuleSkill}\` skill (/${NewModuleSkill}), which writes `
+  return `Fix: Use the \`${NewModuleSkill}\` skill (/${NewModuleSkill}) to create the module; it writes `
     + `${ModuleScaffoldFiles.Rules}, ${ModuleScaffoldFiles.Docs} and the generated ${ModuleScaffoldFiles.Agent}.`;
 }
 

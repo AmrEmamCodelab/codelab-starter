@@ -8,21 +8,27 @@
 
 ## Routing: intent → skill
 
-Describe the work in plain language; pick the skill from this table. A skill marked *planned* tells you what to do until it exists.
+Describe the work in plain language; nobody needs to type a command. The `UserPromptSubmit` hook adds this table to every prompt ([.claude/hooks/routing-table.json](.claude/hooks/routing-table.json)), and a request that matches no row starts on `build-feature`, the default entry point.
 
 | When the work is... | Skill | Status |
 | --- | --- | --- |
-| Any business scenario ("we need...", a BRD, use-case workbook, DGA screenshot or Figma frame) | `build-feature` | planned (phase 9) |
+| Any business scenario ("we need...", a permit, approval, escalation or complaint flow, a BRD, a use-case workbook, a DGA screenshot or a Figma frame) | `build-feature` (default) | ready |
 | A new business area, record type or module | `new-module` | ready |
 | A new action or API operation | `new-endpoint` | ready |
 | A new page (description, DGA screenshot or Figma frame) | `new-screen` (+ the 8 page patterns, [docs/design/](docs/design/README.md)) | ready |
 | A new permission | `new-permission` | ready |
-| A new status or status flow | `new-transition` | planned (phase 7) |
+| A new status or status flow | `new-transition` | ready |
 | A new reference-data list | `new-lookup` | ready |
-| A time limit, deadline or SLA | recipe in `docs/recipes/` (deadline) | planned (phase 7) |
+| A time limit, deadline or SLA | recipe [docs/recipes/add-deadline.md](docs/recipes/add-deadline.md) | ready |
+| Testing or investigating one use case end to end (UC id) | `usecase-testing` | ready |
+| Turning a PRD into a phased plan (tracked in `plans/`) | `prd-to-plan` | ready |
+| A PRD and its plan in one go | `prd-and-plan` | ready |
+| Removing noise comments from one class or file | `reduce-comments` | ready |
 | Any implementation or review | `coding-standards` | ready |
 | Executing a planned unit of work or a plan phase | `do-work` | ready |
 | Creating or changing a skill | `write-a-skill` | ready |
+
+**Pipeline.** `build-feature` runs input → feature spec `docs/features/<slug>.md` (human approval) → API contract → backend ‖ screens through the skills above → tests → visual check → reviewers → commit gate → docs; the agents for each step are mapped in [docs/ai-kit/README.md](docs/ai-kit/README.md). Work done around the skills is refused with a message that names the skill to use (a module folder without `module.rules.yaml` → `new-module`, an endpoint without `[HasPermission]` → `new-endpoint`, raw UI text → `new-screen`, a transition outside the catalog → `new-transition`, a lookup seeded outside a migration → `new-lookup`), by the hooks and again by CI.
 
 ## Non-negotiable rules
 
@@ -44,7 +50,7 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 ## Build
 
 ```powershell
-# Full CI contract (21 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
+# Full CI contract (22 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Kit   # deploy kit publish\deploy-<sha>\ after a green CI (-Kit -DryRun plans only; -KitComponent api,web)
 # Pack every package in packages/versions.json as <version>-ci.<n> prereleases into feed\nuget and feed\npm

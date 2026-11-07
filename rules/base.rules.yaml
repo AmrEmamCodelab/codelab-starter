@@ -33,12 +33,12 @@ required:
     enforcedBy: [architecture-test, eslint]
     availableFrom: P1
   - id: base.endpoint-contract
-    statement: Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json.
-    enforcedBy: [contract-test, review]
+    statement: Every endpoint has a permission attribute, takes and returns PublicId (never raw database ids), validates its input with a validator and returns errors as problem+json. The text twins base.endpoint-has-permission and base.minimal-api-has-permission refuse an ungated endpoint early and name the new-endpoint skill.
+    enforcedBy: [contract-test, hook, review]
     availableFrom: P2
   - id: base.lookups-via-migrations
-    statement: Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL.
-    enforcedBy: [review]
+    statement: Lookup and reference data is created and changed only through EF migrations, never by runtime seeders or manual SQL. The text twin base.lookup-seeded-by-migration refuses a seed outside a Migrations folder and names the new-lookup skill.
+    enforcedBy: [hook, review]
   - id: base.platform-owner-review
     statement: Changes to rules/, packages/, .claude/, the exemptions of any module.rules.yaml, deploy/, .github/, docs/adr/, provenance/, tools/extract/, tools/build.ps1 and the repo-wide build settings need platform-owner review.
     enforcedBy: [codeowners, hook]
@@ -241,11 +241,12 @@ forbidden:
     pattern: 'HasConversion<string>\s*\(|\bEnumToStringConverter\b|\bJsonStringEnumConverter\b'
     appliesTo: ["**/*.cs"]
     fix: Keep the EF default (int column) and the numeric JSON value; the client maps numbers to i18n labels with the generated TS enum.
-  # An early hook warning only: a text pattern cannot see past doc comments and attributes on a member. The build gate
-  # is the CLB1005 analyzer (Codelab.Build.Analyzers), which matches the syntax.
+  # An early hook warning only: a text pattern cannot see past attributes on a member. The build gate is the CLB1005
+  # analyzer (Codelab.Build.Analyzers), which matches the syntax. Text after // up to the line end is skipped, so a
+  # doc comment listing words ("network, timeout, ...") is not read as members (P9 fix of a P8 false positive).
   - id: base.enum-explicit-values
     description: An enum member without an explicit value changes meaning when members are reordered (CLB1005 is the build gate).
-    pattern: '\benum\s+\w+(?:\s*:\s*\w+)?\s*\{(?:[^{}]*?[{,])?\s*[A-Za-z_]\w*\s*(?:,|\})'
+    pattern: '\benum\s+\w+(?:\s*:\s*\w+)?\s*\{(?:(?:[^{}/]|/(?!/)|//[^\n]{0,500}(?=\n))*?[{,])?\s*[A-Za-z_]\w*\s*(?:,|\})'
     appliesTo: ["**/*.cs"]
     fix: Give every enum member an explicit numeric value, e.g. Draft = 1, Submitted = 2.
 
@@ -268,6 +269,49 @@ forbidden:
     appliesTo: ["**/*.cs"]
     fix: Take a PublicId route value ({id}) and resolve it in the Application layer.
 
+  # --- Skill routing: work done outside the scaffold skills (build plan phase 9, "Bypass is impossible") ---------
+  # Each fix names the skill that does the work the right way ("Use the `<skill>` skill"): the hooks refuse the edit
+  # with this text and CI (check-content.mjs) fails on the same match. The contract tests stay the authoritative
+  # endpoint and workflow gates; these are their text twins, so the refusal arrives while the code is written.
+  # An action is any member whose attribute block carries [HttpX], [AcceptVerbs(...)] or [Route(...)] (a [Route] on a
+  # class declaration is not an action). It is gated when its own attribute block or the attribute
+  # block of the nearest class declaration above it carries [HasPermission], [AllowAnonymous], [AuthenticatedUser] or a
+  # *ServiceCaller attribute (the contract test's Anonymous / Authenticated / ServiceAssertion access kinds). A gate on
+  # the same line as [HttpX] ([HttpGet, HasPermission(...)]) is not recognised: write one attribute per line.
+  - id: base.endpoint-has-permission
+    description: A controller action without a permission attribute (or an allowlisted anonymous, authenticated or service gate) is open to every caller.
+    pattern: '^(?<!^[ \t]*\[[^\n]*\n)(?<!^[ \t]*\[(?:HasPermission|AllowAnonymous|AuthenticatedUser|\w*ServiceCaller)\b[^\n]*\n(?:[ \t]*\[[^\n]*\n){0,12}[ \t]*(?:\w+\s+){0,4}class\s(?:(?!(?:^[ \t]{0,32}|\b(?:sealed|abstract|partial|public|internal|static|file)\s{1,8})class\s{1,8}\w)[\s\S])*)(?=(?:[ \t]*\[[^\n]*\n){0,12}[ \t]*\[(?:Http(?:Get|Post|Put|Delete|Patch|Head|Options)|AcceptVerbs|Route)\b)(?=(?:[ \t]*\[(?!(?:HasPermission|AllowAnonymous|AuthenticatedUser|\w*ServiceCaller)\b)[^\n]*\n){1,13}(?![ \t]*\[)(?![ \t]*(?:\w+[ \t]+){0,4}(?:class|record|struct|interface)\b))[ \t]*\[[^\n]*'
+    flags: m
+    appliesTo: ["backend/src/**/*.cs"]
+    excludes: ["**/*.Tests/**"]
+    fix: Use the `new-endpoint` skill (node tools/scaffold/new-endpoint.mjs) to add the endpoint; it writes [HasPermission(<Module>PermissionKeys.<Key>)] with the permission, use case, validator and tests. An endpoint every visitor may call is [AllowAnonymous] plus a reviewed line in backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs.
+  # Minimal-API mappings in the API host: the gate must be a call in the same statement as the Map call
+  # (.RequireAuthorization(...), .AllowAnonymous(), a HasPermission/AuthenticatedUser attribute); a gate word inside a
+  # route constant or handler name does not count.
+  - id: base.minimal-api-has-permission
+    description: A minimal-API mapping without a permission or an explicit anonymous or authenticated gate is open to every caller.
+    pattern: '\.Map(?:Get|Post|Put|Delete|Patch|Methods)\s*\((?:(?!\.RequireAuthorization\s{0,8}\(|\.AllowAnonymous\s{0,8}\(|\b(?:HasPermission|AuthenticatedUser)(?:Attribute)?\s{0,8}\()[^;])*;'
+    appliesTo: ["backend/src/**/*.cs"]
+    excludes: ["**/*.Tests/**"]
+    fix: Use the `new-endpoint` skill (node tools/scaffold/new-endpoint.mjs) for a controller action with [HasPermission]. A mapping that must stay minimal ends with .RequireAuthorization(...) or .AllowAnonymous() in the same statement, plus a reviewed line in backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs.
+  # The transition catalog is the record type's Application/Workflow/<Entity>Workflow.cs (Statuses + Rules); the kernel
+  # validates it at boot (TransitionCatalogValidator).
+  - id: base.transition-in-catalog
+    description: A transition rule or catalog built outside the record type's workflow class, or a status written directly, bypasses the transition catalog and its validation.
+    pattern: '\bnew\s+(?:TransitionRule|TransitionCatalog)\s*\(|\bTransitionRule\s+\w+\s*\(|\bTransitionCatalog\s+\w+\s*\{\s*get;\s*\}\s*=\s*new\s*\(|\.Status\s*=\s*\w+Statuses\.\w+'
+    appliesTo: ["backend/src/**/*.cs"]
+    excludes: ["**/Application/Workflow/*Workflow.cs", "backend/src/Starter.Domain/Workflow/**", "backend/src/Starter.Application/Workflow/**", "**/*.Tests/**"]
+    fix: Use the `new-transition` skill (node tools/scaffold/new-transition.mjs); it adds the status and the TransitionRule to Application/Workflow/<Entity>Workflow.cs with its wording, notification decision and tests. Status changes go through the workflow engine, never by assigning Status.
+  # Lookups are data owned by migrations (base.lookups-via-migrations); the seed helpers are migration-only. Dots are
+  # written [.] so the compiled JSON never looks like a UNC path to the scrub sweep.
+  - id: base.lookup-seeded-by-migration
+    description: Lookup values seeded at run time, in model configuration or by hand-written SQL drift between environments and skip review.
+    pattern: '\bLookupSeed[.]\w+\s*\(|\bLookupItem[.]Seeded\s*\(|\bnew\s+LookupItemSeed\s*\(|[.]HasData\s*\(|\bINSERT[ \t\r\n]+INTO[ \t\r\n]+\[?lookups\]?[ \t]*[.]'
+    flags: i
+    appliesTo: ["backend/src/**/*.cs", "**/*.sql"]
+    excludes: ["**/Migrations/**", "backend/src/Modules/Lookups/Domain/**", "**/*.Tests/**"]
+    fix: Use the `new-lookup` skill (node tools/scaffold/new-lookup.mjs); it writes the <Name>Ids constants, the LookupTypes key and the seed migration with Arabic and English names.
+
   # --- Error handling and dead code ----------------------------------------------------------------
   - id: base.no-empty-catch
     description: An empty catch block hides failures.
@@ -283,9 +327,11 @@ forbidden:
     severity: warning
 
   # --- Frontend ------------------------------------------------------------------------------------
+  # The global fetch() and window/globalThis/self.fetch are refused; a method named fetch (this.fetch(), private
+  # fetch(...)) is not the browser API (P9 fix of a P8 false positive).
   - id: base.fe-http-via-api-service
     description: Feature code must not call HTTP directly.
-    pattern: '\bHttpClient\b|\bfetch\s*\('
+    pattern: '\bHttpClient\b|(?<![\w$]\s*\.\s*|\b(?:private|protected|public|async|static|function)\s+)\bfetch\s*\(|\b(?:window|globalThis|self)\s*\.\s*fetch\b'
     appliesTo: ["**/*.ts"]
     excludes: ["**/core/http/**", "**/core/api/**", "**/*.spec.ts"]
     fix: Inject ApiService (or the generated API client) from core/api; it owns the base URL, auth and signing headers.
@@ -337,14 +383,14 @@ forbidden:
     flags: u
     appliesTo: ["**/*.html"]
     excludes: ["**/showcase/**", "**/src/index.html"]
-    fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.
+    fix: Use the `new-screen` skill for screen work; add ar and en keys to the i18n files and use {{ 'feature.key' | translate }}.
   - id: base.fe-raw-text-in-inline-template
     description: Raw text in an inline component template is not translated.
     pattern: '\btemplate\s*:\s*(?:`[^`]*?|''[^'']*?|"[^"]*?)>(?:[^<>{}&`''"\p{L}]|&#?[\p{L}\d]{1,10};)*\p{L}[^<>{}`''"]*<'
     flags: u
     appliesTo: ["**/*.ts"]
     excludes: ["**/showcase/**", "**/*.spec.ts"]
-    fix: Add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.
+    fix: Use the `new-screen` skill for screen work; add ar and en keys to the i18n files and use {{ 'feature.key' | translate }} in the template.
   - id: base.fe-no-string-permission-key-in-template
     description: A permission key written as a string literal in a template gate drifts from the permission catalog (the template check refuses it too).
     pattern: '\[?\*?hasPermission\]?\s*=\s*"\s*[''`]'

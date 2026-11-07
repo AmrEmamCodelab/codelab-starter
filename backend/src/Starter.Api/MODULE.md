@@ -16,6 +16,18 @@ powershell -File tools\devseed\New-LocalSecrets.ps1          # once: appsettings
   `appsettings.Development.json`, then the local secrets file, environment variables and the command line.
 - Request and response signing are `Enforce`; the replay and session stores are `SqlServer` on `ConnectionStrings:Starter`.
 
+**Where the security edge is wired.** `Program.cs` holds no edge code; two kernel calls carry it (details in
+`backend/src/Starter.Infrastructure/MODULE.md`, Security edge):
+
+| `Program.cs` line | What it wires |
+| --- | --- |
+| `builder.AddCodelabSecurity()` | Binds `Codelab:Security:Cors` (`CodelabCorsOptions`) and the client rate limiter (`Codelab:Security:RateLimiting`, policy `codelab-client`). |
+| `app.UseStarterPipeline()` | First runs `CorsOriginBootCheck.EnsureValid`: a bad `Codelab:Security:Cors:AllowedOrigins` throws `OptionsValidationException` and the host never starts. Then `UseCors()` and the rest of the pipeline. |
+| `app.MapStarterEndpoints(modules)` | Maps, after the module controllers and the signing-key endpoint, the anonymous CSP report sink `POST /api/security/csp-reports` (`CspReportEndpoint.MapCspReportSink`, route `SecurityEdgeRoutes.CspReports`), then health. |
+
+In Development the API's own origin list is `appsettings.Development.json` (`http://localhost:4280`); every other
+environment sets https origins on the server (`deploy/kits/templates/api/README.md`).
+
 ## Extend
 - **A module:** `node tools/scaffold/new-module.mjs --name <Name>` adds the ProjectReference here (and the slnx entry);
   `tools/remove-module.ps1 -Name <Name>` removes it. Never edit `Program.cs` for a module.
@@ -31,6 +43,12 @@ powershell -File tools\devseed\New-LocalSecrets.ps1          # once: appsettings
 
 ## Gotchas
 - `AddStarterKernel` must stay before `AddCodelabSecurity` (startup order: migrations, then the security store schema).
+- A start that fails with `OptionsValidationException` naming `Codelab:Security:Cors` is the CORS boot check: fix the
+  listed origins (exact `scheme://host[:port]`, https outside Development, each once). Never move `UseCors()` or the
+  check out of `UseStarterPipeline` into `Program.cs`.
+- The CSP sink is anonymous and unsigned by design: its signature exemption carries `CspReportEndpoint.AnonymousReason`,
+  and its row in `backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs` says why. A trace context sent by a caller is ignored (Codelab.Observability) and, behind
+  the IIS or nginx front site, stripped before it arrives (`deploy/kits/MODULE.md`).
 - Without the local secrets file the start fails on the Codelab.Security key rings; run `New-LocalSecrets.ps1`.
 - `Database:ApplyMigrationsOnStartup` is true only in `appsettings.Development.json`; any other environment refuses it.
 - Modules referenced today: Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications, Portal,

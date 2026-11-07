@@ -1,0 +1,371 @@
+{
+    "proof":  "complaint",
+    "recordType":  "Complaint",
+    "inputType":  "BRD + DGA screenshot",
+    "mode":  "run",
+    "verdict":  "fail",
+    "exitCode":  1,
+    "runId":  "complaint-20261107-155353-159cee",
+    "startedAt":  "2026-11-07T15:53:53.8775077+02:00",
+    "finishedAt":  "2026-11-07T16:23:14.4727397+02:00",
+    "durationSeconds":  1760.6,
+    "preApproveSpec":  true,
+    "prompt":  "Citizens file a complaint about one of our services and can follow it; a complaints officer resolves it with a response or rejects it with a reason, and can ask the citizen for more information; a complaint still open 10 days after it was filed escalates to the complaints manager.\n\nThe material for it is in this repository:\n- tools/pipeline-proofs/inputs/complaint/brd-complaint.md\n- tools/pipeline-proofs/inputs/complaint/target.ar.1440.png\n- tools/pipeline-proofs/inputs/complaint/target.en.1440.png\n- tools/pipeline-proofs/inputs/complaint/target.ar.390.png\n- tools/pipeline-proofs/inputs/complaint/target.en.390.png\n- tools/pipeline-proofs/inputs/complaint/masks.json\n\nFor this run the feature spec counts as pre-approved by the platform owner: once it is complete and valid, set status: approved, approvedBy: pipeline-proof (pre-approved) and approvedOn: 2026-11-07 in it, then carry on through the whole pipeline to the commit gate.\nYou are working unattended in a disposable copy of the repository: nobody will answer questions, so make reasonable assumptions, finish the work, verify it, and leave the result in the working tree. Do not push.",
+    "inputs":  [
+                   "tools/pipeline-proofs/inputs/complaint/brd-complaint.md",
+                   "tools/pipeline-proofs/inputs/complaint/target.ar.1440.png",
+                   "tools/pipeline-proofs/inputs/complaint/target.en.1440.png",
+                   "tools/pipeline-proofs/inputs/complaint/target.ar.390.png",
+                   "tools/pipeline-proofs/inputs/complaint/target.en.390.png",
+                   "tools/pipeline-proofs/inputs/complaint/masks.json"
+               ],
+    "workbook":  {
+                     "present":  false,
+                     "useCaseIds":  [
+
+                                    ],
+                     "findings":  [
+
+                                  ]
+                 },
+    "findings":  [
+
+                 ],
+    "blockers":  [
+
+                 ],
+    "infrastructureError":  null,
+    "workspace":  {
+                      "path":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\complaint-20261107-155353-159cee",
+                      "kept":  false,
+                      "transcript":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\transcripts\\complaint-20261107-155353-159cee.jsonl",
+                      "logs":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\complaint-20261107-155353-159cee"
+                  },
+    "headless":  {
+                     "exitCode":  0,
+                     "timedOut":  false,
+                     "durationSeconds":  1691.3,
+                     "skillsInvoked":  [
+                                           "build-feature",
+                                           "coding-standards",
+                                           "new-module",
+                                           "new-permission",
+                                           "new-transition",
+                                           "new-lookup",
+                                           "new-endpoint"
+                                       ]
+                 },
+    "plan":  {
+                 "maxTurns":  300,
+                 "timeoutMinutes":  300,
+                 "permissionMode":  "acceptEdits",
+                 "claudeArguments":  [
+                                         "-p",
+                                         "--output-format",
+                                         "stream-json",
+                                         "--verbose",
+                                         "--max-turns",
+                                         "300",
+                                         "--permission-mode",
+                                         "acceptEdits",
+                                         "--no-session-persistence",
+                                         "--strict-mcp-config",
+                                         "--allowedTools",
+                                         "Read",
+                                         "Glob",
+                                         "Grep",
+                                         "Edit",
+                                         "Write",
+                                         "Skill",
+                                         "Task",
+                                         "Agent",
+                                         "TodoWrite",
+                                         "Bash(node *)",
+                                         "Bash(npm *)",
+                                         "Bash(npx *)",
+                                         "Bash(git *)",
+                                         "Bash(dotnet *)",
+                                         "Bash(ls *)",
+                                         "Bash(cat *)",
+                                         "Bash(find *)",
+                                         "Bash(grep *)",
+                                         "Bash(head *)",
+                                         "Bash(tail *)",
+                                         "Bash(wc *)",
+                                         "Bash(mkdir *)",
+                                         "Bash(/e/codelab-tools/*)",
+                                         "Bash(E:/codelab-tools/*)",
+                                         "PowerShell(node *)",
+                                         "PowerShell(npm *)",
+                                         "PowerShell(npx *)",
+                                         "PowerShell(git *)",
+                                         "PowerShell(dotnet *)",
+                                         "PowerShell(E:\\codelab-tools\\*)",
+                                         "PowerShell(\u0026 E:\\codelab-tools\\*)",
+                                         "PowerShell(\u0026 \u0027E:\\codelab-tools\\*)",
+                                         "PowerShell(\u0026 \"E:\\codelab-tools\\*)",
+                                         "PowerShell(Get-ChildItem *)",
+                                         "PowerShell(Get-Content *)",
+                                         "PowerShell(Select-String *)",
+                                         "PowerShell(Test-Path *)",
+                                         "PowerShell(Get-Command *)",
+                                         "--disallowedTools",
+                                         "Bash(*build.ps1*)",
+                                         "PowerShell(*build.ps1*)",
+                                         "Bash(git push*)",
+                                         "PowerShell(git push*)",
+                                         "Bash(rm *)",
+                                         "Bash(rmdir *)",
+                                         "Bash(git clean*)",
+                                         "Bash(git reset --hard*)",
+                                         "Bash(cmd *)",
+                                         "Bash(powershell *)",
+                                         "Bash(pwsh *)",
+                                         "PowerShell(Remove-Item *)",
+                                         "PowerShell(rm *)",
+                                         "PowerShell(rmdir *)",
+                                         "PowerShell(del *)",
+                                         "PowerShell(rd *)",
+                                         "PowerShell(ri *)",
+                                         "PowerShell(erase *)",
+                                         "PowerShell(git clean*)",
+                                         "PowerShell(git reset --hard*)",
+                                         "PowerShell(cmd *)",
+                                         "PowerShell(Invoke-Expression *)",
+                                         "PowerShell(iex *)",
+                                         "PowerShell(Start-Process *)"
+                                     ]
+             },
+    "skillSequence":  {
+                          "expected":  [
+                                           "build-feature",
+                                           "new-module",
+                                           "new-transition",
+                                           "deadline-recipe",
+                                           "new-permission",
+                                           "new-endpoint",
+                                           "new-screen"
+                                       ],
+                          "observed":  [
+                                           "build-feature",
+                                           "coding-standards",
+                                           "deadline-recipe",
+                                           "new-module",
+                                           "new-permission",
+                                           "new-transition",
+                                           "new-lookup",
+                                           "new-endpoint"
+                                       ],
+                          "missing":  [
+                                          "new-screen"
+                                      ],
+                          "inOrder":  false,
+                          "firstPipelineStep":  "build-feature",
+                          "routedToBuildFeature":  true,
+                          "passed":  false
+                      },
+    "specPaths":  [
+                      "docs/features/complaint.md"
+                  ],
+    "spec":  {
+                 "path":  "docs/features/complaint.md",
+                 "exitCode":  0,
+                 "ok":  true,
+                 "status":  "approved",
+                 "handEditCount":  5,
+                 "errorCount":  0,
+                 "findings":  [
+
+                              ],
+                 "detail":  ""
+             },
+    "handEdits":  {
+                      "count":  5,
+                      "limit":  10,
+                      "passed":  true,
+                      "detail":  "5 of at most 10 hand edits"
+                  },
+    "hookProof":  {
+                      "entries":  200,
+                      "denies":  3,
+                      "corrected":  [
+
+                                    ],
+                      "uncorrected":  [
+                                          {
+                                              "path":  "backend/src/Modules/Complaints/Infrastructure/CreateComplaintDraftStore.cs",
+                                              "paths":  [
+                                                            "backend/src/Modules/Complaints/Infrastructure/CreateComplaintDraftStore.cs",
+                                                            "backend/src/Modules/Complaints/Infrastructure/GetComplaintDraftStore.cs",
+                                                            "backend/src/Modules/Complaints/Infrastructure/SaveComplaintDraftStore.cs",
+                                                            "backend/src/Modules/Complaints/Infrastructure/GetComplaintDetailsStore.cs"
+                                                        ],
+                                              "tool":  "Bash",
+                                              "ruleIds":  [
+                                                              "hooks.no-shell-source-writes"
+                                                          ],
+                                              "skill":  null,
+                                              "deniedAt":  "2026-11-07T14:13:54.540Z"
+                                          },
+                                          {
+                                              "path":  "backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs",
+                                              "paths":  [
+                                                            "backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs"
+                                                        ],
+                                              "tool":  "Edit",
+                                              "ruleIds":  [
+                                                              "hooks.platform-owner"
+                                                          ],
+                                              "skill":  null,
+                                              "deniedAt":  "2026-11-07T14:14:13.619Z"
+                                          },
+                                          {
+                                              "path":  "query",
+                                              "paths":  [
+                                                            "query"
+                                                        ],
+                                              "tool":  "Bash",
+                                              "ruleIds":  [
+                                                              "hooks.no-shell-source-writes"
+                                                          ],
+                                              "skill":  null,
+                                              "deniedAt":  "2026-11-07T14:22:06.776Z"
+                                          }
+                                      ],
+                      "malformedLines":  0,
+                      "passed":  false
+                  },
+    "refusalProbe":  {
+                         "path":  "backend/src/Modules/ProofProbe/Domain/ProofProbe.cs",
+                         "decision":  "deny",
+                         "reason":  "[hooks.module-without-rules] backend/src/Modules/ProofProbe has no module.rules.yaml. Every module needs its rules before its code. Fix: Use the `new-module` skill (/new-module) to create the module; it writes module.rules.yaml, MODULE.md and the generated CLAUDE.md.",
+                         "namesSkill":  true,
+                         "loggedSkill":  "new-module",
+                         "passed":  true,
+                         "exitCode":  0
+                     },
+    "gates":  [
+                  {
+                      "name":  "build",
+                      "status":  "passed",
+                      "exitCode":  0,
+                      "durationSeconds":  17.4,
+                      "detail":  "",
+                      "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\complaint-20261107-155353-159cee\\build.log"
+                  },
+                  {
+                      "name":  "rulesCheck",
+                      "status":  "passed",
+                      "exitCode":  0,
+                      "durationSeconds":  0.3,
+                      "detail":  "",
+                      "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\complaint-20261107-155353-159cee\\rulesCheck.log"
+                  },
+                  {
+                      "name":  "contentRules",
+                      "status":  "passed",
+                      "exitCode":  0,
+                      "durationSeconds":  1.1,
+                      "detail":  "",
+                      "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\complaint-20261107-155353-159cee\\contentRules.log"
+                  },
+                  {
+                      "name":  "docsGate",
+                      "status":  "passed",
+                      "exitCode":  0,
+                      "durationSeconds":  2,
+                      "detail":  "",
+                      "logPath":  "C:\\Users\\AMR\\AppData\\Local\\Temp\\p9-proofs\\logs\\complaint-20261107-155353-159cee\\docsGate.log"
+                  }
+              ],
+    "visual":  {
+                   "present":  false,
+                   "reports":  [
+
+                               ],
+                   "viewports":  [
+
+                                 ],
+                   "worstRatio":  null,
+                   "iterations":  null,
+                   "languages":  [
+
+                                 ],
+                   "widths":  [
+
+                              ],
+                   "passed":  false,
+                   "detail":  "no visual-verifier target report found"
+               },
+    "review":  {
+                   "present":  true,
+                   "iterations":  0,
+                   "findingCount":  0,
+                   "findings":  [
+
+                                ],
+                   "passed":  false
+               },
+    "criteria":  [
+                     {
+                         "id":  "headless-run",
+                         "description":  "The headless run finished (exit 0, no timeout)",
+                         "passed":  true,
+                         "detail":  "exit 0, timed out: False"
+                     },
+                     {
+                         "id":  "routing",
+                         "description":  "A plain scenario routed to build-feature first",
+                         "passed":  true,
+                         "detail":  "first pipeline step: build-feature"
+                     },
+                     {
+                         "id":  "skill-sequence",
+                         "description":  "build-feature invoked the expected skills in order",
+                         "passed":  false,
+                         "detail":  "observed: build-feature \u003e coding-standards \u003e deadline-recipe \u003e new-module \u003e new-permission \u003e new-transition \u003e new-lookup \u003e new-endpoint; missing: new-screen; in order: False"
+                     },
+                     {
+                         "id":  "spec-valid",
+                         "description":  "The feature spec validates (check-spec)",
+                         "passed":  true,
+                         "detail":  "docs/features/complaint.md: status approved, 0 error finding(s)"
+                     },
+                     {
+                         "id":  "hand-edits",
+                         "description":  "At most 10 hand edits after approval, each logged",
+                         "passed":  true,
+                         "detail":  "5 of at most 10 hand edits"
+                     },
+                     {
+                         "id":  "hook-proof",
+                         "description":  "The hook log shows a refused edit that was then corrected",
+                         "passed":  false,
+                         "detail":  "3 deny, 0 corrected, 3 not corrected"
+                     },
+                     {
+                         "id":  "refusal-probe",
+                         "description":  "A hand-made module file is refused, naming new-module",
+                         "passed":  true,
+                         "detail":  "[hooks.module-without-rules] backend/src/Modules/ProofProbe has no module.rules.yaml. Every module needs its rules before its code. Fix: Use the `new-module` skill (/new-module) to create the module; it writes module.rules.yaml, MODULE.md and the generated CLAUDE.md."
+                     },
+                     {
+                         "id":  "gates",
+                         "description":  "The gates pass in the workspace (build -warnaserror, rules, content rules, docs gate)",
+                         "passed":  true,
+                         "detail":  "ran: build, rulesCheck, contentRules, docsGate; failed: "
+                     },
+                     {
+                         "id":  "visual",
+                         "description":  "visual-verifier at most 0.05 per viewport after masking, ar and en",
+                         "passed":  false,
+                         "detail":  "worst ; languages ; widths ; no visual-verifier target report found"
+                     },
+                     {
+                         "id":  "review-log",
+                         "description":  "Review findings and the iteration count are recorded",
+                         "passed":  false,
+                         "detail":  "iterations: 0; findings: 0"
+                     }
+                 ]
+}

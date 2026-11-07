@@ -1,0 +1,16 @@
+{"ts":"2026-11-07T14:17:32.983Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:17:39.286Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:17:41.899Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:17:44.064Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:17:51.015Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:18:21.414Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:05.561Z","hook":"pre-tool-use","tool":"Write","path":"docs/features/site-visit-booking.md","paths":["docs/features/site-visit-booking.md"],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:07.948Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:10.459Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:12.398Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:14.840Z","hook":"pre-tool-use","tool":"PowerShell","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:17.376Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:48.326Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:51.536Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:22:52.371Z","hook":"pre-tool-use","tool":"Bash","path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}
+{"ts":"2026-11-07T14:23:09.812Z","hook":"on-stop-gate","tool":null,"path":null,"paths":[],"decision":"allow","ruleIds":[],"skill":null}

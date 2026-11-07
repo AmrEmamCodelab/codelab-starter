@@ -1,0 +1,145 @@
+{
+  "proof": "permit",
+  "recordType": "Permit",
+  "inputType": "Use-case workbook (HLS format, 2 use cases)",
+  "mode": "run",
+  "verdict": "incomplete",
+  "verdictReason": "The run was terminated from outside at step 7 (Review); the harness never reached its own analysis, so this report was assembled afterwards from the kept workspace with the harness's own functions.",
+  "reportSource": "assembled by the proof-run task from the kept workspace (Read-ProofTranscriptSteps, Test-SkillSequence, Get-WorkspaceChangedPaths, Select-FeatureSpecPaths, Invoke-ProofSpecCheck, Get-ReviewLogSummary, Read-HookLog, Get-HookProof, Read-VisualReports, Invoke-KitEvalChecks); the harness's report writer never ran",
+  "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools\\pipeline-proofs\\Invoke-PipelineProof.ps1 -Proof permit -PreApproveSpec -KeepWorkspace -EvidenceDir docs\\evidence\\P9\\pipeline-proof",
+  "runId": "permit-20261107-135042-d9e48a",
+  "headlessRuns": 1,
+  "claudeVersion": "2.1.319",
+  "timing": {
+    "harnessStartedLocal": "2026-11-07T13:50:42",
+    "headlessFirstEventUtc": "2026-11-07T11:51:15Z",
+    "headlessLastEventUtc": "2026-11-07T13:04:19Z",
+    "headlessMinutes": 73,
+    "terminatedLocal": "2026-11-07T15:04",
+    "wrapperExitCode": 255,
+    "plannedLimits": { "maxTurns": 300, "timeoutMinutes": 300 },
+    "hitTurnOrTimeLimit": false
+  },
+  "termination": "The wrapper process exited 255 at about 15:04 local while the five reviewers, test-writer and visual-verifier were running as background agents. A line 'stopped by orchestrator at owner request: time budget' appeared in the wrapper output file; this task did not write it and could not verify it. No claude result event was written (HasResult false), so turns and cost are unknown.",
+  "prompt": "Clients request a site-visit permit; the inspector approves or rejects it with a reason; undecided after 5 days it escalates to the manager. (+ input tools/pipeline-proofs/inputs/permit/permit-use-cases.xlsx, pre-approval note, unattended note; no slash command)",
+  "skillSequence": {
+    "expected": ["build-feature", "new-module", "new-transition", "deadline-recipe", "new-permission", "new-endpoint", "new-screen"],
+    "observedByHarness": ["build-feature", "deadline-recipe"],
+    "routedToBuildFeature": true,
+    "skillToolCalls": ["build-feature"],
+    "scaffoldGeneratorsRunBySubagents": [
+      "backend-builder: node tools/scaffold/new-module.mjs --name Permits --skip-generate",
+      "backend-builder: node tools/scaffold/new-permission.mjs --module Permits --action decide-escalated (and escalate) --no-gen",
+      "backend-builder: node tools/scaffold/new-transition.mjs --module Permits (escalated, approved, rejected; 4 runs)",
+      "backend-builder: Read docs/recipes/add-deadline.md (deadline recipe)",
+      "backend-builder: node tools/scaffold/new-lookup.mjs --type permit-visit-types --name PermitVisitTypes",
+      "backend-builder: node tools/scaffold/new-endpoint.mjs --module Permits (CreatePermitDraft, GetPermitDraft, SavePermitDraft, SubmitPermit, GetPermit) --skip-generate",
+      "screen-builder: Read .claude/skills/new-screen/SKILL.md and followed its steps (no generator exists); 5 screens"
+    ],
+    "passedByHarnessRule": false,
+    "why": "The subagents have no Skill tool (tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell), so they read each SKILL.md and ran the generator scripts through Bash. The harness counts only Skill tool calls (plus a Read of add-deadline.md), so new-module, new-transition, new-permission, new-endpoint and new-screen are reported missing although their generators or steps ran in plan order."
+  },
+  "agentsRun": [
+    { "agent": "spec-writer", "result": "draft spec, check-spec 0 errors 0 warnings" },
+    { "agent": "backend-builder", "result": "skill plan items 1-12 built, build -warnaserror green, 7 hand edits" },
+    { "agent": "screen-builder", "result": "items 13-17 (5 screens) built, web suite 2435 tests pass, 1 hand edit; npm run lint stops on a pre-existing error in features/admin/admin.routes.ts:9" },
+    { "agent": "test-writer", "result": "started in background, stopped before reporting" },
+    { "agent": "visual-verifier", "result": "started in background, stopped before reporting; no visual-report.json written" },
+    { "agent": "module-reviewer, standards-reviewer, security-reviewer, dga-reviewer, i18n-keeper", "result": "started in background in parallel, stopped before reporting" },
+    { "agent": "commit-gate", "result": "not reached" }
+  ],
+  "spec": {
+    "path": "docs/features/site-visit-permit.md (copied to spec.md)",
+    "check": "node tools/feature-spec/check-spec.mjs docs/features/site-visit-permit.md --require-approved --json",
+    "exitCode": 0,
+    "status": "approved",
+    "approvedBy": "pipeline-proof (pre-approved)",
+    "errorCount": 0,
+    "findings": []
+  },
+  "handEdits": {
+    "count": 8,
+    "limit": 10,
+    "passed": true,
+    "rows": [
+      "1 Starter.Application/Records ISlaBreachReaction, IRecordSystemTransitions, IRecordTransitionObserver: kernel ports for a breach reaction and a system-actor transition; no skill creates a kernel port",
+      "2 Deadlines/Application/SlaEscalations.cs: scan calls every ISlaBreachReaction; no skill edits Deadlines",
+      "3 Records RecordSystemTransitions (new), RecordStanding, RecordCommits, RecordsModuleRegistration: system-actor entry point; Records had none",
+      "4 Permits/Application/Workflow/PermitEscalationOnBreach.cs: the escalate reaction; the deadline recipe has no breach-reaction step",
+      "5 Permits/Infrastructure/PermitsModuleRegistration.cs: registers the reaction",
+      "6 Permits/Api controllers, PermitsRoutes, PermitsResults: new-endpoint refuses --route \"\" and --route \"{id}/draft\"; templates fixed by hand plus 201 mapping",
+      "7 Permits.Tests/Workflow/EscalateFromSubmittedTransitionTests.cs: new-transition --side system emits a stub on the staff side, which the engine refuses",
+      "8 frontend app.spec.ts: shell children list pinned; new-screen names app.routes.ts but not this spec"
+    ],
+    "notCountedButArguablyHandEdits": [
+      "docs/recipes/add-deadline.md edited by backend-builder (new step 4b): a shared recipe changed inside a feature run",
+      "module.rules.yaml and PermitsPermissionKeys.cs written with the Write tool after new-module.mjs (copy-and-rename of the ServiceRequests sample, counted by the builder as recipe steps)"
+    ]
+  },
+  "gates": {
+    "where": "throwaway workspace after the stop (Invoke-KitEvalChecks, same commands as the harness, plus contractTests)",
+    "results": [
+      { "check": "build (dotnet build codelab-starter.slnx -warnaserror)", "status": "passed", "seconds": 57 },
+      { "check": "rulesCheck (compile.mjs --check)", "status": "passed", "seconds": 0.6 },
+      { "check": "contentRules (check-content.mjs)", "status": "passed", "seconds": 1.3 },
+      { "check": "contractTests (Starter.Contract.Tests)", "status": "passed", "seconds": 30.2 },
+      { "check": "docsGate (docs-gate check --base eval-base)", "status": "passed", "seconds": 3.2 }
+    ],
+    "extra": "dotnet test backend/tests/Modules/Starter.Modules.Permits.Tests: 165 passed, 0 failed"
+  },
+  "hookLog": {
+    "file": "hook-log.jsonl",
+    "entries": 400,
+    "counts": { "pre-tool-use/allow": 393, "pre-tool-use/deny": 3, "pre-tool-use/warn": 1, "on-stop-gate/deny": 1, "on-stop-gate/allow": 2 },
+    "denies": [
+      "12:12:02Z backend-builder Bash rm of generated placeholder stores under backend/src/Modules/Permits/Infrastructure [hooks.no-shell-source-writes]; follow-up: the stores were kept and implemented instead",
+      "12:41:34Z screen-builder Bash rm frontend/.../features/permits/permits.nav.ts [hooks.no-shell-source-writes]",
+      "12:41:43Z screen-builder PowerShell Remove-Item of the same file [hooks.no-shell-source-writes]; follow-up: the file was kept"
+    ],
+    "pathLevelDenies": 0,
+    "correctedPairs": 0,
+    "passedByHarnessRule": false,
+    "why": "No file-tool edit was refused during the run (the agents went through the generators first time). The three denies were shell deletes; the log records them with path null, so they cannot be paired, and the fix message ('use the Edit or Write tool') offers no way to delete a file."
+  },
+  "refusalProbe": {
+    "folder": "refusal-probe/",
+    "input": "Write backend/src/Modules/ProofProbe/Domain/ProofProbe.cs in the workspace",
+    "decision": "deny",
+    "ruleIds": ["hooks.module-without-rules"],
+    "skill": "new-module",
+    "message": "... Fix: Use the `new-module` skill (/new-module) to create the module ...",
+    "passed": true
+  },
+  "visual": {
+    "reached": false,
+    "reports": 0,
+    "why": "visual-verifier was started in the background at 13:02:31Z and stopped about 2 minutes later, before it wrote any visual-report.json. The permit proof also has no target images (workbook input only), so a <=5% comparison needs a target from dga-design-capture or the starter baselines first."
+  },
+  "review": {
+    "iterations": 0,
+    "findings": 0,
+    "why": "the five reviewers were started at 13:02:35-13:02:49Z and stopped before reporting; the spec's Review log still says 'Iterations: 0'"
+  },
+  "criteria": [
+    { "id": "routing", "passed": true, "detail": "first pipeline step build-feature via the Skill tool, from a plain scenario with no slash command" },
+    { "id": "skillSequence", "passed": false, "detail": "generators ran in plan order, but not as Skill tool calls; harness sees only build-feature and deadline-recipe" },
+    { "id": "specValid", "passed": true, "detail": "approved, --require-approved exit 0" },
+    { "id": "handEdits", "passed": true, "detail": "8 <= 10, each with a reason" },
+    { "id": "gates", "passed": true, "detail": "build -warnaserror, rules, content rules, contract tests, docs gate all passed" },
+    { "id": "hookProof", "passed": false, "detail": "3 shell denies, 0 path-level denies, 0 corrected pairs" },
+    { "id": "refusalProbe", "passed": true, "detail": "deny names new-module" },
+    { "id": "visual", "passed": false, "detail": "not reached" },
+    { "id": "review", "passed": false, "detail": "not reached" },
+    { "id": "commitGate", "passed": false, "detail": "not reached" }
+  ],
+  "workspace": {
+    "path": "%TEMP%/p9-proofs/permit-20261107-135042-d9e48a",
+    "changedFiles": 171,
+    "removed": true,
+    "removedWith": "Remove-ThrowawayWorkspace (marker verified)"
+  },
+  "transcript": {
+    "kept": "%TEMP%/p9-proofs/transcripts/permit-20261107-135042-d9e48a.jsonl (6.4 MB, outside the repo; summary in transcript-summary.json)",
+    "toolUses": { "Read": 388, "Grep": 159, "Bash": 129, "Edit": 121, "Write": 117, "Glob": 47, "PowerShell": 30, "Agent": 10, "Skill": 1 }
+  }
+}

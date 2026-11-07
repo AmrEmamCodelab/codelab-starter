@@ -8,6 +8,8 @@ export const HookRuleIds = Object.freeze({
   ShellWriteIntoSource: 'hooks.no-shell-source-writes',
   ShellWriteUnresolved: 'hooks.unresolved-shell-write',
   EvaluationTimedOut: 'hooks.rule-evaluation-timeout',
+  StopDocsGate: 'hooks.stop-docs-gate',
+  StopRulesDrift: 'hooks.stop-rules-drift',
 });
 
 /** Claude Code hook event names, as written in hookSpecificOutput.hookEventName. */
@@ -29,6 +31,13 @@ export const ToolNames = Object.freeze({
   PowerShell: 'PowerShell',
 });
 
+/** Shell tools: their writes are found by parsing the command (shell-writes.mjs), not read from file_path. */
+export const ShellToolNames = Object.freeze([ToolNames.Bash, ToolNames.PowerShell]);
+
+/** Shell commands (canonical names) and the PowerShell cmdlet whose write is a deletion, not new content. */
+export const DeletionCommands = Object.freeze(['rm', 'rmdir', 'unlink']);
+export const RemoveItemCmdlet = 'Remove-Item';
+
 export const EnvVars = Object.freeze({
   ProjectDir: 'CLAUDE_PROJECT_DIR',
   PlatformOwner: 'CODELAB_PLATFORM_OWNER',
@@ -36,7 +45,31 @@ export const EnvVars = Object.freeze({
   DocsNotNeeded: 'CODELAB_DOCS_NOT_NEEDED',
   BaseRef: 'CODELAB_BASE_REF',
   EvaluationBudgetMs: 'CODELAB_HOOK_BUDGET_MS',
+  HookLog: 'CODELAB_HOOK_LOG',
 });
+
+/** Hook names as written in the decision log ("hook" field) and in crash warnings. */
+export const HookNames = Object.freeze({
+  PreToolUse: 'pre-tool-use',
+  StopGate: 'on-stop-gate',
+  UserPromptSubmit: 'user-prompt-submit',
+  SessionStart: 'session-start',
+});
+
+/** The "decision" values of the hook decision log (CODELAB_HOOK_LOG). An "ask" or a warning is logged as warn. */
+export const LoggedDecisions = Object.freeze({ Allow: 'allow', Deny: 'deny', Warn: 'warn' });
+
+/**
+ * How a refusal names the skill to use ("Use the `new-module` skill"): every skill-routing refusal (hook path policy
+ * and rule fix messages) follows this wording, and the decision log reads the skill back from it.
+ */
+export const SkillReferencePattern = /Use the `([a-z0-9]+(?:-[a-z0-9]+)*)` skill/;
+
+/** A rule id in a refusal: [base.time-provider], [hooks.module-without-rules] (lowercase, at least one dot). */
+export const RuleIdReferencePattern = /\[([a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)\]/g;
+
+/** The skill the routing table falls back to when no keyword matches (the default entry point, build plan phase 9). */
+export const DefaultRouteSkill = 'build-feature';
 
 /** Refs the Stop gate diffs against (first that exists; mirrors tools/ci/base-ref.mjs). Commits made in the
  * session are checked against their merge base with this ref, not only what git status shows. */

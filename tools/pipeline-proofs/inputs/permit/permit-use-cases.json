@@ -1,0 +1,75 @@
+{
+  "description": "Source of permit-use-cases.xlsx (HLS format, 2 use cases). Fictional; no real organization. Regenerate the workbook with tools/pipeline-proofs/build-permit-workbook.ps1 after any change.",
+  "sheets": [
+    {
+      "name": "Summary",
+      "rows": [
+        ["Use Case ID", "Name (en)", "Name (ar)", "Primary actor", "Entry point", "Terminal statuses", "Source section", "Version"],
+        ["UC-PRM-01", "Apply for a site-visit permit", "التقدم بطلب تصريح زيارة موقع", "Client", "Portal: Permits > New permit", "Submitted", "Permit requirements 2.1", "1.0"],
+        ["UC-PRM-02", "Decide a site-visit permit", "البت في طلب تصريح زيارة موقع", "Inspector", "Staff: Permits queue", "Approved, Rejected", "Permit requirements 2.2", "1.0"],
+        ["Key facts", "Transitions: Submit, Approve, Reject, Escalate (system, after 5 days undecided). Escalated permits are decided by the inspection manager. Notifications on every decision.", "", "", "", "", "", ""]
+      ]
+    },
+    {
+      "name": "Functional",
+      "rows": [
+        ["Scenario ID", "Use Case ID", "Scenario name", "Actor", "Preconditions", "Trigger", "Test type", "Linked rule", "Expected outcome (en)", "Expected outcome (ar)", "Notes"],
+        ["SC-01-01", "UC-PRM-01", "Submit a complete application", "Client", "Signed in to the portal", "Fills site address, visit type, preferred visit date and purpose; submits", "Positive", "BR-01, BR-03", "The permit is Submitted and gets a reference number shown to the client.", "يصبح الطلب مقدّماً ويحصل على رقم مرجعي يظهر للعميل.", ""],
+        ["SC-01-02", "UC-PRM-01", "Visit date too soon", "Client", "Signed in to the portal", "Chooses a preferred visit date less than 3 days after today; submits", "Negative", "BR-02", "The submission is refused with the visit-date error; nothing is saved.", "يُرفض التقديم مع رسالة خطأ تاريخ الزيارة ولا يُحفظ شيء.", ""],
+        ["SC-01-03", "UC-PRM-01", "Missing mandatory field", "Client", "Signed in to the portal", "Leaves the site address empty; submits", "Negative", "BR-03", "The submission is refused with the required-field error on the site address.", "يُرفض التقديم مع رسالة الحقل الإلزامي على عنوان الموقع.", ""],
+        ["SC-02-01", "UC-PRM-02", "Inspector approves", "Inspector", "A Submitted permit is in the queue", "Opens the permit and approves it", "Positive", "BR-06", "The permit is Approved; the client is notified and sees the new status.", "يصبح الطلب معتمداً ويُبلّغ العميل ويرى الحالة الجديدة.", ""],
+        ["SC-02-02", "UC-PRM-02", "Inspector rejects with a reason", "Inspector", "A Submitted permit is in the queue", "Rejects the permit with a reason", "Positive", "BR-04", "The permit is Rejected; the client sees the reason.", "يصبح الطلب مرفوضاً ويرى العميل سبب الرفض.", ""],
+        ["SC-02-03", "UC-PRM-02", "Reject without a reason", "Inspector", "A Submitted permit is in the queue", "Rejects the permit with an empty reason", "Negative", "BR-04", "The rejection is refused with the reason-required error; the permit stays Submitted.", "يُرفض الإجراء مع رسالة السبب الإلزامي ويبقى الطلب مقدّماً.", ""],
+        ["SC-02-04", "UC-PRM-02", "Undecided permit escalates", "System", "A permit stays Submitted for 5 days", "The deadline passes", "Positive", "BR-05", "The permit is Escalated and assigned to the inspection manager, who is notified.", "يُصعّد الطلب ويُسند إلى مدير التفتيش ويُبلّغ.", "[G-01] calendar days decided"],
+        ["SC-02-05", "UC-PRM-02", "Manager decides an escalated permit", "Inspection manager", "An Escalated permit", "Approves or rejects it (reject needs a reason)", "Positive", "BR-04, BR-05", "The permit is Approved or Rejected; the client is notified.", "يصبح الطلب معتمداً أو مرفوضاً ويُبلّغ العميل.", ""],
+        ["SC-02-06", "UC-PRM-02", "Client cannot decide a permit", "Client", "Own Submitted permit", "Calls the approve action", "Negative", "BR-06", "The action is refused (403); the permit stays Submitted.", "يُرفض الإجراء (403) ويبقى الطلب مقدّماً.", ""]
+      ]
+    },
+    {
+      "name": "Data",
+      "rows": [
+        ["Field", "Data type", "Mandatory", "Min", "Max", "Validation rule", "Valid example", "Invalid example", "Expected error (en)", "Expected error (ar)"],
+        ["Site address", "Text", "Yes", "5", "300", "Required; 5 to 300 characters", "Building 12, Industrial Area 2", "(empty)", "Site address is required.", "عنوان الموقع مطلوب."],
+        ["Visit type", "Lookup (visit types)", "Yes", "", "", "One active visit type", "Safety inspection", "(none selected)", "Choose a visit type.", "اختر نوع الزيارة."],
+        ["Preferred visit date", "Date", "Yes", "", "", "At least 3 days after the submission date", "Submission date + 3 days", "Submission date + 1 day", "The visit date must be at least 3 days from today.", "يجب أن يكون تاريخ الزيارة بعد 3 أيام على الأقل من اليوم."],
+        ["Purpose", "Text", "Yes", "1", "500", "Required; at most 500 characters", "Annual safety check of the storage hall", "(501 characters)", "Purpose is at most 500 characters.", "الغرض 500 حرف على الأكثر."],
+        ["Decision reason", "Text", "On reject", "1", "1000", "Required when rejecting; at most 1000 characters", "The site address is outside the service area.", "(empty on reject)", "A reason is required to reject.", "السبب مطلوب عند الرفض."]
+      ]
+    },
+    {
+      "name": "BusinessRules",
+      "rows": [
+        ["Rule ID", "Name", "Description", "Applies to", "Condition", "Expected behaviour", "Testable", "Scenarios"],
+        ["BR-01", "Reference number", "Every submitted permit gets a unique reference number.", "UC-PRM-01", "On submit", "A reference number is shown to the client and staff.", "Yes", "SC-01-01"],
+        ["BR-02", "Visit lead time", "The preferred visit date is at least 3 days after the submission date.", "UC-PRM-01", "On submit", "Earlier dates are refused.", "Yes", "SC-01-02"],
+        ["BR-03", "Mandatory fields", "Site address, visit type, preferred visit date and purpose are required.", "UC-PRM-01", "On submit", "Missing fields are refused with a field error.", "Yes", "SC-01-01, SC-01-03"],
+        ["BR-04", "Reject reason", "A rejection always carries a reason the client can read.", "UC-PRM-02", "On reject", "A rejection without a reason is refused.", "Yes", "SC-02-02, SC-02-03, SC-02-05"],
+        ["BR-05", "Escalation", "A permit still Submitted 5 days after submission escalates to the inspection manager.", "UC-PRM-02", "5 calendar days undecided", "Status Escalated; assigned to the inspection manager; manager notified.", "Yes", "SC-02-04, SC-02-05"],
+        ["BR-06", "Who decides", "Only inspectors decide Submitted permits; only the inspection manager decides Escalated permits. Clients see only their own permits.", "UC-PRM-02", "Always", "Other users are refused (403) and do not see the permits.", "Yes", "SC-02-01, SC-02-06"],
+        ["BR-07", "Bilingual", "Every screen and message is available in Arabic and English.", "UC-PRM-01, UC-PRM-02", "Always", "Arabic (right to left) and English texts exist for every screen.", "Yes", "SC-01-01, SC-02-01"]
+      ]
+    },
+    {
+      "name": "StateTransitions",
+      "rows": [
+        ["From status", "Action", "To status", "Actor", "Reason required", "Trigger"],
+        ["(new)", "Submit", "Submitted", "Client", "No", "Client submits the application"],
+        ["Submitted", "Approve", "Approved", "Inspector", "No", "Inspector decision"],
+        ["Submitted", "Reject", "Rejected", "Inspector", "Yes", "Inspector decision"],
+        ["Submitted", "Escalate", "Escalated", "System", "No", "5 days undecided (deadline)"],
+        ["Escalated", "Approve", "Approved", "Inspection manager", "No", "Manager decision"],
+        ["Escalated", "Reject", "Rejected", "Inspection manager", "Yes", "Manager decision"]
+      ]
+    },
+    {
+      "name": "Gaps_Messages",
+      "rows": [
+        ["ID", "Type", "Severity", "Text (en)", "Text (ar)", "Question or resolution"],
+        ["G-01", "Gap", "Low", "Working days or calendar days for the 5-day limit?", "أيام عمل أم أيام تقويمية لمهلة الأيام الخمسة؟", "Resolved: calendar days."],
+        ["MSG-01", "Message", "", "Your permit application was submitted.", "تم تقديم طلب التصريح.", "Shown after submit"],
+        ["MSG-02", "Message", "", "Your permit was approved.", "تم اعتماد طلب التصريح.", "Notification to the client"],
+        ["MSG-03", "Message", "", "Your permit was rejected.", "تم رفض طلب التصريح.", "Notification to the client, with the reason"]
+      ]
+    }
+  ]
+}

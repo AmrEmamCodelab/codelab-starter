@@ -1,0 +1,9 @@
+{
+  "id": "new-permission",
+  "kind": "scaffold",
+  "skill": "new-permission",
+  "description": "A new access right must route to the permission scaffold.",
+  "prompt": "Auditors must be able to export the audit log separately from viewing it. Add a separate access right for exporting audit entries in the Audit module; the export operation itself comes later.",
+  "inputs": [],
+  "checks": ["build", "rulesCheck", "contentRules", "contractTests", "docsGate", "skillInvoked"]
+}

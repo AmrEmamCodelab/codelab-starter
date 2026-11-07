@@ -1,7 +1,10 @@
 // new-lookup as a plan over a ChangeSet: it validates every argument, renders the <Name>Ids constants and the seed
 // migration, adds the LookupTypes constant, and records the writes; nothing touches the disk until the caller commits
 // the set, so a refusal changes nothing. Deterministic: the migration id follows the newest Lookups migration, never
-// the clock, so the same arguments on the same tree give the same bytes.
+// the clock, so the same arguments on the same tree give the same bytes. Lookups are seeded ONLY by that migration
+// (CLAUDE.md rule 10): the generator never writes HasData, an SQL script or a startup seeder. With the code it writes
+// the seed test (ids constants vs migration rows), adds the migration to the model test's exact migration list, adds
+// the row of the seeded-types table in the Lookups MODULE.md and keeps the add-lookup recipe in its rules.
 import fs from 'node:fs';
 import path from 'node:path';
 import {
@@ -10,8 +13,12 @@ import {
   LOOKUP_DOMAIN_DIR,
   LOOKUP_IDS_SUFFIX,
   LOOKUP_KEY_MAX_LENGTH,
+  LOOKUP_MIGRATION_LIST,
   LOOKUP_MIGRATIONS_DIR,
+  LOOKUP_MODEL_TESTS_FILE,
+  LOOKUP_MODULE_DIR,
   LOOKUP_NAME_MAX_LENGTH,
+  LOOKUP_SEEDED_TYPES_HEADER,
   LOOKUP_SORT_STEP,
   LOOKUP_TEMPLATE_SET,
   LOOKUP_TYPES_FILE,
@@ -19,10 +26,13 @@ import {
   MIGRATION_ID_PATTERN,
   MIGRATION_STEP_MINUTES,
   Markers,
+  ModuleFiles,
   NAME_LIST_SEPARATOR,
+  Recipes,
   lookupMigrationClass,
 } from './constants.mjs';
 import { ScaffoldRefusal, addStringConstant } from './csharp-edit.mjs';
+import { addRecipe, addTableRow } from './module-docs.mjs';
 import { refusalForPascalName, toPascalCase, toWords } from './names.mjs';
 import { renderTemplateSet } from './templates.mjs';
 
@@ -191,11 +201,12 @@ function priorState(changes, root, { typeConst, type, idsPath, migrationClass })
 }
 
 /**
- * new-lookup: the <Name>Ids constants, the LookupTypes constant and the seed migration of a new lookup type.
- * Idempotent: when all three already exist for this type, nothing is written (`unchanged`). A partial earlier run is
- * refused (nothing written), naming what is there.
+ * new-lookup: the <Name>Ids constants, the LookupTypes constant and the seed migration of a new lookup type, its seed
+ * test, the model test's migration list, the Lookups MODULE.md row and the add-lookup recipe.
+ * Idempotent: when the constant, the ids class and the migration already exist for this type, nothing is written
+ * (`unchanged`). A partial earlier run is refused (nothing written), naming what is there.
  * @param {import('./workspace.mjs').ChangeSet} changes
- * @returns {{ unchanged: boolean, typeConst: string, idsClass: string, migrationClass: string, migrationId: string | null }}
+ * @returns {{ unchanged: boolean, typeConst: string, idsClass: string, migrationClass: string, migrationId: string | null, notes: string[] }}
  */
 export function planLookup(changes, request) {
   const { rows, typeNameEn } = validateRequest(request);
@@ -207,7 +218,7 @@ export function planLookup(changes, request) {
   refuseIf(rows.some((row) => row.constName === idsClass) && `A code may not give the class name '${idsClass}'.`);
   const prior = priorState(changes, changes.root, { typeConst, type, idsPath, migrationClass });
   if (prior.constant && prior.ids && prior.migration) {
-    return { unchanged: true, typeConst, idsClass, migrationClass, migrationId: null };
+    return { unchanged: true, typeConst, idsClass, migrationClass, migrationId: null, notes: [] };
   }
   const present = [prior.constant && `LookupTypes.${typeConst}`, prior.ids && idsPath, prior.migration].filter(Boolean);
   refuseIf(present.length > 0 && `An earlier run left part of this lookup (${present.join(', ')}); finish or remove it by hand, then run again.`);
@@ -227,10 +238,52 @@ export function planLookup(changes, request) {
     TypeNameAr: csharpString(nameAr),
     IdConstants: idConstants(rows),
     SeedRows: seedRows(idsClass, rows),
+    CodeCases: codeCases(idsClass, rows),
+    TypeKey: type,
   });
   for (const file of files) {
     refuseIf(changes.read(file.path) !== null && `${file.path} already exists.`);
     changes.write(file.path, file.content);
   }
-  return { unchanged: false, typeConst, idsClass, migrationClass, migrationId };
+  const notes = [
+    ...planModelTest(changes, migrationClass),
+    ...planModuleDocs(changes, { type, idsClass, migrationClass, rows }),
+  ];
+  return { unchanged: false, typeConst, idsClass, migrationClass, migrationId, notes };
+}
+
+/** The [InlineData] rows of the generated seed test: one per code, its id through the constants class. */
+function codeCases(idsClass, rows) {
+  return rows.map((row) => `${MEMBER_INDENT}[InlineData("${row.code}", ${idsClass}.${row.constName})]`).join('\n');
+}
+
+/**
+ * Appends the new migration to the model test's exact migration list (the newest sorts last). A tree without that
+ * test or with another shape gets a note naming the line to add by hand.
+ */
+function planModelTest(changes, migrationClass) {
+  const entry = `${migrationClass}.MigrationId`;
+  const text = changes.read(LOOKUP_MODEL_TESTS_FILE);
+  const match = text === null ? null : LOOKUP_MIGRATION_LIST.exec(text);
+  if (!match) return [`add ${entry} to the migration list the Lookups model test expects (${LOOKUP_MODEL_TESTS_FILE})`];
+  if (match[1].includes(entry)) return [];
+  changes.write(LOOKUP_MODEL_TESTS_FILE, text.slice(0, match.index) + `${match[1]}, ${entry}${match[2]}` + text.slice(match.index + match[0].length));
+  return [];
+}
+
+/** The seeded-types row in the Lookups MODULE.md and the add-lookup recipe in its rules (notes when missing). */
+function planModuleDocs(changes, { type, idsClass, migrationClass, rows }) {
+  const notes = [];
+  const values = rows.map((row) => `\`${row.code}\` ${row.id}`).join(', ');
+  const row = `| \`${type}\` | \`${idsClass}\` | ${values} (migration \`${migrationClass}\`) |`;
+  const docPath = `${LOOKUP_MODULE_DIR}/${ModuleFiles.doc}`;
+  const doc = changes.read(docPath);
+  const updated = doc === null ? null : addTableRow(doc, LOOKUP_SEEDED_TYPES_HEADER, row);
+  if (updated === null) notes.push(`add this row to the seeded-types table of ${docPath}: ${row}`);
+  else changes.write(docPath, updated);
+  const rulesPath = `${LOOKUP_MODULE_DIR}/${ModuleFiles.rules}`;
+  const rules = changes.read(rulesPath);
+  if (rules === null) notes.push(`no ${rulesPath}: list ${Recipes.lookup} in its recipes by hand`);
+  else changes.write(rulesPath, addRecipe(rules, Recipes.lookup).text);
+  return notes;
 }

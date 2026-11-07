@@ -1,0 +1,1 @@
+{"ts":"2026-11-07T13:54:34.126Z","hook":"pre-tool-use","tool":"Write","path":"backend/src/Modules/ProofProbe/Domain/ProofProbe.cs","paths":["backend/src/Modules/ProofProbe/Domain/ProofProbe.cs"],"decision":"deny","ruleIds":["hooks.module-without-rules"],"skill":"new-module"}

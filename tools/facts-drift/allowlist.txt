@@ -1,0 +1,39 @@
+# Justified exceptions to the facts-drift gate. Read by tools/facts-drift/check.mjs.
+#
+# Format: one entry per line, four fields separated by " | ":
+#   <rule id> | <file glob> | <subject> | <reason>
+#   rule id:   an exact id ("path-missing", "stale-karma"), or a prefix ending in "*" ("stale-*").
+#   file glob: repo-relative, forward slashes ("**" any depth, "*" within a segment), anchored at the root.
+#   subject:   the exact reference the finding names (the path, script, switch, skill, agent, type or matched text),
+#              or "*" for any subject in the matching files.
+#   reason:    required. Why the reference is right although it does not resolve in this repository.
+# Blank lines and lines starting with "#" are ignored. An entry that suppresses nothing is reported as unused.
+# Keep it SHORT: an entry is a decision, not a convenience. Prefer fixing the document.
+
+# Files that exist only on a developer machine or a server, never in the repository.
+path-missing | ** | *appsettings.Development.local.json | gitignored local secrets (.gitignore: appsettings.*.local.json), written by tools/devseed/New-LocalSecrets.ps1
+glob-empty | ** | appsettings.*.local.json | gitignored local secrets (.gitignore: appsettings.*.local.json), written by tools/devseed/New-LocalSecrets.ps1
+glob-empty | ** | *.local.json | gitignored local secrets and launch settings (.gitignore: appsettings.*.local.json, launchSettings.local.json)
+path-missing | ** | appsettings.Production.json | server-side settings the deploy kits keep and patch on the server (deploy/kits/Install-Api.ps1 ProductionSettingsFileName)
+
+# Deploy-kit output: tools/kit/New-DeployKit.ps1 writes publish\deploy-<sha>\ (gitignored /publish/) with manifest.json and kits\.
+path-missing | .claude/skills/prep-deploy/SKILL.md | manifest.json | written into the kit folder by tools/kit/New-DeployKit.ps1
+path-missing | .claude/skills/prep-deploy/SKILL.md | publish/deploy-<shortsha>/ | gitignored kit output folder (.gitignore: /publish/)
+command-file-missing | .claude/skills/prep-deploy/SKILL.md | kits/Install-*.ps1 | run on the server from the kit folder, where New-DeployKit.ps1 copies deploy/kits to kits\
+
+# Run outputs of skills and agents: created when the skill runs, so absent from a clean tree.
+path-missing | .claude/skills/usecase-testing/** | results.json | written per run into test-reports/<UC-ID>/ (the results.json contract in REFERENCE.md)
+path-missing | .claude/skills/usecase-testing/** | test-reports/<UC-ID>/ | the run's output folder, created per use case
+path-missing | .claude/skills/new-screen/SKILL.md | docs/specs/screens/<page>/screen-spec.md | written by the dga-design-capture agent for the first captured screen
+path-missing | .claude/skills/new-screen/SKILL.md | targets/<page>.<lang>.<width>.png | target images dga-design-capture writes next to the screen spec
+path-missing | .claude/skills/new-screen/SKILL.md | iterations.md | written by visual-verifier in the screen's spec folder during the design loop
+
+# Worked examples: the files a recipe tells you to create for its example feature.
+path-missing | docs/recipes/add-lookup.md | backend/src/Starter.Domain/Lookups/DocumentKindIds.cs | the constants file the recipe creates for its DocumentKinds example
+path-missing | docs/recipes/add-page.md | permit-history/permit-history-page.component.ts | Example column: the page file the recipe creates for its permit-history example
+path-missing | docs/recipes/add-workflow-type.md | backend/src/Modules/PermitApplications/... | copy target of the recipe's PermitApplications example
+path-missing | docs/recipes/add-workflow-type.md | backend/tests/Modules/Starter.Modules.PermitApplications.Tests/ | copy target of the recipe's PermitApplications example
+path-missing | docs/recipes/add-workflow-type.md | frontend/starter-web/src/app/features/permit-applications/ | copy target of the recipe's PermitApplications example
+
+# Names that are not types although they look like one.
+type-unresolved | docs/runbooks/csp-enforce.md | CspDirective | Seq event property name (CspViolationLog.DirectiveProperty = "CspDirective"), not a type

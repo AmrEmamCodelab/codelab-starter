@@ -2,7 +2,7 @@
 // records every write in a ChangeSet (nothing is written until the caller commits, so a refusal changes nothing).
 import fs from 'node:fs';
 import path from 'node:path';
-import { MODULES_ROOT, ModuleFiles } from '../constants.mjs';
+import { MODULES_ROOT, ModuleFiles, Recipes } from '../constants.mjs';
 import { ScaffoldRefusal, addUsings } from '../csharp-edit.mjs';
 import { renderTemplateSet } from '../templates.mjs';
 import { existingModules } from '../workspace.mjs';
@@ -44,7 +44,8 @@ import {
 } from './entries.mjs';
 import { addBundleKeys, bundleHas } from './i18n.mjs';
 import { toPascalCase } from '../names.mjs';
-import { moduleDocLines, addModuleDocNotes } from './module-doc.mjs';
+import { addRecipe, addRequiredRule } from '../module-docs.mjs';
+import { moduleDocLines, addModuleDocNotes, workflowRule } from './module-doc.mjs';
 import { addKitReference, ruleTestTokens, statusTestTokens } from './tests.mjs';
 
 const TEST_CLASS = Object.freeze({
@@ -323,6 +324,23 @@ function planModuleDoc(changes, request, { status, rule, testFiles }, notes) {
   changes.write(docPath, addModuleDocNotes(doc, moduleDocLines(request, status?.added ? status : null, rule, testFiles)));
 }
 
+/**
+ * The module's rules: the required rule that keeps the flow in the catalog (unless the module already has one) and the
+ * new-transition skill in its recipes, so the generated CLAUDE.md routes the next flow change here. Only when this run
+ * added a status or a rule.
+ */
+function planModuleRules(changes, request, sources, { status, rule }, notes) {
+  if (!status?.added && !(rule && rule.added.length > 0)) return;
+  const rulesPath = TransitionPaths.moduleRules(request.module);
+  const yaml = changes.read(rulesPath);
+  if (yaml === null) {
+    notes.push(`no ${rulesPath}: add the workflow-in-the-catalog rule and the ${Recipes.transition} recipe by hand`);
+    return;
+  }
+  const withRule = addRequiredRule(yaml, workflowRule(request.module, sources.definition.name)).text;
+  changes.write(rulesPath, addRecipe(withRule, Recipes.transition).text);
+}
+
 function refuseMissingModule(root, module) {
   if (!existingModules(root).includes(module)) throw new ScaffoldRefusal(`There is no module '${module}' under ${MODULES_ROOT}.`);
 }
@@ -343,6 +361,7 @@ export function planTransition(changes, request) {
   notes.push(...planI18n(changes, request, labels).map((kept) => `kept the existing (different) i18n value of ${kept}`));
   const testFiles = planTests(changes, request, sources, { status, rule });
   planModuleDoc(changes, request, { status, rule, testFiles }, notes);
+  planModuleRules(changes, request, sources, { status, rule }, notes);
   return { notes, statusValue: status?.value ?? null, testFiles };
 }
 
