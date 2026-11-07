@@ -238,6 +238,7 @@ static Codelab.Observability.PiiMask.Recipient(string? recipient) -> string?
 static Codelab.Observability.PiiMask.UrlWithoutQuery(string? url) -> string?
 static Codelab.Observability.PropagationScope.DenyOutboundByDefault() -> void
 static Codelab.Observability.PropagationScope.ExternalPropagator.get -> System.Diagnostics.DistributedContextPropagator!
+static Codelab.Observability.PropagationScope.InboundPropagator.get -> System.Diagnostics.DistributedContextPropagator!
 static Codelab.Observability.PropagationScope.InternalPropagator.get -> System.Diagnostics.DistributedContextPropagator!
 static Codelab.Observability.ReferenceCode.From(string! correlationId) -> string!
 static Codelab.Observability.ReleaseVersion.Of(System.Reflection.Assembly! assembly) -> string!

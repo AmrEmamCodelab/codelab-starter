@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using System.Net.Http.Headers;
+using System.Net.Http.Headers; // codelab:module Sms
 using System.Text;
-using Codelab.Gateway.Api.Sms;
+using Codelab.Gateway.Api.Sms; // codelab:module Sms
 using Codelab.Gateway.Api.Sso;
 using Codelab.Integration.Gateway;
 using Codelab.Security;
@@ -26,9 +26,9 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
     public const string EnvironmentName = "Test";
     public const string ApiServiceName = "starter-api";
     public const string ApiKeyId = "s2sapi";
-    public const string Sender = "STARTER";
-    public const string SmsUrlTemplate = FakeUpstream.SmsPath + "?sender={sender}";
-    public const string SmsBodyTemplate = """{"to":"{to}","text":"{text}","lang":"{language}"}""";
+    public const string Sender = "STARTER"; // codelab:module Sms
+    public const string SmsUrlTemplate = FakeUpstream.SmsPath + "?sender={sender}"; // codelab:module Sms
+    public const string SmsBodyTemplate = """{"to":"{to}","text":"{text}","lang":"{language}"}"""; // codelab:module Sms
 
     private readonly Dictionary<string, string?> _settings;
     private readonly ServiceAssertionClientOptions _client;
@@ -37,7 +37,7 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
     {
         ArgumentNullException.ThrowIfNull(upstream);
         Protocol = SecurityProtocol.Create(SecurityProtocol.TestPrefix);
-        ProviderCredential = TestKeys.NewSecret();
+        ProviderCredential = TestKeys.NewSecret(); // codelab:module Sms
         var (privatePem, publicPem) = TestKeys.NewServiceKeyPair();
         _client = new ServiceAssertionClientOptions { ServiceName = ApiServiceName, Audience = GatewayDefaults.Audience, KeyId = ApiKeyId, PrivateKeyPem = privatePem };
         _settings = BuildSettings(upstream, publicPem);
@@ -45,8 +45,10 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
     }
 
     public SecurityProtocol Protocol { get; }
+    // codelab:module-begin Sms
 
     public string ProviderCredential { get; }
+    // codelab:module-end Sms
 
     public ServiceAssertionClientOptions CallerIdentity => _client;
 
@@ -71,6 +73,7 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
     /// <summary>A signed token relay of <paramref name="form"/>.</summary>
     public HttpRequestMessage TokenRequest(string form) =>
         SignedRequest(HttpMethod.Post, GatewayRoutes.SsoToken, new StringContent(form, Encoding.ASCII, GatewayMediaTypes.FormUrlEncoded));
+    // codelab:module-begin Sms
 
     /// <summary>A signed SMS relay of <paramref name="json"/>.</summary>
     public HttpRequestMessage SmsRequest(string json)
@@ -79,6 +82,7 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
         content.Headers.ContentType = new MediaTypeHeaderValue(GatewayMediaTypes.Json);
         return SignedRequest(HttpMethod.Post, GatewayRoutes.Sms, content);
     }
+    // codelab:module-end Sms
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -97,7 +101,7 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
     {
         const string server = ServiceAssertionServerOptions.SectionName;
         const string sso = SsoRelayOptions.SectionName;
-        const string sms = SmsProviderOptions.SectionName;
+        const string sms = SmsProviderOptions.SectionName; // codelab:module Sms
         return new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
         {
             ["Codelab:Security:Protocol:Prefix"] = Protocol.Prefix,
@@ -106,23 +110,23 @@ internal sealed class GatewayHost : WebApplicationFactory<Program>
             [$"{server}:TrustedServices:0:KeyId"] = ApiKeyId,
             [$"{server}:TrustedServices:0:PublicKeyPem"] = publicPem,
             [$"{GatewayOptions.SectionName}:Profiles:0"] = GatewayProfileKey.Sso,
-            [$"{GatewayOptions.SectionName}:Profiles:1"] = GatewayProfileKey.Sms,
+            [$"{GatewayOptions.SectionName}:Profiles:1"] = GatewayProfileKey.Sms, // codelab:module Sms
             [$"{sso}:TokenEndpoint"] = upstream.Url(FakeUpstream.TokenPath).ToString(),
             [$"{sso}:JwksUri"] = upstream.Url(FakeUpstream.JwksPath).ToString(),
             [$"{sso}:Retry:MaxRetries"] = "0",
             [$"{sso}:Certificate:Mode"] = "3",
             [$"{sso}:Certificate:PinnedThumbprints:0"] = upstream.Thumbprint,
-            [$"{sms}:UrlTemplate"] = upstream.BaseAddress + SmsUrlTemplate.TrimStart('/'),
-            [$"{sms}:Method"] = "2",
-            [$"{sms}:BodyTemplate"] = SmsBodyTemplate,
-            [$"{sms}:BodyFormat"] = "1",
-            [$"{sms}:AuthHeaderName"] = FakeUpstream.CredentialHeader,
-            [$"{sms}:AuthHeaderValue"] = ProviderCredential,
-            [$"{sms}:Sender"] = Sender,
-            [$"{sms}:AcceptedMember"] = "ok",
-            [$"{sms}:MessageIdMember"] = "result.id",
-            [$"{sms}:Certificate:Mode"] = "3",
-            [$"{sms}:Certificate:PinnedThumbprints:0"] = upstream.Thumbprint,
+            [$"{sms}:UrlTemplate"] = upstream.BaseAddress + SmsUrlTemplate.TrimStart('/'), // codelab:module Sms
+            [$"{sms}:Method"] = "2", // codelab:module Sms
+            [$"{sms}:BodyTemplate"] = SmsBodyTemplate, // codelab:module Sms
+            [$"{sms}:BodyFormat"] = "1", // codelab:module Sms
+            [$"{sms}:AuthHeaderName"] = FakeUpstream.CredentialHeader, // codelab:module Sms
+            [$"{sms}:AuthHeaderValue"] = ProviderCredential, // codelab:module Sms
+            [$"{sms}:Sender"] = Sender, // codelab:module Sms
+            [$"{sms}:AcceptedMember"] = "ok", // codelab:module Sms
+            [$"{sms}:MessageIdMember"] = "result.id", // codelab:module Sms
+            [$"{sms}:Certificate:Mode"] = "3", // codelab:module Sms
+            [$"{sms}:Certificate:PinnedThumbprints:0"] = upstream.Thumbprint, // codelab:module Sms
             ["Observability:LogFile:Enabled"] = "false",
         };
     }

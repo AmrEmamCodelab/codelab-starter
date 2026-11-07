@@ -1,6 +1,6 @@
 using Codelab.Gateway.Api.Authentication;
 using Codelab.Gateway.Api.Diagnostics;
-using Codelab.Gateway.Api.Sms;
+using Codelab.Gateway.Api.Sms; // codelab:module Sms
 using Codelab.Gateway.Api.Sso;
 using Codelab.Integration.Gateway;
 using Codelab.Observability;
@@ -28,7 +28,7 @@ public static class GatewayHostExtensions
         services.AddGatewayAuthentication(configuration);
         services.AddCodelabGatewayProfiles(configuration);
         services.AddSsoRelay(configuration, enabled: enabled.Contains(GatewayProfileKey.Sso));
-        services.AddSmsRelay(configuration, enabled: enabled.Contains(GatewayProfileKey.Sms));
+        services.AddSmsRelay(configuration, enabled: enabled.Contains(GatewayProfileKey.Sms)); // codelab:module Sms
         services.AddOptions<GatewayReadinessOptions>().Bind(configuration.GetSection(GatewayReadinessOptions.SectionName));
         services.TryAddSingleton<IUpstreamHostResolver, DnsUpstreamHostResolver>();
         services.AddHealthChecks().AddCheck<UpstreamReadinessCheck>(UpstreamCheckName, tags: [HealthEndpoints.ReadyTag]);

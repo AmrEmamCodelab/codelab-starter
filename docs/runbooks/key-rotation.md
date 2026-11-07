@@ -26,6 +26,29 @@ health. With several API nodes, finish a step on **all** nodes before starting t
 | `Identity:Jwt:SigningKey` (access tokens) | API | a single key, no ring: see below. |
 | `Observability:UserIdHash:Key` (user hashes in logs) | every service | a single key: see below. |
 
+## Production placeholders (fill per environment)
+
+`init.ps1` generates development keys only (gitignored `appsettings.Development.local.json`,
+`tools/devseed/New-LocalSecrets.ps1`). Every production key below is an empty placeholder in the deploy kit templates
+and is generated on the server per environment before the first install, never copied from another environment.
+
+| Setting | Host | Kind |
+| --- | --- | --- |
+| `Identity:BreakGlass:Password` | API | password (strong, single) |
+| `Identity:Jwt:SigningKey` | API | 32+ random bytes, base64 |
+| `Codelab:Security:PublicIds` (`ActiveKeyId`, `Keys[]`) | API | key ring |
+| `Codelab:Security:RequestSigning` (`ActiveKeyId`, `Keys[]`) | API | key ring |
+| `Codelab:Security:Tickets` (`Enabled`, `ActiveKeyId`, `Keys[]`) | API only | key ring |
+| `Codelab:Security:UploadTickets` (`Enabled`, `ActiveKeyId`, `Keys[]`) | API; attachment service as its `Codelab:Security:Tickets` | key ring (shared) |
+| `Codelab:Security:Uploads` (`ReceiptsEnabled`, `ActiveKeyId`, `Keys[]`) | API and attachment service | key ring (shared) |
+| `Codelab:Security:ServiceAssertions:Client` (`KeyId`, `PrivateKeyPem`) | API | ES256 private key (PKCS#8 PEM) |
+| `Codelab:Security:ServiceAssertions:Server:TrustedServices[]` (`starter-api`) | attachment service, integration gateway | the API's public key |
+| `Codelab:Security:ServiceAssertions:Client` (`KeyId`, `PrivateKeyPem`) | Ops Console API | ES256 private key (PKCS#8 PEM) |
+| `Codelab:Security:ServiceAssertions:Server:TrustedServices[]` (`starter-ops-console`) + `Codelab:Ops:TrustedCallerKeyId` | API | the Ops Console API's public key and key id |
+| `Observability:UserIdHash:Key` | every service | 32+ random bytes, base64 |
+| `Codelab:OpsConsole:Seq:ApiKey` | Ops Console API | Seq read-only API key |
+| `ConnectionStrings:Starter` | API | DBA-provided (Windows authentication, no password) |
+
 ## Generate
 
 A symmetric key (rings: 32 random bytes, base64) and a key id (`[a-z0-9]{1,8}`, unique in its ring, for example

@@ -14,6 +14,12 @@ import {
 import {
   createRemovedPathMatcher,
   createRemovedProjectLineMatcher,
+  isOwnedPath,
+  normalizeOptionalModuleIds,
+  OPTIONAL_MARKER_SCAN,
+  OPTIONAL_MODULE_IDS,
+  OPTIONAL_MODULES,
+  optionalModuleOwnedPaths,
   modulePaths,
   moduleProjectFiles,
   referencesModuleProject,
@@ -160,5 +166,85 @@ describe('feed-mode edits', () => {
     assert.deepEqual(result.droppedWorkspaces, ['packages/npm/*']);
     assert.ok(result.text.endsWith('}\n'));
     assert.throws(() => rewriteNpmManifest(manifest, {}, 'feed/npm'), /not in packages\/versions\.json/);
+  });
+});
+
+describe('optional modules (init Step 2)', () => {
+  const REQUIRED_MODULES = ['Identity', 'Access'];
+  const FILE_EXTENSION = /\.[a-z0-9]+$/i;
+
+  it('lists exactly the four contract ids, in removal order', () => {
+    assert.deepEqual(OPTIONAL_MODULE_IDS, ['attachments', 'portal', 'sms', 'ops']);
+  });
+
+  it('maps every id to its backend modules and marker name', () => {
+    assert.deepEqual(OPTIONAL_MODULES.attachments.moduleNames, ['Attachments']);
+    assert.deepEqual(OPTIONAL_MODULES.portal.moduleNames, ['Portal']);
+    assert.deepEqual(OPTIONAL_MODULES.sms.moduleNames, []);
+    assert.deepEqual(OPTIONAL_MODULES.ops.moduleNames, ['Ops']);
+    assert.deepEqual(OPTIONAL_MODULE_IDS.map((id) => OPTIONAL_MODULES[id].markerName), ['Attachments', 'Portal', 'Sms', 'Ops']);
+  });
+
+  it('never lists a required module or a kernel project', () => {
+    for (const id of OPTIONAL_MODULE_IDS) {
+      for (const name of OPTIONAL_MODULES[id].moduleNames) assert.equal(refusalForModuleName(name, REQUIRED_MODULES), null, `${id}: ${name}`);
+    }
+  });
+
+  it('owns the services, deploy-kit scripts and tests of each id', () => {
+    assert.ok(optionalModuleOwnedPaths('attachments').includes('services/attachment-service/'));
+    assert.ok(optionalModuleOwnedPaths('attachments').includes('deploy/kits/Install-Attachment.ps1'));
+    assert.ok(optionalModuleOwnedPaths('attachments').includes('frontend/starter-web/src/app/features/attachments/'));
+    assert.ok(optionalModuleOwnedPaths('portal').includes('frontend/starter-web/src/app/features/portal/'));
+    assert.ok(optionalModuleOwnedPaths('portal').includes('frontend/starter-web/src/app/features/admin/portal-content/'));
+    assert.ok(optionalModuleOwnedPaths('sms').includes('services/integration-gateway/src/Codelab.Gateway.Api/Sms/'));
+    assert.ok(!optionalModuleOwnedPaths('sms').some((owned) => owned === 'services/integration-gateway/'), 'the gateway stays for SSO');
+    assert.ok(optionalModuleOwnedPaths('ops').includes('services/ops-console/'));
+    assert.ok(optionalModuleOwnedPaths('ops').includes('deploy/kits/Install-Ops.ps1'));
+    assert.ok(optionalModuleOwnedPaths('ops').includes('backend/src/Modules/Ops/'));
+    assert.deepEqual(OPTIONAL_MODULES.ops.npmWorkspaces, ['services/ops-console/web/ops-web']);
+  });
+
+  it('keeps every path repo-relative and posix: folders end with /, files have an extension, no duplicates', () => {
+    const all = OPTIONAL_MODULE_IDS.flatMap(optionalModuleOwnedPaths);
+    assert.equal(new Set(all).size, all.length);
+    for (const owned of [...all, ...OPTIONAL_MODULE_IDS.flatMap((id) => OPTIONAL_MODULES[id].markerAnchors)]) {
+      assert.ok(!owned.startsWith('/') && !owned.includes('\\') && !owned.includes('..'), owned);
+      assert.ok(owned.endsWith('/') || FILE_EXTENSION.test(owned), owned);
+    }
+  });
+
+  it('never makes a marker anchor one of its own owned paths', () => {
+    for (const id of OPTIONAL_MODULE_IDS) {
+      const owned = optionalModuleOwnedPaths(id);
+      for (const anchor of OPTIONAL_MODULES[id].markerAnchors) assert.ok(!isOwnedPath(anchor, owned), `${id}: ${anchor}`);
+    }
+  });
+
+  it('scans PowerShell and C# files too, with # as a comment opener', () => {
+    assert.ok(OPTIONAL_MARKER_SCAN.extensions.includes('.cs') && OPTIONAL_MARKER_SCAN.extensions.includes('.ps1'));
+    assert.ok(OPTIONAL_MARKER_SCAN.commentOpeners.includes('#'));
+    assert.ok(OPTIONAL_MARKER_SCAN.skippedDirs.includes('node_modules'));
+  });
+
+  it('normalizes ids: case, spaces, duplicates and contract order', () => {
+    assert.deepEqual(normalizeOptionalModuleIds([' Ops', 'ATTACHMENTS', 'ops']), { ids: ['attachments', 'ops'], refusal: null });
+    assert.deepEqual(normalizeOptionalModuleIds([]), { ids: [], refusal: null });
+  });
+
+  it('refuses unknown ids, required modules and a non-list', () => {
+    assert.match(normalizeOptionalModuleIds(['identity']).refusal, /'identity' is not an optional module id/);
+    assert.match(normalizeOptionalModuleIds(['ops', 42]).refusal, /'42' is not an optional module id/);
+    assert.match(normalizeOptionalModuleIds('ops').refusal, /must be a list/);
+  });
+
+  it('matches owned folders by prefix and owned files exactly', () => {
+    const owned = ['services/ops-console/', 'deploy/kits/Install-Ops.ps1'];
+    assert.ok(isOwnedPath('services/ops-console/src/A.csproj', owned));
+    assert.ok(isOwnedPath('services\\ops-console\\web\\x.ts', owned));
+    assert.ok(!isOwnedPath('services/ops-console', owned));
+    assert.ok(isOwnedPath('deploy/kits/Install-Ops.ps1', owned));
+    assert.ok(!isOwnedPath('deploy/kits/Install-Ops.ps1.bak', owned));
+    assert.ok(!isOwnedPath('services/ops-console-two/x', owned));
   });
 });

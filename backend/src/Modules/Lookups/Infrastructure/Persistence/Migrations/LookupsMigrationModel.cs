@@ -10,7 +10,7 @@ namespace Starter.Modules.Lookups.Infrastructure.Persistence.Migrations;
 /// <summary>The migration identifiers and constraint names of the Lookups schema.</summary>
 public static class LookupsMigrationIds
 {
-    /// <summary>The id of the first migration (the tables, no rows).</summary>
+    /// <summary>The id of the only migration since the v1.0 squash (the tables and the seeded types); never changed.</summary>
     public const string InitialCreate = "20261106090000_InitialCreate";
 
     /// <summary>The primary key of <c>lookups.LookupTypes</c>.</summary>

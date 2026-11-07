@@ -14,7 +14,7 @@ import { CORE_TRANSLATION_KEYS } from './core/i18n/core-translation-keys';
 import { PermissionKeys } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
-import { ATTACHMENTS_DEMO_ROUTE_PATH } from './features/attachments/attachments.routes';
+import { ATTACHMENTS_DEMO_ROUTE_PATH } from './features/attachments/attachments.routes'; // codelab:module Attachments
 import { LoginFieldMessageKeys } from './features/auth/login-form';
 import { SignInMessageKeys } from './features/auth/sign-in.service';
 import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
@@ -92,7 +92,7 @@ describe('routes', () => {
       RoutePaths.Admin,
       NOTIFICATIONS_ROUTE_PATH,
       ...SERVICE_REQUESTS_STAFF_ROUTES.map(child => child.path), // codelab:module ServiceRequests
-      ATTACHMENTS_DEMO_ROUTE_PATH,
+      ATTACHMENTS_DEMO_ROUTE_PATH, // codelab:module Attachments
     ]);
   });
 

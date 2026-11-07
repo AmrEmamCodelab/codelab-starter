@@ -70,6 +70,7 @@ A Hangfire host adds the filter itself: `services.AddHangfire((sp, c) => c.UseFi
 
 ## Rules
 
+- The public API is stable since 1.0.0 (`PublicAPI.Shipped.txt`): a breaking change needs a new major version; a fix ships as a patch release (ADR-013).
 - Log identifiers, never content: no names, national ids, contact details or request bodies in a template; use the
   `UserIdHash`, an internal id, or a `[Pii]`-marked object. Never log the raw NameIdentifier.
 - One setup: hosts call `AddCodelabObservability`; no host builds its own Serilog pipeline.

@@ -2,8 +2,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
-using Codelab.Integration.Gateway;
-using Microsoft.Extensions.Logging;
+using Codelab.Integration.Gateway; // codelab:module Sms
+using Microsoft.Extensions.Logging; // codelab:module Sms
 using Microsoft.Extensions.Options;
 using Starter.Modules.Notifications.Application;
 using Starter.Modules.Notifications.Infrastructure.Options;
@@ -55,6 +55,7 @@ public sealed class FileSmsSender(IOptions<SmsDeliveryOptions> options, TimeProv
     /// <inheritdoc />
     public void Dispose() => _gate.Dispose();
 }
+// codelab:module-begin Sms
 
 /// <summary>
 /// The production SMS adapter (<see cref="SmsDeliveryMode.Gateway"/>): relays each message to the integration gateway's
@@ -100,3 +101,4 @@ public sealed partial class GatewaySmsSender(GatewayRelayClient client, ILogger<
     [LoggerMessage(Level = LogLevel.Information, Message = "SMS relayed through the integration gateway (gateway reference {ReferenceCode}, provider message {ProviderMessageId}).")]
     private static partial void LogRelayed(ILogger logger, string? referenceCode, string? providerMessageId);
 }
+// codelab:module-end Sms

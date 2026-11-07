@@ -183,25 +183,37 @@ public sealed class EfAuthEventSinkTests
     }
 }
 
-public sealed class AccountAdministrationMigrationTests
+public sealed class InitialCreateMigrationTests
 {
     [Fact]
-    public void The_migration_carries_every_operation_of_the_model_diff()
+    public void The_one_migration_carries_every_operation_of_the_model_diff()
     {
-        using var context = new IdentityDbContext(new DbContextOptionsBuilder<IdentityDbContext>()
-            .UseSqlServer("Server=.;Database=NeverOpened", sql => sql.MigrationsHistoryTable(HistoryRepository.DefaultTableName, IdentityDbContext.SchemaName))
-            .Options);
-        var migration = new Starter.Modules.Identity.Infrastructure.Persistence.Migrations.AccountAdministration();
-        var before = Initialize(context, new Starter.Modules.Identity.Infrastructure.Persistence.Migrations.InitialCreate().TargetModel!);
-        var after = Initialize(context, migration.TargetModel!);
+        using var context = NewContext();
+        var migration = new Starter.Modules.Identity.Infrastructure.Persistence.Migrations.InitialCreate();
+        var target = Initialize(context, migration.TargetModel!);
 
-        var expected = context.GetService<IMigrationsModelDiffer>().GetDifferences(before.GetRelationalModel(), after.GetRelationalModel());
-        var actual = migration.UpOperations.Select(Describe).ToHashSet(StringComparer.Ordinal);
+        var expected = context.GetService<IMigrationsModelDiffer>().GetDifferences(source: null, target.GetRelationalModel());
 
         Assert.NotEmpty(expected);
-        Assert.All(expected.Select(Describe), operation => Assert.Contains(operation, actual));
-        Assert.Equal(expected.Count, migration.UpOperations.Count);
+        Assert.Equal(expected.Select(Describe).Order(StringComparer.Ordinal), migration.UpOperations.Select(Describe).Order(StringComparer.Ordinal));
     }
+
+    [Fact]
+    public void A_fresh_database_gets_nullable_password_hashes_unique_when_present_names_and_the_auth_event_trail()
+    {
+        using var context = NewContext();
+
+        var script = context.GetService<IMigrator>().GenerateScript();
+
+        Assert.Contains($"[PasswordHash] nvarchar({IdentityLimits.PasswordHashMaxLength}) NULL", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE [identity].[AuthEvents]", script, StringComparison.Ordinal);
+        Assert.Contains("WHERE [NormalizedEmail] IS NOT NULL", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("ALTER COLUMN", script, StringComparison.Ordinal);
+    }
+
+    private static IdentityDbContext NewContext() => new(new DbContextOptionsBuilder<IdentityDbContext>()
+        .UseSqlServer("Server=.;Database=NeverOpened", sql => sql.MigrationsHistoryTable(HistoryRepository.DefaultTableName, IdentityDbContext.SchemaName))
+        .Options);
 
     private static IModel Initialize(IdentityDbContext context, IModel model) =>
         context.GetService<IModelRuntimeInitializer>().Initialize(model, designTime: true);
@@ -215,7 +227,9 @@ public sealed class AccountAdministrationMigrationTests
         CreateIndexOperation index =>
             $"index {index.Table}.{index.Name} ({string.Join(",", index.Columns)}) unique={index.IsUnique} filter={index.Filter}",
         CreateTableOperation table =>
-            $"table {table.Name} ({string.Join(",", table.Columns.OrderBy(column => column.Name, StringComparer.Ordinal).Select(column => $"{column.Name}:{column.ColumnType}:{column.IsNullable}"))})",
+            $"table {table.Name} ({string.Join(",", table.Columns.OrderBy(column => column.Name, StringComparer.Ordinal).Select(column => $"{column.Name}:{column.ColumnType}:{column.IsNullable}"))}) "
+            + $"fk=({string.Join(",", table.ForeignKeys.OrderBy(key => key.Name, StringComparer.Ordinal).Select(key => $"{key.Name}:{key.OnDelete}"))})",
+        EnsureSchemaOperation ensure => $"schema {ensure.Name}",
         _ => operation.GetType().Name,
     };
 }

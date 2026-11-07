@@ -7,9 +7,9 @@ using Starter.Modules.Identity.Domain;
 namespace Starter.Modules.Identity.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// The Identity model as of the latest migration: the target model of <see cref="AccountAdministration"/> and the
-/// model snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration freezes its own copy (as
-/// <see cref="InitialCreateModel"/> was frozen) before this one changes.
+/// The Identity model as of the latest migration: the target model of <see cref="InitialCreate"/> and the model
+/// snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration first freezes a copy of this model as
+/// the target model of <see cref="InitialCreate"/> (<c>InitialCreateModel</c>), then changes this one.
 /// </summary>
 public static class IdentityMigrationModel
 {

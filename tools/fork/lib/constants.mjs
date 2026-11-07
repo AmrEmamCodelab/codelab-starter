@@ -166,6 +166,10 @@ export const POWERSHELL = 'powershell.exe';
 export const POWERSHELL_ARGUMENTS = Object.freeze(['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass']);
 export const NPM_COMMAND = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 export const NPM_LOCK_REFRESH_ARGUMENTS = Object.freeze(['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
+/** The full init's reinstall after packages/ goes: lock and node_modules both follow the feed tarballs. */
+export const NPM_REINSTALL_ARGUMENTS = Object.freeze(['install', '--no-audit', '--no-fund']);
+/** The installed npm dependencies of an npm-managed tree (one with a root package-lock.json). */
+export const NODE_MODULES_DIR = 'node_modules';
 
 /** The fork-model test (Test-ForkModel.ps1): defaults it uses when the caller passes none. */
 export const FORK_MODEL = Object.freeze({

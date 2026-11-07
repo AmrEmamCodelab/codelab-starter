@@ -4,8 +4,21 @@
     project branding.
 
 .DESCRIPTION
-    Phase 2 prototype: only -Minimal is implemented (the interactive init with login modes and keys arrives in phase
-    10). Run it once, inside the fork clone, on a clean work tree with npm dependencies installed (`npm ci`; the rules
+    Full init (default; ADR-003), run inside the fork clone on a clean work tree: asks for the project name (English,
+    Arabic), code prefix, logo and primary colour, login modes (basic, ad, sso) and the optional modules to keep
+    (attachments, portal, sms, ops) - or reads the same fields from -ConfigFile - then runs five steps, each skipped
+    with a notice when it is already done (a rerun continues a partial init):
+      1 rename Starter to the project names (toolsorklibename-defaults.mjs), prefix, branding; commit.
+      2 remove the unticked optional modules, packages and switch to the pinned feed versions; commit.
+      3 local keys: toolsdevseedNew-LocalSecrets.ps1 -Force (-SkipSecrets skips).
+      4 local database: toolsdevseedInitialize-LocalDatabase.ps1 (-SkipDatabase or database.skip skips).
+      5 Auth:Modes in the API appsettings.json and codelab.starter.json loginModes, optionalModules, hashes; commit.
+    -WhatIf prints the plan and changes nothing. Config file shape (toolsorkREADME.md):
+      { "prefix": "ACME", "nameEn": "...", "nameAr": "...", "primaryColor": "#rrggbb", "logoPath": null,
+        "loginModes": ["basic"], "optionalModules": { "attachments": true, "portal": true, "sms": true, "ops": true },
+        "database": { "connectionString": null, "skip": true } }
+
+    -Minimal (Phase 2, kept for the fork-model tests): run it once, inside the fork clone, on a clean work tree with npm dependencies installed (`npm ci`; the rules
     compiler needs them). It refuses when codelab.starter.json already has a starterBase.
 
     Steps: record starterBase = HEAD; remove each -RemoveModule through tools\remove-module.ps1; capture
@@ -26,6 +39,15 @@
 
     Exit codes: 0 done, 1 refused (nothing changed: bad prefix, required module, already initialized, dirty tree,
     missing feed versions or targets, invalid branding), 2 usage or internal error.
+
+.PARAMETER ConfigFile
+    The full init's answers as JSON (non-interactive, for CI). A relative logoPath is resolved against the file's folder.
+
+.PARAMETER WhatIf
+    Print the full init's planned steps and change nothing.
+
+.PARAMETER SkipDatabase
+    Skip the full init's local database step.
 
 .PARAMETER Minimal
     The scripted, non-interactive fork init.
@@ -65,6 +87,12 @@
     The product name in Arabic (1-120 characters).
 
 .EXAMPLE
+    powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1
+
+.EXAMPLE
+    powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1 -ConfigFile C:ciinit.json -WhatIf
+
+.EXAMPLE
     powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1 -Minimal -ProductPrefix ACME -RemoveModule Demo -FeedDir E:\codelab-starter\feed
 
 .EXAMPLE
@@ -72,6 +100,9 @@
 #>
 [CmdletBinding()]
 param(
+    [string] $ConfigFile,
+    [switch] $WhatIf,
+    [switch] $SkipDatabase,
     [switch] $Minimal,
     [string] $ProductPrefix,
     [string[]] $RemoveModule = @(),
@@ -197,8 +228,40 @@ function Save-BrandingCommit {
 }
 
 $brandingRequested = Test-BrandingRequested
+$fullInitOnly = [bool]($ConfigFile -or $WhatIf -or $SkipDatabase)
+if ($Minimal -and $fullInitOnly) {
+    Write-Host '-ConfigFile, -WhatIf and -SkipDatabase belong to the full init, not -Minimal.' -ForegroundColor Red
+    exit $ForkExitUsage
+}
+if ($brandingRequested -and $fullInitOnly) {
+    Write-Host 'The full init takes the branding from the config (or the prompts), not -PrimaryColor/-LogoPath/-NameEn/-NameAr.' -ForegroundColor Red
+    exit $ForkExitUsage
+}
 if ($brandingRequested -and -not $Minimal) {
     exit (Invoke-Branding)
+}
+$minimalOnly = [bool]($ProductPrefix -or $RenameMap -or $AllowMissingTargets -or @(Split-ForkList $RemoveModule).Count -gt 0)
+if ($minimalOnly -and -not $Minimal) {
+    Write-Host '-ProductPrefix, -RemoveModule, -RenameMap and -AllowMissingTargets belong to -Minimal; the full init reads -ConfigFile or asks.' -ForegroundColor Red
+    exit $ForkExitUsage
+}
+if (-not $Minimal) {
+    $arguments = @('init', '--root', $PSScriptRoot)
+    if ($ConfigFile) {
+        if (-not (Test-Path -LiteralPath $ConfigFile -PathType Leaf)) {
+            Write-Host "-ConfigFile '$ConfigFile' is not a file." -ForegroundColor Red
+            exit $BrandingExitRefused
+        }
+        $arguments += @('--config-file', (Resolve-Path -LiteralPath $ConfigFile).Path)
+    }
+    else { $arguments += '--interactive' }
+    if ($WhatIf) { $arguments += '--what-if' }
+    if ($SkipDatabase) { $arguments += '--skip-database' }
+    if ($SkipSecrets) { $arguments += '--skip-secrets' }
+    if ($SkipNpmLock) { $arguments += '--skip-npm-lock' }
+    if ($FeedDir) { $arguments += @('--feed-dir', $FeedDir) }
+    Invoke-ForkCli $PSScriptRoot $arguments
+    exit $LASTEXITCODE
 }
 if ($brandingRequested) {
     $refusal = Get-BrandingRefusal

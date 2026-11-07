@@ -14,11 +14,15 @@ const VECTORS = join(REPO_ROOT, 'packages', 'vectors');
 const FILE_NAME = 'appsettings.Development.local.json';
 const EXIT_OK = 0;
 const EXIT_REFUSED = 1;
+const EXIT_USAGE = 2;
 const MIN_KEY_BYTES = 32;
 const MIN_PASSWORD_LENGTH = 16;
 const KEY_ID_PATTERN = /^[a-z0-9]{1,8}$/;
 const API_SERVICE_NAME = 'starter-api';
 const ATTACHMENTS_AUDIENCE = 'starter-attachments';
+const API_AUDIENCE = 'starter-api';
+const GATEWAY_AUDIENCE = 'integration-gateway';
+const OPS_SERVICE_NAME = 'starter-ops-console';
 const WEB_ORIGIN = 'http://localhost:4280';
 const P256 = 'prime256v1';
 const WARNING = /WARNING:/;
@@ -26,17 +30,20 @@ const WARNING = /WARNING:/;
 const PEM_DASHES = '-'.repeat(5);
 const PKCS8_PEM_HEADER = new RegExp(`^${PEM_DASHES}BEGIN ${'PRIVATE'} KEY${PEM_DASHES}\\n`);
 
-/** A temp layout under `base`: the API file, the service file (in its own folder) and the store folder. */
+/** A temp layout under `base`: the API, service, gateway and Ops Console files (each in its own folder) and the store. */
 function layout(base) {
-  const apiDir = join(base, 'api');
-  const serviceDir = join(base, 'service');
-  mkdirSync(apiDir, { recursive: true });
-  mkdirSync(serviceDir, { recursive: true });
-  return { api: join(apiDir, FILE_NAME), service: join(serviceDir, FILE_NAME), store: join(base, 'store') };
+  const folders = { api: 'api', service: 'service', gateway: 'gateway', ops: 'ops' };
+  const paths = { store: join(base, 'store') };
+  for (const [name, folder] of Object.entries(folders)) {
+    mkdirSync(join(base, folder), { recursive: true });
+    paths[name] = join(base, folder, FILE_NAME);
+  }
+  return paths;
 }
 
 function run(paths, extra = []) {
-  return runScript(SCRIPT, ['-Path', paths.api, '-ServicePath', paths.service, '-StorageRoot', paths.store, ...extra], { cwd: REPO_ROOT });
+  const args = ['-Path', paths.api, '-ServicePath', paths.service, '-GatewayPath', paths.gateway, '-OpsPath', paths.ops, '-StorageRoot', paths.store];
+  return runScript(SCRIPT, [...args, ...extra], { cwd: REPO_ROOT });
 }
 
 function read(target) {
@@ -131,6 +138,40 @@ function assertPair(api, service, store) {
   assert.deepEqual(service.Attachments.Cors.AllowedOrigins, [WEB_ORIGIN]);
 }
 
+/** The Ops Console API's private key PEM. */
+function opsPrivateKey(ops) {
+  return ops.Codelab.Security.ServiceAssertions.Client.PrivateKeyPem;
+}
+
+/** Asserts `server` trusts exactly `callerName` with the public half of `privateKeyPem` under `keyId`. */
+function assertTrusts(server, { audience, callerName, keyId, privateKeyPem }) {
+  assert.equal(server.Audience, audience);
+  assert.equal(server.TrustedServices.length, 1);
+  const [trusted] = server.TrustedServices;
+  assert.equal(trusted.ServiceName, callerName);
+  assert.equal(trusted.KeyId, keyId);
+  assert.deepEqual(spkiDer(trusted.PublicKeyPem), spkiDer(createPrivateKey(privateKeyPem)), 'the public half of the caller key');
+}
+
+/** Every service's S2S wiring of a fresh run: API -> attachments and gateway, Ops Console -> API. */
+function assertServiceTrust(paths) {
+  const api = read(paths.api);
+  const apiClient = api.Codelab.Security.ServiceAssertions.Client;
+  assertTrusts(read(paths.gateway).Codelab.Security.ServiceAssertions.Server, {
+    audience: GATEWAY_AUDIENCE, callerName: API_SERVICE_NAME, keyId: apiClient.KeyId, privateKeyPem: apiClient.PrivateKeyPem,
+  });
+  const opsClient = read(paths.ops).Codelab.Security.ServiceAssertions.Client;
+  assert.equal(opsClient.ServiceName, OPS_SERVICE_NAME);
+  assert.equal(opsClient.Audience, API_AUDIENCE);
+  assert.match(opsClient.KeyId, KEY_ID_PATTERN);
+  assert.equal(createPrivateKey(opsClient.PrivateKeyPem).asymmetricKeyDetails.namedCurve, P256, 'the Ops key is ES256 (P-256)');
+  assertTrusts(api.Codelab.Security.ServiceAssertions.Server, {
+    audience: API_AUDIENCE, callerName: OPS_SERVICE_NAME, keyId: opsClient.KeyId, privateKeyPem: opsClient.PrivateKeyPem,
+  });
+  assert.equal(api.Codelab.Ops.TrustedCallerKeyId, opsClient.KeyId, 'the Ops surface trusts that key id');
+  assert.notEqual(opsClient.PrivateKeyPem, apiClient.PrivateKeyPem, 'each caller has its own key pair');
+}
+
 test('writes both files in the contract shape with strong values and prints the break-glass user name only', () => {
   withTemp((paths) => {
     const result = run(paths);
@@ -165,8 +206,8 @@ test('two runs produce different values', () => {
     const second = layout(join(base, 'second'));
     assert.equal(run(first).code, EXIT_OK);
     assert.equal(run(second).code, EXIT_OK);
-    const a = secretsOf(read(first.api));
-    const b = secretsOf(read(second.api));
+    const a = [...secretsOf(read(first.api)), opsPrivateKey(read(first.ops))];
+    const b = [...secretsOf(read(second.api)), opsPrivateKey(read(second.ops))];
     a.forEach((value, index) => assert.notEqual(value, b[index], `value ${index} differs between runs`));
   });
 });
@@ -181,6 +222,7 @@ test('patches an existing API file with only the missing keys and derives the se
     before.Custom = { kept: true };
     writeFileSync(paths.api, JSON.stringify(before, null, 2));
     writeFileSync(paths.service, JSON.stringify({ Attachments: { Storage: { RootPath: keptStore } } }));
+    writeFileSync(paths.gateway, '{}', 'utf8');
 
     const result = run(paths);
 
@@ -311,5 +353,58 @@ test('never writes a value that appears in the committed fixtures', () => {
     const fixtures = filesUnder(VECTORS).map((path) => readFileSync(path, 'utf8')).join('\n');
     const publicKey = read(paths.service).Codelab.Security.ServiceAssertions.Server.TrustedServices[0].PublicKeyPem;
     for (const secret of [...secretsOf(read(paths.api)), publicKey]) assert.ok(!fixtures.includes(secret), 'value is not a fixture value');
+  });
+});
+
+test('writes the gateway and Ops Console files: each caller has its own ES256 pair and every server trusts it', () => {
+  withTemp((paths) => {
+    const result = run(paths);
+    assert.equal(result.code, EXIT_OK, result.output);
+    assert.doesNotMatch(result.output, WARNING);
+    assertServiceTrust(paths);
+    assert.ok(!result.output.includes(opsPrivateKey(read(paths.ops))), 'never prints a key');
+    const again = run(paths);
+    assert.match(again.output, /integration gateway local secrets are complete/);
+    assert.match(again.output, /Ops Console API local secrets are complete/);
+  });
+});
+
+test('-SkipService leaves out removed services and the API trust for them', () => {
+  withTemp((paths) => {
+    const result = run(paths, ['-SkipService', 'attachments,sms,ops']);
+    assert.equal(result.code, EXIT_OK, result.output);
+    assert.ok(!existsSync(paths.service) && !existsSync(paths.ops) && !existsSync(paths.store), 'no file for a removed service');
+    const api = read(paths.api);
+    assert.equal(api.Codelab.Security.ServiceAssertions.Server, undefined, 'no Ops trust');
+    assert.equal(api.Codelab.Ops, undefined, 'no Ops caller key id');
+    assert.ok(existsSync(paths.gateway), 'the gateway still trusts the API');
+    const noGateway = layout(join(dirname(dirname(paths.api)), 'no-gateway'));
+    assert.equal(run(noGateway, ['-SkipService', 'gateway']).code, EXIT_OK);
+    assert.ok(!existsSync(noGateway.gateway));
+  });
+});
+
+test('an unknown -SkipService id is a usage error and writes nothing', () => {
+  withTemp((paths) => {
+    const result = run(paths, ['-SkipService', 'attachments,payments']);
+    assert.equal(result.code, EXIT_USAGE, result.output);
+    assert.match(result.output, /payments/);
+    for (const file of [paths.api, paths.service, paths.gateway, paths.ops]) assert.ok(!existsSync(file));
+  });
+});
+
+test('reports, but never repairs, an API file that trusts another Ops Console key', () => {
+  withTemp((paths) => {
+    assert.equal(run(paths).code, EXIT_OK);
+    const api = readFileSync(paths.api, 'utf8');
+    writeFileSync(paths.ops, '{}');
+    const warned = run(paths);
+    assert.equal(warned.code, EXIT_OK, warned.output);
+    assert.match(warned.output, /does not trust the Ops Console API's client key/);
+    assert.match(warned.output, /TrustedCallerKeyId/);
+    assert.equal(readFileSync(paths.api, 'utf8'), api, 'the API file is untouched');
+    const forced = run(paths, ['-Force']);
+    assert.doesNotMatch(forced.output, WARNING);
+    assertServiceTrust(paths);
   });
 });

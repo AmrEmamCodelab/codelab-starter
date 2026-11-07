@@ -25,6 +25,11 @@
   text-decoration: none;
 }
 
+.shell__logo {
+  block-size: var(--dga-size-logo);
+  inline-size: auto;
+}
+
 .shell__nav {
   display: flex;
   flex: 1 1 auto;

@@ -19,7 +19,7 @@ import {
 import { isBinaryPatch, parseDiff, serializeDiff, withHunksOf } from './diff.mjs';
 import { isBinary } from './hashing.mjs';
 import { readManifest, updateManifest } from './manifest.mjs';
-import { ConflictKind, createContentTransform, DropReason, isModuleListFile, planPatches } from './merge-plan.mjs';
+import { ConflictKind, createContentTransform, DropReason, isModuleFilteredFile, planPatches, starterFieldsFrom } from './merge-plan.mjs';
 import { createRemovedPathMatcher, createRemovedProjectLineMatcher } from './modules.mjs';
 import { git, gitList, powershellCommand, powershellFile } from './process.mjs';
 import { createRenamer } from './rename.mjs';
@@ -53,6 +53,7 @@ function createContext(root, manifest, upstreamCommit) {
     forkFiles,
     isRemovedPath: createRemovedPathMatcher(manifest.removedModules),
     hasFile: (file) => forkFiles.has(file) || incoming.has(file),
+    removedModules: manifest.removedModules,
     removedLineMatcher: createRemovedProjectLineMatcher(manifest.removedModules),
   };
 }
@@ -62,7 +63,7 @@ function transformBlob(content, forkPath, transform) {
   return Buffer.from(transform(forkPath, content.toString(UTF8)), UTF8);
 }
 
-/** Regenerates a module-list file's hunks from its transformed blobs (line filtering changes line numbers). */
+/** Regenerates a module-filtered file's hunks from its transformed blobs (filtering changes line numbers). */
 function regenerateHunks(root, oldId, newId) {
   const output = git(root, ['diff', '--full-index', '--no-color', '--no-ext-diff', oldId, newId]).stdout;
   return parseDiff(output)[0] ?? { hunks: [] };
@@ -70,11 +71,13 @@ function regenerateHunks(root, oldId, newId) {
 
 /**
  * Rewrites each kept text patch's content for the fork: writes the transformed pre/post images as blobs (so the
- * three-way fallback merges against renamed content) and, for module-list files, regenerates the hunks.
+ * three-way fallback merges against renamed content) and, for module-filtered files (module lists, marked shared
+ * files, translations), drops the removed modules' registrations and regenerates the hunks.
  */
 function rewriteContent(root, kept, context, dropped) {
-  const transform = createContentTransform(context.renamer, context.removedLineMatcher);
-  const needsRewrite = ({ patch }) => !isBinaryPatch(patch) && patch.oldBlob !== null && (!context.renamer.identity || (isModuleListFile(patch.path) && context.removedLineMatcher));
+  const transform = createContentTransform(context.renamer, context.removedLineMatcher, context.removedModules);
+  const filters = (patch) => context.removedModules.length > 0 && isModuleFilteredFile(patch.path);
+  const needsRewrite = ({ patch }) => !isBinaryPatch(patch) && patch.oldBlob !== null && (!context.renamer.identity || filters(patch));
   const targets = kept.filter(needsRewrite);
   const ids = targets.flatMap(({ patch }) => [patch.oldBlob, patch.newBlob]).filter((id) => id && !NULL_BLOB.test(id));
   const blobs = readBlobs(root, ids);
@@ -89,7 +92,7 @@ function rewriteContent(root, kept, context, dropped) {
     }
     const [oldId, newId] = [written[index * 2], written[index * 2 + 1]];
     let patch = { ...entry.patch, oldBlob: NULL_BLOB.test(entry.patch.oldBlob) ? entry.patch.oldBlob : oldId, newBlob: NULL_BLOB.test(entry.patch.newBlob) ? entry.patch.newBlob : newId };
-    if (isModuleListFile(patch.path) && context.removedLineMatcher) {
+    if (filters(patch)) {
       patch = withHunksOf(patch, regenerateHunks(root, oldId, newId));
       if (patch.hunks.length === 0) {
         dropped.push({ path: patch.path, upstreamPath: entry.upstreamPath, reason: DropReason.removedModuleLinesOnly });
@@ -121,6 +124,12 @@ function applyPatches(root, patches) {
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }
+}
+
+/** The upstream codelab.starter.json at a commit, or null when it has none. */
+function upstreamManifestText(root, commit) {
+  const result = git(root, ['show', `${commit}:${MANIFEST_FILE}`], { check: false });
+  return result.code === 0 ? result.stdout : null;
 }
 
 function finish(root, io) {
@@ -170,8 +179,10 @@ function mergeUpstream(options, io) {
   const conflicted = applyPatches(options.root, patches);
   report.applied = patches.map((patch) => patch.path).filter((file) => !conflicted.includes(file));
   report.conflicts = [...conflicted.map((file) => ({ path: file, kind: ConflictKind.content })), ...plan.conflicts];
+  const starterFields = starterFieldsFrom(upstreamManifestText(options.root, upstreamCommit));
   updateManifest(options.root, (draft) => {
     draft.starterBase = upstreamCommit;
+    Object.assign(draft, starterFields);
   });
   git(options.root, ['add', '--', MANIFEST_FILE]);
   report.status = report.conflicts.length > 0 ? MergeStatus.conflicts : MergeStatus.clean;

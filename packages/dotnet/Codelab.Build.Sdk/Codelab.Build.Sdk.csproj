@@ -8,7 +8,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Codelab.Build.Sdk</PackageId>
-    <CodelabBuildSdkBaseVersion>0.2.1</CodelabBuildSdkBaseVersion>
+    <CodelabBuildSdkBaseVersion>1.0.0</CodelabBuildSdkBaseVersion>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(CodelabBuildSdkBaseVersion)</PackageVersion>
     <PackageType>MSBuildSdk</PackageType>
     <Authors>Codelab</Authors>

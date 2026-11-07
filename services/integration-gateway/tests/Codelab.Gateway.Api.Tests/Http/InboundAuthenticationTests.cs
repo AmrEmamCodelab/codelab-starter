@@ -15,7 +15,8 @@ namespace Codelab.Gateway.Api.Tests.Http;
 /// </summary>
 public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
 {
-    private const string ValidSms = """{"to":"+05XXXXXX01","text":"Your code is 1234","language":2}""";
+    /// <summary>A token request form the SSO relay accepts (the route every gateway has, so the tests hold for any profile set).</summary>
+    private const string ValidForm = "grant_type=authorization_code&code=1234&redirect_uri=https%3A%2F%2Fapi.example.test%2Fsignin&client_id=starter-web";
 
     private readonly GatewayFixture _fixture;
 
@@ -23,14 +24,14 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
     {
         ArgumentNullException.ThrowIfNull(fixture);
         _fixture = fixture;
-        fixture.Upstream.SmsStatus = 200;
-        fixture.Upstream.SmsBody = FakeUpstream.SmsJson;
+        fixture.Upstream.TokenStatus = 200;
+        fixture.Upstream.TokenBody = FakeUpstream.TokenJson;
     }
 
     [Fact]
     public async Task A_signed_request_from_the_trusted_caller_is_relayed()
     {
-        using var response = await _fixture.Client.SendAsync(_fixture.Host.SmsRequest(ValidSms));
+        using var response = await _fixture.Client.SendAsync(_fixture.Host.TokenRequest(ValidForm));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -68,7 +69,7 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
     [Fact]
     public async Task A_replayed_assertion_is_401()
     {
-        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.Sms, Json(ValidSms));
+        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.SsoToken, Form(ValidForm));
         using var first = await _fixture.Client.SendAsync(WithAssertion(Unsigned(), assertion));
         using var replay = await _fixture.Client.SendAsync(WithAssertion(Unsigned(), assertion));
 
@@ -79,7 +80,7 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
     [Fact]
     public async Task An_assertion_bound_to_another_body_is_401()
     {
-        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.Sms, Json(ValidSms.Replace("1234", "9999", StringComparison.Ordinal)));
+        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.SsoToken, Form(ValidForm.Replace("1234", "9999", StringComparison.Ordinal)));
 
         using var response = await _fixture.Client.SendAsync(WithAssertion(Unsigned(), assertion));
 
@@ -89,7 +90,7 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
     [Fact]
     public async Task An_assertion_bound_to_another_route_is_401()
     {
-        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.SsoToken, Json(ValidSms));
+        var assertion = _fixture.Host.Assertion(HttpMethod.Post, GatewayRoutes.SsoJwks, Form(ValidForm));
 
         using var response = await _fixture.Client.SendAsync(WithAssertion(Unsigned(), assertion));
 
@@ -129,9 +130,9 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    private static StringContent Json(string json) => new(json, Encoding.UTF8, GatewayMediaTypes.Json);
+    private static StringContent Form(string form) => new(form, Encoding.ASCII, GatewayMediaTypes.FormUrlEncoded);
 
-    private static HttpRequestMessage Unsigned() => new(HttpMethod.Post, GatewayRoutes.Sms) { Content = Json(ValidSms) };
+    private static HttpRequestMessage Unsigned() => new(HttpMethod.Post, GatewayRoutes.SsoToken) { Content = Form(ValidForm) };
 
     private HttpRequestMessage WithAssertion(HttpRequestMessage request, string assertion)
     {
@@ -142,7 +143,7 @@ public sealed class InboundAuthenticationTests : IClassFixture<GatewayFixture>
     private string Issue(ServiceAssertionClientOptions identity)
     {
         using var issuer = new ServiceAssertionIssuer(identity, TimeProvider.System, _fixture.Host.Protocol);
-        return issuer.Issue(HttpMethod.Post, new Uri(_fixture.Host.Server.BaseAddress, GatewayRoutes.Sms), Encoding.UTF8.GetBytes(ValidSms));
+        return issuer.Issue(HttpMethod.Post, new Uri(_fixture.Host.Server.BaseAddress, GatewayRoutes.SsoToken), Encoding.ASCII.GetBytes(ValidForm));
     }
 
     private static async Task AssertUnauthenticatedAsync(HttpResponseMessage response) =>

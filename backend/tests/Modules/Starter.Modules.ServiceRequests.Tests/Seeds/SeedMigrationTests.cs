@@ -1,9 +1,7 @@
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Starter.Application.Notifications;
 using Starter.Domain.Localization;
 using Starter.Domain.Lookups;
-using Starter.Modules.Lookups.Domain;
 using Starter.Modules.Lookups.Infrastructure.Persistence.Migrations;
 using Starter.Modules.Notifications.Infrastructure.Persistence.Migrations;
 using Starter.Modules.ServiceRequests.Application;
@@ -18,16 +16,14 @@ namespace Starter.Modules.ServiceRequests.Tests.Seeds;
 /// </summary>
 public sealed partial class SeedMigrationTests
 {
-    private const string ItemsField = "Items";
-
     [Fact]
     public void The_category_lookup_seeds_exactly_the_category_ids()
     {
         var constants = typeof(ServiceRequestCategoryIds).GetFields().Where(field => field.IsLiteral).Select(field => (int)field.GetRawConstantValue()!).Order();
-        var items = (LookupItemSeed[])typeof(AddServiceRequestCategoriesLookup).GetField(ItemsField, BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+        var items = InitialLookupTypes.ServiceRequestCategories.Items;
 
         Assert.Equal(constants, items.Select(item => item.Id).Order());
-        Assert.True(items.Length >= 3);
+        Assert.True(items.Count >= 3);
         Assert.All(items, item => Assert.False(string.IsNullOrWhiteSpace(item.Names.Ar) || string.IsNullOrWhiteSpace(item.Names.En), item.Code));
         Assert.Equal("service-request-categories", LookupTypes.ServiceRequestCategories);
     }
@@ -95,10 +91,10 @@ public sealed partial class SeedMigrationTests
     }
 
     [Fact]
-    public void The_seed_migrations_come_after_each_module_s_existing_ones()
+    public void The_sample_seeds_are_folded_into_each_module_s_InitialCreate()
     {
-        Assert.True(string.CompareOrdinal(AddServiceRequestCategoriesLookup.MigrationId, AddContactTopicsLookup.MigrationId) > 0);
-        Assert.True(string.CompareOrdinal(AddServiceRequestTemplates.MigrationId, NotificationsMigrationIds.InitialCreate) > 0);
+        Assert.Contains(InitialLookupTypes.ServiceRequestCategories, InitialLookupTypes.All);
+        Assert.Equal(LookupTypes.ServiceRequestCategories, InitialLookupTypes.ServiceRequestCategories.TypeKey);
     }
 
     [GeneratedRegex(@"\{\{([A-Za-z0-9]+)\}\}", RegexOptions.CultureInvariant, matchTimeoutMilliseconds: 1000)]

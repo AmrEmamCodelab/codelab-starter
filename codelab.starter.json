@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "starterVersion": "0.2.0",
+  "starterVersion": "1.0.0",
   "productPrefix": "STARTER",
   "productName": {
     "en": "Codelab Starter",
@@ -13,6 +13,17 @@
     "Access"
   ],
   "removedModules": [],
+  "loginModes": [
+    "basic",
+    "ad",
+    "sso"
+  ],
+  "optionalModules": {
+    "attachments": true,
+    "portal": true,
+    "sms": true,
+    "ops": true
+  },
   "prefixTargets": [
     {
       "file": "backend/src/Starter.Api/appsettings.json",

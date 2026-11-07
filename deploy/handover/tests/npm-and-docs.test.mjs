@@ -79,26 +79,28 @@ test('OFFLINE.md says so when the kit has no npm projects', () => {
   assert.ok(text.includes('No npm projects are in this kit.'));
 });
 
-test('PREREQUISITES.md lists the pinned SDK and Node, Playwright and the P10 installer decision', () => withSource((root) => {
+test('PREREQUISITES.md lists the pinned SDK and Node, Playwright and the listed installers', () => withSource((root) => {
   const text = jsonWithModule([
     `$info = [pscustomobject]@{ DotnetPin = (Get-KitDotnetSdkPin ${psQuote(root)}); DotnetUsed = '10.0.403';`,
     `NodePin = (Get-KitNodePin ${psQuote(root)}); NodeUsed = 'v24.22.2'; NpmUsed = '11.19.1';`,
     `Playwright = @(Get-KitPlaywrightVersions ${psQuote(root)}) };`,
-    'New-KitPrerequisitesText $info | ConvertTo-Json',
+    'New-KitPrerequisitesText $info (Read-KitPrerequisites) | ConvertTo-Json',
   ].join(' '));
   assert.ok(text.includes('| .NET SDK | 10.0.403 (global.json, rollForward latestFeature) | 10.0.403 |'), text);
   assert.ok(text.includes('| Node.js | 24 (.nvmrc) | v24.22.2 |'), text);
   assert.ok(text.includes('@playwright/test 1.58.0'), text);
-  assert.ok(text.includes('settled in P10'), text);
+  assert.ok(text.includes('## Installers (listed, not shipped)'), text);
+  assert.match(text, /\| \.NET SDK \| 10\.0\.403 \| `dotnet-sdk-10\.0\.403-win-x64\.exe` \| `[0-9a-f]{64}` \| https:\/\//);
+  assert.ok(text.includes('Microsoft Edge'), text);
 }));
 
-test('PREREQUISITES.md says none in P1 when no Playwright package is locked', () => {
+test('PREREQUISITES.md says none locked when no Playwright package is locked', () => {
   const text = jsonWithModule([
     `$info = [pscustomobject]@{ DotnetPin = [pscustomobject]@{ Version = $null; RollForward = $null }; DotnetUsed = $null;`,
     `NodePin = $null; NodeUsed = $null; NpmUsed = $null; Playwright = @() };`,
-    'New-KitPrerequisitesText $info | ConvertTo-Json',
+    'New-KitPrerequisitesText $info (Read-KitPrerequisites) | ConvertTo-Json',
   ].join(' '));
-  assert.ok(text.includes('| Playwright browsers | none in P1 | - |'), text);
+  assert.ok(text.includes('| Playwright | none locked | - |'), text);
   assert.ok(text.includes('| .NET SDK | not pinned'), text);
 });
 

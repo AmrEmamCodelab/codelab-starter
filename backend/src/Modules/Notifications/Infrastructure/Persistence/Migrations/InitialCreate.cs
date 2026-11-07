@@ -9,8 +9,10 @@ namespace Starter.Modules.Notifications.Infrastructure.Persistence.Migrations;
 
 /// <summary>
 /// The Notifications schema: the notifications table (bell items and per-channel delivery state) and the template
-/// texts with the seeded templates (<see cref="TemplateSeed"/>). Written in the reshaped migration style of the other
-/// modules; <see cref="NotificationsMigrationModel"/> is its target model and the snapshot, and the model test proves
+/// texts with the seeded templates (<see cref="TemplateSeed"/>, then <see cref="ServiceRequestTemplateSeed"/>). Since
+/// the v1.0 squash (ADR-010) it is the only Notifications migration and keeps its original id, so a database that
+/// applied the old chain stays valid; a later template is a new incremental migration. Written in the reshaped
+/// migration style of the other modules; <see cref="NotificationsMigrationModel"/> is its target model and the snapshot, and the model test proves
 /// the context has no pending change against it. See MODULE.md.
 /// </summary>
 [DbContext(typeof(NotificationsDbContext))]
@@ -103,7 +105,7 @@ public sealed class InitialCreate : Migration
 
     private static void SeedTemplates(MigrationBuilder migrationBuilder)
     {
-        foreach (var text in TemplateSeed.Rows.Select(NotificationTemplate.Define))
+        foreach (var text in TemplateSeed.Rows.Concat(ServiceRequestTemplateSeed.Rows).Select(NotificationTemplate.Define))
         {
             migrationBuilder.InsertData(
                 table: NotificationsTableNames.Templates,

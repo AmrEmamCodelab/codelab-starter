@@ -5,7 +5,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { formatManifest, ManifestError, MANIFEST_FIELDS, readManifest, renameMapErrors, updateManifest, validateManifest, writeManifest } from '../lib/manifest.mjs';
+import {
+  effectiveLoginModes, effectiveOptionalModules, formatManifest, ManifestError, MANIFEST_FIELDS, MANIFEST_OPTIONAL_FIELDS,
+  readManifest, renameMapErrors, updateManifest, validateManifest, writeManifest,
+} from '../lib/manifest.mjs';
 import { makeTempDir } from './support/powershell.mjs';
 import { REPO_ROOT, write } from './support/synthetic-starter.mjs';
 
@@ -42,6 +45,12 @@ const INVALID = Object.freeze({
   'prefix target path': (manifest) => { manifest.prefixTargets = [{ file: 'a.json', jsonPath: 'a::b' }]; },
   'hash value': (manifest) => { manifest.hashes = { 'a.md': 'xyz' }; },
   'backslash hash key': (manifest) => { manifest.hashes = { 'docs\\a.md': HASH }; },
+  'empty login modes': (manifest) => { manifest.loginModes = []; },
+  'unknown login mode': (manifest) => { manifest.loginModes = ['basic', 'kerberos']; },
+  'duplicate login mode': (manifest) => { manifest.loginModes = ['sso', 'sso']; },
+  'optional modules missing one': (manifest) => { manifest.optionalModules = { attachments: true, portal: true, sms: true }; },
+  'optional module not boolean': (manifest) => { manifest.optionalModules = { attachments: 'yes', portal: true, sms: true, ops: true }; },
+  'unknown optional module': (manifest) => { manifest.optionalModules = { attachments: true, portal: true, sms: true, ops: true, demo: true }; },
 });
 
 describe('the starter template codelab.starter.json', () => {
@@ -70,6 +79,20 @@ describe('the starter template codelab.starter.json', () => {
   it('lists the schema required fields in the written field order', () => {
     assert.deepEqual(schema.required, [...MANIFEST_FIELDS]);
   });
+
+  it('is starter 1.0.0 with every login mode and every optional module enabled', () => {
+    const manifest = template();
+    assert.equal(manifest.starterVersion, '1.0.0');
+    assert.deepEqual(manifest.loginModes, ['basic', 'ad', 'sso']);
+    assert.deepEqual(manifest.optionalModules, { attachments: true, portal: true, sms: true, ops: true });
+  });
+
+  it('declares the optional fields in the schema but not as required', () => {
+    for (const field of MANIFEST_OPTIONAL_FIELDS) {
+      assert.ok(field in schema.properties, field);
+      assert.ok(!schema.required.includes(field), field);
+    }
+  });
 });
 
 describe('validateManifest agrees with the schema', () => {
@@ -86,6 +109,24 @@ describe('validateManifest agrees with the schema', () => {
       assert.notDeepEqual(validateManifest(manifest), [], `validateManifest accepted ${name}`);
     });
   }
+
+  it('accepts a pre-1.0 manifest without loginModes and optionalModules, read as all enabled', () => {
+    const manifest = VALID_FORK();
+    delete manifest.loginModes;
+    delete manifest.optionalModules;
+    assert.equal(validateWithSchema(manifest), true, JSON.stringify(validateWithSchema.errors));
+    assert.deepEqual(validateManifest(manifest), []);
+    assert.deepEqual(effectiveLoginModes(manifest), ['basic', 'ad', 'sso']);
+    assert.deepEqual(effectiveOptionalModules(manifest), { attachments: true, portal: true, sms: true, ops: true });
+    assert.ok(!formatManifest(manifest).includes('loginModes'));
+  });
+
+  it('reads recorded login modes and optional modules as given', () => {
+    const manifest = { ...VALID_FORK(), loginModes: ['sso'], optionalModules: { attachments: false, portal: true, sms: false, ops: true } };
+    assert.deepEqual(validateManifest(manifest), []);
+    assert.deepEqual(effectiveLoginModes(manifest), ['sso']);
+    assert.deepEqual(effectiveOptionalModules(manifest), manifest.optionalModules);
+  });
 
   it('rejects a non-object and reports renameMap errors on their own', () => {
     assert.notDeepEqual(validateManifest([]), []);

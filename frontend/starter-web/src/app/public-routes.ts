@@ -4,7 +4,7 @@ import { REQUESTER_SHELL_ROUTE } from './app.routes'; // codelab:module ServiceR
 import { authGuard } from './core/auth/auth.guard';
 import { RoutePaths } from './core/routing/route-paths';
 import { NOTIFICATIONS_ROUTE_PATH } from './features/notifications/notifications.routes';
-import { PORTAL_PUBLIC_PATHS } from './features/portal/portal.routes';
+import { PORTAL_PUBLIC_PATHS } from './features/portal/portal.routes'; // codelab:module Portal
 import { SHOWCASE_PUBLIC_PATHS } from './showcase/showcase.routes';
 
 /**
@@ -23,7 +23,7 @@ export const PUBLIC_ROUTE_PATHS: readonly string[] = [
   RoutePaths.SsoCallback,
   RoutePaths.Activate,
   NOT_FOUND_PATH,
-  ...PORTAL_PUBLIC_PATHS,
+  ...PORTAL_PUBLIC_PATHS, // codelab:module Portal
   ...SHOWCASE_PUBLIC_PATHS,
 ];
 

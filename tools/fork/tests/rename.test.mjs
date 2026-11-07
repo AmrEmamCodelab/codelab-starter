@@ -1,7 +1,12 @@
 // Unit tests of the renameMap engine. Run: node --test "tools/fork/tests/**/*.test.mjs"
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { after, describe, it } from 'node:test';
 import { createRenamer, expandRenameMap, isIdentityMap, isLeftBoundary, isRightBoundary, renameWithVariants, withProtectedNames } from '../lib/rename.mjs';
+import { carryLeftovers, listTreeFiles, renamedDirectories, renameWorkingTree } from '../lib/rename-tree.mjs';
+import { makeTempDir } from './support/powershell.mjs';
+import { write } from './support/synthetic-starter.mjs';
 
 const ACME = [{ from: 'Starter', to: 'Acme' }];
 
@@ -101,5 +106,69 @@ describe('withProtectedNames', () => {
 
   it('renameWithVariants with no variants returns the text', () => {
     assert.equal(renameWithVariants('Starter', []), 'Starter');
+  });
+});
+
+describe('working-tree rename', () => {
+  const temp = makeTempDir();
+  after(() => temp.cleanup());
+
+  function seed(root) {
+    write(root, 'backend/src/Starter.Api/Starter.Api.csproj', '<Project><RootNamespace>Starter.Api</RootNamespace></Project>\n');
+    write(root, 'backend/src/Starter.Api/bin/Debug/Starter.Api.dll.txt', 'build output\n');
+    write(root, 'backend/src/Starter.Api/obj/project.assets.json', '{}\n');
+    write(root, 'backend/src/Modules/Notifications/Application/Feed/StarterFeed.cs', 'namespace Starter.Feed;\n');
+    write(root, 'frontend/starter-web/node_modules/pkg/index.js', 'starter\n');
+    write(root, 'frontend/starter-web/package.json', '{ "name": "starter-web" }\n');
+    write(root, 'packages/npm/tools/src/bin/starter-cli.mjs', '// starter\n');
+    write(root, 'feed/nuget/Starter.Pkg.nupkg.txt', 'feed\n');
+    write(root, 'artifacts/Starter.log', 'artifact\n');
+    write(root, '.git/HEAD', 'ref: refs/heads/main\n');
+  }
+
+  it('lists files without installed packages, root feed/artifacts, git metadata or .NET build outputs', () => {
+    const root = join(temp.path, 'list');
+    seed(root);
+    assert.deepEqual(listTreeFiles(root), [
+      'backend/src/Modules/Notifications/Application/Feed/StarterFeed.cs',
+      'backend/src/Starter.Api/Starter.Api.csproj',
+      'frontend/starter-web/package.json',
+      'packages/npm/tools/src/bin/starter-cli.mjs',
+    ]);
+  });
+
+  it('pairs renamed folders deepest first and skips depth-changing moves', () => {
+    const pairs = renamedDirectories([
+      { from: 'a/Starter.Api/x/f.cs', to: 'a/Acme.Api/x/f.cs' },
+      { from: 'Starter/g.cs', to: 'Acme/Sub/g.cs' },
+    ]);
+    assert.deepEqual(pairs, [{ from: 'a/Starter.Api/x', to: 'a/Acme.Api/x' }, { from: 'a/Starter.Api', to: 'a/Acme.Api' }]);
+  });
+
+  it('renames files and folders and carries skipped leftovers into the renamed folders', () => {
+    const root = join(temp.path, 'tree');
+    seed(root);
+    const result = renameWorkingTree(root, createRenamer(ACME));
+    assert.ok(existsSync(join(root, 'backend/src/Acme.Api/Acme.Api.csproj')));
+    assert.equal(readFileSync(join(root, 'backend/src/Acme.Api/Acme.Api.csproj'), 'utf8'), '<Project><RootNamespace>Acme.Api</RootNamespace></Project>\n');
+    assert.ok(existsSync(join(root, 'backend/src/Acme.Api/bin/Debug/Starter.Api.dll.txt')), 'bin carried, its content untouched');
+    assert.ok(existsSync(join(root, 'frontend/acme-web/node_modules/pkg/index.js')), 'node_modules carried');
+    assert.equal(readFileSync(join(root, 'frontend/acme-web/node_modules/pkg/index.js'), 'utf8'), 'starter\n');
+    assert.equal(existsSync(join(root, 'backend/src/Starter.Api')), false);
+    assert.equal(existsSync(join(root, 'frontend/starter-web')), false);
+    assert.ok(existsSync(join(root, 'backend/src/Modules/Notifications/Application/Feed/AcmeFeed.cs')), 'a module Feed folder is renamed');
+    assert.ok(existsSync(join(root, 'packages/npm/tools/src/bin/acme-cli.mjs')), 'a tool bin folder is renamed');
+    assert.ok(existsSync(join(root, 'feed/nuget/Starter.Pkg.nupkg.txt')), 'the root feed is never renamed');
+    assert.ok(existsSync(join(root, 'artifacts/Starter.log')), 'root artifacts are never renamed');
+    assert.deepEqual(result.carried.map((entry) => entry.to).sort(), ['backend/src/Acme.Api/bin', 'backend/src/Acme.Api/obj', 'frontend/acme-web/node_modules']);
+  });
+
+  it('keeps a leftover whose target already exists, and does nothing for the identity map', () => {
+    const root = join(temp.path, 'clash');
+    write(root, 'Starter/bin/a.txt', 'old\n');
+    write(root, 'Acme/bin/a.txt', 'new\n');
+    assert.deepEqual(carryLeftovers(root, [{ from: 'Starter/x.cs', to: 'Acme/x.cs' }]), []);
+    assert.equal(readFileSync(join(root, 'Starter/bin/a.txt'), 'utf8'), 'old\n');
+    assert.deepEqual(renameWorkingTree(root, createRenamer([])), { contents: [], moves: [], carried: [] });
   });
 });

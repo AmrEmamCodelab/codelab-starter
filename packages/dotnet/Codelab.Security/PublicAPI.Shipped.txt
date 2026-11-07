@@ -674,6 +674,7 @@ Codelab.Security.Uploads.UploadCapVerdict.Accepted = 0 -> Codelab.Security.Uploa
 Codelab.Security.Uploads.UploadCapVerdict.FileTooLarge = 2 -> Codelab.Security.Uploads.UploadCapVerdict
 Codelab.Security.Uploads.UploadCapVerdict.TooManyFiles = 1 -> Codelab.Security.Uploads.UploadCapVerdict
 Codelab.Security.Uploads.UploadCapVerdict.TotalTooLarge = 3 -> Codelab.Security.Uploads.UploadCapVerdict
+Codelab.Security.Uploads.UploadContentTypes
 Codelab.Security.Uploads.UploadDigest
 Codelab.Security.Uploads.UploadReceipt
 Codelab.Security.Uploads.UploadReceipt.<Clone>$() -> Codelab.Security.Uploads.UploadReceipt!
@@ -822,6 +823,10 @@ const Codelab.Security.Storage.SqlStoreOptions.DefaultCommandTimeoutSeconds = 5 
 const Codelab.Security.Storage.SqlStoreOptions.SectionName = "Codelab:Security:SqlStore" -> string!
 const Codelab.Security.Tickets.SealedTicketOptions.SectionName = "Codelab:Security:Tickets" -> string!
 const Codelab.Security.Tickets.SealedTicketService.TokenVersion = "t1" -> string!
+const Codelab.Security.Uploads.UploadContentTypes.Jpeg = "image/jpeg" -> string!
+const Codelab.Security.Uploads.UploadContentTypes.Pdf = "application/pdf" -> string!
+const Codelab.Security.Uploads.UploadContentTypes.Png = "image/png" -> string!
+const Codelab.Security.Uploads.UploadContentTypes.Zip = "application/zip" -> string!
 const Codelab.Security.Uploads.UploadReceiptSigner.TokenVersion = "r1" -> string!
 const Codelab.Security.Uploads.UploadSafetyOptions.SectionName = "Codelab:Security:Uploads" -> string!
 override Codelab.Security.Keys.KeyMaterialResult.GetHashCode() -> int
@@ -1016,6 +1021,7 @@ static Codelab.Security.Uploads.FileNames.NormalizedExtension(string! fileName) 
 static Codelab.Security.Uploads.FileNames.SafeLeafName(string? clientFileName) -> string?
 static Codelab.Security.Uploads.FileNames.TryResolveWithin(string! root, string! relativePath, out string! fullPath) -> bool
 static Codelab.Security.Uploads.FileSignatureSniffer.IsZipContainer(System.IO.Stream! content) -> bool
+static Codelab.Security.Uploads.UploadContentTypes.TryGetContentType(string? fileNameOrExtension, out string? contentType) -> bool
 static Codelab.Security.Uploads.UploadDigest.ComputeSha256HexAsync(System.IO.Stream! content, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string!>!
 static Codelab.Security.Uploads.UploadReceipt.operator !=(Codelab.Security.Uploads.UploadReceipt? left, Codelab.Security.Uploads.UploadReceipt? right) -> bool
 static Codelab.Security.Uploads.UploadReceipt.operator ==(Codelab.Security.Uploads.UploadReceipt? left, Codelab.Security.Uploads.UploadReceipt? right) -> bool
@@ -1024,5 +1030,6 @@ static readonly Codelab.Security.PublicIds.PublicIdSchemaTransformer.Example -> 
 static readonly Codelab.Security.RateLimiting.ClientRateLimiting.Refusal -> Codelab.Security.Problems.SecurityProblem!
 static readonly Codelab.Security.Requests.RequestBodyCeiling.Refusal -> Codelab.Security.Problems.SecurityProblem!
 static readonly Codelab.Security.Uploads.FileSignatureSniffer.KnownSignatures -> System.Collections.Generic.IReadOnlyDictionary<string!, byte[]![]!>!
+static readonly Codelab.Security.Uploads.UploadContentTypes.ByExtension -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
 ~override Codelab.Security.Keys.KeyMaterialResult.Equals(object obj) -> bool
 ~override Codelab.Security.Keys.KeyMaterialResult.ToString() -> string

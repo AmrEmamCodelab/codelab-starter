@@ -1,0 +1,10 @@
+{
+  "prefix": "ACME",
+  "nameEn": "  Acme Portal  ",
+  "nameAr": "بوابة أكمي",
+  "primaryColor": "#0A5C8F",
+  "logoPath": "logo.svg",
+  "loginModes": ["sso", "basic"],
+  "optionalModules": { "attachments": true, "portal": false, "sms": false, "ops": true },
+  "database": { "connectionString": null, "skip": true }
+}

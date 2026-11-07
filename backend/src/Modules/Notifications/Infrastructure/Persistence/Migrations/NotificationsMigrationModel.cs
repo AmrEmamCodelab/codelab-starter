@@ -9,7 +9,7 @@ namespace Starter.Modules.Notifications.Infrastructure.Persistence.Migrations;
 /// <summary>The migration identifiers and constraint names of the Notifications schema.</summary>
 public static class NotificationsMigrationIds
 {
-    /// <summary>The id of the first migration.</summary>
+    /// <summary>The id of the only migration since the v1.0 squash (the tables and every seeded template); never changed.</summary>
     public const string InitialCreate = "20261106120000_InitialCreate";
 
     /// <summary>The primary key of <c>notifications.Notifications</c>.</summary>

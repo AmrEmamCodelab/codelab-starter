@@ -22,24 +22,29 @@ function escapeRegex(value) {
 }
 
 /** `<opener> <marker> <Name>` followed by whitespace, the HTML comment close or the end of the line. */
-function markerPattern(marker, name) {
-  const openers = MODULE_MARKER.commentOpeners.map(escapeRegex).join('|');
+function markerPattern(marker, name, commentOpeners) {
+  const openers = commentOpeners.map(escapeRegex).join('|');
   const close = escapeRegex(MODULE_MARKER.htmlCommentClose);
   return new RegExp(`(?:${openers})\\s*${escapeRegex(marker)}\\s+${escapeRegex(name)}(?=\\s|${close}|$)`);
 }
 
-/** The three marker matchers of one module. */
-export function createMarkerMatchers(name) {
+/**
+ * The three marker matchers of one module.
+ * @param {string} name
+ * @param {{ commentOpeners?: readonly string[] }} [options] the comment openers a marker may follow (default
+ *   MODULE_MARKER.commentOpeners; removeOptionalModules adds `#` for PowerShell)
+ */
+export function createMarkerMatchers(name, { commentOpeners = MODULE_MARKER.commentOpeners } = {}) {
   return {
-    line: markerPattern(MODULE_MARKER.line, name),
-    begin: markerPattern(MODULE_MARKER.begin, name),
-    end: markerPattern(MODULE_MARKER.end, name),
+    line: markerPattern(MODULE_MARKER.line, name, commentOpeners),
+    begin: markerPattern(MODULE_MARKER.begin, name, commentOpeners),
+    end: markerPattern(MODULE_MARKER.end, name, commentOpeners),
   };
 }
 
 /** True when the text holds any marker of the module (a quick filter before stripping). */
-export function hasModuleMarkers(text, name) {
-  const matchers = createMarkerMatchers(name);
+export function hasModuleMarkers(text, name, options = {}) {
+  const matchers = createMarkerMatchers(name, options);
   return text.split(LINE_BREAK).some((line) => matchers.line.test(line) || matchers.begin.test(line) || matchers.end.test(line));
 }
 
@@ -56,11 +61,12 @@ function classify(line, matchers) {
  * @param {string} text
  * @param {string} name PascalCase module name
  * @param {string} [label] the file name used in error messages
+ * @param {{ commentOpeners?: readonly string[] }} [options] see createMarkerMatchers
  * @returns {{ text: string, removedLines: number }}
  * @throws {MarkerError} for an end without a begin, a begin inside a block of the same module, or a missing end
  */
-export function stripModuleMarkers(text, name, label = 'text') {
-  const matchers = createMarkerMatchers(name);
+export function stripModuleMarkers(text, name, label = 'text', options = {}) {
+  const matchers = createMarkerMatchers(name, options);
   const lines = text.split(LINE_BREAK);
   const kept = [];
   let blockStart = null;

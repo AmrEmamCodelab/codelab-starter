@@ -17,7 +17,7 @@ public sealed class NotificationsModelTests
         Assert.Equal(NotificationsDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(NotificationsTableNames.Notifications, context.Model.FindEntityType(typeof(Notification))!.GetTableName());
         Assert.Equal(NotificationsTableNames.Templates, context.Model.FindEntityType(typeof(NotificationTemplate))!.GetTableName());
-        Assert.Equal([NotificationsMigrationIds.InitialCreate, AddServiceRequestTemplates.MigrationId], context.Database.GetMigrations());
+        Assert.Equal([NotificationsMigrationIds.InitialCreate], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 

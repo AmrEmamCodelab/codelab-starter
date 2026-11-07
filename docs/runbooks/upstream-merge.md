@@ -1,7 +1,8 @@
-# Runbook: take starter changes into a fork (upstream merge, v1)
+# Runbook: take starter changes into a fork (upstream merge)
 
 **Who:** the fork's tech lead. **When:** after a starter release, or when a starter fix is needed. **Takes:** 15 to 60
-minutes, plus conflict time. **Status:** v1 (phase 8); the final version lands with the release process (phase 10).
+minutes, plus conflict time. **Status:** final (phase 10); proven by `tools/fork/tests/upstream-merge-exit.e2e.test.mjs`
+(a core-only fork merges a starter commit cleanly).
 
 A fork is a copy of `codelab-starter` that ran `init.ps1` once: it may have renamed `Starter` to its own product
 name, removed modules and `packages/`, and switched to the Codelab package feed. `tools/upstream-merge.ps1` replays
@@ -21,6 +22,16 @@ the decisions behind it are ADR-002, ADR-003 and ADR-004 in [docs/adr/](../adr/R
    ```
 
 5. Read what changed: the starter's `packages/CHANGELOG.md` and the ADRs added since `starterBase`.
+6. See which files the fork changed since its last init or merge (that is where conflicts will come from):
+   `codelab.starter.json` `hashes` holds each file's hash (line endings normalized) at that time; list the files
+   whose hash differs now:
+
+   ```powershell
+   node --input-type=module -e "import { computeHashes } from './tools/fork/lib/hashing.mjs'; import { existsSync, readFileSync } from 'node:fs'; import { execSync } from 'node:child_process'; const recorded = JSON.parse(readFileSync('codelab.starter.json', 'utf8')).hashes; const now = computeHashes('.', execSync('git ls-files -z').toString().split('\0').filter((f) => f && existsSync(f))); for (const f of new Set([...Object.keys(recorded), ...Object.keys(now)])) if (recorded[f] !== now[f]) console.log(f);"
+   ```
+
+   After the merge the script rewrites `hashes` for the new tree, so the same command run on the merged branch
+   prints nothing until the fork changes a file again.
 
 ## 2. Merge
 
@@ -59,10 +70,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\upstream-merge.ps1 -Co
 | `modified-upstream-deleted-in-fork` | The fork deleted the file on purpose: keep it deleted. If the starter change is a security fix, check whether the fork has a copy of that code elsewhere and fix it there. |
 | `added-upstream-exists-in-fork` | Both added a file with the same path: keep the fork's file, then compare and take any starter part it needs. Rename the fork's file when the two are different things. |
 
+Per module:
+
+| Module | On conflict |
+| --- | --- |
+| Identity, Access (required) and the kernel (`Starter.Api`, shared UI, `@codelab/ng-dga` consumers) | Starter wins; re-apply fork changes on top. |
+| Optional modules the fork kept (attachments, portal, sms, ops) | Starter wins for their code; fork wins for their texts, seeds and settings. |
+| Optional modules the fork removed | Never a conflict: their files, marked lines (`codelab:module <Name>`) and translation keys are dropped. Do not re-add them. |
+| The fork's own business modules | Fork wins; take starter fixes by hand. |
+| Migrations | Never edit a merged starter migration; add a new fork migration if the fork's model differs. |
+
 What is never merged by hand:
 
 - **Dropped areas** (`removed-area`, `already-deleted-in-fork`, `removed-module-lines-only`): a module or `packages/`
   the fork removed stays removed; the report lists what was skipped. Do not re-add it.
+- **The manifest** (`fork-manifest`): `codelab.starter.json` is the fork's; the script only moves `starterBase`, takes
+  the starter's `starterVersion` and recomputes `hashes`.
 - **Generated outputs** (`regenerated-output`): `rules/*.compiled.json`, module `CLAUDE.md`, `BannedSymbols.generated.txt`,
   `.editorconfig`, `docs/generated/`. Never resolve them by hand; they are regenerated (rerun DocsGen and
   `api:gen` for `docs/generated/` and the generated API client when the report lists them).
@@ -96,6 +119,20 @@ because the fork's `packages/` folder is a dropped area:
 4. Build and test. Merge the source first (sections 2 to 4), then bump the packages in a second commit, so a
    failure points at one of the two.
 
+**Package update policy (manual).** No update bot: Renovate and Dependabot are not approved, so every bump is a person
+following this section.
+
+- **Codelab packages:** take every starter release within one month; a security release (CHANGELOG marks it) within
+  5 working days, without waiting for the source merge.
+- **Third-party packages** (NuGet in `Directory.Packages.props`, npm in `package.json`): once a month, list what is
+  outdated (`dotnet list package --outdated --vulnerable`, `npm outdated`, `npm audit`). Patch and minor bumps go in one
+  pull request; each major bump goes in its own pull request with its release notes read. A vulnerable package is
+  bumped as soon as a fixed version exists.
+- Prefer the versions the starter pins: a fork that bumps a shared package ahead of the starter gets a
+  `Directory.Packages.props` conflict on the next merge (fork wins only when the fork's version is higher).
+- Versions are pinned centrally (`Directory.Packages.props`, exact npm versions); never a `Version` on a
+  `PackageReference`, never a range.
+
 ## 6. Rollback
 
 Nothing is committed until you commit. To abandon a merge in progress: `git restore --staged --worktree .` on the
@@ -105,8 +142,9 @@ After a commit, revert the merge commit; `starterBase` returns with it.
 ## Gotchas
 
 - Run the script in the fork, never in the starter repository itself.
-- An upstream change next to a removed module's marked lines in a shared file (for example the route table) can show
-  up as a `content` conflict; resolve it by keeping the module's lines out.
+- A removed module's marked lines (`codelab:module <Name>`, begin/end blocks) and translation keys are filtered out of
+  the upstream change before it applies. A marker the starter left unpaired is not filtered and shows up as a
+  `content` conflict; resolve it by keeping the module's lines out.
 - The default build step runs `tools\build.ps1 -Target CI`, which still has starter-only package steps; until the
   build is fork-aware, pass `-BuildCommand` with the fork's own build (see [tools/fork/README.md](../../tools/fork/README.md)).
 - A non-UTF-8 text file in the upstream diff makes `git apply` fail and nothing is applied; convert it in the starter.

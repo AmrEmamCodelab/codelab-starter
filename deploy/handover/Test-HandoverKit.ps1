@@ -5,6 +5,7 @@
 .DESCRIPTION
     Windows PowerShell 5.1 and PowerShell 7. Steps:
       1. Integrity: every file in manifest.json is present with its SHA-256, and nothing unlisted is in the kit.
+         Then the installed .NET SDK and Node.js are compared with the kit's prerequisites.json (warnings only).
       2. A clean copy of the source tree in %TEMP% (git's file list; the Codelab feed is NOT copied). Every
          nuget.config in it is replaced by the kit's one (absolute path to <kit>\nuget), and the kit's npm-files\
          tarballs are put back at their source-relative paths.
@@ -41,6 +42,8 @@ $Layout      = Get-KitLayout
 $ExitSuccess = $Layout.ExitSuccess
 $ExitFailure = $Layout.ExitFailure
 $ExitUsage   = $Layout.ExitUsage
+$NodeExe     = 'node'
+$VersionArg  = '--version'
 
 function Get-ValidatedKit {
     if (-not $KitPath) { Stop-KitUsage 'KitPath is required.' }
@@ -107,17 +110,41 @@ function Test-NpmProjects([object] $Manifest, [string] $Kit, [string] $WorkTree,
         Write-Host "npm ci --offline in '$(Format-KitInstallRoot $root)' -> exit $code"
         if ($code -ne $ExitSuccess) { return $false }
     }
-    # build, then test: the test imports and runs the installed packages, which a build alone never does.
-    foreach ($project in $projects) {
+    # Build every project first (in manifest order: the Codelab packages before the apps that import their dist\),
+    # then re-link bins (a workspace bin that points into dist\ has no shim until dist\ exists), then test: the
+    # test imports and runs the installed packages, which a build alone never does.
+    if (-not (Invoke-NpmScriptInProjects $npm $WorkTree $projects $Layout.NpmBuildScript)) { return $false }
+    foreach ($root in Get-KitNpmInstallRoots $projects) {
+        $code = Invoke-KitNpmRelinkBins $npm (Join-Path $WorkTree $root) $CacheCopy
+        Write-Host "npm rebuild (bin links) in '$(Format-KitInstallRoot $root)' -> exit $code"
+        if ($code -ne $ExitSuccess) { return $false }
+    }
+    return (Invoke-NpmScriptInProjects $npm $WorkTree $projects $Layout.NpmTestScript)
+}
+
+function Invoke-NpmScriptInProjects([string] $Npm, [string] $WorkTree, [object[]] $Projects, [string] $Script) {
+    foreach ($project in $Projects) {
         $dir = Join-Path $WorkTree $project.Relative
-        foreach ($script in @($Layout.NpmBuildScript, $Layout.NpmTestScript)) {
-            if (-not (Test-HasNpmScript $dir $script)) { continue }
-            $code = Invoke-KitNative $npm @('run', $script) $dir
-            Write-Host "npm run $script in '$($project.Relative)' -> exit $code"
-            if ($code -ne $ExitSuccess) { return $false }
-        }
+        if (-not (Test-HasNpmScript $dir $Script)) { continue }
+        $code = Invoke-KitNative $Npm @('run', $Script) $dir
+        Write-Host "npm run $Script in '$($project.Relative)' -> exit $code"
+        if ($code -ne $ExitSuccess) { return $false }
     }
     return $true
+}
+
+# Warns when this machine's SDK or Node differs from the listed installers (the build may still pass).
+function Test-InstalledPrerequisites([string] $Kit, [string] $WorkTree) {
+    $catalogPath = Join-Path $Kit $Layout.PrerequisitesDataFile
+    if (-not (Test-Path -LiteralPath $catalogPath -PathType Leaf)) { return }
+    $catalog = Read-KitPrerequisites $catalogPath
+    $dotnetVersion = $null
+    Push-Location -LiteralPath $WorkTree
+    try { $dotnetVersion = Get-KitNativeOutput (Resolve-KitDotnet) @($VersionArg) } finally { Pop-Location }
+    $nodeVersion = Get-KitNativeOutput $NodeExe @($VersionArg)
+    foreach ($warning in @(Get-KitInstalledPrerequisiteWarnings $catalog $dotnetVersion $nodeVersion)) {
+        Write-Host "PREREQUISITE: $warning" -ForegroundColor Yellow
+    }
 }
 
 function Invoke-OfflineChecks([pscustomobject] $Target) {
@@ -127,6 +154,7 @@ function Invoke-OfflineChecks([pscustomobject] $Target) {
     try {
         Set-WorkTreeNuGetConfigs $workTree $Target.Kit
         Copy-NpmFiles $Target.Kit $workTree
+        Test-InstalledPrerequisites $Target.Kit $workTree
         $checks = {
             $dotnetOk = Test-DotnetProjects $Target.Manifest $Target.Kit $workTree
             $npmOk = Test-NpmProjects $Target.Manifest $Target.Kit $workTree $cacheCopy

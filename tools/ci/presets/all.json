@@ -1,0 +1,10 @@
+{
+  "prefix": "ACMEALL",
+  "nameEn": "Acme All Modules Portal",
+  "nameAr": "بوابة أكمي الشاملة",
+  "primaryColor": "#0a5c8f",
+  "logoPath": null,
+  "loginModes": ["basic", "ad", "sso"],
+  "optionalModules": { "attachments": true, "portal": true, "sms": true, "ops": true },
+  "database": { "connectionString": null, "skip": true }
+}

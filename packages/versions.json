@@ -1,12 +1,12 @@
 {
-  "Codelab.Build.Sdk": "0.2.1",
-  "Codelab.Security": "0.6.0",
-  "Codelab.Observability": "0.5.2",
-  "Codelab.Errors": "0.5.2",
-  "Codelab.Testing": "0.6.0",
-  "Codelab.Integration": "0.6.0",
-  "Codelab.Identity": "0.6.0",
-  "@codelab/ng-security": "0.5.1",
-  "@codelab/ng-tools": "0.5.0",
+  "Codelab.Build.Sdk": "1.0.0",
+  "Codelab.Security": "1.0.0",
+  "Codelab.Observability": "1.0.0",
+  "Codelab.Errors": "1.0.0",
+  "Codelab.Testing": "1.0.0",
+  "Codelab.Integration": "1.0.0",
+  "Codelab.Identity": "1.0.0",
+  "@codelab/ng-security": "1.0.0",
+  "@codelab/ng-tools": "1.0.0",
   "@codelab/ng-dga": "1.0.0"
 }

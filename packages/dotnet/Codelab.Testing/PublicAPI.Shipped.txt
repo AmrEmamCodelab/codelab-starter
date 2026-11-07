@@ -86,6 +86,7 @@ Codelab.Testing.Logging.CanaryLogSink.Check() -> Codelab.Testing.Checks.CheckRes
 Codelab.Testing.Logging.CanaryLogSink.Emit(Serilog.Events.LogEvent! logEvent) -> void
 Codelab.Testing.Logging.CanaryLogSink.Events.get -> System.Collections.Generic.IReadOnlyList<Serilog.Events.LogEvent!>!
 Codelab.Testing.Logging.CanaryLogSink.FindLeaks() -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Logging.CanaryLeak!>!
+Codelab.Testing.Sweeps.DeployableSweep
 Codelab.Testing.Sweeps.GlobPattern
 Codelab.Testing.Sweeps.IdentifierNormalizer
 Codelab.Testing.Sweeps.SourceSweep
@@ -99,6 +100,8 @@ Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedPaths.get -> System.Collection
 Codelab.Testing.Sweeps.SourceSweepOptions.ExcludedPaths.init -> void
 Codelab.Testing.Sweeps.SourceSweepOptions.IncludeExtensions.get -> System.Collections.Generic.IList<string!>!
 Codelab.Testing.Sweeps.SourceSweepOptions.IncludeExtensions.init -> void
+Codelab.Testing.Sweeps.SourceSweepOptions.IncludedDirectories.get -> System.Collections.Generic.IList<string!>!
+Codelab.Testing.Sweeps.SourceSweepOptions.IncludedDirectories.init -> void
 Codelab.Testing.Sweeps.SourceSweepOptions.MaxFileBytes.get -> long
 Codelab.Testing.Sweeps.SourceSweepOptions.MaxFileBytes.init -> void
 Codelab.Testing.Sweeps.SourceSweepOptions.Root.get -> string!
@@ -193,6 +196,9 @@ const Codelab.Testing.Logging.CanaryLeak.ExceptionLocation = "exception" -> stri
 const Codelab.Testing.Logging.CanaryLeak.MessageLocation = "message" -> string!
 const Codelab.Testing.Logging.CanaryLeak.PropertyLocation = "property:" -> string!
 const Codelab.Testing.Logging.CanaryLeak.TemplateLocation = "template" -> string!
+const Codelab.Testing.Sweeps.DeployableSweep.ExceptionListFileName = "scrub-exceptions.txt" -> string!
+const Codelab.Testing.Sweeps.DeployableSweep.ExtractFolder = "tools/extract" -> string!
+const Codelab.Testing.Sweeps.DeployableSweep.TermListPattern = "*-terms.txt" -> string!
 const Codelab.Testing.Sweeps.SourceSweepDefaults.MaxFileBytes = 2097152 -> long
 const Codelab.Testing.Sweeps.SweepConfigurationFiles.TermRulePrefix = "term-" -> string!
 const Codelab.Testing.Sweeps.SweepRules.BrandRuleId = "brand-id" -> string!
@@ -268,6 +274,11 @@ static Codelab.Testing.Contracts.WireTypes.UnwrapResult(System.Type! returnType)
 static Codelab.Testing.Logging.CanaryLeak.operator !=(Codelab.Testing.Logging.CanaryLeak? left, Codelab.Testing.Logging.CanaryLeak? right) -> bool
 static Codelab.Testing.Logging.CanaryLeak.operator ==(Codelab.Testing.Logging.CanaryLeak? left, Codelab.Testing.Logging.CanaryLeak? right) -> bool
 static Codelab.Testing.Logging.CanaryLogSink.NewCanary(string! label) -> string!
+static Codelab.Testing.Sweeps.DeployableSweep.Allowances(string! repositoryRoot) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepAllowance!>!
+static Codelab.Testing.Sweeps.DeployableSweep.Check(System.Collections.Generic.IReadOnlyList<string!>! deployableFolders, string? startDirectory = null) -> Codelab.Testing.Checks.CheckResult!
+static Codelab.Testing.Sweeps.DeployableSweep.LocalOnlyDirectoryNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Sweeps.DeployableSweep.LocalOnlyFiles.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static Codelab.Testing.Sweeps.DeployableSweep.Rules(string! repositoryRoot) -> System.Collections.Generic.IReadOnlyList<Codelab.Testing.Sweeps.SweepRule!>!
 static Codelab.Testing.Sweeps.GlobPattern.IsMatch(string! path, string! pattern) -> bool
 static Codelab.Testing.Sweeps.GlobPattern.ToPosix(string! path) -> string!
 static Codelab.Testing.Sweeps.IdentifierNormalizer.Normalize(string! line) -> string!

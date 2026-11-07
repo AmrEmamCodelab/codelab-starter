@@ -13,7 +13,7 @@
     <CodelabBuildSdkSourceDirectory>$(CodelabRepoRoot)packages\dotnet\Codelab.Build.Sdk\Sdk\</CodelabBuildSdkSourceDirectory>
     <UseCodelabPackageSource Condition="'$(UseCodelabPackageSource)' == ''">true</UseCodelabPackageSource>
     <!-- The pinned feed version for UseCodelabPackageSource=false. tools/build.ps1 -Pack rewrites this line. -->
-    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">0.2.1</CodelabBuildSdkVersion>
+    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">1.0.0</CodelabBuildSdkVersion>
   </PropertyGroup>
 
   <Import Project="$(CodelabBuildSdkSourceDirectory)Sdk.props" Condition="'$(UseCodelabPackageSource)' == 'true'" />

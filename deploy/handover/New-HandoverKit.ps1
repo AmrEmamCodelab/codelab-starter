@@ -11,8 +11,15 @@
       npm-files\       tarballs a lock file installs by file: path, at their source-relative path
       OFFLINE.md       how to restore offline (`npm ci --offline --cache ./npm-cache`)
       sources\         one zip per Codelab package folder (packages\dotnet\*, packages\npm\*, packages\vectors)
-      PREREQUISITES.md .NET SDK (global.json), Node (.nvmrc) and Playwright browser versions
+      PREREQUISITES.md .NET SDK (global.json), Node (.nvmrc) and Playwright versions, and the installer list
+      prerequisites.json  the installers the client needs: exact version, URL and SHA-256 (listed, not shipped)
+      BUILD-OFFLINE.md the client's step list (a copy of deploy/handover/BUILD-OFFLINE.md)
       manifest.json    kit identity, inputs and the SHA-256 of every other file
+
+    -Preset Full is the whole starter closure: backend, services (attachment-service, integration-gateway,
+    ops-console) and frontends (starter-web, ops-web, with the Codelab npm packages they build against). A preset
+    entry missing in a fork is skipped and recorded; every package-lock.json in the tree must be covered.
+    The build refuses a prerequisites.json that drifts from global.json, .nvmrc or the locked playwright-core.
 
     Restores run in a clean copy of the source tree under %TEMP% (git's file list), never in the caller's tree.
     The script deletes nothing outside -OutputPath (and its own temp copy). A non-empty -OutputPath is refused
@@ -22,6 +29,8 @@
 
 .PARAMETER OutputPath
     Kit folder (relative to the current folder). Must not be inside the source root.
+.PARAMETER Preset
+    A named closure (Full). Explicit -Projects / -NpmProjects are added to it.
 .PARAMETER Projects
     .csproj / .slnx / .sln files to restore, relative to -SourceRoot. Comma-separated values are accepted.
 .PARAMETER NpmProjects
@@ -35,11 +44,14 @@
     Root of the source tree. Default: the repository that holds this script.
 
 .EXAMPLE
+    powershell -NoProfile -ExecutionPolicy Bypass -File deployhandoverNew-HandoverKit.ps1 -OutputPath $env:TEMPkit -Preset Full
+.EXAMPLE
     powershell -NoProfile -ExecutionPolicy Bypass -File deploy\handover\New-HandoverKit.ps1 -OutputPath $env:TEMP\kit -Projects packages\dotnet\Codelab.Security\Codelab.Security.csproj -NpmProjects packages\npm\ng-security
 #>
 [CmdletBinding()]
 param(
     [string] $OutputPath,
+    [string] $Preset,
     [string[]] $Projects = @(),
     [string[]] $NpmProjects = @(),
     [string] $FeedPath,
@@ -66,9 +78,14 @@ function Get-ValidatedInputs {
     if (-not $OutputPath) { Stop-KitUsage 'OutputPath is required.' }
     if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) { Stop-KitUsage "SourceRoot '$SourceRoot' does not exist." }
     $root = Get-KitTrimmedPath ([IO.Path]::GetFullPath($SourceRoot))
-    $dotnetProjects = @(Resolve-KitDotnetProjects $root (Split-KitListArgument $Projects))
-    $npm = @(Resolve-KitNpmProjects $root (Split-KitListArgument $NpmProjects))
+    $presetEntries = Resolve-KitPreset $root $Preset
+    $dotnetProjects = @(Resolve-KitDotnetProjects $root (Join-KitEntryLists $presetEntries.Projects (Split-KitListArgument $Projects)))
+    $npm = @(Resolve-KitNpmProjects $root (Join-KitEntryLists $presetEntries.NpmProjects (Split-KitListArgument $NpmProjects)))
     if ($dotnetProjects.Count -eq 0 -and $npm.Count -eq 0) { Stop-KitUsage 'Give at least one -Projects or -NpmProjects entry.' }
+    if ($presetEntries.Name) { Assert-KitLockFilesCovered $root $npm }
+    $catalog = Read-KitPrerequisites
+    $drift = @(Get-KitPrerequisitePinProblems $catalog $root @(Get-KitNpmInstallRoots $npm | ForEach-Object { Join-Path $root $_ }))
+    if ($drift.Count -gt 0) { Stop-KitUsage "prerequisites.json drifts from the source pins: $($drift -join '; '). Update deployhandoverprerequisites.json." }
     $feedValue = $FeedPath
     if (-not $feedValue) { $feedValue = $Layout.DefaultFeed }
     $feed = Get-KitFullPath $feedValue $root
@@ -77,7 +94,15 @@ function Get-ValidatedInputs {
     }
     $output = Get-KitFullPath $OutputPath (Get-Location).Path
     $clear = Assert-KitOutputPath $output $root ([bool] $Force)
-    return [pscustomobject]@{ Root = $root; Projects = $dotnetProjects; Npm = $npm; Feed = $feed; Output = $output; ClearPrevious = $clear }
+    return [pscustomobject]@{
+        Root = $root; Projects = $dotnetProjects; Npm = $npm; Feed = $feed; Output = $output; ClearPrevious = $clear
+        Preset = $presetEntries; Prerequisites = $catalog
+    }
+}
+
+function Assert-KitLockFilesCovered([string] $Root, [object[]] $Npm) {
+    $uncovered = @(Get-KitUncoveredLockFiles @(Get-KitSourceFiles $Root) @(Get-KitNpmInstallRoots $Npm))
+    if ($uncovered.Count -gt 0) { Stop-KitUsage "The preset leaves lock files out of the npm closure: $($uncovered -join ', '). Add their folders with -NpmProjects." }
 }
 
 function Build-NuGetClosure([pscustomobject] $Inputs, [string] $Dotnet, [string] $WorkTree) {
@@ -135,6 +160,9 @@ function Get-ToolVersions([pscustomobject] $Inputs, [string] $Dotnet, [string] $
 function Get-ManifestDetails([pscustomobject] $Inputs, [pscustomobject] $Tools, [string[]] $Tarballs, [string[]] $Zips) {
     return [ordered]@{
         createdUtc           = (Get-Date).ToUniversalTime().ToString($IsoFormat)
+        preset               = $Inputs.Preset.Name
+        presetSkipped        = @($Inputs.Preset.Skipped)
+        prerequisites        = [ordered]@{ decision = $Inputs.Prerequisites.decision; ids = @($Inputs.Prerequisites.prerequisites | ForEach-Object { $_.id }) }
         sourceRoot           = $Inputs.Root
         feedPath             = $Inputs.Feed
         projects             = @($Inputs.Projects | ForEach-Object { $_.Relative })
@@ -154,7 +182,10 @@ function Write-KitContent([pscustomobject] $Inputs, [string] $Dotnet, [string] $
     $zips = @(New-KitSourceZips $Inputs.Root $Inputs.Output @(Get-KitSourceFiles $Inputs.Root))
     $tools = Get-ToolVersions $Inputs $Dotnet $Npm $WorkTree
     Write-KitText (Join-Path $Inputs.Output $Layout.OfflineFile) (New-KitOfflineText $Inputs.Npm $npmResult.Tarballs)
-    Write-KitText (Join-Path $Inputs.Output $Layout.PrerequisitesFile) (New-KitPrerequisitesText $tools)
+    Write-KitText (Join-Path $Inputs.Output $Layout.PrerequisitesFile) (New-KitPrerequisitesText $tools $Inputs.Prerequisites)
+    Copy-KitFile (Join-Path $PSScriptRoot $Layout.PrerequisitesDataFile) (Join-Path $Inputs.Output $Layout.PrerequisitesDataFile)
+    Copy-KitFile $Layout.BuildOfflineSourceFile (Join-Path $Inputs.Output $Layout.BuildOfflineFile)
+    foreach ($entry in @($Inputs.Preset.Skipped)) { Write-Host "Preset $($Inputs.Preset.Name): '$entry' is not in this source tree (skipped)." -ForegroundColor Yellow }
     $manifest = Write-KitManifest $Inputs.Output (Get-ManifestDetails $Inputs $tools $npmResult.Tarballs $zips)
     Write-Host "Handover kit written to $($Inputs.Output) ($(@($manifest.files).Count) files)." -ForegroundColor Green
     return $true

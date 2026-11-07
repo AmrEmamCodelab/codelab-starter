@@ -10,9 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Codelab.Gateway.Api.Tests.TestSupport;
+// codelab:module-begin Sms
 
 /// <summary>One SMS the stub provider received.</summary>
 internal sealed record RecordedSms(string Method, string PathAndQuery, string? Credential, string? ContentType, string Body);
+// codelab:module-end Sms
 
 /// <summary>
 /// The upstreams the real gateway cannot reach here, played by one loopback Kestrel host over HTTPS with a certificate
@@ -23,12 +25,12 @@ internal sealed class FakeUpstream : IAsyncDisposable
 {
     public const string TokenPath = "/oidc/token";
     public const string JwksPath = "/oidc/jwks";
-    public const string SmsPath = "/sms/send";
+    public const string SmsPath = "/sms/send"; // codelab:module Sms
     public const string RedirectPath = "/oidc/moved";
-    public const string CredentialHeader = "X-Provider-Key";
+    public const string CredentialHeader = "X-Provider-Key"; // codelab:module Sms
     public const string TokenJson = """{"access_token":"access-1","id_token":"identity-1","token_type":"Bearer","expires_in":300}""";
     public const string JwksJson = """{"keys":[{"kty":"EC","kid":"k1","crv":"P-256","x":"AQ","y":"AQ"}]}""";
-    public const string SmsJson = """{"ok":true,"result":{"id":"msg-1"}}""";
+    public const string SmsJson = """{"ok":true,"result":{"id":"msg-1"}}"""; // codelab:module Sms
 
     private readonly WebApplication _app;
     private int _jwksHits;
@@ -52,16 +54,20 @@ internal sealed class FakeUpstream : IAsyncDisposable
     public int JwksStatus { get; set; } = StatusCodes.Status200OK;
 
     public string JwksBody { get; set; } = JwksJson;
+    // codelab:module-begin Sms
 
     public int SmsStatus { get; set; } = StatusCodes.Status200OK;
 
     public string SmsBody { get; set; } = SmsJson;
+    // codelab:module-end Sms
 
     public int JwksHits => Volatile.Read(ref _jwksHits);
 
     public ConcurrentQueue<string> TokenForms { get; } = new();
+    // codelab:module-begin Sms
 
     public ConcurrentQueue<RecordedSms> Messages { get; } = new();
+    // codelab:module-end Sms
 
     public static async Task<FakeUpstream> StartAsync()
     {
@@ -99,12 +105,14 @@ internal sealed class FakeUpstream : IAsyncDisposable
             return Results.Text(JwksBody, "application/json", statusCode: JwksStatus);
         });
         _app.MapGet(RedirectPath, () => Results.Redirect(JwksPath));
+        // codelab:module-begin Sms
         _app.MapMethods(SmsPath, [HttpMethods.Get, HttpMethods.Post], async (HttpContext context) =>
         {
             var request = context.Request;
             Messages.Enqueue(new RecordedSms(request.Method, request.Path + request.QueryString, request.Headers[CredentialHeader].FirstOrDefault(), request.ContentType, await ReadBodyAsync(request)));
             return Results.Text(SmsBody, "application/json", statusCode: SmsStatus);
         });
+        // codelab:module-end Sms
     }
 
     private static async Task<string> ReadBodyAsync(HttpRequest request)

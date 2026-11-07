@@ -1,0 +1,11 @@
+{
+  "prefix": "acme",
+  "nameEn": "",
+  "nameAr": "بوابة أكمي",
+  "primaryColor": "blue",
+  "logoPath": null,
+  "loginModes": ["kerberos"],
+  "optionalModules": { "attachments": true },
+  "database": { "connectionString": "", "skip": "no" },
+  "extra": 1
+}

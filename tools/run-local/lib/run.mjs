@@ -5,10 +5,14 @@ import path from 'node:path';
 import {
   ANGULAR_BUILD_ARGUMENTS,
   ANGULAR_CLI,
+  ANGULAR_SERVE_ARGUMENTS,
+  GATEWAY_PROJECT_FILE,
+  OPS_PROJECT_FILE,
+  SEQ_NAME,
+  STARTER_MANIFEST,
   API_DEVELOPMENT_SETTINGS,
   ATTACHMENTS_PROJECT_FILE,
   ATTACHMENTS_SECRETS_FILE,
-  CMD,
   CONNECTION_STRING_ENV,
   ExitCode,
   FRONTEND_MANIFEST,
@@ -23,7 +27,6 @@ import {
   LOG_FILES,
   LOG_TAIL_CHARACTERS,
   NODE_MODULES_DIR,
-  NPM_SHIM,
   POWERSHELL,
   POWERSHELL_FILE_ARGUMENTS,
   SECRETS_SCRIPT,
@@ -41,7 +44,6 @@ import {
   TicketRingState,
   Timeouts,
   WEB_BROWSER_DIR,
-  WEB_HEALTH_PATH,
   WEB_RUNTIME_CONFIG,
 } from './constants.mjs';
 import {
@@ -50,6 +52,12 @@ import {
   attachmentsDecision,
   breakGlassUser,
   developmentConnectionString,
+  gatewayDecision,
+  healthReport,
+  healthUrl,
+  hostsMissingSecrets,
+  opsDecision,
+  starterFeatures,
   parseState,
   pollUntilReady,
   portsToCheck,
@@ -123,21 +131,33 @@ function readIfExists(system, file) {
  * Runs New-LocalSecrets.ps1 when a secrets file or the attachment keys are missing (it only adds missing keys), then
  * refuses to start when the Attachment service holds a ticket ring other than the API's upload-ticket ring.
  */
-function ensureSecrets(system, root, withAttachments) {
+function ensureSecrets(system, root, plan) {
+  const withAttachments = plan.includes(Services.attachments.name);
   const apiSecrets = path.join(root, LOCAL_SECRETS_FILE);
   const serviceSecrets = path.join(root, ATTACHMENTS_SECRETS_FILE);
+  const hasFile = (host) => system.exists(path.join(root, host.secretsFile));
   const needed = secretsNeedSeeding({
     apiSecretsText: readIfExists(system, apiSecrets),
     serviceSecretsExists: system.exists(serviceSecrets),
     serviceSecretsText: readIfExists(system, serviceSecrets),
     withAttachments,
-  });
+  }) || hostsMissingSecrets(plan, hasFile).length > 0;
   if (needed) {
     system.log(`Writing the missing local secrets with ${SECRETS_SCRIPT} (existing values are kept).`);
     const result = system.runSync(POWERSHELL, [...POWERSHELL_FILE_ARGUMENTS, path.join(root, SECRETS_SCRIPT)], { cwd: root });
     if (result.code !== 0) throw new RunLocalError(`${SECRETS_SCRIPT} failed:\n${result.output}`);
   }
+  for (const name of hostsMissingSecrets(plan, hasFile)) {
+    system.warn(`${Hosts[name].label} has no local secrets file (${Hosts[name].secretsFile}) after ${SECRETS_SCRIPT}; it will fail its readiness check.`);
+  }
   if (withAttachments) assertServiceTicketRing(system, root, apiSecrets, serviceSecrets);
+}
+
+/** The hint of an unhealthy host whose local secrets file is missing (its S2S keys are validated at start). */
+function secretsHint(system, root, name) {
+  const host = Hosts[name];
+  if (!host?.secretsFile || system.exists(path.join(root, host.secretsFile))) return undefined;
+  return `no ${host.secretsFile}: run ${SECRETS_SCRIPT}`;
 }
 
 /** Fails the start when the service file's ticket ring is not the API's upload-ticket ring (seeding never repairs it). */
@@ -195,9 +215,10 @@ function logTail(system, logFile) {
   return text.slice(-LOG_TAIL_CHARACTERS);
 }
 
-async function waitHealthy(system, { label, url, handle, timeoutMs, logFile }) {
+/** Polls one service's health endpoint until it answers 200, its process exits or its time is up. */
+async function waitHealthy(system, { name, label, url, handle, timeoutMs, logFile }) {
   system.log(`Waiting for ${label.toLowerCase()} (${url}).`);
-  const result = await pollUntilReady({
+  const outcome = await pollUntilReady({
     probe: async () => (await system.httpStatus(url)) === HTTP_OK,
     exited: handle.exited,
     now: system.now,
@@ -205,9 +226,35 @@ async function waitHealthy(system, { label, url, handle, timeoutMs, logFile }) {
     timeoutMs,
     intervalMs: Timeouts.pollInterval,
   });
-  if (result === 'ready') return;
-  const why = result === 'exited' ? 'exited before it was healthy' : `was not healthy within ${timeoutMs / 1000} s`;
-  throw new RunLocalError(`${label} ${why} (${url}). Last log lines (${logFile}):\n${logTail(system, logFile)}`);
+  return { name, label, url, outcome, timeoutMs, logFile };
+}
+
+/**
+ * Health-checks every started service in start order (each on its own endpoint, never just "the process runs"),
+ * then Seq when one is used, and returns the results; nothing is thrown here so the report covers every service.
+ */
+async function checkHealth(system, root, launched, seq) {
+  const results = [];
+  for (const service of launched) {
+    const result = await waitHealthy(system, service);
+    results.push({ ...result, hint: result.outcome === 'ready' ? undefined : secretsHint(system, root, service.name) });
+  }
+  if (seq) {
+    const seqService = { name: SEQ_NAME, label: 'Seq', url: healthUrl(SEQ_NAME, null, seq), handle: { exited: () => false }, timeoutMs: Timeouts.seq, logFile: null };
+    results.push(await waitHealthy(system, seqService));
+  }
+  return results;
+}
+
+/** The failure of an unhealthy stack: the report, then the last log lines of each unhealthy service. */
+function unhealthyError(system, report, results) {
+  const tails = results
+    .filter((result) => result.outcome !== 'ready' && result.logFile)
+    .map((result) => {
+      const why = result.outcome === 'exited' ? 'exited before it was healthy' : `was not healthy within ${result.timeoutMs / 1000} s`;
+      return `${result.label} ${why} (${result.url}). Last log lines (${result.logFile}):\n${logTail(system, result.logFile)}`;
+    });
+  return new RunLocalError(['Health check failed:', ...report.lines, ...tails].join('\n'));
 }
 
 /**
@@ -246,7 +293,7 @@ function startHost(system, root, host, chosenSeqUrl, layout) {
     logFile,
   });
   const entry = { name: host.service.name, pid: handle.pid, image: host.service.image };
-  return { entry, handle, logFile, label: host.label, url: `${url}${host.healthPath}`, timeoutMs: host.timeoutMs };
+  return { name: host.service.name, entry, handle, logFile, label: host.label, url: healthUrl(host.service.name, layout.urls), timeoutMs: host.timeoutMs };
 }
 
 function webStartDecision(system, root, noWeb, slot) {
@@ -254,20 +301,33 @@ function webStartDecision(system, root, noWeb, slot) {
   const manifest = system.exists(manifestPath) ? JSON.parse(system.readText(manifestPath)) : null;
   const hasNodeModules = system.exists(path.join(root, NODE_MODULES_DIR)) || system.exists(path.join(root, FRONTEND_WORKSPACE, NODE_MODULES_DIR));
   const decision = webDecision({ noWeb, manifest, hasNodeModules, startScript: FRONTEND_START_SCRIPT });
-  if (decision.start && slot !== Slots.default && !system.exists(path.join(root, ANGULAR_CLI))) {
+  if (decision.start && !system.exists(path.join(root, ANGULAR_CLI))) {
     return { start: false, reason: `${ANGULAR_CLI} is missing; run npm install at the repo root first` };
   }
   return decision;
 }
 
+/** The icon subset the web app's prestart/prebuild step writes (a slot and the default web app both need it first). */
+function writeIconSubset(system, root) {
+  const workspace = path.join(root, FRONTEND_WORKSPACE);
+  const result = system.runSync(system.nodeExecutable, [path.join(workspace, ICONS_SUBSET_SCRIPT), ...ICONS_SUBSET_ARGUMENTS], { cwd: workspace });
+  if (result.code !== 0) throw new RunLocalError(`The web app icon subset failed:\n${result.output.slice(-LOG_TAIL_CHARACTERS)}`);
+}
+
+/**
+ * The default web app: the icon subset (the start script's prestart), then ng serve run by the private Node directly
+ * on the web port. No npm or cmd layer sits in between, so the recorded PID is the dev server itself, its output
+ * reaches web.log and an early exit is seen at once; analytics are off so it never waits on a prompt.
+ */
 function startWeb(system, root, urls) {
   const logFile = path.join(system.stateDir, LOG_FILES.web);
   const nodeDir = resolveNodeDir(system.env, system.exists);
-  if (!nodeDir) system.warn('the private Node folder was not found; the web app starts with the Node on PATH.');
-  const command = `${NPM_SHIM} ${FRONTEND_START_SCRIPT} --workspace ${FRONTEND_WORKSPACE}`;
-  const handle = system.spawnDetached(CMD, ['/d', '/s', '/c', command], { cwd: root, env: webEnvironment(system.env, nodeDir), logFile });
+  if (!nodeDir) system.warn('the private Node folder was not found; the web app starts with the Node that runs run-local.');
+  writeIconSubset(system, root);
+  const args = [path.join(root, ANGULAR_CLI), ...ANGULAR_SERVE_ARGUMENTS, new URL(urls.web).port];
+  const handle = system.spawnDetached(system.nodeExecutable, args, { cwd: path.join(root, FRONTEND_WORKSPACE), env: webEnvironment(system.env, nodeDir), logFile });
   const entry = { name: Services.web.name, pid: handle.pid, image: Services.web.image };
-  return { entry, handle, logFile, label: 'The web app', url: `${urls.web}${WEB_HEALTH_PATH}`, timeoutMs: Timeouts.web };
+  return { name: Services.web.name, entry, handle, logFile, label: 'The web app', url: healthUrl(Services.web.name, urls), timeoutMs: Timeouts.web };
 }
 
 /**
@@ -281,14 +341,9 @@ function startSlotWeb(system, root, urls) {
   const workspace = path.join(root, FRONTEND_WORKSPACE);
   const outputDir = path.join(system.stateDir, SLOT_WEB_DIR);
   system.log(`Building the web app into ${outputDir} (a frozen development build for this slot).`);
-  const steps = [
-    [path.join(workspace, ICONS_SUBSET_SCRIPT), ...ICONS_SUBSET_ARGUMENTS],
-    [path.join(root, ANGULAR_CLI), ...ANGULAR_BUILD_ARGUMENTS, outputDir],
-  ];
-  for (const step of steps) {
-    const result = system.runSync(node, step, { cwd: workspace });
-    if (result.code !== 0) throw new RunLocalError(`The web app build failed:\n${result.output.slice(-LOG_TAIL_CHARACTERS)}`);
-  }
+  writeIconSubset(system, root);
+  const build = system.runSync(node, [path.join(root, ANGULAR_CLI), ...ANGULAR_BUILD_ARGUMENTS, outputDir], { cwd: workspace });
+  if (build.code !== 0) throw new RunLocalError(`The web app build failed:\n${build.output.slice(-LOG_TAIL_CHARACTERS)}`);
   const browserDir = path.join(outputDir, WEB_BROWSER_DIR);
   const configFile = path.join(browserDir, WEB_RUNTIME_CONFIG);
   if (!system.exists(configFile)) throw new RunLocalError(`The web app built, but ${WEB_RUNTIME_CONFIG} was not found under ${browserDir}.`);
@@ -296,7 +351,7 @@ function startSlotWeb(system, root, urls) {
   const args = [path.join(root, STATIC_SERVER_SCRIPT), ServerFlags.dir, browserDir, ServerFlags.port, new URL(urls.web).port];
   const handle = system.spawnDetached(node, args, { cwd: root, env: system.env, logFile });
   const entry = { name: Services.slotWeb.name, pid: handle.pid, image: Services.slotWeb.image };
-  return { entry, handle, logFile, label: 'The web app', url: `${urls.web}${WEB_HEALTH_PATH}`, timeoutMs: Timeouts.slotWeb };
+  return { name: Services.web.name, entry, handle, logFile, label: 'The web app', url: healthUrl(Services.web.name, urls), timeoutMs: Timeouts.slotWeb };
 }
 
 function record(system, processes) {
@@ -320,13 +375,24 @@ async function refuseBusyPorts(system, plan, slot) {
   }
 }
 
-/** Decides what starts: the API always, the Attachment service and the web app when they can (warning otherwise). */
-function decide(system, root, { noWeb, noAttachments, slot }) {
-  const web = webStartDecision(system, root, noWeb, slot);
-  const attachments = attachmentsDecision({ noAttachments, projectExists: system.exists(path.join(root, ATTACHMENTS_PROJECT_FILE)) });
-  if (!attachments.start) system.warn(`Attachment service not started: ${attachments.reason}`);
-  if (!web.start) system.warn(`web not started: ${web.reason}`);
-  return startPlan({ attachments: attachments.start, web: web.start });
+/**
+ * Decides what starts from the fork's choices (codelab.starter.json: login modes, optional and removed modules; a
+ * missing file or field means everything on), the flags and what the tree holds: the API always, the others when
+ * they can (a warning names why one does not).
+ */
+function decide(system, root, { noWeb, noAttachments, noGateway, noOps, slot }) {
+  const features = starterFeatures(readIfExists(system, path.join(root, STARTER_MANIFEST)));
+  const projectExists = (file) => system.exists(path.join(root, file));
+  const decisions = {
+    [Services.attachments.name]: attachmentsDecision({ noAttachments, projectExists: projectExists(ATTACHMENTS_PROJECT_FILE), features }),
+    [Services.gateway.name]: gatewayDecision({ noGateway, projectExists: projectExists(GATEWAY_PROJECT_FILE), features }),
+    [Services.ops.name]: opsDecision({ noOps, projectExists: projectExists(OPS_PROJECT_FILE), features }),
+    [Services.web.name]: webStartDecision(system, root, noWeb, slot),
+  };
+  for (const [name, decision] of Object.entries(decisions)) {
+    if (!decision.start) system.warn(`${Hosts[name]?.label ?? 'The web app'} not started: ${decision.reason}`);
+  }
+  return startPlan(Object.fromEntries(Object.entries(decisions).map(([name, decision]) => [name, decision.start])));
 }
 
 /** Starts the planned services in order, recording each PID as soon as it exists; returns the started handles. */
@@ -377,16 +443,16 @@ function slotLayout(system, root, slot) {
  * @param {ReturnType<import('./system.mjs').createSystem>} system
  * @param {{ root: string, noWeb: boolean, noSeq: boolean, noAttachments?: boolean }} options
  */
-export async function start(baseSystem, { root, noWeb, noSeq, noAttachments = false, slot = Slots.default }) {
+export async function start(baseSystem, { root, noWeb, noSeq, noAttachments = false, noGateway = false, noOps = false, slot = Slots.default }) {
   const system = forSlot(baseSystem, slot);
   const running = readState(system)?.processes.filter((entry) => isAlive(system, entry)) ?? [];
   if (running.length > 0) {
     const pids = running.map((entry) => `${entry.name} PID ${entry.pid}`).join(', ');
     throw new RunLocalError(`run-local is already running (${pids}); run run-local.ps1 -Stop${slotArgument(slot)} first${nextSlotHint(slot)}.`);
   }
-  const plan = decide(system, root, { noWeb, noAttachments, slot });
+  const plan = decide(system, root, { noWeb, noAttachments, noGateway, noOps, slot });
   await refuseBusyPorts(system, plan, slot);
-  ensureSecrets(system, root, plan.includes(Services.attachments.name));
+  ensureSecrets(system, root, plan);
   startLocalDb(system);
   const chosenSeq = await prepareSeq(system, noSeq);
   const layout = slotLayout(system, root, slot);
@@ -394,27 +460,33 @@ export async function start(baseSystem, { root, noWeb, noSeq, noAttachments = fa
   const started = [];
   try {
     const launched = launch(system, root, plan, chosenSeq, started, layout);
-    for (const service of launched) await waitHealthy(system, service);
-    return summary(system, root, { plan, seq: chosenSeq, layout });
+    const results = await checkHealth(system, root, launched, chosenSeq);
+    const report = healthReport(results);
+    if (!report.ok) throw unhealthyError(system, report, results);
+    return summary(system, root, { plan, seq: chosenSeq, layout, report });
   } catch (error) {
     if (started.length > 0) for (const line of stop(baseSystem, slot)) system.log(line);
     throw error;
   }
 }
 
-function summary(system, root, { plan, seq, layout }) {
+function summary(system, root, { plan, seq, layout, report }) {
   const { urls, slot } = layout;
   const secrets = path.join(root, LOCAL_SECRETS_FILE);
   const user = system.exists(secrets) ? breakGlassUser(system.readText(secrets)) : null;
   const log = (name) => path.join(system.stateDir, LOG_FILES[name]);
   const has = (name) => plan.includes(name);
-  const attachments = Hosts.attachments;
+  const hostLine = (title, name, what) => (has(name)
+    ? `  ${title.padEnd(8)} ${urls[name]}  (${what}; health ${healthUrl(name, urls)}, log ${log(name)})`
+    : `  ${title.padEnd(8)} ${what} not started`);
   return [
+    'Health:',
+    ...report.lines,
     'The local stack is up.',
-    `  API      ${urls.api}  (health ${urls.api}${Hosts.api.healthPath}, log ${log(Services.api.name)})`,
-    has(Services.attachments.name)
-      ? `  Files    ${urls.attachments}  (Attachment service; health ${urls.attachments}${attachments.healthPath}, log ${log(Services.attachments.name)})`
-      : '  Files    Attachment service not started',
+    `  API      ${urls.api}  (health ${healthUrl(Services.api.name, urls)}, log ${log(Services.api.name)})`,
+    hostLine('Files', Services.attachments.name, 'Attachment service'),
+    hostLine('Gateway', Services.gateway.name, 'integration gateway'),
+    hostLine('Ops', Services.ops.name, 'Ops Console API'),
     has(Services.web.name) ? `  Web      ${urls.web}  (log ${log(Services.web.name)})` : '  Web      not started',
     seq ? `  Seq      ${seq}` : '  Seq      not used',
     `  Sign in  ${user ?? '(unknown)'}, password in ${LOCAL_SECRETS_FILE} (Identity:BreakGlass:Password)`,

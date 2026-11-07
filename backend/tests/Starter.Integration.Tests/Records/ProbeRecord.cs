@@ -45,14 +45,22 @@ public static class ProbeRecord
     public const string ViewOwn = "test-records.view-own";
     public const string Queue = "test-records.queue";
     public const string Decide = "test-records.decide";
+    // codelab:module-begin Attachments
 
     /// <summary>The SQL a migration of the owning module would run: one required, single-file PDF type.</summary>
     public const string RequiredDocumentInsert =
         "INSERT INTO [attachments].[ServiceAttachments] ([Id], [Key], [NameAr], [NameEn], [RecordType], [IsRequired], [MaxFiles], [IsActive], [AllowedExtensions]) "
         + "VALUES (@id, @key, @nameAr, @nameEn, @recordType, 1, 1, 1, @extensions)";
+    // codelab:module-end Attachments
 
     public static IReadOnlyCollection<string> RequesterPermissions { get; } =
-        [Create, ViewOwn, AttachmentsKeys.View, AttachmentsKeys.Upload];
+    [
+        Create,
+        ViewOwn,
+        AttachmentsKeys.View, // codelab:module Attachments
+        AttachmentsKeys.Upload, // codelab:module Attachments
+    ];
+    // codelab:module-begin Attachments
 
     public static IReadOnlyDictionary<string, object> RequiredDocumentValues { get; } = new Dictionary<string, object>
     {
@@ -63,6 +71,7 @@ public static class ProbeRecord
         ["@recordType"] = AttachableRecordType,
         ["@extensions"] = ".pdf",
     };
+    // codelab:module-end Attachments
 
     public static TransitionCatalog Catalog { get; } = new(
         RecordType,
@@ -96,6 +105,7 @@ public static class ProbeRecord
     private static TransitionRule Staff(string action, int from, int to, ReasonRequirement reason, NotificationDecision notification) => new(
         action, FromStatus: from, ToStatus: to, Decide, TransitionSide.Staff, reason,
         ReasonFieldKey: reason == ReasonRequirement.None ? null : ReasonField, $"testRecords.action.{action}", notification, RequiresOwnership: false);
+    // codelab:module-begin Attachments
 
     /// <summary>The attachments permission keys (the Attachments module's constants, as plain keys for the grant call).</summary>
     public static class AttachmentsKeys
@@ -103,6 +113,7 @@ public static class ProbeRecord
         public const string View = Starter.Modules.Attachments.Application.AttachmentsPermissionKeys.View;
         public const string Upload = Starter.Modules.Attachments.Application.AttachmentsPermissionKeys.Upload;
     }
+    // codelab:module-end Attachments
 
     public sealed class WorkflowDefinition : IRecordWorkflowDefinition
     {

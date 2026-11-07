@@ -8,6 +8,7 @@ folder holds the engine behind four PowerShell entry points, the manifest schema
 
 | Entry point | What it does |
 | --- | --- |
+| `init.ps1` (repo root) | The full init (ADR-003): asks for names, prefix, logo, colour, login modes and optional modules (or reads them from `-ConfigFile`), then runs rename, module/package removal, local keys, local database and the manifest/`Auth:Modes` step, each skipped when already done (`lib/init-steps.mjs`). |
 | `init.ps1 -Minimal` (repo root) | Turns a fresh starter clone into a fork in one recorded commit: removes modules and `packages/`, switches to feed mode, applies the rename map, sets the product prefix, hashes the source-owned files and writes `codelab.starter.json`. |
 | `tools/remove-module.ps1 -Name <Name>` | Removes one module at file level and records it in `removedModules`: its folders, its `.slnx` projects and host `ProjectReference`s, every line or block of a shared file that carries its module marker, and its `<camelName>.*` translation keys (see Module markers below). |
 | `tools/upstream-merge.ps1 -Upstream <remote or path>` | Merges starter changes since `starterBase`: rename replay, keep-deletion for removed areas, `git apply -3`, conflict report, hashes, build. |
@@ -30,7 +31,16 @@ folder holds the engine behind four PowerShell entry points, the manifest schema
 ## Use
 
 ```powershell
-# In a fresh fork clone (npm ci first: the rules compiler needs it)
+# In a fresh fork clone (npm ci first: steps 1 and 2 are BLOCKED without node_modules; step 2 reinstalls npm after
+# packages/ goes): interactive, or non-interactive for CI
+powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1 -ConfigFile C:ciinit.json -WhatIf   # plan only
+powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1 -ConfigFile C:ciinit.json -SkipDatabase
+# Config file (a relative logoPath is resolved against the file's folder):
+#   { "prefix": "ACME", "nameEn": "Acme Portal", "nameAr": "...", "primaryColor": "#0a5c8f", "logoPath": null,
+#     "loginModes": ["basic", "sso"], "optionalModules": { "attachments": true, "portal": true, "sms": false, "ops": true },
+#     "database": { "connectionString": null, "skip": true } }
+# The scripted Phase 2 init (fork-model tests)
 powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1 -Minimal -ProductPrefix ACME -RemoveModule Demo -FeedDir E:\codelab-starter\feed
 
 # Later, in the fork: take starter changes
@@ -57,7 +67,8 @@ CLI contracts (all scripts are Windows PowerShell 5.1; list parameters accept `A
 
 | Script | Parameters | Exit codes |
 | --- | --- | --- |
-| `init.ps1` | `-Minimal` (required), `-ProductPrefix <P>`, `-RemoveModule <Name[]>`, `-FeedDir <dir>` (default `<repo>\feed`), `-RenameMap <json file>` (default identity), `-SkipSecrets`, `-SkipNpmLock`, `-AllowMissingTargets` | 0 done, 1 refused (nothing changed), 2 usage/internal |
+| `init.ps1` (full) | `-ConfigFile <json>` (else interactive), `-WhatIf`, `-SkipDatabase`, `-SkipSecrets`, `-SkipNpmLock`, `-FeedDir <dir>` | 0 done (or every step already done), 1 refused (invalid config, a blocked step, dirty tree), 2 usage/internal |
+| `init.ps1 -Minimal` | `-Minimal`, `-ProductPrefix <P>`, `-RemoveModule <Name[]>`, `-FeedDir <dir>` (default `<repo>\feed`), `-RenameMap <json file>` (default identity), `-SkipSecrets`, `-SkipNpmLock`, `-AllowMissingTargets` | 0 done, 1 refused (nothing changed), 2 usage/internal |
 | `tools/remove-module.ps1` | `-Name <Name>` | 0 removed or already removed, 1 refused, 2 usage/internal |
 | `tools/ci/module-deletability.ps1` | `-Name <Name>`, `-WorkDir <dir>` (default `%TEMP%\codelab-module-deletability-<Name>`), `-SourceRoot`, `-Revision <rev>` + `-Overlay <paths>`, `-DummyModule`, `-NpmCi`, `-SkipBackendTests`, `-SkipFrontend`, `-KeepCopy`, `-PlanOnly` | 0 passed, 1 a check failed (step named), 2 usage, guard refusal or setup failure |
 | `tools/upstream-merge.ps1` | `-Upstream <remote or path>` and `-Branch <name>` (default `main`), or `-Continue`; `-BuildCommand <PowerShell text>`, `-SkipBuild`, `-ReportPath <json>` | 0 merged clean or up to date, 1 conflicts left (or the build failed), 2 usage/internal |

@@ -13,7 +13,9 @@ dependency closure** a client needs to restore and build the delivered source wi
 | `npm-files\` | Tarballs a lock file installs by `file:` path (for example `feed/npm/*.tgz`), stored at their source-relative path. |
 | `OFFLINE.md` | The offline restore commands, including `npm ci --offline --cache ./npm-cache`. |
 | `sources\` | One zip per Codelab package folder (`packages\dotnet\*`, `packages\npm\*`, `packages\vectors`). Entry names are source-relative and contain no build output. |
-| `PREREQUISITES.md` | The .NET SDK (from `global.json`), Node (from `.nvmrc`) and Playwright browser versions. |
+| `PREREQUISITES.md` | The .NET SDK (from `global.json`), Node (from `.nvmrc`) and Playwright versions, and the installer list (exact version, URL, SHA-256). |
+| `prerequisites.json` | A copy of [prerequisites.json](prerequisites.json): the installers, **listed, not shipped** (P10 decision). |
+| `BUILD-OFFLINE.md` | A copy of [BUILD-OFFLINE.md](BUILD-OFFLINE.md): the client's step list. |
 | `manifest.json` | `kind: codelab-handover-kit`, `schemaVersion`, the inputs, the tool versions and the SHA-256 and size of every other file. |
 
 ## Use
@@ -22,6 +24,9 @@ Prepend the private Node to PATH, or let the scripts find it. They use `CODELAB_
 `E:\codelab-tools\node24`, then the `node` on PATH. dotnet is resolved the same way `tools\build.ps1` does it.
 
 ```powershell
+# The whole starter closure: backend, services, starter-web, ops-web (P10)
+powershell -NoProfile -ExecutionPolicy Bypass -File deployhandoverNew-HandoverKit.ps1 -OutputPath $env:TEMPkit -Preset Full
+
 # Build a kit (project paths are relative to the repo root; -OutputPath to the current folder)
 powershell -NoProfile -ExecutionPolicy Bypass -File deploy\handover\New-HandoverKit.ps1 `
   -OutputPath $env:TEMP\codelab-handover-test `
@@ -44,6 +49,7 @@ $env:CODELAB_HANDOVER_E2E = '1'; node --test "deploy/handover/tests/**/*.test.mj
 | Parameter | Meaning |
 | --- | --- |
 | `-OutputPath` | Required. The kit folder. It must not be a drive root and must not be inside the source root or contain it. |
+| `-Preset` | `Full`: every solution (starter + 3 services) and npm project (Codelab packages, starter-web, ops-web, the ng-security consumer) in `KitPresets` (`lib/KitConstants.ps1`). Entries missing in a fork are skipped and recorded in `presetSkipped`; every `package-lock.json` must be covered. Explicit `-Projects`/`-NpmProjects` are added. |
 | `-Projects` | `.csproj`, `.slnx` or `.sln` files, relative to `-SourceRoot`. Comma-separated values are accepted. |
 | `-NpmProjects` | Folders with a `package.json`. A folder without its own `package-lock.json` must be a workspace member of the nearest ancestor that has one; it is installed from there. |
 | `-FeedPath` | The Codelab feed folder (`nuget\`, `npm\`). The default is `feed`. |
@@ -63,7 +69,7 @@ unsafe output folder.
    - `NO_PROXY` is cleared;
    - `NUGET_PACKAGES` is a new empty folder.
 4. It runs `dotnet restore --configfile <kit>\nuget.config`, then `dotnet build --no-restore`.
-5. It runs `npm ci --offline --cache <copy of the kit cache>`, then `npm run build` and `npm test` where those scripts exist (the test imports and runs the installed packages offline).
+5. It runs `npm ci --offline --cache <copy of the kit cache>`, then `npm run build` in every npm project (manifest order), `npm rebuild --ignore-scripts --offline` per install folder (links bins that point into `dist\`), then `npm test` (the test imports and runs the installed packages offline).
 
 ## Extend
 
@@ -75,6 +81,8 @@ unsafe output folder.
 - **Another source zip root:** add it to `PackageSourceGroups` (each child folder becomes one zip) or to `PackageSourceFolders` (the whole folder becomes one zip).
 - **A changed manifest shape:** bump `KitSchemaVersion`. The test refuses other versions.
 - **Library code:** it lives in `lib/*.ps1`, loaded by `lib/HandoverKit.psm1`. Put literals in `lib/KitConstants.ps1`, and give scripts layout names through `Get-KitLayout`.
+
+- **Installers:** update [prerequisites.json](prerequisites.json) (version, URL, SHA-256 from a downloaded file) whenever `global.json`, `.nvmrc` or the locked `playwright-core` changes; the kit build refuses drift (exit 2).
 
 ## Rules
 
@@ -94,4 +102,5 @@ unsafe output folder.
 - **The in-process test is a simulation.** It blocks proxies and starts from an empty package folder, but it does not disable the network adapter. The real proof, a VM with the adapter disabled, is an owner step (ADR-008).
 - **The kit restores only what the listed projects need.** A `.slnx` covers all its projects; otherwise list every project the client builds, test projects included.
 - **`Microsoft.AspNetCore.App` and other shared frameworks come from the installed SDK**, not from `nuget\`. Install the SDK version in `PREREQUISITES.md`.
+- **Installers are listed, not shipped (P10 decision).** Shipping them would add ~300 MB per kit and tie each kit to one OS image; the client verifies the listed SHA-256 instead. The e2e runtime uses the installed Microsoft Edge, so no Playwright browser is downloaded.
 - **CI step 14 runs the offline simulation on the exit-criterion targets** (`Package.Sample.Tests` and `ng-security-consumer`, at the versions step 13 tested). The unit tests run in step 10; the opt-in `end-to-end.test.mjs` (`CODELAB_HANDOVER_E2E=1`) adds the negative proof that a kit missing a package fails offline. The phase 1 exit criterion "network-disabled restore and build" stays open until the owner's VM run.

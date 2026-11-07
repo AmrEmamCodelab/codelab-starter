@@ -9,8 +9,10 @@ using Starter.Modules.Lookups.Domain;
 namespace Starter.Modules.Lookups.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// The Lookups schema: the lookup types and their values, with no rows (each type is seeded by its own migration,
-/// written by <c>tools/scaffold/new-lookup.mjs</c>). Written in the reshaped migration style of the other modules;
+/// The Lookups schema: the lookup types and their values, with the seeded types of <see cref="InitialLookupTypes"/>.
+/// Since the v1.0 squash (ADR-010) it is the only Lookups migration and keeps its original id, so a database that
+/// applied the old chain stays valid; a later lookup is a new incremental migration written by
+/// <c>tools/scaffold/new-lookup.mjs</c>. Written in the reshaped migration style of the other modules;
 /// <see cref="LookupsMigrationModel"/> is its target model and the snapshot, and the model test proves the context has
 /// no pending change against it. See MODULE.md.
 /// </summary>
@@ -31,6 +33,10 @@ public sealed class InitialCreate : Migration
             table: LookupsTableNames.LookupItems,
             columns: [nameof(LookupItem.TypeKey), nameof(LookupItem.Code)],
             unique: true);
+        foreach (var seed in InitialLookupTypes.All)
+        {
+            LookupSeed.InsertType(migrationBuilder, seed.TypeKey, seed.Names, seed.Items);
+        }
     }
 
     /// <inheritdoc />

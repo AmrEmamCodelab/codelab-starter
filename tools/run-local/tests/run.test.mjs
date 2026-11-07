@@ -7,7 +7,13 @@ import {
   ATTACHMENTS_PROJECT_FILE,
   ATTACHMENTS_SECRETS_FILE,
   ExitCode,
+  GATEWAY_ASSEMBLY,
+  GATEWAY_PROJECT_FILE,
+  GATEWAY_SECRETS_FILE,
   LOCAL_SECRETS_FILE,
+  OPS_ASSEMBLY,
+  OPS_PROJECT_FILE,
+  OPS_SECRETS_FILE,
   PRIVATE_DOTNET,
   STATE_FILE,
   Urls,
@@ -23,6 +29,12 @@ const MANIFEST = path.join(ROOT, 'frontend/starter-web/package.json');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
 const ATTACHMENTS_PROJECT = path.join(ROOT, ATTACHMENTS_PROJECT_FILE);
 const SERVICE_SECRETS = path.join(ROOT, ATTACHMENTS_SECRETS_FILE);
+const ANGULAR_CLI_FILE = path.join(ROOT, 'node_modules/@angular/cli/bin/ng.js');
+const GATEWAY_PROJECT = path.join(ROOT, GATEWAY_PROJECT_FILE);
+const OPS_PROJECT = path.join(ROOT, OPS_PROJECT_FILE);
+const GATEWAY_SECRETS = path.join(ROOT, GATEWAY_SECRETS_FILE);
+const OPS_SECRETS = path.join(ROOT, OPS_SECRETS_FILE);
+const STARTER_MANIFEST_FILE = path.join(ROOT, 'codelab.starter.json');
 
 /** A fake system: files in a map, commands answered by `commands`, URLs by `statuses`, a manual clock. */
 function fakeSystem({ files = {}, statuses = {}, alive = new Map(), commands = {}, exitsEarly = false, builds = true } = {}) {
@@ -38,7 +50,7 @@ function fakeSystem({ files = {}, statuses = {}, alive = new Map(), commands = {
     warnings: [],
     calls,
     disk,
-    exists: (file) => disk.has(file) || file === PRIVATE_DOTNET || (builds && (file.endsWith(API_ASSEMBLY) || file.endsWith(ATTACHMENTS_ASSEMBLY))),
+    exists: (file) => disk.has(file) || file === PRIVATE_DOTNET || (builds && [API_ASSEMBLY, ATTACHMENTS_ASSEMBLY, GATEWAY_ASSEMBLY, OPS_ASSEMBLY].some((assembly) => file.endsWith(assembly))),
     listDirs: () => ['net9.0', 'net10.0'],
     readText: (file) => disk.get(file),
     writeText: (file, text) => disk.set(file, text),
@@ -107,12 +119,13 @@ const WITH_ATTACHMENTS = {
   [ATTACHMENTS_PROJECT]: '<Project />',
   [MANIFEST]: '{"scripts":{"start":"ng serve"}}',
   [NODE_MODULES]: '',
+  [ANGULAR_CLI_FILE]: '',
 };
 
 describe('start', () => {
   it('starts the API and the web app, records both PIDs and prints the URLs and the break-glass user', async () => {
     const system = fakeSystem({
-      files: { [SECRETS]: '{"Identity":{"BreakGlass":{"UserName":"breakglass"}}}', [MANIFEST]: '{"scripts":{"start":"ng serve"}}', [NODE_MODULES]: '' },
+      files: { [SECRETS]: '{"Identity":{"BreakGlass":{"UserName":"breakglass"}}}', [MANIFEST]: '{"scripts":{"start":"ng serve"}}', [NODE_MODULES]: '', [ANGULAR_CLI_FILE]: '' },
       statuses: healthy,
       commands: { 'sc.exe': { code: 1, output: 'not installed' } },
     });
@@ -130,7 +143,7 @@ describe('start', () => {
 
   it('leaves LocalDB alone when the connection string is overridden to another server', async () => {
     const system = fakeSystem({
-      files: { [SECRETS]: '{"Identity":{"BreakGlass":{"UserName":"breakglass"}}}', [MANIFEST]: '{"scripts":{"start":"ng serve"}}', [NODE_MODULES]: '' },
+      files: { [SECRETS]: '{"Identity":{"BreakGlass":{"UserName":"breakglass"}}}', [MANIFEST]: '{"scripts":{"start":"ng serve"}}', [NODE_MODULES]: '', [ANGULAR_CLI_FILE]: '' },
       statuses: healthy,
       commands: { 'sc.exe': { code: 1, output: 'not installed' } },
     });
@@ -145,7 +158,7 @@ describe('start', () => {
   it('writes missing secrets once, skips a web app without dependencies and uses a reachable Seq', async () => {
     const system = fakeSystem({
       files: { [MANIFEST]: '{"scripts":{"start":"ng serve"}}' },
-      statuses: { ...healthy, [Urls.seqDefault]: () => 200 },
+      statuses: { ...healthy, [Urls.seqDefault]: () => 200, [`${Urls.seqDefault}/health`]: () => 200 },
     });
 
     const lines = await start(system, { root: ROOT, noWeb: false, noSeq: false });
@@ -206,7 +219,7 @@ describe('the Attachment service', () => {
     assert.deepEqual(JSON.parse(system.disk.get(STATE)).processes.map((entry) => entry.name), ['api', 'attachments', 'web']);
     const steps = system.calls
       .filter((call) => call[1] === 'build' || call[0] === 'spawn')
-      .map((call) => (call[1] === 'build' ? `build ${call[2]}` : `spawn ${call[1] === 'cmd.exe' ? 'web' : path.basename(call.at(-1))}`));
+      .map((call) => (call[1] === 'build' ? `build ${call[2]}` : `spawn ${call[1] === NODE ? 'web' : path.basename(call.at(-1))}`));
     assert.deepEqual(steps, [
       'build backend/src/Starter.Api/Starter.Api.csproj',
       'spawn Starter.Api.dll',
@@ -480,5 +493,135 @@ describe('slots: a second stack next to a running default stack', () => {
     assert.ok(alive.has(7) && system.disk.has(STATE), 'the default stack is left alone');
     assert.ok(!system.disk.has(SLOT_STATE));
     assert.ok(lines.includes('Stopped web (PID 22).'));
+  });
+});
+
+describe('the integration gateway and the Ops Console', () => {
+  const GATEWAY_READY = 'http://localhost:5187/health/ready';
+  const OPS_READY = 'http://localhost:5188/health/ready';
+  const everyHostHealthy = { ...healthy, [GATEWAY_READY]: upAfterStart, [OPS_READY]: upAfterStart };
+  const withAllHosts = {
+    ...WITH_ATTACHMENTS,
+    [GATEWAY_PROJECT]: '<Project />',
+    [OPS_PROJECT]: '<Project />',
+    [GATEWAY_SECRETS]: '{}',
+    [OPS_SECRETS]: '{}',
+  };
+
+  it('starts both without a manifest (everything on), in order, and checks each on its readiness endpoint', async () => {
+    const system = fakeSystem({ files: withAllHosts, statuses: everyHostHealthy });
+
+    const lines = await start(system, { root: ROOT, noWeb: false, noSeq: true });
+
+    assert.deepEqual(JSON.parse(system.disk.get(STATE)).processes.map((entry) => entry.name), ['api', 'attachments', 'gateway', 'ops', 'web']);
+    const gateway = system.spawned.find((entry) => entry.args.at(-1).endsWith(GATEWAY_ASSEMBLY));
+    const ops = system.spawned.find((entry) => entry.args.at(-1).endsWith(OPS_ASSEMBLY));
+    assert.equal(gateway.options.env.ASPNETCORE_URLS, 'http://localhost:5187');
+    assert.equal(gateway.options.cwd, path.join(ROOT, 'services/integration-gateway/src/Codelab.Gateway.Api'));
+    assert.equal(ops.options.env.ASPNETCORE_URLS, 'http://localhost:5188');
+    assert.ok(system.probed.indexOf(OPS_READY) > system.probed.indexOf(GATEWAY_READY), 'checked in start order');
+    for (const name of ['api', 'attachments', 'gateway', 'ops', 'web']) {
+      assert.ok(lines.some((line) => new RegExp(`^  ${name}\\s+healthy\\s`).test(line)), `${name} is reported healthy`);
+    }
+    assert.ok(!system.calls.some((call) => call[0] === 'powershell.exe'), 'their secrets files exist, so nothing is seeded');
+  });
+
+  it('starts neither when the fork has no sso login mode, no sms and no ops', async () => {
+    const manifest = '{"loginModes":["basic"],"optionalModules":{"attachments":true,"portal":true,"sms":false,"ops":false}}';
+    const system = fakeSystem({ files: { ...withAllHosts, [STARTER_MANIFEST_FILE]: manifest }, statuses: everyHostHealthy });
+
+    const lines = await start(system, { root: ROOT, noWeb: true, noSeq: true });
+
+    assert.deepEqual(JSON.parse(system.disk.get(STATE)).processes.map((entry) => entry.name), ['api', 'attachments']);
+    assert.ok(!system.probed.includes('http://localhost:5187') && !system.probed.includes('http://localhost:5188'), 'their ports are not checked');
+    assert.ok(system.warnings.some((line) => /integration gateway not started: not needed/.test(line)));
+    assert.ok(system.warnings.some((line) => /Ops Console not started: the ops module is off/.test(line)));
+    assert.ok(lines.some((line) => /Gateway\s+integration gateway not started/.test(line)));
+  });
+
+  it('starts the gateway for sms alone and skips both with -NoGateway -NoOps', async () => {
+    const smsOnly = '{"loginModes":["basic"],"optionalModules":{"sms":true,"ops":false}}';
+    const sms = fakeSystem({ files: { ...withAllHosts, [STARTER_MANIFEST_FILE]: smsOnly }, statuses: everyHostHealthy });
+    await start(sms, { root: ROOT, noWeb: true, noSeq: true, noAttachments: true });
+    assert.deepEqual(JSON.parse(sms.disk.get(STATE)).processes.map((entry) => entry.name), ['api', 'gateway']);
+
+    const flags = fakeSystem({ files: withAllHosts, statuses: everyHostHealthy });
+    await start(flags, { root: ROOT, noWeb: true, noSeq: true, noAttachments: true, noGateway: true, noOps: true });
+    assert.deepEqual(JSON.parse(flags.disk.get(STATE)).processes.map((entry) => entry.name), ['api']);
+  });
+
+  it('seeds when a planned host has no local secrets file, and names the file when it stays unhealthy', async () => {
+    const files = { ...withAllHosts };
+    delete files[OPS_SECRETS];
+    const system = fakeSystem({ files, statuses: { ...healthy, [GATEWAY_READY]: upAfterStart }, exitsEarly: (args) => args.at(-1).endsWith(OPS_ASSEMBLY) });
+
+    assert.equal(await main({ root: ROOT, noWeb: true, noSeq: true, stop: false }, system), ExitCode.failed);
+
+    assert.ok(system.calls.some((call) => call[0] === 'powershell.exe' && call.at(-1).endsWith('New-LocalSecrets.ps1')), 'the seeding script runs');
+    assert.ok(system.warnings.some((line) => /Ops Console has no local secrets file/.test(line)));
+    const report = system.warnings.find((line) => line.startsWith('Health check failed:'));
+    assert.match(report, /api\s+healthy/);
+    assert.match(report, /gateway\s+healthy/);
+    assert.match(report, /ops\s+unhealthy\s+http:\/\/localhost:5188\/health\/ready: exited before it was healthy \(no services\/ops-console/);
+    assert.equal(system.calls.filter((call) => call[0] === 'taskkill.exe').length, 4, 'every started process is stopped');
+  });
+
+  it('moves both to the slot ports and points the slot Ops Console and API at the slot', async () => {
+    const system = fakeSystem({
+      files: withAllHosts,
+      statuses: {
+        'http://localhost:5280/health/ready': upAfterStart,
+        'http://localhost:5285/health/ready': upAfterStart,
+        'http://localhost:5287/health/ready': upAfterStart,
+        'http://localhost:5288/health/ready': upAfterStart,
+      },
+    });
+
+    await start(system, { root: ROOT, noWeb: true, noSeq: true, slot: 1 });
+
+    const [api, , gateway, ops] = system.spawned;
+    assert.equal(gateway.options.env.ASPNETCORE_URLS, 'http://localhost:5287');
+    assert.equal(ops.options.env.ASPNETCORE_URLS, 'http://localhost:5288');
+    assert.equal(ops.options.env.Codelab__OpsConsole__Api__BaseUrl, 'http://localhost:5280/');
+    assert.equal(api.options.env.Codelab__Integration__Gateway__BaseUrl, 'http://localhost:5287');
+  });
+});
+
+describe('the health report', () => {
+  it('reports every service, not only the first failure, and exits 1', async () => {
+    const system = fakeSystem({ files: WITH_ATTACHMENTS, statuses: { [`${Urls.api}/health/ready`]: upAfterStart, [`${Urls.web}/`]: upAfterStart } });
+
+    assert.equal(await main({ root: ROOT, noWeb: false, noSeq: true, stop: false }, system), ExitCode.failed);
+
+    const report = system.warnings.find((line) => line.startsWith('Health check failed:'));
+    assert.match(report, /api\s+healthy/);
+    assert.match(report, /attachments\s+unhealthy\s+http:\/\/localhost:5185\/health\/ready: not healthy within 240 s/);
+    assert.match(report, /web\s+healthy/, 'the web app is still checked after a failure');
+  });
+
+  it('checks a used Seq on /health and fails the start when it stops answering', async () => {
+    const seqUp = { ...healthy, [Urls.seqDefault]: () => 200 };
+    const system = fakeSystem({ files: { [SECRETS]: '{}' }, statuses: seqUp });
+
+    assert.equal(await main({ root: ROOT, noWeb: true, noSeq: false, stop: false }, system), ExitCode.failed);
+    assert.ok(system.probed.includes(`${Urls.seqDefault}/health`));
+    assert.ok(system.warnings.some((line) => /seq\s+unhealthy\s+http:\/\/localhost:5341\/health/.test(line)));
+  });
+});
+
+describe('the default web app', () => {
+  it('writes the icon subset, then runs ng serve on :4280 with the private Node and analytics off', async () => {
+    const system = fakeSystem({ files: WITH_ATTACHMENTS, statuses: healthy });
+
+    await start(system, { root: ROOT, noWeb: false, noSeq: true, noAttachments: true });
+
+    const web = system.spawned.find((entry) => entry.command === NODE);
+    assert.deepEqual(web.args, [ANGULAR_CLI_FILE, 'serve', '--port', '4280']);
+    assert.equal(web.options.cwd, path.join(ROOT, 'frontend/starter-web'));
+    assert.equal(web.options.env.NG_CLI_ANALYTICS, 'false');
+    const iconsAt = system.calls.findIndex((call) => call[0] === NODE && call[1].endsWith('icons-subset.mjs'));
+    const serveAt = system.calls.findIndex((call) => call[0] === 'spawn' && call[1] === NODE);
+    assert.ok(iconsAt >= 0 && iconsAt < serveAt, 'the icon subset is written first');
+    assert.equal(JSON.parse(system.disk.get(STATE)).processes.find((entry) => entry.name === 'web').image, 'node.exe');
   });
 });

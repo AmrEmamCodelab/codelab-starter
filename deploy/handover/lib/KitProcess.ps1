@@ -136,7 +136,7 @@ function Get-KitLayout {
         ExitSuccess = $script:ExitSuccess; ExitFailure = $script:ExitFailure; ExitUsage = $script:ExitUsage
         NuGetDir = $script:KitNuGetDir; NpmCacheDir = $script:KitNpmCacheDir; NpmFilesDir = $script:KitNpmFilesDir
         NuGetConfigFile = $script:KitNuGetConfigFile; OfflineFile = $script:KitOfflineFile
-        PrerequisitesFile = $script:KitPrerequisitesFile; RelativeNuGetSource = './' + $script:KitNuGetDir
+        PrerequisitesFile = $script:KitPrerequisitesFile; PrerequisitesDataFile = $script:KitPrerequisitesDataFile; BuildOfflineFile = $script:KitBuildOfflineFile; BuildOfflineSourceFile = $script:BuildOfflineSourceFile; RelativeNuGetSource = './' + $script:KitNuGetDir
         PackageJsonFile = $script:PackageJsonFile; NpmBuildScript = $script:NpmBuildScript; NpmTestScript = $script:NpmTestScript; NpmScriptsKey = $script:NpmScriptsKey
         DefaultFeed = $script:DefaultFeedRelative; FeedNuGetSubdir = $script:FeedNuGetSubdir
     }

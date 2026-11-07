@@ -87,6 +87,7 @@ package already prove both outcomes the spike proved: a real dependency is detec
 
 ## Rules
 
+- The public API is stable since 1.0.0 (`PublicAPI.Shipped.txt`): a breaking change needs a new major version; a fix ships as a patch release (ADR-013).
 - The package references no other Codelab package (`module.rules.yaml`). Security, error and identity types come in as
   `Type` parameters or predicates.
 - Never make a check pass on empty input. `CheckResult` treats zero examined items as a failure.

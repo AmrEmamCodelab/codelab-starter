@@ -21,7 +21,7 @@ public sealed class AttachmentsModelTests
         Assert.Equal(AttachmentsTableNames.ServiceAttachments, context.Model.FindEntityType(typeof(ServiceAttachment))!.GetTableName());
         Assert.Equal(AttachmentsTableNames.RecordAttachments, context.Model.FindEntityType(typeof(RecordAttachment))!.GetTableName());
         Assert.All(context.Model.GetEntityTypes(), entity => Assert.Equal(AttachmentsDbContext.SchemaName, entity.GetSchema()));
-        Assert.Equal([AttachmentsMigrationIds.InitialCreate, AddServiceRequestAttachmentTypes.MigrationId], context.Database.GetMigrations());
+        Assert.Equal([AttachmentsMigrationIds.InitialCreate], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -72,18 +72,6 @@ public sealed class AttachmentsModelTests
         Assert.Equal(AttachmentTypeSeed.Rows.Count, script.Split("INSERT INTO [attachments].[ServiceAttachments]").Length - 1);
         Assert.Contains("N'.pdf;.png;.jpg;.jpeg'", script, StringComparison.Ordinal);
         Assert.Contains("N'مستند تجريبي'", script, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_retired_sample_seed_migration_keeps_its_id_and_writes_nothing_but_its_history_row()
-    {
-        using var context = NewContext();
-
-        var script = context.GetService<IMigrator>().GenerateScript(fromMigration: AttachmentsMigrationIds.InitialCreate, toMigration: AddServiceRequestAttachmentTypes.MigrationId);
-
-        Assert.Equal("20261106150100_AddServiceRequestAttachmentTypes", AddServiceRequestAttachmentTypes.MigrationId);
-        Assert.DoesNotContain("[attachments].[ServiceAttachments]", script, StringComparison.Ordinal);
-        Assert.Contains($"N'{AddServiceRequestAttachmentTypes.MigrationId}'", script, StringComparison.Ordinal);
     }
 
     [Fact]

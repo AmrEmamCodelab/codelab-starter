@@ -5,14 +5,14 @@ import { permissionGuard } from './core/auth/permission.guard';
 import { PermissionKeys, type PermissionKey } from './core/permissions/permission-keys.generated';
 import { RouteDataKeys, RoutePaths } from './core/routing/route-paths';
 import { ADMIN_AREA_PERMISSIONS } from './features/admin/admin-entry';
-import { ATTACHMENTS_ROUTES } from './features/attachments/attachments.routes';
+import { ATTACHMENTS_ROUTES } from './features/attachments/attachments.routes'; // codelab:module Attachments
 import { NOTIFICATIONS_LINK, NOTIFICATIONS_ROUTES } from './features/notifications/notifications.routes';
 // codelab:module-begin ServiceRequests
 import { SERVICE_REQUESTS_REQUESTER_DEFAULT_BASE_LINK, SERVICE_REQUESTS_REQUESTER_NAV, SERVICE_REQUESTS_REQUESTER_ROUTES, requesterLandingGuard, requesterShellMatch } from './features/service-requests/requester';
 import { SERVICE_REQUESTS_STAFF_ROUTES } from './features/service-requests/staff/service-requests-staff.routes';
 import { REQUESTER_SHELL_OPTIONS } from './layouts/requester-shell/requester-nav';
 // codelab:module-end ServiceRequests
-import { PORTAL_ROUTES } from './features/portal/portal.routes';
+import { PORTAL_ROUTES } from './features/portal/portal.routes'; // codelab:module Portal
 import { SHELL_NAV_ITEMS } from './layouts/app-shell/shell-nav';
 import { SHOWCASE_ROUTES } from './showcase/showcase.routes';
 
@@ -58,8 +58,8 @@ export const SHELL_ROUTE: Route = {
     },
     ...NOTIFICATIONS_ROUTES,
     ...SERVICE_REQUESTS_STAFF_ROUTES, // codelab:module ServiceRequests
-    // Development builds only (canMatch); gated by attachments.view.
-    ...ATTACHMENTS_ROUTES,
+    // Development builds only (canMatch); gated by attachments.view. // codelab:module Attachments
+    ...ATTACHMENTS_ROUTES, // codelab:module Attachments
   ],
 };
 
@@ -96,7 +96,7 @@ export const REQUESTER_SHELL_ROUTE: Route = {
 export const PORTAL_ROUTE: Route = {
   path: RoutePaths.Portal,
   loadComponent: () => import('./layouts/portal-shell/portal-shell.component').then(m => m.PortalShellComponent),
-  children: PORTAL_ROUTES,
+  children: PORTAL_ROUTES, // codelab:module Portal
 };
 
 /**

@@ -14,9 +14,15 @@ How versions work (see `tools/README.md`, "Versioning"):
   `PublicAPI.Unshipped.txt` entries into `PublicAPI.Shipped.txt`.
 - A version marked **Known insecure** must not be used; upgrade to the version named there.
 
-Breaking changes are allowed before 1.0.0 but must be listed under **Changed** or **Removed** with the migration step.
+Since 1.0.0 a breaking change needs a new major version; it is listed under **Changed** or **Removed** with the migration step.
 
 ## Codelab.Build.Sdk
+
+### [1.0.0] - 2026-11-07
+
+#### Changed
+
+- First stable release: the public API is frozen and follows Semantic Versioning from here on. Same content as 0.2.1.
 
 ### [0.2.1] - 2026-11-04
 
@@ -57,7 +63,9 @@ Breaking changes are allowed before 1.0.0 but must be listed under **Changed** o
 
 ## Codelab.Security
 
-### [Unreleased] - 0.6.0
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.6.0.
 
 #### Added
 
@@ -126,7 +134,9 @@ signature checks can be bypassed (see 0.5.1, Fixed).
 
 ## Codelab.Observability
 
-### [Unreleased] - 0.5.2
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.5.2.
 
 #### Security
 
@@ -174,7 +184,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Errors
 
-### [Unreleased] - 0.5.2
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.5.2.
 
 #### Changed
 
@@ -202,7 +214,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Identity
 
-### [Unreleased] - 0.6.0
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.6.0 and 0.5.0 (neither was released).
 
 #### Added
 
@@ -214,8 +228,6 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 #### Changed
 
 - The OIDC token exchange and JWKS fetch run through `IOidcBackChannel`; the existing public `JwksSigningKeySource(IHttpClientFactory, IOptions<OidcOptions>, TimeProvider, ILogger)` constructor keeps working (direct). **Migration:** none for direct deployments. A deployment without egress registers a relay `IOidcBackChannel` and sets `Codelab:Identity:Sso:BackChannel` to 2 (and `NoEgress` true).
-
-### [Unreleased] - 0.5.0
 
 #### Added
 
@@ -241,7 +253,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Integration
 
-### [Unreleased] - 0.6.0
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.6.0.
 
 #### Added
 
@@ -268,7 +282,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Testing
 
-### [Unreleased] - 0.6.0
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.6.0.
 
 #### Added
 
@@ -287,6 +303,12 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
   is problem+json.
 
 ## @codelab/ng-security
+
+### [1.0.0] - 2026-11-07
+
+#### Changed
+
+- First stable release: the public API is frozen and follows Semantic Versioning from here on. Same content as 0.5.1.
 
 ### [0.5.1] - 2026-11-04
 
@@ -309,7 +331,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## @codelab/ng-tools
 
-### [Unreleased] - 0.5.0
+### [1.0.0] - 2026-11-07
+
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the changes prepared as 0.5.0.
 
 #### Added
 
@@ -373,10 +397,9 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## @codelab/ng-dga
 
-### [Unreleased] - 1.0.0
+### [1.0.0] - 2026-11-07
 
-The 1.0 release candidate (Phase 4). `-Pack` publishes it as `1.0.0-ci.<n>` prereleases; the catalog's `since`
-values name this line. 1.0.0 itself is released in Phase 10.
+First stable release: the public API is frozen and follows Semantic Versioning from here on. It contains the Phase 4 release candidate (the `1.0.0-ci.<n>` prereleases).
 
 #### Added
 

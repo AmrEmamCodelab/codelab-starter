@@ -10,12 +10,12 @@
     included), never against an older release.
   -->
   <PropertyGroup>
-    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">0.2.1</CodelabBuildSdkVersion>
-    <CodelabSecurityVersion Condition="'$(CodelabSecurityVersion)' == ''">0.6.0</CodelabSecurityVersion>
-    <CodelabObservabilityVersion Condition="'$(CodelabObservabilityVersion)' == ''">0.5.2</CodelabObservabilityVersion>
-    <CodelabErrorsVersion Condition="'$(CodelabErrorsVersion)' == ''">0.5.2</CodelabErrorsVersion>
-    <CodelabTestingVersion Condition="'$(CodelabTestingVersion)' == ''">0.6.0</CodelabTestingVersion>
-    <CodelabIntegrationVersion Condition="'$(CodelabIntegrationVersion)' == ''">0.6.0</CodelabIntegrationVersion>
-    <CodelabIdentityVersion Condition="'$(CodelabIdentityVersion)' == ''">0.6.0</CodelabIdentityVersion>
+    <CodelabBuildSdkVersion Condition="'$(CodelabBuildSdkVersion)' == ''">1.0.0</CodelabBuildSdkVersion>
+    <CodelabSecurityVersion Condition="'$(CodelabSecurityVersion)' == ''">1.0.0</CodelabSecurityVersion>
+    <CodelabObservabilityVersion Condition="'$(CodelabObservabilityVersion)' == ''">1.0.0</CodelabObservabilityVersion>
+    <CodelabErrorsVersion Condition="'$(CodelabErrorsVersion)' == ''">1.0.0</CodelabErrorsVersion>
+    <CodelabTestingVersion Condition="'$(CodelabTestingVersion)' == ''">1.0.0</CodelabTestingVersion>
+    <CodelabIntegrationVersion Condition="'$(CodelabIntegrationVersion)' == ''">1.0.0</CodelabIntegrationVersion>
+    <CodelabIdentityVersion Condition="'$(CodelabIdentityVersion)' == ''">1.0.0</CodelabIdentityVersion>
   </PropertyGroup>
 </Project>

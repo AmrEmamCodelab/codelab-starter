@@ -9,7 +9,7 @@ namespace Starter.Modules.Attachments.Infrastructure.Persistence.Migrations;
 /// <summary>The migration identifiers and constraint names of the Attachments schema.</summary>
 public static class AttachmentsMigrationIds
 {
-    /// <summary>The id of the first migration (the tables and the Development demo type).</summary>
+    /// <summary>The id of the only migration since the v1.0 squash (the tables and the Development demo type); never changed.</summary>
     public const string InitialCreate = "20261106150000_InitialCreate";
 
     /// <summary>The primary key of <c>attachments.ServiceAttachments</c>.</summary>

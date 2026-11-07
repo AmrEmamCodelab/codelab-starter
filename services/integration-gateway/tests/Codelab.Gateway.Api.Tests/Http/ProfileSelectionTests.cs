@@ -1,6 +1,6 @@
 using System.Net;
-using System.Text;
-using Codelab.Errors;
+using System.Text; // codelab:module Sms
+using Codelab.Errors; // codelab:module Sms
 using Codelab.Gateway.Api.Tests.TestSupport;
 using Codelab.Integration.Gateway;
 using Microsoft.Extensions.Options;
@@ -14,6 +14,7 @@ namespace Codelab.Gateway.Api.Tests.Http;
 /// </summary>
 public sealed class ProfileSelectionTests
 {
+    // codelab:module-begin Sms
     private const string SmsJson = """{"to":"+05XXXXXX10","text":"hello","language":2}""";
 
     [Fact]
@@ -60,6 +61,7 @@ public sealed class ProfileSelectionTests
         Assert.Equal(HttpStatusCode.OK, ready.StatusCode);
     }
 
+    // codelab:module-end Sms
     [Fact]
     public async Task No_enabled_profile_is_not_ready()
     {
@@ -80,8 +82,8 @@ public sealed class ProfileSelectionTests
 
     [Theory]
     [InlineData("Gateway:Sso:TokenEndpoint")]
-    [InlineData("Gateway:Sms:UrlTemplate")]
-    [InlineData("Gateway:Sms:BodyTemplate")]
+    [InlineData("Gateway:Sms:UrlTemplate")] // codelab:module Sms
+    [InlineData("Gateway:Sms:BodyTemplate")] // codelab:module Sms
     public async Task An_enabled_profile_with_a_missing_upstream_setting_stops_the_start(string setting)
     {
         await using var upstream = await FakeUpstream.StartAsync();
@@ -122,6 +124,8 @@ public sealed class ProfileSelectionTests
         Assert.All(all, inner => Assert.True(inner is OptionsValidationException or InvalidOperationException, inner.GetType().Name));
         return string.Join(" ", all.Select(inner => inner.Message));
     }
+    // codelab:module-begin Sms
 
     private static void OnlySso(IDictionary<string, string?> settings) => settings.Remove($"{GatewayOptions.SectionName}:Profiles:1");
+    // codelab:module-end Sms
 }

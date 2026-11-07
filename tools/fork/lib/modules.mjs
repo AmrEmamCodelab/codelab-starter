@@ -132,3 +132,145 @@ export function referencesModuleProject(path, name) {
   const file = toPosix(path).split('/').pop().toLowerCase();
   return moduleProjectFiles(name).some((candidate) => candidate.toLowerCase() === file);
 }
+
+/**
+ * The optional modules init Step 2 removes at file level (ADR-004), by lower-case id. Required modules (Identity,
+ * Access) are never listed. Every entry says what the id owns:
+ *   moduleNames   backend modules removed with removeModule (folders, .slnx, host reference, markers, i18n keys);
+ *   markerName    the name its registrations in shared files carry (`codelab:module <markerName>`), also in .cs,
+ *                 .ps1 and .psm1 files and outside the module folders (OPTIONAL_MARKER_SCAN);
+ *   paths         further folders (trailing '/') and files it owns; their .slnx projects go with them;
+ *   markerAnchors shared files that must carry its markers before it can be removed (a removal without them would
+ *                 leave a build that does not compile, so it is refused, nothing changed); an id with none of its
+ *                 paths left is already removed and needs none;
+ *   npmWorkspaces root package.json workspaces it owns.
+ * RENAME SAFETY: the literals are full paths, never built from parts, so a fork's renameMap rewrites them.
+ */
+export const OPTIONAL_MODULES = Object.freeze({
+  attachments: Object.freeze({
+    moduleNames: Object.freeze(['Attachments']),
+    markerName: 'Attachments',
+    paths: Object.freeze([
+      'services/attachment-service/',
+      'deploy/kits/Install-Attachment.ps1',
+      'deploy/kits/templates/attachment/',
+      'deploy/kits/tests/Install-Attachment.Tests.ps1',
+      'deploy/kits/tests/fixtures/attachment/',
+      'backend/tests/Starter.Integration.Tests/Attachments/',
+      'backend/tests/Starter.Contract.Tests/Attachments/',
+      'backend/tests/Modules/Starter.Modules.ServiceRequests.Tests/Attachments/',
+      'backend/tests/Modules/Starter.Modules.ServiceRequests.Tests/Http/AttachmentTypeSeedHttpTests.cs',
+      'frontend/starter-web/e2e/tests/attachment-checks.test.mjs',
+    ]),
+    markerAnchors: Object.freeze([
+      'frontend/starter-web/src/app/app.routes.ts',
+      'frontend/starter-web/src/app/app.spec.ts',
+      'backend/tests/Starter.Integration.Tests/Records/ProbeRecord.cs',
+      'backend/tests/Starter.Integration.Tests/Records/RecordsHost.cs',
+      'backend/tests/Starter.Integration.Tests/Records/RecordsHttpTests.cs',
+      'backend/tests/Starter.Integration.Tests/MigrationSquash/FreshDatabase.cs',
+      'backend/tests/Starter.Integration.Tests/MigrationSquash/FreshDatabaseSeedTests.cs',
+    ]),
+    npmWorkspaces: Object.freeze([]),
+  }),
+  portal: Object.freeze({
+    moduleNames: Object.freeze(['Portal']),
+    markerName: 'Portal',
+    paths: Object.freeze([
+      'backend/tests/Starter.Integration.Tests/Portal/',
+      'frontend/starter-web/src/app/features/admin/portal-content/',
+    ]),
+    markerAnchors: Object.freeze([
+      'backend/tests/Starter.Integration.Tests/Support/Phase5Host.cs',
+      'frontend/starter-web/src/app/app.routes.ts',
+      'frontend/starter-web/src/app/public-routes.ts',
+      'frontend/starter-web/src/app/features/admin/admin.routes.ts',
+      'frontend/starter-web/src/app/features/admin/admin.paths.ts',
+      'frontend/starter-web/src/app/features/admin/admin-page/admin-tiles.ts',
+    ]),
+    npmWorkspaces: Object.freeze([]),
+  }),
+  sms: Object.freeze({
+    moduleNames: Object.freeze([]),
+    markerName: 'Sms',
+    paths: Object.freeze([
+      'services/integration-gateway/src/Codelab.Gateway.Api/Sms/',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Http/SmsRelayTests.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Unit/SmsUnitTests.cs',
+      'backend/src/Modules/Notifications/Infrastructure/Sending/SmsRelayFailures.cs',
+      'backend/tests/Modules/Starter.Modules.Notifications.Tests/Infrastructure/GatewaySmsSenderTests.cs',
+      'backend/tests/Modules/Starter.Modules.Notifications.Tests/Infrastructure/GatewaySmsRelayIntegrationTests.cs',
+    ]),
+    markerAnchors: Object.freeze([
+      'services/integration-gateway/src/Codelab.Gateway.Api/Hosting/GatewayHostExtensions.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/TestSupport/GatewayHost.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/TestSupport/FakeUpstream.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Hosting/DeployKitTemplateTests.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Http/ProfileSelectionTests.cs',
+      'services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Http/RelayClientContractTests.cs',
+      'backend/src/Modules/Notifications/Infrastructure/NotificationsModuleRegistration.cs',
+      'backend/src/Modules/Notifications/Infrastructure/Sending/SmsSenders.cs',
+      'backend/tests/Modules/Starter.Modules.Notifications.Tests/NotificationsModuleTests.cs',
+    ]),
+    npmWorkspaces: Object.freeze([]),
+  }),
+  ops: Object.freeze({
+    moduleNames: Object.freeze(['Ops']),
+    markerName: 'Ops',
+    paths: Object.freeze([
+      'services/ops-console/',
+      'deploy/kits/Install-Ops.ps1',
+      'deploy/kits/templates/ops/',
+      'deploy/kits/tests/Install-Ops.Tests.ps1',
+    ]),
+    markerAnchors: Object.freeze(['backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs']),
+    npmWorkspaces: Object.freeze(['services/ops-console/web/ops-web']),
+  }),
+});
+
+/** The optional module ids, in removal order. */
+export const OPTIONAL_MODULE_IDS = Object.freeze(Object.keys(OPTIONAL_MODULES));
+
+/**
+ * Where removeOptionalModules looks for an optional module's markers: wider than remove-module's own scan, because
+ * an optional module also owns services, tests and deploy scripts. PowerShell files carry `# codelab:module <Name>`.
+ */
+export const OPTIONAL_MARKER_SCAN = Object.freeze({
+  roots: Object.freeze(['backend/', 'services/', 'frontend/starter-web/src/', 'deploy/']),
+  extensions: Object.freeze(['.cs', '.csproj', '.ts', '.html', '.ps1', '.psm1']),
+  skippedDirs: Object.freeze(['node_modules', 'bin', 'obj', 'dist', '.angular']),
+  commentOpeners: Object.freeze(['//', '<!--', '#']),
+});
+
+/**
+ * Validates and normalizes optional module ids: lower-cased, de-duplicated, in OPTIONAL_MODULE_IDS order.
+ * @param {unknown} ids
+ * @returns {{ ids: string[], refusal: string | null }}
+ */
+export function normalizeOptionalModuleIds(ids) {
+  if (!Array.isArray(ids)) return { ids: [], refusal: 'The optional module ids must be a list.' };
+  const requested = new Set();
+  for (const id of ids) {
+    const normalized = typeof id === 'string' ? id.trim().toLowerCase() : '';
+    if (!OPTIONAL_MODULE_IDS.includes(normalized)) {
+      return { ids: [], refusal: `'${id}' is not an optional module id (one of ${OPTIONAL_MODULE_IDS.join(', ')}); required modules are never removed.` };
+    }
+    requested.add(normalized);
+  }
+  return { ids: OPTIONAL_MODULE_IDS.filter((id) => requested.has(id)), refusal: null };
+}
+
+/**
+ * Everything an optional module id owns as repo-relative paths: its backend modules' folders and its own paths.
+ * @param {string} id a valid optional module id
+ */
+export function optionalModuleOwnedPaths(id) {
+  const entry = OPTIONAL_MODULES[id];
+  return [...entry.moduleNames.flatMap((name) => Object.values(modulePaths(name))), ...entry.paths];
+}
+
+/** True when the repo-relative path is one of `ownedPaths` or lies inside one of its folders. */
+export function isOwnedPath(path, ownedPaths) {
+  const normalized = toPosix(path);
+  return ownedPaths.some((owned) => (owned.endsWith('/') ? normalized.startsWith(owned) : normalized === owned));
+}

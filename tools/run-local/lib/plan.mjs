@@ -4,7 +4,17 @@ import path from 'node:path';
 import {
   CONNECTION_STRING_ENV,
   DATABASE_KEYS,
+  HealthVerdict,
+  Hosts,
   LOCALHOST,
+  LoginMode,
+  NG_ANALYTICS_ENV,
+  NG_ANALYTICS_OFF,
+  OptionalModule,
+  SEQ_HEALTH_PATH,
+  SEQ_NAME,
+  Services,
+  WEB_HEALTH_PATH,
   LOGIN_PATH,
   Ports,
   SLOT_DATABASE_SUFFIX,
@@ -43,11 +53,14 @@ export function parseSlot(text) {
   return slot;
 }
 
-/** Parses the CLI flags into { stop, noWeb, noSeq, noAttachments, root, slot, help }. */
+/** Parses the CLI flags into { stop, noWeb, noSeq, noAttachments, noGateway, noOps, root, slot, help }. */
 export function parseArguments(argv, defaultRoot) {
-  const options = { stop: false, noWeb: false, noSeq: false, noAttachments: false, help: false, root: defaultRoot, slot: Slots.default };
+  const options = {
+    stop: false, noWeb: false, noSeq: false, noAttachments: false, noGateway: false, noOps: false, help: false, root: defaultRoot, slot: Slots.default,
+  };
   const switches = {
-    [Flags.stop]: 'stop', [Flags.noWeb]: 'noWeb', [Flags.noSeq]: 'noSeq', [Flags.noAttachments]: 'noAttachments', [Flags.help]: 'help',
+    [Flags.stop]: 'stop', [Flags.noWeb]: 'noWeb', [Flags.noSeq]: 'noSeq', [Flags.noAttachments]: 'noAttachments',
+    [Flags.noGateway]: 'noGateway', [Flags.noOps]: 'noOps', [Flags.help]: 'help',
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -124,10 +137,13 @@ export function apiAssemblyPath(frameworkDirs, outputDir, assembly, exists) {
   return candidates.find((candidate) => exists(candidate)) ?? null;
 }
 
-/** The environment of the web process: the private Node first on PATH. */
+/**
+ * The environment of the web process: the private Node first on PATH and Angular CLI analytics off, so ng serve
+ * never waits on its first-run prompt in a detached process.
+ */
 export function webEnvironment(env, nodeDir) {
   const pathKey = Object.keys(env).find((key) => key.toUpperCase() === PATH_ENV) ?? PATH_ENV;
-  return { ...env, [pathKey]: prependPath(env[pathKey], nodeDir) };
+  return { ...env, [pathKey]: prependPath(env[pathKey], nodeDir), [NG_ANALYTICS_ENV]: NG_ANALYTICS_OFF };
 }
 
 /**
@@ -143,20 +159,106 @@ export function webDecision({ noWeb, manifest, hasNodeModules, startScript }) {
   return { start: true };
 }
 
+/** Every login mode and optional module on: a manifest without loginModes or optionalModules (a pre-init tree). */
+const ALL_LOGIN_MODES = Object.freeze(Object.values(LoginMode));
+
 /**
- * Decides whether the Attachment service starts: it needs its project (a fork may have removed the service).
+ * What the fork chose at init, from the text of codelab.starter.json (null when the file is missing): the login modes
+ * and which optional modules are on. A missing or unreadable file, a missing `loginModes` (or an empty list) and a
+ * missing `optionalModules` (or a missing id in it) all mean "on", so a tree from before init runs everything. A
+ * module listed in `removedModules` (any letter case) is off whatever `optionalModules` says.
+ * @returns {{ loginModes: string[], optionalModules: Record<string, boolean> }}
+ */
+export function starterFeatures(manifestText) {
+  let manifest = null;
+  try {
+    manifest = manifestText ? JSON.parse(manifestText) : null;
+  } catch {
+    manifest = null;
+  }
+  const modes = Array.isArray(manifest?.loginModes) && manifest.loginModes.length > 0
+    ? manifest.loginModes.filter((mode) => typeof mode === 'string').map((mode) => mode.toLowerCase())
+    : [...ALL_LOGIN_MODES];
+  const removed = new Set((Array.isArray(manifest?.removedModules) ? manifest.removedModules : []).map((name) => String(name).toLowerCase()));
+  const optionalModules = Object.fromEntries(
+    Object.values(OptionalModule).map((id) => [id, manifest?.optionalModules?.[id] !== false && !removed.has(id)]),
+  );
+  return { loginModes: modes, optionalModules };
+}
+
+/**
+ * Decides whether the Attachment service starts: the attachments module is on (codelab.starter.json), the project
+ * exists (a fork may have removed the service) and -NoAttachments is not given.
  * @returns {{ start: boolean, reason?: string }}
  */
-export function attachmentsDecision({ noAttachments, projectExists }) {
+export function attachmentsDecision({ noAttachments, projectExists, features = starterFeatures(null) }) {
   if (noAttachments) return { start: false, reason: 'skipped (-NoAttachments)' };
+  if (!features.optionalModules[OptionalModule.attachments]) return { start: false, reason: 'the attachments module is off in codelab.starter.json' };
   if (!projectExists) return { start: false, reason: 'the Attachment service project does not exist in this repository' };
   return { start: true };
 }
 
+/**
+ * Decides whether the integration gateway starts: only when a login mode needs it (sso: the IdP token and JWKS relay)
+ * or the sms module is on (the SMS relay), its project exists and -NoGateway is not given.
+ * @returns {{ start: boolean, reason?: string }}
+ */
+export function gatewayDecision({ noGateway, projectExists, features = starterFeatures(null) }) {
+  if (noGateway) return { start: false, reason: 'skipped (-NoGateway)' };
+  const needed = features.loginModes.includes(LoginMode.sso) || features.optionalModules[OptionalModule.sms];
+  if (!needed) return { start: false, reason: 'not needed: codelab.starter.json has no sso login mode and the sms module is off' };
+  if (!projectExists) return { start: false, reason: 'the integration gateway project does not exist in this repository' };
+  return { start: true };
+}
+
+/**
+ * Decides whether the Ops Console API starts: the ops module is on, its project exists and -NoOps is not given.
+ * @returns {{ start: boolean, reason?: string }}
+ */
+export function opsDecision({ noOps, projectExists, features = starterFeatures(null) }) {
+  if (noOps) return { start: false, reason: 'skipped (-NoOps)' };
+  if (!features.optionalModules[OptionalModule.ops]) return { start: false, reason: 'the ops module is off in codelab.starter.json' };
+  if (!projectExists) return { start: false, reason: 'the Ops Console project does not exist in this repository' };
+  return { start: true };
+}
+
 /** The services to start, in start and health-check order (the API always; the others when decided). */
-export function startPlan({ attachments, web }) {
-  const wanted = { api: true, attachments, web };
+export function startPlan({ attachments = false, gateway = false, ops = false, web = false }) {
+  const wanted = { [Services.api.name]: true, [Services.attachments.name]: attachments, [Services.gateway.name]: gateway, [Services.ops.name]: ops, [Services.web.name]: web };
   return START_ORDER.filter((name) => wanted[name]);
+}
+
+/**
+ * The real health endpoint of a planned service at the slot's URLs: the readiness path of each .NET host
+ * (MapCodelabHealth: /health/ready, which runs the host's own readiness checks), the root of the web app, and Seq's
+ * /health (pass the chosen Seq URL as `seq`).
+ */
+export function healthUrl(name, urls, seq = null) {
+  if (name === SEQ_NAME) return `${seq}${SEQ_HEALTH_PATH}`;
+  if (name === Services.web.name) return `${urls.web}${WEB_HEALTH_PATH}`;
+  return `${urls[name]}${Hosts[name].healthPath}`;
+}
+
+/** The planned hosts that read S2S keys from their own local secrets file and do not have it (`hasFile(host)`). */
+export function hostsMissingSecrets(plan, hasFile) {
+  return plan.filter((name) => Hosts[name]?.secretsFile && !hasFile(Hosts[name]));
+}
+
+/**
+ * The per-service health report: one line per checked service with its verdict and URL, and `ok` only when every
+ * one is healthy. `results` are { name, url, outcome: 'ready' | 'exited' | 'timeout', timeoutMs, hint? }.
+ * @returns {{ ok: boolean, lines: string[] }}
+ */
+export function healthReport(results) {
+  const width = Math.max(0, ...results.map((result) => result.name.length));
+  const lines = results.map((result) => {
+    const healthy = result.outcome === 'ready';
+    const verdict = healthy ? HealthVerdict.healthy : HealthVerdict.unhealthy;
+    const why = healthy ? '' : result.outcome === 'exited' ? ': exited before it was healthy' : `: not healthy within ${result.timeoutMs / 1000} s`;
+    const hint = !healthy && result.hint ? ` (${result.hint})` : '';
+    return `  ${result.name.padEnd(width)}  ${verdict.padEnd(HealthVerdict.unhealthy.length)}  ${result.url}${why}${hint}`;
+  });
+  return { ok: results.every((result) => result.outcome === 'ready'), lines };
 }
 
 /** The URLs that must be free before a start: one per service in the plan (`urls` defaults to slot 0's). */
@@ -169,7 +271,9 @@ export function slotUrls(slot) {
   if (slot === Slots.default) return Urls;
   const offset = slot * Slots.portStep;
   const at = (port) => `${LOCALHOST}:${port + offset}`;
-  return Object.freeze({ ...Urls, api: at(Ports.api), attachments: at(Ports.attachments), web: at(Ports.web) });
+  return Object.freeze({
+    ...Urls, api: at(Ports.api), attachments: at(Ports.attachments), gateway: at(Ports.gateway), ops: at(Ports.ops), web: at(Ports.web),
+  });
 }
 
 /** The state folder of a slot: the base folder for slot 0, `<base>\slot-<n>` otherwise. */
@@ -206,11 +310,13 @@ export function slotConnectionString(connectionString, slot) {
 }
 
 /**
- * The configuration overrides of a slot's API and Attachment service (empty for slot 0): the web origin, the SSO
- * return URLs, the web links, the service URL, the database and the attachment storage folder of that slot.
+ * The configuration overrides of a slot's .NET hosts (empty for slot 0): the web origin, the SSO return URLs, the web
+ * links, the Attachment service and gateway URLs (and the Ops readiness probes that name them), the database and the
+ * attachment storage folder of that slot, and the Ops Console's upstream API. The gateway keeps its configured
+ * upstreams (the local IdP is shared by every slot).
  */
 export function slotOverrides({ slot, urls, connectionString, storageRoot }) {
-  if (slot === Slots.default) return { api: {}, attachments: {} };
+  if (slot === Slots.default) return { api: {}, attachments: {}, gateway: {}, ops: {} };
   const api = {
     [SlotSettings.apiCorsOrigin]: urls.web,
     [SlotSettings.ssoRedirectUri]: `${urls.api}${SSO_CALLBACK_PATH}`,
@@ -218,11 +324,15 @@ export function slotOverrides({ slot, urls, connectionString, storageRoot }) {
     [SlotSettings.webBaseUrl]: urls.web,
     [SlotSettings.activationLinkBaseUrl]: urls.web,
     [SlotSettings.attachmentsBaseUrl]: urls.attachments,
+    [SlotSettings.gatewayBaseUrl]: urls.gateway,
+    [SlotSettings.opsProbeAttachmentsUrl]: healthUrl(Services.attachments.name, urls),
+    [SlotSettings.opsProbeGatewayUrl]: healthUrl(Services.gateway.name, urls),
   };
   const database = slotConnectionString(connectionString, slot);
   if (database) api[CONNECTION_STRING_ENV] = database;
   const attachments = { [SlotSettings.attachmentsCorsOrigin]: urls.web, [SlotSettings.attachmentsStorageRoot]: storageRoot };
-  return { api, attachments };
+  const ops = { [SlotSettings.opsConsoleApiBaseUrl]: `${urls.api}/` };
+  return { api, attachments, gateway: {}, ops };
 }
 
 /** The API connection string from the development settings JSON text, or null. */

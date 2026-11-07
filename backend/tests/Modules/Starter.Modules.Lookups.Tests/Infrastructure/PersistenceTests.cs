@@ -20,7 +20,7 @@ public sealed class LookupsModelTests
         Assert.Equal(LookupsDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(LookupsTableNames.LookupTypes, context.Model.FindEntityType(typeof(LookupType))!.GetTableName());
         Assert.Equal(LookupsTableNames.LookupItems, context.Model.FindEntityType(typeof(LookupItem))!.GetTableName());
-        Assert.Equal([LookupsMigrationIds.InitialCreate, AddContactTopicsLookup.MigrationId, AddServiceRequestCategoriesLookup.MigrationId], context.Database.GetMigrations());
+        Assert.Equal([LookupsMigrationIds.InitialCreate], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -65,16 +65,14 @@ public sealed class LookupsModelTests
     }
 
     [Fact]
-    public void Down_of_the_seed_migration_deletes_its_values_then_its_type()
+    public void The_squashed_InitialCreate_seeds_every_initial_lookup_type()
     {
         using var context = NewContext();
 
-        var script = context.GetService<IMigrator>().GenerateScript(
-            fromMigration: AddContactTopicsLookup.MigrationId, toMigration: LookupsMigrationIds.InitialCreate);
+        var script = context.GetService<IMigrator>().GenerateScript();
 
-        var items = script.IndexOf("DELETE FROM [lookups].[LookupItems]", StringComparison.Ordinal);
-        var type = script.IndexOf("DELETE FROM [lookups].[LookupTypes]", StringComparison.Ordinal);
-        Assert.True(items >= 0 && type > items, script);
+        Assert.Equal(InitialLookupTypes.All.Count, script.Split("INSERT INTO [lookups].[LookupTypes]").Length - 1);
+        Assert.All(InitialLookupTypes.All, seed => Assert.Contains($"N'{seed.TypeKey}'", script, StringComparison.Ordinal));
     }
 
     internal static LookupsDbContext NewContext() => new(new DbContextOptionsBuilder<LookupsDbContext>()
@@ -82,17 +80,20 @@ public sealed class LookupsModelTests
         .Options);
 }
 
-/// <summary>Every seed migration (a migration with a static <c>Items</c> list) against the lookup rules.</summary>
+/// <summary>
+/// Every lookup seed against the lookup rules: the types folded into InitialCreate (<see cref="InitialLookupTypes"/>)
+/// and every later seed migration (a migration with a static <c>Items</c> list, written by new-lookup).
+/// </summary>
 public sealed class SeedMigrationTests
 {
     private const string ItemsField = "Items";
 
-    public static TheoryData<Type> SeedMigrations()
+    public static TheoryData<string> SeedMigrations()
     {
-        var data = new TheoryData<Type>();
-        foreach (var type in typeof(LookupsDbContext).Assembly.GetTypes().Where(IsSeedMigration).OrderBy(type => type.Name, StringComparer.Ordinal))
+        var data = new TheoryData<string>();
+        foreach (var name in AllSeeds().Keys.Order(StringComparer.Ordinal))
         {
-            data.Add(type);
+            data.Add(name);
         }
 
         return data;
@@ -100,9 +101,9 @@ public sealed class SeedMigrationTests
 
     [Theory]
     [MemberData(nameof(SeedMigrations))]
-    public void Values_have_unique_ids_and_well_formed_unique_codes(Type migration)
+    public void Values_have_unique_ids_and_well_formed_unique_codes(string migration)
     {
-        var items = ItemsOf(migration);
+        var items = AllSeeds()[migration];
 
         Assert.NotEmpty(items);
         Assert.Equal(items.Count, items.Select(item => item.Id).Distinct().Count());
@@ -113,8 +114,8 @@ public sealed class SeedMigrationTests
 
     [Theory]
     [MemberData(nameof(SeedMigrations))]
-    public void Every_value_has_an_arabic_and_an_english_name(Type migration) =>
-        Assert.All(ItemsOf(migration), item =>
+    public void Every_value_has_an_arabic_and_an_english_name(string migration) =>
+        Assert.All(AllSeeds()[migration], item =>
         {
             Assert.InRange(item.Names.Ar.Length, 1, LookupLimits.NameMaxLength);
             Assert.InRange(item.Names.En.Length, 1, LookupLimits.NameMaxLength);
@@ -128,13 +129,24 @@ public sealed class SeedMigrationTests
         var constants = typeof(ContactTopicIds).GetFields()
             .Where(field => field.IsLiteral)
             .ToDictionary(field => field.Name, field => (int)field.GetRawConstantValue()!, StringComparer.Ordinal);
-        var items = ItemsOf(typeof(AddContactTopicsLookup));
+        var items = InitialLookupTypes.ContactTopics.Items;
 
         Assert.Equal(constants.Values.Order(), items.Select(item => item.Id).Order());
         Assert.Equal(
             ["account", "general", "request", "suggestion"],
             items.Select(item => item.Code).Order(StringComparer.Ordinal));
         Assert.Equal(constants["Request"], items.Single(item => item.Code == "request").Id);
+    }
+
+    private static Dictionary<string, IReadOnlyList<LookupItemSeed>> AllSeeds()
+    {
+        var seeds = InitialLookupTypes.All.ToDictionary(seed => $"{nameof(InitialCreate)}:{seed.TypeKey}", seed => seed.Items, StringComparer.Ordinal);
+        foreach (var type in typeof(LookupsDbContext).Assembly.GetTypes().Where(IsSeedMigration))
+        {
+            seeds[type.Name] = ItemsOf(type);
+        }
+
+        return seeds;
     }
 
     private static bool IsSeedMigration(Type type) =>

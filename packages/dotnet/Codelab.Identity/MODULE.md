@@ -115,7 +115,8 @@ rejected). The reason is logged, so it must be secret-free (an exception type or
 - Every public type change updates `PublicAPI.Unshipped.txt` (RS0016/RS0017 fail the build otherwise).
 
 ## Rules
-- Generated files in this folder (`CLAUDE.md`, `.editorconfig`, `BannedSymbols.generated.txt`, `CodeMetricsConfig.txt`)
+- - The public API is stable since 1.0.0 (`PublicAPI.Shipped.txt`): a breaking change needs a new major version; a fix ships as a patch release (ADR-013).
+Generated files in this folder (`CLAUDE.md`, `.editorconfig`, `BannedSymbols.generated.txt`, `CodeMetricsConfig.txt`)
   and `module.rules.yaml` are platform-owned. This package depends on no other Codelab package.
 - **Certificate validation is always on.** LDAPS never sets `VerifyServerCertificate`, the OIDC client never sets a
   certificate callback, and the one TLS callback (`TlsEndpointInspector`, diagnostics only) returns the platform's

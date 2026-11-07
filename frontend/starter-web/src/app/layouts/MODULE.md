@@ -7,7 +7,7 @@ stores and forward user intent to core services or to an injected source.
 
 | Piece | What it does | Files |
 | --- | --- | --- |
-| `app-shell` | Staff layout: brand link, the main navigation filtered by the user's permission keys, the notifications bell, the language switcher, the user menu and the page outlet. Mirrors with `<html dir>` through logical CSS | `app-shell/` |
+| `app-shell` | Staff layout: the brand link (`LayoutBrand` name and logo from `config.json` branding), the main navigation filtered by the user's permission keys, the notifications bell, the language switcher, the user menu and the page outlet. Mirrors with `<html dir>` through logical CSS | `app-shell/` |
 | Shell navigation | `SHELL_NAV_ITEMS` (an injection token: path, label key, icon, and the targets the entry may open, each a permission key and a link), `visibleNavItems()` and `appLink()`. The app provides the items (`APP_NAV_ITEMS` in `src/app/app-nav.ts`) on `SHELL_ROUTE`, since they point into features | `app-shell/shell-nav.ts` |
 | `app-portal-shell` | Public frame of the portal pages: `dga-stamp-strip`, `dga-header` (brand, the portal navigation: landing, service guide, FAQ, contact; language switcher; a sign-in link for a visitor, the user menu once signed in), a skip link, the page outlet and the footer. Needs no session | `portal-shell/` |
 | Portal navigation | `PORTAL_NAV_ENTRIES`, `portalLink(PortalPaths.X)` (`/portal`, `/portal/faq`), `rootLink(RoutePaths.X)`, `toDgaNavItems()` | `portal-shell/portal-nav.ts` |

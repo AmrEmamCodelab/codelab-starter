@@ -147,7 +147,6 @@
   },
   "layout": {
     "shell": {
-      "brand": "بوابة الخدمات",
       "nav-label": "التنقل الرئيسي"
     },
     "nav": {
@@ -322,7 +321,19 @@
         "access.roles": "الأدوار",
         "dashboard": "لوحة المعلومات",
         "organizations": "الجهات",
-        "users": "المستخدمون"
+        "users": "المستخدمون",
+        "assignments": "الإسناد",
+        "attachments": "المرفقات",
+        "audit": "سجل التدقيق",
+        "jobs": "المهام الخلفية",
+        "lookups": "القوائم المرجعية",
+        "notifications": "الإشعارات",
+        "portal": "البوابة",
+        "portal.content": "محتوى البوابة",
+        "records": "السجلات",
+        "records.oversight": "الإشراف على السجلات",
+        "service-requests": "طلبات الخدمة",
+        "settings": "إعدادات التشغيل"
       }
     },
     "common": {
@@ -884,7 +895,18 @@
     "settings.manage": "تغيير إعدادات التشغيل",
     "jobs.view": "عرض المهام الخلفية وسجل تشغيلها",
     "jobs.run": "تشغيل مهمة خلفية الآن",
-    "audit.view": "قراءة سجل التدقيق"
+    "audit.view": "قراءة سجل التدقيق",
+    "assignments.assign": "إسناد سجلات قوائم العمل إلى مستخدمين آخرين",
+    "assignments.work": "العمل على قوائم السجلات: استلام السجلات وإعادتها",
+    "attachments.remove": "حذف مرفقات السجل",
+    "attachments.upload": "رفع الملفات وربطها بالسجل",
+    "attachments.view": "عرض مرفقات السجل وتنزيلها",
+    "records.oversight.view": "الاطلاع على جميع السجلات للقراءة فقط (الإشراف)",
+    "service-requests.create": "تقديم طلبات الخدمة الخاصة بك ومتابعتها",
+    "service-requests.decide": "اعتماد طلب الخدمة أو رفضه أو إعادته",
+    "service-requests.queue": "عرض قائمة عمل طلبات الخدمة",
+    "service-requests.review": "بدء مراجعة طلب خدمة مقدَّم",
+    "service-requests.view-own": "عرض طلبات الخدمة الخاصة بك"
   },
   "portal": {
     "common": {

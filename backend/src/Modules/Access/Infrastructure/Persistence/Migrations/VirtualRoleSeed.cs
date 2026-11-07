@@ -11,7 +11,7 @@ namespace Starter.Modules.Access.Infrastructure.Persistence.Migrations;
 public sealed record VirtualRoleSeedRow(VirtualRoleKind Kind, string Code, string NameEn, string NameAr);
 
 /// <summary>
-/// The virtual roles seeded by <see cref="RolesAndGrants"/>: one per <see cref="VirtualRoleKind"/>, active, with no
+/// The virtual roles seeded by <see cref="InitialCreate"/>: one per <see cref="VirtualRoleKind"/>, active, with no
 /// permission (administrators add permissions in the role editor). Frozen with the migration: a new kind gets a NEW
 /// migration that inserts its row, never an edit here.
 /// </summary>

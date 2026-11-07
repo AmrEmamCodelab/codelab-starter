@@ -41,8 +41,8 @@ public sealed class AttachmentsPersistenceTests(AttachmentsDatabase database)
     {
         await using var context = database.NewContext();
 
-        // Every shipped migration of the module, in order; the sample's seed migration stays after remove-module.
-        Assert.Equal([AttachmentsMigrationIds.InitialCreate, AddServiceRequestAttachmentTypes.MigrationId], await context.Database.GetAppliedMigrationsAsync());
+        // The module's only migration since the v1.0 squash (ADR-010).
+        Assert.Equal([AttachmentsMigrationIds.InitialCreate], await context.Database.GetAppliedMigrationsAsync());
         Assert.Empty(await context.Database.GetPendingMigrationsAsync());
         var tables = await TestSqlServer.ReadStringsAsync(
             database.Name,

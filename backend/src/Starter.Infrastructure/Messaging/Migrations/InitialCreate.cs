@@ -6,9 +6,11 @@ using Starter.Application.Messaging;
 namespace Starter.Infrastructure.Messaging.Migrations;
 
 /// <summary>
-/// The messaging schema: the outbox table. Written in the shape <c>dotnet ef migrations add</c> (dotnet-ef 10)
-/// scaffolds, reshaped to the clean-code rules (no generated marker, named types and lengths, short methods) like the
-/// module migrations; the model-drift test proves it matches <see cref="OutboxMigrationModel"/>.
+/// The whole messaging schema in one migration (ADR-010 squash): the outbox table with the drain's columns
+/// (<c>Attempt</c>, the lease <c>LockedUntil</c>, <c>SentAt</c> and the classified <c>LastError</c>). It keeps the id of
+/// the first migration so a database migrated before the squash stays valid. Written in the shape
+/// <c>dotnet ef migrations add</c> (dotnet-ef 10) scaffolds, reshaped to the clean-code rules (no generated marker,
+/// named types and lengths, short methods); the model-drift test proves it matches <see cref="OutboxMigrationModel"/>.
 /// </summary>
 [DbContext(typeof(OutboxDbContext))]
 [Migration(OutboxMigrationIds.InitialCreate)]
@@ -34,6 +36,9 @@ public sealed class InitialCreate : Migration
         migrationBuilder.DropTable(name: OutboxTableNames.OutboxMessages, schema: OutboxDbContext.SchemaName);
     }
 
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder) => OutboxMigrationModel.Build(modelBuilder);
+
     private static void CreateOutboxMessages(MigrationBuilder migrationBuilder) =>
         migrationBuilder.CreateTable(
             name: OutboxTableNames.OutboxMessages,
@@ -47,6 +52,11 @@ public sealed class InitialCreate : Migration
                 Status = table.Column<int>(type: OutboxSqlTypes.Int32Column, nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>(type: OutboxSqlTypes.DateTimeOffset, nullable: false),
                 NotBefore = table.Column<DateTimeOffset>(type: OutboxSqlTypes.DateTimeOffset, nullable: true),
+                Attempt = table.Column<int>(type: OutboxSqlTypes.Int32Column, nullable: false),
+                LockedUntil = table.Column<DateTimeOffset>(type: OutboxSqlTypes.DateTimeOffset, nullable: true),
+                SentAt = table.Column<DateTimeOffset>(type: OutboxSqlTypes.DateTimeOffset, nullable: true),
+                LastError = table.Column<string>(
+                    type: OutboxSqlTypes.NVarChar(OutboxColumnLimits.LastErrorMaxLength), maxLength: OutboxColumnLimits.LastErrorMaxLength, nullable: true),
             },
             constraints: table => table.PrimaryKey(OutboxMigrationIds.OutboxMessagesPrimaryKey, row => row.Id));
 }

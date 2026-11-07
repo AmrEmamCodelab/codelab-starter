@@ -1,8 +1,1 @@
 #nullable enable
-Codelab.Security.Uploads.UploadContentTypes
-const Codelab.Security.Uploads.UploadContentTypes.Jpeg = "image/jpeg" -> string!
-const Codelab.Security.Uploads.UploadContentTypes.Pdf = "application/pdf" -> string!
-const Codelab.Security.Uploads.UploadContentTypes.Png = "image/png" -> string!
-const Codelab.Security.Uploads.UploadContentTypes.Zip = "application/zip" -> string!
-static Codelab.Security.Uploads.UploadContentTypes.TryGetContentType(string? fileNameOrExtension, out string? contentType) -> bool
-static readonly Codelab.Security.Uploads.UploadContentTypes.ByExtension -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!

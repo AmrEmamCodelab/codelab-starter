@@ -131,3 +131,26 @@ describe('listMarkerCandidates', () => {
     ]);
   });
 });
+
+describe('comment openers (optional module removal)', () => {
+  const OPTIONAL_OPENERS = Object.freeze({ commentOpeners: ['//', '<!--', '#'] });
+  const SCRIPT = ['$a = 1', 'Import-Module ops # codelab:module Ops', '# codelab:module-begin Ops', 'Install-Ops', '# codelab:module-end Ops', '$b = 2', ''].join('\n');
+
+  it('ignores # markers by default (remove-module keeps its own scan)', () => {
+    assert.equal(hasModuleMarkers(SCRIPT, 'Ops'), false);
+    assert.equal(stripModuleMarkers(SCRIPT, 'Ops').text, SCRIPT);
+  });
+
+  it('strips # line and block markers when # is an opener', () => {
+    assert.equal(hasModuleMarkers(SCRIPT, 'Ops', OPTIONAL_OPENERS), true);
+    assert.deepEqual(stripModuleMarkers(SCRIPT, 'Ops', 'x.ps1', OPTIONAL_OPENERS), { text: '$a = 1\n$b = 2\n', removedLines: 4 });
+  });
+
+  it('still refuses unpaired # markers', () => {
+    assert.throws(() => stripModuleMarkers('# codelab:module-end Ops\n', 'Ops', 'x.ps1', OPTIONAL_OPENERS), MarkerError);
+  });
+
+  it('does not take a longer name for the module with # either', () => {
+    assert.equal(hasModuleMarkers('x # codelab:module OpsConsole\n', 'Ops', OPTIONAL_OPENERS), false);
+  });
+});

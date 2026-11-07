@@ -7,12 +7,12 @@ using Microsoft.Extensions.Hosting;
 using Serilog.Core;
 using Starter.Application.Messaging;
 using Starter.Application.Notifications;
-using Starter.Domain.Localization;
+using Starter.Domain.Localization; // codelab:module Portal
 using Starter.Infrastructure.Messaging;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Jobs.Infrastructure.Options;
 using Starter.Modules.Notifications.Infrastructure.Options;
-using Starter.Modules.Portal.Infrastructure.Options;
+using Starter.Modules.Portal.Infrastructure.Options; // codelab:module Portal
 using Starter.Modules.Users.Infrastructure.Options;
 using Starter.Tests.Hosting;
 
@@ -82,8 +82,8 @@ public class Phase5Host() : IntegrationHost(Environments.Development)
         [StarterHostSettings.Key(SmsDeliveryOptions.SectionName, nameof(SmsDeliveryOptions.Enabled))] = bool.TrueString,
         [StarterHostSettings.Key(SmsDeliveryOptions.SectionName, nameof(SmsDeliveryOptions.Mode))] = Number((int)SmsDeliveryMode.File),
         [StarterHostSettings.Key(SmsDeliveryOptions.SectionName, nameof(SmsDeliveryOptions.FilePath))] = Sms.Path,
-        [StarterHostSettings.Key(PortalContactOptions.SectionName, nameof(PortalContactOptions.InboxEmail))] = InboxEmail,
-        [StarterHostSettings.Key(PortalContactOptions.SectionName, nameof(PortalContactOptions.InboxLanguage))] = Number((int)AppLanguage.English),
+        [StarterHostSettings.Key(PortalContactOptions.SectionName, nameof(PortalContactOptions.InboxEmail))] = InboxEmail, // codelab:module Portal
+        [StarterHostSettings.Key(PortalContactOptions.SectionName, nameof(PortalContactOptions.InboxLanguage))] = Number((int)AppLanguage.English), // codelab:module Portal
     };
 
     private CanaryLogSink? _logSink;

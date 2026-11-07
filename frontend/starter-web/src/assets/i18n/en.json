@@ -147,7 +147,6 @@
   },
   "layout": {
     "shell": {
-      "brand": "Services Portal",
       "nav-label": "Main navigation"
     },
     "nav": {
@@ -322,7 +321,19 @@
         "access.roles": "Roles",
         "dashboard": "Dashboard",
         "organizations": "Organizations",
-        "users": "Users"
+        "users": "Users",
+        "assignments": "Assignments",
+        "attachments": "Attachments",
+        "audit": "Audit trail",
+        "jobs": "Background jobs",
+        "lookups": "Lookups",
+        "notifications": "Notifications",
+        "portal": "Portal",
+        "portal.content": "Portal content",
+        "records": "Records",
+        "records.oversight": "Records oversight",
+        "service-requests": "Service requests",
+        "settings": "Runtime settings"
       }
     },
     "common": {
@@ -884,7 +895,18 @@
     "settings.manage": "Change the runtime settings",
     "jobs.view": "View the background jobs and their run history",
     "jobs.run": "Run a background job now",
-    "audit.view": "Read the audit trail"
+    "audit.view": "Read the audit trail",
+    "assignments.assign": "Assign queue records to other users",
+    "assignments.work": "Work record queues: claim and release records",
+    "attachments.remove": "Remove a record's attachments",
+    "attachments.upload": "Upload files and link them to a record",
+    "attachments.view": "View and download a record's attachments",
+    "records.oversight.view": "Read every record, read-only (oversight)",
+    "service-requests.create": "File and follow up your own service requests",
+    "service-requests.decide": "Approve, reject or return a service request",
+    "service-requests.queue": "View the service request work queue",
+    "service-requests.review": "Start the review of a submitted service request",
+    "service-requests.view-own": "View your own service requests"
   },
   "portal": {
     "common": {

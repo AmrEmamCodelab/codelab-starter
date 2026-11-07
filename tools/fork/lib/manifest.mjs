@@ -3,11 +3,24 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { JSON_INDENT, MANIFEST_FILE, MANIFEST_SCHEMA_VERSION, MODULE_NAME_PATTERN, PRODUCT_PREFIX_PATTERN, UTF8_BOM } from './constants.mjs';
+import { LOGIN_MODES, OPTIONAL_MODULE_IDS, refusalForLoginModes, refusalForOptionalModules } from './init-config.mjs';
 
 /** Field order of the written manifest (the schema's `required` order). */
 export const MANIFEST_FIELDS = Object.freeze([
   'schemaVersion', 'starterVersion', 'productPrefix', 'productName', 'starterBase', 'renameMap',
   'requiredModules', 'removedModules', 'prefixTargets', 'hashes',
+]);
+
+/**
+ * Optional fields (schema properties outside `required`): written by the full init (P10). A manifest without them is
+ * read as "every login mode and every optional module enabled" (effectiveLoginModes, effectiveOptionalModules).
+ */
+export const MANIFEST_OPTIONAL_FIELDS = Object.freeze(['loginModes', 'optionalModules']);
+
+/** The written field order: the optional fields go after removedModules. */
+const WRITTEN_FIELD_ORDER = Object.freeze([
+  'schemaVersion', 'starterVersion', 'productPrefix', 'productName', 'starterBase', 'renameMap',
+  'requiredModules', 'removedModules', ...MANIFEST_OPTIONAL_FIELDS, 'prefixTargets', 'hashes',
 ]);
 
 const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
@@ -86,12 +99,35 @@ function checkScalars(errors, manifest) {
   }
 }
 
+function checkOptionalFields(errors, manifest) {
+  if ('loginModes' in manifest) {
+    const refusal = refusalForLoginModes(manifest.loginModes);
+    if (refusal) errors.push(refusal);
+  }
+  if ('optionalModules' in manifest) {
+    const refusal = refusalForOptionalModules(manifest.optionalModules);
+    if (refusal) errors.push(refusal);
+  }
+}
+
+/** The login modes a manifest records; all of them when the field is missing (a pre-P10 manifest). */
+export function effectiveLoginModes(manifest) {
+  return manifest.loginModes ? [...manifest.loginModes] : [...LOGIN_MODES];
+}
+
+/** The optional modules a manifest records; all enabled when the field is missing (a pre-P10 manifest). */
+export function effectiveOptionalModules(manifest) {
+  return manifest.optionalModules
+    ? { ...manifest.optionalModules }
+    : Object.fromEntries(OPTIONAL_MODULE_IDS.map((id) => [id, true]));
+}
+
 /** Every schema violation of a parsed manifest (empty when valid). */
 export function validateManifest(manifest) {
   if (!isObject(manifest)) return ['The manifest must be a JSON object.'];
   const errors = [];
   const missing = MANIFEST_FIELDS.filter((field) => !(field in manifest));
-  const unknown = Object.keys(manifest).filter((field) => !MANIFEST_FIELDS.includes(field));
+  const unknown = Object.keys(manifest).filter((field) => !WRITTEN_FIELD_ORDER.includes(field));
   if (missing.length > 0) errors.push(`Missing field(s): ${missing.join(', ')}.`);
   if (unknown.length > 0) errors.push(`Unknown field(s): ${unknown.join(', ')}.`);
   if (missing.length > 0) return errors;
@@ -101,6 +137,7 @@ export function validateManifest(manifest) {
   checkModules(errors, 'removedModules', manifest.removedModules);
   checkPrefixTargets(errors, manifest.prefixTargets);
   checkHashes(errors, manifest.hashes);
+  checkOptionalFields(errors, manifest);
   return errors;
 }
 
@@ -127,7 +164,9 @@ export function readManifest(root) {
 /** Serializes a manifest in the canonical field order with sorted hashes. */
 export function formatManifest(manifest) {
   const ordered = {};
-  for (const field of MANIFEST_FIELDS) ordered[field] = manifest[field];
+  for (const field of WRITTEN_FIELD_ORDER) {
+    if (field in manifest) ordered[field] = manifest[field];
+  }
   ordered.hashes = Object.fromEntries(Object.entries(manifest.hashes).sort(([left], [right]) => (left < right ? -1 : 1)));
   return `${JSON.stringify(ordered, null, JSON_INDENT)}\n`;
 }

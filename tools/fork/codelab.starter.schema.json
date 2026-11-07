@@ -74,6 +74,25 @@
       "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
       "description": "Modules removed from this fork; upstream-merge.ps1 drops upstream changes under them."
     },
+    "loginModes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["basic", "ad", "sso"] },
+      "description": "The login modes init.ps1 wrote to the API's Auth:Modes. Missing (a pre-1.0 manifest): every mode is treated as enabled."
+    },
+    "optionalModules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attachments", "portal", "sms", "ops"],
+      "properties": {
+        "attachments": { "type": "boolean" },
+        "portal": { "type": "boolean" },
+        "sms": { "type": "boolean" },
+        "ops": { "type": "boolean" }
+      },
+      "description": "The optional modules kept (true) or removed (false) by init.ps1. Missing: every optional module is treated as enabled."
+    },
     "prefixTargets": {
       "type": "array",
       "description": "JSON files whose value at jsonPath is set to productPrefix by init.ps1. jsonPath segments are separated by ':' or '.'.",

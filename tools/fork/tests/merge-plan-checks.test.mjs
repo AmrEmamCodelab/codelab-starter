@@ -5,7 +5,18 @@ import { main } from '../fork.mjs';
 import { parseDiff } from '../lib/diff.mjs';
 import { appendProbe, canProbe, checkAssets, checkNpmLock, checkNuGetOrigins, compareSets, isCodelabPackageFolder, resolveByUnion } from '../lib/fork-model-checks.mjs';
 import { internals } from '../lib/fork-model.mjs';
-import { ConflictKind, createContentTransform, DropReason, isModuleListFile, isRegeneratedOutput, planPatches } from '../lib/merge-plan.mjs';
+import {
+  ConflictKind,
+  createContentTransform,
+  DropReason,
+  isI18nFile,
+  isMarkerFile,
+  isModuleFilteredFile,
+  isModuleListFile,
+  isRegeneratedOutput,
+  planPatches,
+  starterFieldsFrom,
+} from '../lib/merge-plan.mjs';
 import { createRemovedPathMatcher, createRemovedProjectLineMatcher } from '../lib/modules.mjs';
 import { createRenamer } from '../lib/rename.mjs';
 
@@ -46,6 +57,7 @@ describe('planPatches', () => {
     modification('docs/deleted-in-fork.md'),
     deletion('docs/gone-in-both.md'),
     addition('docs/exists.md'),
+    modification('codelab.starter.json'),
   ].join('');
   const plan = planPatches(parseDiff(diff), context);
 
@@ -62,6 +74,7 @@ describe('planPatches', () => {
       ['rules/rules.compiled.json', DropReason.regeneratedOutput],
       ['backend/src/Modules/A/CLAUDE.md', DropReason.regeneratedOutput],
       ['docs/gone-in-both.md', DropReason.alreadyDeleted],
+      ['codelab.starter.json', DropReason.forkManifest],
     ]);
   });
 
@@ -90,6 +103,46 @@ describe('content transform', () => {
     assert.equal(transform('docs/x.md', 'namespace Starter.Api;'), 'namespace Acme.Api;');
     assert.equal(isModuleListFile('backend/src/Starter.Api/Starter.Api.csproj'), true);
     assert.equal(isModuleListFile('docs/x.md'), false);
+  });
+
+  it("strips a removed module's marked lines and blocks from shared registration files only", () => {
+    const transform = createContentTransform(createRenamer([]), createRemovedProjectLineMatcher(['Ops']), ['Ops']);
+    const routes = "import { A } from './a'; // codelab:module A\nimport { O } from './o'; // codelab:module Ops\n  // codelab:module-begin Ops\n  ...O,\n  // codelab:module-end Ops\n];\n";
+    const expected = "import { A } from './a'; // codelab:module A\n];\n";
+    assert.equal(transform('frontend/starter-web/src/app/app.routes.ts', routes), expected);
+    assert.equal(transform('docs/x.md', routes), routes);
+  });
+
+  it('keeps upstream text with unpaired markers as it is (git reports the conflict)', () => {
+    const transform = createContentTransform(createRenamer([]), null, ['Ops']);
+    const broken = '  // codelab:module-begin Ops\n  ...O,\n';
+    assert.equal(transform('frontend/starter-web/src/app/app.routes.ts', broken), broken);
+  });
+
+  it("removes a removed module's translation keys and keeps invalid JSON unchanged", () => {
+    const transform = createContentTransform(createRenamer([]), null, ['ServiceRequests']);
+    const file = 'frontend/starter-web/src/assets/i18n/en.json';
+    const json = `${JSON.stringify({ a: { t: 'A' }, serviceRequests: { t: 'S' }, 'serviceRequests.flat': 'F' }, null, 2)}\n`;
+    assert.deepEqual(JSON.parse(transform(file, json)), { a: { t: 'A' } });
+    assert.equal(transform(file, '{ broken'), '{ broken');
+  });
+
+  it('classifies module-filtered files', () => {
+    assert.equal(isMarkerFile('frontend/starter-web/src/app/app.routes.ts'), true);
+    assert.equal(isMarkerFile('backend/src/Starter.Api/Starter.Api.csproj'), true);
+    assert.equal(isMarkerFile('backend/src/Starter.Api/Program.cs'), false);
+    assert.equal(isMarkerFile('docs/app.routes.ts'), false);
+    assert.equal(isI18nFile('frontend/starter-web/src/assets/i18n/ar.json'), true);
+    assert.equal(isI18nFile('frontend/starter-web/public/config.json'), false);
+    assert.equal(isModuleFilteredFile('codelab-starter.slnx'), true);
+    assert.equal(isModuleFilteredFile('docs/x.md'), false);
+  });
+
+  it('takes only the starter version from the upstream manifest', () => {
+    assert.deepEqual(starterFieldsFrom('﻿{"starterVersion":"1.0.0","starterBase":"x","hashes":{}}'), { starterVersion: '1.0.0' });
+    assert.deepEqual(starterFieldsFrom('{"starterBase":"x"}'), {});
+    assert.deepEqual(starterFieldsFrom('not json'), {});
+    assert.deepEqual(starterFieldsFrom(null), {});
   });
 
   it('identifies rules-engine outputs', () => {

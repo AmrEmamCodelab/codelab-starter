@@ -2,19 +2,41 @@
 
 ## Purpose
 
-The logic behind `run-local.ps1` at the repo root (v1): one command that starts the local stack in Development,
-proves it is healthy, and stops only what it started.
+The logic behind `run-local.ps1` at the repo root: one command that starts the local stack in Development (the
+API, the Attachment service, the integration gateway, the Ops Console API, the web app and Seq, as far as the fork
+has them), proves each service healthy on its own health endpoint, and stops only what it started.
 
 ## Use
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1                 # API + Attachment service + web (+ Seq)
-powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoWeb          # API + Attachment service
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1                 # everything the fork has (+ Seq)
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoWeb          # without the web app
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoAttachments  # without the Attachment service
+powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -NoGateway -NoOps  # without the gateway and the Ops Console
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Stop           # stop what a previous run started
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Slot 1         # a second stack next to a running one
 powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1 -Stop -Slot 1   # stop only slot 1
 ```
+
+### What starts
+
+| Service | Port | Starts when | Health endpoint |
+| --- | --- | --- | --- |
+| API | 5180 | always | `/health/ready` |
+| Attachment service | 5185 | `optionalModules.attachments` is on, the project exists, no `-NoAttachments` | `/health/ready` (storage root) |
+| Integration gateway | 5187 | `loginModes` has `sso` or `optionalModules.sms` is on, the project exists, no `-NoGateway` | `/health/ready` (relay profiles and upstreams) |
+| Ops Console API | 5188 | `optionalModules.ops` is on, the project exists, no `-NoOps` | `/health/ready` |
+| Web app | 4280 | the workspace and `node_modules` exist, no `-NoWeb` | `/` (HTTP 200) |
+| Seq | 5341 | reachable or installed as a service, no `-NoSeq` (otherwise a warning) | `/health` |
+
+The choices come from `codelab.starter.json` (`loginModes`, `optionalModules`, `removedModules`; a module listed in
+`removedModules` is off). A missing file or field means everything on, so a tree from before `init.ps1` runs
+everything it has. The gateway runs with its configured relay profiles (Development: `sso` against the local IdP).
+
+After the start every service is checked, then a line per service says `healthy` or `unhealthy`. One unhealthy
+service makes the start fail (exit 1): the report, the last log lines of each unhealthy service, and everything
+started is stopped again. A gateway or Ops Console without its local secrets file (its S2S keys, written by
+`tools/devseed/New-LocalSecrets.ps1`) fails its start-up validation; its report line names the missing file.
 
 ### Slots: a second stack next to a running one
 
@@ -23,15 +45,15 @@ answer. `-Slot <n>` (1-9) runs the current tree next to it without touching it:
 
 | | Slot 0 (default) | Slot n (slot 1 shown) |
 | --- | --- | --- |
-| Ports | API 5180, Attachment service 5185, web 4280 | each + n * 100: 5280, 5285, 4380 |
+| Ports | API 5180, Attachment service 5185, gateway 5187, Ops Console 5188, web 4280 | each + n * 100: 5280, 5285, 5287, 5288, 4380 |
 | State and logs | `%TEMP%\codelab-starter` | `%TEMP%\codelab-starter\slot-<n>` |
 | .NET build output | the project's `bin\Debug` | `slot-<n>\build\<api or attachments>` (`dotnet build -o`), so the DLLs a running stack holds open are never overwritten |
 | Database | as configured | `ConnectionStrings__Starter` (or the development settings) with the database renamed `<name>_Slot<n>`; migrations apply there, never to the other stack's database |
 | Attachment storage | as configured (run-local never creates or changes it) | `slot-<n>\attachments-storage`, created (idempotent) before the slot's Attachment service starts, because the service's readiness check fails on a missing storage root |
 | Web app | `ng serve` (hot reload) | a frozen development build in `slot-<n>\web`, its `config.json` pointed at the slot's API and Attachment service, served by `static-server.mjs` (unknown routes fall back to `index.html`) |
 
-The slot's API and Attachment service get their web origin (CORS), SSO return URLs, web links and service URL
-through environment overrides (`plan.mjs` `slotOverrides`); no settings file changes. Rebuild the slot web app after
+The slot's hosts get their web origin (CORS), SSO return URLs, web links, Attachment service and gateway URLs
+(and the Ops readiness probes naming them) and, for the Ops Console, the slot API through environment overrides (`plan.mjs` `slotOverrides`); no settings file changes. Rebuild the slot web app after
 a frontend change with `-Stop -Slot n` and a new start.
 
 A start:
@@ -55,13 +77,15 @@ A start:
    - builds the Attachment service (`services/attachment-service/src/Codelab.Attachments.Api`) and runs the built
      `Codelab.Attachments.Api.dll` the same way on http://localhost:5185 (skipped with `-NoAttachments`, or with a
      warning when the project is not in the repository);
-   - starts the web app (`npm start --workspace frontend/starter-web`, http://localhost:4280).
-5. Waits, in the same order, for `GET /health/ready` on the API, `GET /health/ready` on the Attachment service
-   (Codelab.Observability `MapCodelabHealth` maps `/health/live` and `/health/ready`) and HTTP 200 on the web root,
-   then prints the URLs, the logs and the break-glass user name.
+   - builds and runs the integration gateway (:5187) and the Ops Console API (:5188) the same way, when planned;
+   - starts the web app: the icon subset (the `prestart` step), then `ng serve --port 4280` run by the private Node
+     directly (no npm or cmd layer, `NG_CLI_ANALYTICS=false`), so the recorded PID is the dev server and its output
+     reaches `web.log`.
+5. Checks, in the same order, every service on its health endpoint (the table above), then prints the
+   healthy/unhealthy report, the URLs, the logs and the break-glass user name.
 
-Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\codelab-starter`
-(`run-local.json`, `api.log`, `attachments.log`, `web.log`). Tests: `node --test "tools/run-local/**/*.test.mjs"`.
+Exit codes: 0 ok (every service healthy), 1 refused or failed (any service unhealthy), 2 usage. PIDs and logs live in
+`%TEMP%\codelab-starter` (`run-local.json`, `api.log`, `attachments.log`, `gateway.log`, `ops.log`, `web.log`). Tests: `node --test "tools/run-local/**/*.test.mjs"`.
 
 ## Extend
 
@@ -69,7 +93,7 @@ Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\co
   orchestration: `lib/run.mjs`, which reaches the machine only through the `system` object of `lib/system.mjs`, so
   `tests/run.test.mjs` drives it with a fake.
 - A new .NET host: add it to `Services`, `LOG_FILES`, `Urls`, `Ports`, `Timeouts` and `Hosts`, place it in
-  `START_ORDER`, add its decision (and flag) to `plan.mjs` and its slot overrides to `slotOverrides`; `run.mjs` builds,
+  `START_ORDER` (with its `secretsFile` when it reads its own local secrets), add its decision (and flag) to `plan.mjs`, its health endpoint to `healthUrl` and its slot overrides to `slotOverrides`; `run.mjs` builds,
   starts, records and health-checks every planned host.
 - A setting that names a local URL (a new web link, origin or service URL): add its environment key to
   `SlotSettings` and set it in `slotOverrides`, or a slot stack points back at the default stack.
@@ -87,9 +111,11 @@ Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\co
 
 ## Gotchas
 
-- The first start builds the solution and the Angular bundle; the health waits allow 4, 4 and 6 minutes.
-- A port already in use (5180, 5185 when the service starts, 4280 when the web starts) is refused before anything
+- The first start builds the solution and the Angular bundle; the health waits allow 4 minutes (API, Attachment
+  service), 2 (gateway, Ops Console), 6 (web) and 30 s (Seq).
+- A port already in use (5180, and 5185, 5187, 5188, 4280 for each planned service) is refused before anything
   starts; stop the other process first.
+- The Ops Console web front end (`services/ops-console/web`) is not served by run-local; only its API runs.
 - Starting the `Seq` service may need an elevated shell; without it run-local continues without Seq.
 - If a start fails, run-local stops what it started and prints the tail of the failing log.
 - Slots share the browser's `localhost` cookies (cookies ignore the port): signing in to slot 1 in the same browser

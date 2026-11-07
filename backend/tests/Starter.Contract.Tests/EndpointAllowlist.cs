@@ -54,7 +54,12 @@ public static class EndpointAllowlist
     /// <summary>Wire members that carry trace identifiers (correlation and W3C trace ids), not database ids (Type.Member).</summary>
     public static IReadOnlyCollection<string> TraceIdentifierMembers { get; } = ["ReferenceCodeResponse.CorrelationId", "ReferenceCodeResponse.TraceId"]; // codelab:module Ops
 
-    public static IReadOnlyCollection<string> PublicIdExemptMembers => [.. NumericLookupIdMembers, .. LookupTokenStringMembers, .. TraceIdentifierMembers];
+    public static IReadOnlyCollection<string> PublicIdExemptMembers =>
+    [
+        .. NumericLookupIdMembers,
+        .. LookupTokenStringMembers,
+        .. TraceIdentifierMembers, // codelab:module Ops
+    ];
 
     /// <summary>Every allowlisted endpoint.</summary>
     public static IReadOnlyList<AllowlistEntry> Entries { get; } =

@@ -19,11 +19,12 @@ public sealed class RelayClientContractTests : IClassFixture<GatewayFixture>
     {
         ArgumentNullException.ThrowIfNull(fixture);
         _fixture = fixture;
-        fixture.Upstream.SmsStatus = 200;
-        fixture.Upstream.SmsBody = FakeUpstream.SmsJson;
+        fixture.Upstream.SmsStatus = 200; // codelab:module Sms
+        fixture.Upstream.SmsBody = FakeUpstream.SmsJson; // codelab:module Sms
         fixture.Upstream.TokenStatus = 200;
     }
 
+    // codelab:module-begin Sms
     [Fact]
     public async Task The_client_relays_an_sms()
     {
@@ -36,6 +37,7 @@ public sealed class RelayClientContractTests : IClassFixture<GatewayFixture>
         Assert.Equal("msg-1", result.ProviderMessageId);
         Assert.False(string.IsNullOrWhiteSpace(result.ReferenceCode));
     }
+    // codelab:module-end Sms
 
     [Fact]
     public async Task The_client_relays_a_token_request_and_reads_the_jwks()
@@ -50,6 +52,7 @@ public sealed class RelayClientContractTests : IClassFixture<GatewayFixture>
         Assert.Equal("access-1", token.RootElement.GetProperty("access_token").GetString());
         Assert.Equal(1, jwks.RootElement.GetProperty("keys").GetArrayLength());
     }
+    // codelab:module-begin Sms
 
     [Fact]
     public async Task A_provider_outage_reaches_the_client_as_its_failure_code()
@@ -63,6 +66,7 @@ public sealed class RelayClientContractTests : IClassFixture<GatewayFixture>
 
         Assert.Equal(GatewayFailureCodes.UpstreamUnavailable, failure.Code);
     }
+    // codelab:module-end Sms
 
     private ServiceProvider ClientServices()
     {

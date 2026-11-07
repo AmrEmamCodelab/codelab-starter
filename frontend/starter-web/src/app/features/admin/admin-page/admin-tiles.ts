@@ -55,6 +55,7 @@ export const ADMIN_TILES: readonly AdminTile[] = [
     link: AdminPaths.lookups(),
     permission: PermissionKeys.LookupsView,
   },
+  // codelab:module-begin Portal
   {
     id: 'portal-content',
     icon: 'file',
@@ -63,6 +64,7 @@ export const ADMIN_TILES: readonly AdminTile[] = [
     link: AdminPaths.portalContent(),
     permission: PermissionKeys.PortalContentView,
   },
+  // codelab:module-end Portal
   {
     id: 'settings',
     icon: 'filter',

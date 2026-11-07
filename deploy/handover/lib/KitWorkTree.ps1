@@ -24,12 +24,12 @@ function Get-KitFilesFromDisk([string] $SourceRoot) {
 
 # Forward-slash relative paths of the source files: git's tracked + untracked-not-ignored list when git can list
 # them, otherwise every file outside the build-output folders. Files deleted in the working tree are dropped.
+# The git list is not filtered by folder name: git's ignore rules already drop build output, and a tracked source
+# folder may be called bin (packages/npm/ng-tools/src/bin holds the CLI entry points).
 function Get-KitSourceFiles([string] $SourceRoot) {
     $files = Get-KitFilesFromGit $SourceRoot
     if ($null -eq $files) { $files = Get-KitFilesFromDisk $SourceRoot }
-    return @($files | Where-Object {
-        -not (Test-KitExcludedPath $_) -and (Test-Path -LiteralPath (Join-Path $SourceRoot $_) -PathType Leaf)
-    })
+    return @($files | Where-Object { Test-Path -LiteralPath (Join-Path $SourceRoot $_) -PathType Leaf })
 }
 
 function Copy-KitFile([string] $Source, [string] $Destination) {

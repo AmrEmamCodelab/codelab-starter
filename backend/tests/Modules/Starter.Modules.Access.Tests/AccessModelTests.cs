@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Access.Domain;
 using Starter.Modules.Access.Infrastructure.Persistence;
@@ -17,7 +18,7 @@ public sealed class AccessModelTests
         using var context = NewContext();
 
         Assert.Equal(AccessDbContext.SchemaName, context.Model.GetDefaultSchema());
-        Assert.Equal([AccessMigrationIds.InitialCreate, AccessMigrationIds.RolesAndGrants], context.Database.GetMigrations());
+        Assert.Equal([AccessMigrationIds.InitialCreate], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -47,21 +48,51 @@ public sealed class AccessModelTests
     }
 
     [Fact]
-    public void RolesAndGrants_creates_the_tables_keeps_old_grants_global_and_seeds_one_role_per_virtual_kind()
+    public void The_one_migration_creates_every_table_with_scoped_grants_and_seeds_one_role_per_virtual_kind()
     {
         using var context = NewContext();
 
-        var script = context.GetService<IMigrator>().GenerateScript(fromMigration: AccessMigrationIds.InitialCreate, toMigration: AccessMigrationIds.RolesAndGrants);
+        var script = context.GetService<IMigrator>().GenerateScript();
 
+        Assert.Contains("CREATE TABLE [access].[Permissions]", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE [access].[UserPermissionGrants]", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE [access].[Roles]", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE [access].[RolePermissions]", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE [access].[UserRoleAssignments]", script, StringComparison.Ordinal);
-        Assert.Contains("ALTER TABLE [access].[UserPermissionGrants] ADD [Scope] int NOT NULL DEFAULT 1", script, StringComparison.Ordinal);
+        Assert.Contains("[Scope] int NOT NULL", script, StringComparison.Ordinal);
         Assert.Contains("WHERE [VirtualKind] IS NOT NULL", script, StringComparison.Ordinal);
+        Assert.Contains(AccessMigrationIds.InitialCreate, script, StringComparison.Ordinal);
         Assert.All(VirtualRoleSeed.Rows, row => Assert.Contains("N'" + row.Code + "'", script, StringComparison.Ordinal));
         Assert.Equal(Enum.GetValues<VirtualRoleKind>(), VirtualRoleSeed.Rows.Select(row => row.Kind));
         Assert.All(VirtualRoleSeed.Rows, row => Assert.True(RoleCodeFormat.IsValid(row.Code)));
     }
+
+    [Fact]
+    public void The_one_migration_carries_every_operation_of_the_model_diff_and_seeds_only_the_virtual_roles()
+    {
+        using var context = NewContext();
+        var migration = new InitialCreate();
+        var target = context.GetService<IModelRuntimeInitializer>().Initialize(migration.TargetModel!, designTime: true);
+
+        var expected = context.GetService<IMigrationsModelDiffer>().GetDifferences(source: null, target.GetRelationalModel());
+        var schema = migration.UpOperations.Where(operation => operation is not InsertDataOperation).ToList();
+        var seeds = migration.UpOperations.OfType<InsertDataOperation>().ToList();
+
+        Assert.Equal(expected.Select(Describe).Order(StringComparer.Ordinal), schema.Select(Describe).Order(StringComparer.Ordinal));
+        Assert.Equal(VirtualRoleSeed.Rows.Count, seeds.Count);
+        Assert.All(seeds, seed => Assert.Equal(AccessTableNames.Roles, seed.Table));
+    }
+
+    private static string Describe(MigrationOperation operation) => operation switch
+    {
+        CreateIndexOperation index =>
+            $"index {index.Table}.{index.Name} ({string.Join(",", index.Columns)}) unique={index.IsUnique} filter={index.Filter}",
+        CreateTableOperation table =>
+            $"table {table.Name} ({string.Join(",", table.Columns.OrderBy(column => column.Name, StringComparer.Ordinal).Select(column => $"{column.Name}:{column.ColumnType}:{column.IsNullable}"))}) "
+            + $"fk=({string.Join(",", table.ForeignKeys.OrderBy(key => key.Name, StringComparer.Ordinal).Select(key => $"{key.Name}:{key.OnDelete}"))})",
+        EnsureSchemaOperation ensure => $"schema {ensure.Name}",
+        _ => operation.GetType().Name,
+    };
 
     private static AccessDbContext NewContext() => new(new DbContextOptionsBuilder<AccessDbContext>()
         .UseSqlServer("Server=.;Database=NeverOpened", sql => sql.MigrationsHistoryTable(PersistenceRegistration.MigrationsHistoryTable, AccessDbContext.SchemaName))

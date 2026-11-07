@@ -112,7 +112,7 @@ public sealed class AttachmentTypeSeedUpgradeSqlTests
             Assert.Equal(new AttachmentTypeSeedReport(Added: 0, Refreshed: 0, Unchanged: 2), report);
             Assert.Equal([AttachmentTypeIds.ServiceRequestDocument, AttachmentTypeIds.ServiceRequestSupporting], await SampleTypeIdsAsync(context));
             Assert.Equal(
-                [AttachmentsMigrationIds.InitialCreate, AddServiceRequestAttachmentTypes.MigrationId],
+                [AttachmentsMigrationIds.InitialCreate],
                 await context.Database.GetAppliedMigrationsAsync());
         });
     }

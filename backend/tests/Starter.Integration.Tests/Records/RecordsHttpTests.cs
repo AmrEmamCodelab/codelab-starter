@@ -1,17 +1,17 @@
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
+using System.Security.Cryptography; // codelab:module Attachments
+using System.Text; // codelab:module Attachments
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using Codelab.Security.Tickets;
-using Codelab.Security.Uploads;
+using System.Text.RegularExpressions; // codelab:module Attachments
+using Codelab.Security.Tickets; // codelab:module Attachments
+using Codelab.Security.Uploads; // codelab:module Attachments
 using Microsoft.Data.SqlClient;
-using Starter.Application.Attachments;
+using Starter.Application.Attachments; // codelab:module Attachments
 using Starter.Application.Records;
 using Starter.Application.Workflow;
 using Starter.Integration.Tests.Support;
-using Starter.Modules.Attachments.Application;
-using Starter.Modules.Attachments.Infrastructure.Security;
+using Starter.Modules.Attachments.Application; // codelab:module Attachments
+using Starter.Modules.Attachments.Infrastructure.Security; // codelab:module Attachments
 using Starter.Modules.Records.Application;
 using Starter.Tests.Hosting;
 
@@ -29,11 +29,12 @@ public sealed partial class RecordsHttpTests(RecordsHost host)
 {
     private const string Root = "/api/records/" + ProbeRecord.RecordType;
     private const string DraftsPath = "/api/test-records";
-    private const string FileName = "evidence.pdf";
-    private const int FileIdBytes = 16;
+    private const string FileName = "evidence.pdf"; // codelab:module Attachments
+    private const int FileIdBytes = 16; // codelab:module Attachments
 
     /// <summary>SQL Server's error number for a statement that conflicts with a constraint (here the history FK).</summary>
     private const int ConstraintConflict = 547;
+    // codelab:module-begin Attachments
 
     [Fact]
     public async Task Submit_is_refused_409_until_the_required_file_is_linked_then_takes_the_number()
@@ -70,6 +71,7 @@ public sealed partial class RecordsHttpTests(RecordsHost host)
 
         Assert.Equal(AttachmentErrorCodes.RequiredMissing, await StarterProblems.AssertProblemAsync(refused, HttpStatusCode.Conflict));
     }
+    // codelab:module-end Attachments
 
     [Fact]
     public async Task A_return_without_its_mandatory_reason_is_400_and_with_it_reaches_the_requester()
@@ -219,7 +221,7 @@ public sealed partial class RecordsHttpTests(RecordsHost host)
         var requester = await host.RequesterTokenAsync();
         var staff = await host.StaffTokenAsync();
         var id = await DraftAsync(api, requester);
-        await LinkRequiredFileAsync(api, await DetailAsync(api, id, requester), requester);
+        await LinkRequiredFileAsync(api, await DetailAsync(api, id, requester), requester); // codelab:module Attachments
         using (var submitted = await TransitionAsync(api, id, RecordLifecycleActions.Submit, reason: null, requester))
         {
             await ApiClient.ReadAsync(submitted, HttpStatusCode.OK);
@@ -250,6 +252,7 @@ public sealed partial class RecordsHttpTests(RecordsHost host)
 
     private static IReadOnlyList<string> ActionKeys(JsonElement detail) =>
         [.. detail.GetProperty("allowedActions").EnumerateArray().Select(action => action.GetProperty("actionKey").GetString()!)];
+    // codelab:module-begin Attachments
 
     /// <summary>What the browser and the attachment service do for the required file: ticket, upload, signed receipt, link.</summary>
     private async Task LinkRequiredFileAsync(ApiClient api, JsonElement detail, string token)
@@ -276,4 +279,5 @@ public sealed partial class RecordsHttpTests(RecordsHost host)
 
     [GeneratedRegex(@"^TR-\d{4}-\d{3,}$", RegexOptions.CultureInvariant)]
     private static partial Regex NumberFormat();
+    // codelab:module-end Attachments
 }

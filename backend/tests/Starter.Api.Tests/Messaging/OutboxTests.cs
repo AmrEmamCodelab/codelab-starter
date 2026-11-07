@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +24,7 @@ public sealed class OutboxModelTests
 
         Assert.Equal(OutboxDbContext.SchemaName, context.Model.GetDefaultSchema());
         Assert.Equal(OutboxTableNames.OutboxMessages, context.Model.FindEntityType(typeof(OutboxEntry))!.GetTableName());
-        Assert.Equal([OutboxMigrationIds.InitialCreate, OutboxMigrationIds.DeliveryTracking], context.Database.GetMigrations());
+        Assert.Equal([OutboxMigrationIds.InitialCreate], context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }
 
@@ -52,17 +53,21 @@ public sealed class OutboxModelTests
     }
 
     [Fact]
-    public void The_delivery_tracking_migration_adds_the_drain_columns_with_existing_rows_at_attempt_zero()
+    public void The_one_migration_creates_the_drain_columns_and_targets_the_latest_model()
     {
         using var context = OutboxContexts.Offline();
+        var migration = new InitialCreate();
+        var target = context.GetService<IModelRuntimeInitializer>().Initialize(migration.TargetModel!, designTime: true);
 
-        var script = context.GetService<IMigrator>().GenerateScript(
-            fromMigration: OutboxMigrationIds.InitialCreate, toMigration: OutboxMigrationIds.DeliveryTracking);
+        var script = context.GetService<IMigrator>().GenerateScript();
 
-        Assert.Contains("ALTER TABLE [messaging].[OutboxMessages] ADD [Attempt] int NOT NULL DEFAULT 0", script, StringComparison.Ordinal);
-        Assert.Contains("ADD [LockedUntil] datetimeoffset NULL", script, StringComparison.Ordinal);
-        Assert.Contains("ADD [SentAt] datetimeoffset NULL", script, StringComparison.Ordinal);
-        Assert.Contains($"ADD [LastError] nvarchar({OutboxColumnLimits.LastErrorMaxLength}) NULL", script, StringComparison.Ordinal);
+        Assert.Contains("[Attempt] int NOT NULL", script, StringComparison.Ordinal);
+        Assert.Contains("[LockedUntil] datetimeoffset NULL", script, StringComparison.Ordinal);
+        Assert.Contains("[SentAt] datetimeoffset NULL", script, StringComparison.Ordinal);
+        Assert.Contains($"[LastError] nvarchar({OutboxColumnLimits.LastErrorMaxLength}) NULL", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("ALTER TABLE", script, StringComparison.Ordinal);
+        Assert.Empty(context.GetService<IMigrationsModelDiffer>().GetDifferences(
+            source: target.GetRelationalModel(), target: context.GetService<IDesignTimeModel>().Model.GetRelationalModel()));
     }
 }
 

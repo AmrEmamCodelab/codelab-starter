@@ -1,4 +1,4 @@
-using Codelab.Integration.Gateway;
+using Codelab.Integration.Gateway; // codelab:module Sms
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -86,6 +86,7 @@ public sealed class NotificationsModuleTests
         Assert.Equal(smsEnabled, provider.GetRequiredService<DeliverySettings>().SmsEnabled);
         Assert.Equal(EmailDeliveryOptions.DefaultFromAddress, provider.GetRequiredService<IOptions<EmailDeliveryOptions>>().Value.FromAddress);
     }
+    // codelab:module-begin Sms
 
     [Theory]
     [InlineData("true", "2", true)]
@@ -125,6 +126,7 @@ public sealed class NotificationsModuleTests
 
         Assert.Single(services, descriptor => descriptor.ServiceType == typeof(GatewayRelayClient));
     }
+    // codelab:module-end Sms
 
     [Fact]
     public void Routes_live_under_the_api_prefix()

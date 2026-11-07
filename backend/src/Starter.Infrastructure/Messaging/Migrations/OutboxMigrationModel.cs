@@ -9,11 +9,11 @@ namespace Starter.Infrastructure.Messaging.Migrations;
 /// <summary>The migration identifiers and constraint names of the messaging schema.</summary>
 public static class OutboxMigrationIds
 {
-    /// <summary>The id of the first migration.</summary>
+    /// <summary>
+    /// The id of the one messaging migration. The v1.0 squash (ADR-010) kept the id of the first migration, so a
+    /// database migrated before the squash stays valid.
+    /// </summary>
     public const string InitialCreate = "20261105090000_InitialCreate";
-
-    /// <summary>The id of the migration that adds the drain's columns (attempts, lease, sent time, last error).</summary>
-    public const string DeliveryTracking = "20261106090000_DeliveryTracking";
 
     /// <summary>The primary key of <c>messaging.OutboxMessages</c>.</summary>
     public const string OutboxMessagesPrimaryKey = "PK_OutboxMessages";
@@ -57,9 +57,9 @@ public static class OutboxSqlTypes
 }
 
 /// <summary>
-/// The messaging model as of the latest migration: the target model of <see cref="DeliveryTracking"/> and the model
-/// snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration freezes a copy for
-/// <see cref="DeliveryTracking"/> before this one changes (<see cref="InitialCreate"/> has no target model).
+/// The messaging model as of the latest migration: the target model of <see cref="InitialCreate"/> and the model
+/// snapshot that <c>dotnet ef migrations add</c> diffs against. A later migration first freezes a copy of this model as
+/// the target model of <see cref="InitialCreate"/> (<c>InitialCreateModel</c>), then changes this one.
 /// </summary>
 public static class OutboxMigrationModel
 {

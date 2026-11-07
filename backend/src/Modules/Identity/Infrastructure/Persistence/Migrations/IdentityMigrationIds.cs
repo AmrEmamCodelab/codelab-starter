@@ -3,11 +3,11 @@ namespace Starter.Modules.Identity.Infrastructure.Persistence.Migrations;
 /// <summary>The migration identifiers and constraint names of the Identity schema.</summary>
 public static class IdentityMigrationIds
 {
-    /// <summary>The id of the first migration.</summary>
+    /// <summary>
+    /// The id of the one Identity migration. The v1.0 squash (ADR-010) kept the id of the first migration, so a database
+    /// migrated before the squash stays valid.
+    /// </summary>
     public const string InitialCreate = "20261104203909_InitialCreate";
-
-    /// <summary>The id of the phase 3 migration (account administration, lockout, activation, sign-in modes, auth events).</summary>
-    public const string AccountAdministration = "20261105120000_AccountAdministration";
 
     /// <summary>The primary key of <c>identity.UserAccounts</c>.</summary>
     public const string UserAccountsPrimaryKey = "PK_UserAccounts";

@@ -51,6 +51,16 @@ function Invoke-KitNpmCi([string] $Npm, [string] $InstallDir, [string] $CachePat
     return (Invoke-KitNative $Npm $arguments $InstallDir)
 }
 
+# Bins whose target is build output (dist/) get no shim at `npm ci` time; `npm rebuild --ignore-scripts` links them
+# once the build has run, without running install scripts or touching the network.
+function Get-KitNpmRelinkArguments([string] $CachePath) {
+    return @($script:NpmRelinkArguments) + @('--cache', $CachePath) + $script:NpmQuietArguments
+}
+
+function Invoke-KitNpmRelinkBins([string] $Npm, [string] $InstallDir, [string] $CachePath) {
+    return (Invoke-KitNative $Npm (Get-KitNpmRelinkArguments $CachePath) $InstallDir)
+}
+
 function Remove-KitNpmCacheNoise([string] $CachePath) {
     foreach ($name in $script:NpmCacheNoise) {
         $path = Join-Path $CachePath $name

@@ -30,11 +30,17 @@ public static class SecuritySqlSchema
         return reader.ReadToEnd();
     }
 
-    /// <summary>Runs the script against <paramref name="connectionString"/> (creates the tables when missing).</summary>
+    /// <summary>
+    /// Runs the script against <paramref name="connectionString"/> (creates the tables when missing). The connection
+    /// pool for the string is cleared first: on a fresh database another component may have tried the string before the
+    /// migrations created the database, and SqlClient would otherwise re-throw that cached "cannot open database"
+    /// failure for the pool's blocking period. This runs once per start, so the cleared pool costs nothing.
+    /// </summary>
     public static async Task EnsureCreatedAsync(string connectionString, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         await using var connection = new SqlConnection(connectionString);
+        SqlConnection.ClearPool(connection);
         await connection.OpenAsync(cancellationToken);
         await using var command = new SqlCommand(ReadScript(), connection);
         await command.ExecuteNonQueryAsync(cancellationToken);

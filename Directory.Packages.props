@@ -127,11 +127,11 @@
     init.ps1 rewrites to the versions its feed holds.
   -->
   <ItemGroup Label="Codelab packages (feed mode)">
-    <PackageVersion Include="Codelab.Security" Version="0.5.2" />
-    <PackageVersion Include="Codelab.Observability" Version="0.5.2" />
-    <PackageVersion Include="Codelab.Errors" Version="0.5.2" />
-    <PackageVersion Include="Codelab.Testing" Version="0.6.0" />
-    <PackageVersion Include="Codelab.Identity" Version="0.6.0" />
-    <PackageVersion Include="Codelab.Integration" Version="0.6.0" />
+    <PackageVersion Include="Codelab.Security" Version="1.0.0" />
+    <PackageVersion Include="Codelab.Observability" Version="1.0.0" />
+    <PackageVersion Include="Codelab.Errors" Version="1.0.0" />
+    <PackageVersion Include="Codelab.Testing" Version="1.0.0" />
+    <PackageVersion Include="Codelab.Identity" Version="1.0.0" />
+    <PackageVersion Include="Codelab.Integration" Version="1.0.0" />
   </ItemGroup>
 </Project>

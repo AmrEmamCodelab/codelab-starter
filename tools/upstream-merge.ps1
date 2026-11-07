@@ -10,10 +10,12 @@
          variants, identifier boundaries); the pre-images are re-hashed so the three-way fallback merges renamed
          content.
       4. Dropped (keep-deletion): files under removedModules and packages\, upstream-added files there included, and
-         the removed modules' lines in the solution and host project. Rules-engine outputs are not merged; they are
-         regenerated.
+         the removed modules' registrations: their lines in the solution and host project, their marked lines
+         (codelab:module <Name>) in shared files and their translation keys. Rules-engine outputs are not merged;
+         they are regenerated. codelab.starter.json is the fork's and is never patched.
       5. git apply -3 --index. A file the fork deleted that upstream changed, or a file both added, is reported.
-      6. starterBase moves to the fetched commit; on a clean merge the rules outputs are regenerated, the hashes
+      6. starterBase moves to the fetched commit and starterVersion to the upstream one; on a clean merge the rules
+         outputs are regenerated, the hashes
          recomputed and tools\build.ps1 -Target CI (or -BuildCommand) runs. Changes are staged, never committed.
     With conflicts: resolve them, 'git add' the files, then run this script with -Continue.
 

@@ -3,11 +3,11 @@ namespace Starter.Modules.Access.Infrastructure.Persistence.Migrations;
 /// <summary>The migration identifiers and constraint names of the Access schema.</summary>
 public static class AccessMigrationIds
 {
-    /// <summary>The id of the first migration.</summary>
+    /// <summary>
+    /// The id of the one Access migration. The v1.0 squash (ADR-010) kept the id of the first migration, so a database
+    /// migrated before the squash stays valid.
+    /// </summary>
     public const string InitialCreate = "20261104203731_InitialCreate";
-
-    /// <summary>The id of the roles, role permissions, user role assignments and grant scope migration.</summary>
-    public const string RolesAndGrants = "20261105015102_RolesAndGrants";
 
     /// <summary>The primary key of <c>access.Permissions</c>.</summary>
     public const string PermissionsPrimaryKey = "PK_Permissions";

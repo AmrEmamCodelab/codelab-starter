@@ -15,6 +15,10 @@ export const Urls = Object.freeze({
   web: 'http://localhost:4280',
   /** The Attachment service (phase 6 contract 1). */
   attachments: 'http://localhost:5185',
+  /** The integration gateway (DMZ relay: SSO token/JWKS and SMS). */
+  gateway: 'http://localhost:5187',
+  /** The Ops Console API (operator BFF). */
+  ops: 'http://localhost:5188',
   seqDefault: 'http://localhost:5341',
 });
 
@@ -27,7 +31,7 @@ export const Urls = Object.freeze({
 export const Slots = Object.freeze({ default: 0, max: 9, portStep: 100 });
 export const LOCALHOST = 'http://localhost';
 /** The default-slot ports (the ports of Urls). */
-export const Ports = Object.freeze({ api: 5180, attachments: 5185, web: 4280 });
+export const Ports = Object.freeze({ api: 5180, attachments: 5185, gateway: 5187, ops: 5188, web: 4280 });
 /** %TEMP%\codelab-starter\slot-<n>: the state, logs and build output of slot n. */
 export const SLOT_DIR_PREFIX = 'slot-';
 export const SLOT_BUILD_DIR = 'build';
@@ -58,6 +62,13 @@ export const SlotSettings = Object.freeze({
   attachmentsBaseUrl: 'Attachments__ServiceBaseUrl',
   attachmentsCorsOrigin: 'Attachments__Cors__AllowedOrigins__0',
   attachmentsStorageRoot: 'Attachments__Storage__RootPath',
+  /** The API's client of the integration gateway. */
+  gatewayBaseUrl: 'Codelab__Integration__Gateway__BaseUrl',
+  /** The API's Ops readiness probes (appsettings.Development.json order: the Attachment service, then the gateway). */
+  opsProbeAttachmentsUrl: 'Codelab__Ops__ReadinessProbes__0__Url',
+  opsProbeGatewayUrl: 'Codelab__Ops__ReadinessProbes__1__Url',
+  /** The Ops Console's upstream: the slot's API. */
+  opsConsoleApiBaseUrl: 'Codelab__OpsConsole__Api__BaseUrl',
 });
 export const SSO_CALLBACK_PATH = '/api/auth/sso/signin-oidc';
 export const LOGIN_PATH = '/login';
@@ -66,6 +77,8 @@ export const READY_PATH = '/health/ready';
 export const API_HEALTH_PATH = READY_PATH;
 export const ATTACHMENTS_HEALTH_PATH = READY_PATH;
 export const WEB_HEALTH_PATH = '/';
+/** Seq's own health endpoint (200 while the node is in service). */
+export const SEQ_HEALTH_PATH = '/health';
 export const HTTP_OK = 200;
 
 /** Repo paths. */
@@ -94,6 +107,26 @@ export const TicketRingState = Object.freeze({
   /** The service ring differs from the API's UploadTickets ring: every upload ticket is refused (401). */
   mismatch: 3,
 });
+/** The integration gateway host (services/integration-gateway). */
+export const GATEWAY_PROJECT_DIR = 'services/integration-gateway/src/Codelab.Gateway.Api';
+export const GATEWAY_PROJECT_FILE = 'services/integration-gateway/src/Codelab.Gateway.Api/Codelab.Gateway.Api.csproj';
+export const GATEWAY_BUILD_OUTPUT_DIR = 'services/integration-gateway/src/Codelab.Gateway.Api/bin/Debug';
+export const GATEWAY_ASSEMBLY = 'Codelab.Gateway.Api.dll';
+export const GATEWAY_SECRETS_FILE = 'services/integration-gateway/src/Codelab.Gateway.Api/appsettings.Development.local.json';
+/** The Ops Console API host (services/ops-console). */
+export const OPS_PROJECT_DIR = 'services/ops-console/src/Codelab.OpsConsole.Api';
+export const OPS_PROJECT_FILE = 'services/ops-console/src/Codelab.OpsConsole.Api/Codelab.OpsConsole.Api.csproj';
+export const OPS_BUILD_OUTPUT_DIR = 'services/ops-console/src/Codelab.OpsConsole.Api/bin/Debug';
+export const OPS_ASSEMBLY = 'Codelab.OpsConsole.Api.dll';
+export const OPS_SECRETS_FILE = 'services/ops-console/src/Codelab.OpsConsole.Api/appsettings.Development.local.json';
+
+/**
+ * The fork manifest init.ps1 writes (tools/fork/codelab.starter.schema.json). run-local reads its loginModes,
+ * optionalModules and removedModules; a missing file or field means everything is on.
+ */
+export const STARTER_MANIFEST = 'codelab.starter.json';
+export const LoginMode = Object.freeze({ basic: 'basic', ad: 'ad', sso: 'sso' });
+export const OptionalModule = Object.freeze({ attachments: 'attachments', portal: 'portal', sms: 'sms', ops: 'ops' });
 export const FRONTEND_WORKSPACE = 'frontend/starter-web';
 export const FRONTEND_MANIFEST = 'frontend/starter-web/package.json';
 export const FRONTEND_START_SCRIPT = 'start';
@@ -105,8 +138,6 @@ export const PRIVATE_DOTNET = 'E:\\codelab-tools\\dotnet10\\dotnet.exe';
 export const DOTNET_ON_PATH = 'dotnet';
 export const NODE_DIR_ENV = 'CODELAB_NODE_DIR';
 export const PRIVATE_NODE_DIR = 'E:\\codelab-tools\\node24';
-export const NPM_SHIM = 'npm.cmd';
-export const CMD = 'cmd.exe';
 export const POWERSHELL = 'powershell.exe';
 export const POWERSHELL_FILE_ARGUMENTS = Object.freeze(['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File']);
 export const TASKKILL = 'taskkill.exe';
@@ -128,13 +159,18 @@ export const DEVELOPMENT = 'Development';
 /** Where run-local records what it started: %TEMP%\codelab-starter. */
 export const STATE_DIR_NAME = 'codelab-starter';
 export const STATE_FILE = 'run-local.json';
-export const LOG_FILES = Object.freeze({ api: 'api.log', attachments: 'attachments.log', web: 'web.log' });
+export const LOG_FILES = Object.freeze({
+  api: 'api.log', attachments: 'attachments.log', gateway: 'gateway.log', ops: 'ops.log', web: 'web.log',
+});
 
 /** The processes run-local starts, with the image name each recorded PID must still have before -Stop kills it. */
 export const Services = Object.freeze({
   api: { name: 'api', image: 'dotnet.exe' },
   attachments: { name: 'attachments', image: 'dotnet.exe' },
-  web: { name: 'web', image: 'cmd.exe' },
+  gateway: { name: 'gateway', image: 'dotnet.exe' },
+  ops: { name: 'ops', image: 'dotnet.exe' },
+  /** The default web app: ng serve run by the private Node directly (no npm or cmd layer in between). */
+  web: { name: 'web', image: 'node.exe' },
   /** The web app of a slot: the static server of its frozen build. */
   slotWeb: { name: 'web', image: 'node.exe' },
 });
@@ -143,6 +179,10 @@ export const Services = Object.freeze({
 export const Timeouts = Object.freeze({
   api: 4 * 60 * 1000,
   attachments: 4 * 60 * 1000,
+  gateway: 2 * 60 * 1000,
+  ops: 2 * 60 * 1000,
+  /** Seq answers at once when it is up; this only covers a service run-local has just started. */
+  seq: 30 * 1000,
   web: 6 * 60 * 1000,
   /** A slot web app is built before it starts, so its static server answers within seconds. */
   slotWeb: 60 * 1000,
@@ -153,9 +193,11 @@ export const LOG_TAIL_CHARACTERS = 4000;
 
 /** CLI flags (run-local.ps1 maps -Stop, -NoWeb, -NoSeq, -NoAttachments onto them). */
 export const Flags = Object.freeze({
-  stop: '--stop', noWeb: '--no-web', noSeq: '--no-seq', noAttachments: '--no-attachments', root: '--root', slot: '--slot', help: '--help',
+  stop: '--stop', noWeb: '--no-web', noSeq: '--no-seq', noAttachments: '--no-attachments', noGateway: '--no-gateway', noOps: '--no-ops',
+  root: '--root', slot: '--slot', help: '--help',
 });
-export const USAGE = 'Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--no-attachments] [--slot <0-9>] [--root <dir>]';
+export const USAGE =
+  'Usage: node tools/run-local/run-local.mjs [--stop] [--no-web] [--no-seq] [--no-attachments] [--no-gateway] [--no-ops] [--slot <0-9>] [--root <dir>]';
 
 /**
  * The .NET hosts run-local builds and runs (each: build the project, run its assembly detached from the project
@@ -169,11 +211,31 @@ export const Hosts = Object.freeze({
   attachments: Object.freeze({
     service: Services.attachments, label: 'The Attachment service', url: Urls.attachments, healthPath: ATTACHMENTS_HEALTH_PATH,
     projectDir: ATTACHMENTS_PROJECT_DIR, projectFile: ATTACHMENTS_PROJECT_FILE, outputDir: ATTACHMENTS_BUILD_OUTPUT_DIR,
-    assembly: ATTACHMENTS_ASSEMBLY, logFile: LOG_FILES.attachments, timeoutMs: Timeouts.attachments,
+    assembly: ATTACHMENTS_ASSEMBLY, logFile: LOG_FILES.attachments, timeoutMs: Timeouts.attachments, secretsFile: ATTACHMENTS_SECRETS_FILE,
+  }),
+  gateway: Object.freeze({
+    service: Services.gateway, label: 'The integration gateway', url: Urls.gateway, healthPath: READY_PATH,
+    projectDir: GATEWAY_PROJECT_DIR, projectFile: GATEWAY_PROJECT_FILE, outputDir: GATEWAY_BUILD_OUTPUT_DIR,
+    assembly: GATEWAY_ASSEMBLY, logFile: LOG_FILES.gateway, timeoutMs: Timeouts.gateway, secretsFile: GATEWAY_SECRETS_FILE,
+  }),
+  ops: Object.freeze({
+    service: Services.ops, label: 'The Ops Console', url: Urls.ops, healthPath: READY_PATH,
+    projectDir: OPS_PROJECT_DIR, projectFile: OPS_PROJECT_FILE, outputDir: OPS_BUILD_OUTPUT_DIR,
+    assembly: OPS_ASSEMBLY, logFile: LOG_FILES.ops, timeoutMs: Timeouts.ops, secretsFile: OPS_SECRETS_FILE,
   }),
 });
 
-/** Start (and health-check) order: the API first, then the Attachment service, then the web app. */
-export const START_ORDER = Object.freeze([Services.api.name, Services.attachments.name, Services.web.name]);
+/** Start (and health-check) order: the API, the Attachment service, the gateway, the Ops Console, the web app. */
+export const START_ORDER = Object.freeze([
+  Services.api.name, Services.attachments.name, Services.gateway.name, Services.ops.name, Services.web.name,
+]);
+/** The Seq row of the health report (run-local never runs Seq as its own process). */
+export const SEQ_NAME = 'seq';
+/** The default web app: ng serve on the web port, run by the private Node, never prompting for analytics. */
+export const ANGULAR_SERVE_ARGUMENTS = Object.freeze(['serve', '--port']);
+export const NG_ANALYTICS_ENV = 'NG_CLI_ANALYTICS';
+export const NG_ANALYTICS_OFF = 'false';
+/** Health-report verdicts. */
+export const HealthVerdict = Object.freeze({ healthy: 'healthy', unhealthy: 'unhealthy' });
 
 export const UTF8 = 'utf8';

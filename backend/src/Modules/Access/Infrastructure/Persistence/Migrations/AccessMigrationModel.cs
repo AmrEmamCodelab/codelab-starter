@@ -8,9 +8,9 @@ using Starter.Modules.Access.Infrastructure.Persistence.Configurations;
 namespace Starter.Modules.Access.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// The Access model as of the latest migration: the target model of <see cref="RolesAndGrants"/> and the model snapshot
-/// that <c>dotnet ef migrations add</c> diffs against. A later migration freezes its own copy (as
-/// <see cref="InitialCreateModel"/> was frozen) before this one changes.
+/// The Access model as of the latest migration: the target model of <see cref="InitialCreate"/> and the model snapshot
+/// that <c>dotnet ef migrations add</c> diffs against. A later migration first freezes a copy of this model as the
+/// target model of <see cref="InitialCreate"/> (<c>InitialCreateModel</c>), then changes this one.
 /// </summary>
 public static class AccessMigrationModel
 {

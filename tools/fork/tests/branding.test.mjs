@@ -17,6 +17,7 @@ const LOGO_DIR = 'frontend/starter-web/public/branding';
 const COPIED_FILES = ['init.ps1', 'tools/fork/lib/ForkCommon.ps1', 'tools/fork/lib/prefix.mjs', 'tools/fork/lib/constants.mjs'];
 const EXIT_OK = 0;
 const EXIT_REFUSED = 1;
+const EXIT_USAGE = 2;
 const ARABIC_NAME = 'بوابة أكمي';
 
 /** A config.json without branding, in the starter's formatting (two-space indent, final newline). */
@@ -89,6 +90,20 @@ describe('init.ps1 branding without -Minimal', () => {
       assert.equal(result.code, EXIT_OK, result.output);
       assert.equal(readConfig(temp).branding.logoSrc, 'branding/logo.svg');
       assert.equal(readFileSync(join(temp.path, LOGO_DIR, 'logo.svg'), 'utf8'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+    } finally {
+      temp.cleanup();
+    }
+  });
+
+  it('refuses branding parameters together with the full init switches (usage), changing nothing', () => {
+    const temp = scratchRepo();
+    try {
+      for (const fullInitSwitch of [['-ConfigFile', 'init.json'], ['-WhatIf'], ['-SkipDatabase']]) {
+        const result = init(temp, [...FULL_BRANDING, ...fullInitSwitch]);
+        assert.equal(result.code, EXIT_USAGE, result.output);
+        assert.match(result.output, /branding from the config/);
+      }
+      assert.equal(readFileSync(join(temp.path, CONFIG), 'utf8'), BASE_CONFIG);
     } finally {
       temp.cleanup();
     }

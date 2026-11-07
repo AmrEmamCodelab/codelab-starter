@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "decision": "listed",
+  "decisionNote": "Installers are listed with exact versions and SHA-256, not shipped in the kit (ADR-008, P10). The client downloads them once on a connected machine, checks the hash and installs them on the build machine.",
+  "prerequisites": [
+    {
+      "id": "dotnet-sdk",
+      "name": ".NET SDK",
+      "version": "10.0.403",
+      "pin": "globalJson",
+      "files": [
+        {
+          "platform": "win-x64",
+          "fileName": "dotnet-sdk-10.0.403-win-x64.exe",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.403/dotnet-sdk-10.0.403-win-x64.exe",
+          "sha256": "c71a1710bf3b931318e24a58c8414c1b4cc5d4fcac4510c07965c64083846332",
+          "publishedSha512": "cca8d82788252a8d13e778150a5e8393e204af274a12d19de7da10a0d98370a4edd5361ce5da73d0db13997fe5191e5db3a69c9665c6ddd6fba0d77845046f3c"
+        }
+      ]
+    },
+    {
+      "id": "node",
+      "name": "Node.js",
+      "version": "24.22.2",
+      "pin": "nvmrc",
+      "files": [
+        {
+          "platform": "win-x64",
+          "fileName": "node-v24.22.2-x64.msi",
+          "url": "https://nodejs.org/dist/v24.22.2/node-v24.22.2-x64.msi",
+          "sha256": "9231bf64d19bef391dd5ee8af65411d3799c3c44a842d2320849cc1da60b6b6d"
+        },
+        {
+          "platform": "win-x64",
+          "fileName": "node-v24.22.2-win-x64.zip",
+          "url": "https://nodejs.org/dist/v24.22.2/node-v24.22.2-win-x64.zip",
+          "sha256": "ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2"
+        }
+      ]
+    },
+    {
+      "id": "playwright-browsers",
+      "name": "Playwright browsers",
+      "version": "1.64.1",
+      "pin": "lockPackage",
+      "lockPackage": "playwright-core",
+      "files": [],
+      "note": "Nothing to download: the e2e runtime launches the installed Microsoft Edge (Playwright channel msedge), which Windows 11 and Windows Server 2025 with Desktop Experience include."
+    }
+  ]
+}

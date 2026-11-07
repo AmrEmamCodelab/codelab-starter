@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Codelab.Gateway.Api.Hosting;
-using Codelab.Gateway.Api.Sms;
+using Codelab.Gateway.Api.Sms; // codelab:module Sms
 using Codelab.Gateway.Api.Sso;
 using Codelab.Integration.Gateway;
 using Codelab.Security.ServiceAuth;
@@ -61,11 +61,11 @@ public sealed class DeployKitTemplateTests
         var configuration = KitConfiguration(filled: true);
 
         var sso = new SsoRelayOptionsValidator(Production()).Validate(name: null, Bind<SsoRelayOptions>(configuration, SsoRelayOptions.SectionName));
-        var sms = new SmsProviderOptionsValidator(Production()).Validate(name: null, Bind<SmsProviderOptions>(configuration, SmsProviderOptions.SectionName));
+        var sms = new SmsProviderOptionsValidator(Production()).Validate(name: null, Bind<SmsProviderOptions>(configuration, SmsProviderOptions.SectionName)); // codelab:module Sms
 
         Assert.True(sso.Succeeded, sso.FailureMessage);
-        Assert.True(sms.Succeeded, sms.FailureMessage);
-        Assert.True(GatewayHostSettings.EnabledProfilesFrom(configuration).SetEquals([GatewayProfileKey.Sso, GatewayProfileKey.Sms]));
+        Assert.True(sms.Succeeded, sms.FailureMessage); // codelab:module Sms
+        Assert.True(GatewayHostSettings.EnabledProfilesFrom(configuration).SetEquals([GatewayProfileKey.Sso, GatewayProfileKey.Sms])); // codelab:module Sms
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public sealed class DeployKitTemplateTests
         Assert.All(paths, path => Assert.True(configuration.GetSection(path.Replace(RequirementWildcard, FirstItem, StringComparison.Ordinal)).Exists(), $"{path} is not in the template or the package settings."));
         Assert.Contains($"{SsoRelayOptions.SectionName}:{nameof(SsoRelayOptions.TokenEndpoint)}", paths);
         Assert.Contains($"{SsoRelayOptions.SectionName}:{nameof(SsoRelayOptions.JwksUri)}", paths);
-        Assert.Contains($"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.UrlTemplate)}", paths);
+        Assert.Contains($"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.UrlTemplate)}", paths); // codelab:module Sms
     }
 
     /// <summary>The package appsettings.json, then the kit template, then (when filled) sample operator values.</summary>
@@ -99,13 +99,13 @@ public sealed class DeployKitTemplateTests
 
     private static Dictionary<string, string?> OperatorValues() => new(StringComparer.OrdinalIgnoreCase)
     {
-        [$"{GatewayOptions.SectionName}:Profiles:1"] = GatewayProfileKey.Sms,
+        [$"{GatewayOptions.SectionName}:Profiles:1"] = GatewayProfileKey.Sms, // codelab:module Sms
         [$"{ServiceAssertionServerOptions.SectionName}:TrustedServices:0:KeyId"] = "sample-key",
         [$"{ServiceAssertionServerOptions.SectionName}:TrustedServices:0:PublicKeyPem"] = "sample-not-key-material",
         [$"{SsoRelayOptions.SectionName}:{nameof(SsoRelayOptions.TokenEndpoint)}"] = "https://idp.example.test/token",
         [$"{SsoRelayOptions.SectionName}:{nameof(SsoRelayOptions.JwksUri)}"] = "https://idp.example.test/jwks",
-        [$"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.UrlTemplate)}"] = "https://sms.example.test/send?sender={sender}",
-        [$"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.BodyTemplate)}"] = """{"to":"{to}","text":"{text}","lang":"{language}"}""",
+        [$"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.UrlTemplate)}"] = "https://sms.example.test/send?sender={sender}", // codelab:module Sms
+        [$"{SmsProviderOptions.SectionName}:{nameof(SmsProviderOptions.BodyTemplate)}"] = """{"to":"{to}","text":"{text}","lang":"{language}"}""", // codelab:module Sms
     };
 
     private static T Bind<T>(IConfiguration configuration, string section)

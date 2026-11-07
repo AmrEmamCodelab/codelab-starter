@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Starter.Application.Notifications;
 using Starter.Domain.Localization;
 using Starter.Modules.Notifications.Domain;
@@ -8,65 +5,13 @@ using Starter.Modules.Notifications.Domain;
 namespace Starter.Modules.Notifications.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// Seeds the notification texts of the sample record type <c>service-request</c> (module ServiceRequests): one template
-/// per workflow transition that notifies someone, plus the SLA escalation, each in Arabic and English on the in-app and
-/// e-mail channels. It adds rows only, so its target model is <see cref="NotificationsMigrationModel"/>. Frozen once
-/// shipped: changed wording is a new migration. The keys are frozen here as data (this module never references the
-/// sample); the sample's tests prove they equal its <c>ServiceRequestNotificationKeys</c> and that every text uses only
-/// the documented placeholders. Removing the sample module leaves these rows; they are never sent again.
-/// </summary>
-[DbContext(typeof(NotificationsDbContext))]
-[Migration(MigrationId)]
-public sealed class AddServiceRequestTemplates : Migration
-{
-    /// <summary>The migration id (UTC timestamp and class name).</summary>
-    public const string MigrationId = "20261106120100_AddServiceRequestTemplates";
-
-    private static readonly string[] TemplateColumns =
-    [
-        nameof(NotificationTemplate.Key), nameof(NotificationTemplate.Channel), nameof(NotificationTemplate.Language),
-        nameof(NotificationTemplate.Subject), nameof(NotificationTemplate.Body),
-    ];
-
-    private static readonly string[] KeyColumns =
-    [
-        nameof(NotificationTemplate.Key), nameof(NotificationTemplate.Channel), nameof(NotificationTemplate.Language),
-    ];
-
-    /// <inheritdoc />
-    protected override void Up(MigrationBuilder migrationBuilder)
-    {
-        ArgumentNullException.ThrowIfNull(migrationBuilder);
-        foreach (var text in ServiceRequestTemplateSeed.Rows.Select(NotificationTemplate.Define))
-        {
-            migrationBuilder.InsertData(
-                table: NotificationsTableNames.Templates,
-                schema: NotificationsDbContext.SchemaName,
-                columns: TemplateColumns,
-                values: [text.Key, (int)text.Channel, (int)text.Language, text.Subject, text.Body]);
-        }
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        ArgumentNullException.ThrowIfNull(migrationBuilder);
-        foreach (var text in ServiceRequestTemplateSeed.Rows)
-        {
-            migrationBuilder.DeleteData(
-                table: NotificationsTableNames.Templates,
-                schema: NotificationsDbContext.SchemaName,
-                keyColumns: KeyColumns,
-                keyValues: [text.Key, (int)text.Channel, (int)text.Language]);
-        }
-    }
-
-    /// <inheritdoc />
-    protected override void BuildTargetModel(ModelBuilder modelBuilder) => NotificationsMigrationModel.Build(modelBuilder);
-}
-
-/// <summary>
-/// The texts <see cref="AddServiceRequestTemplates"/> inserts, frozen with it. Placeholders (<c>{{name}}</c>):
+/// The notification texts of the sample record type <c>service-request</c> (module ServiceRequests) that
+/// <see cref="InitialCreate"/> inserts after <see cref="TemplateSeed"/> (folded in by the v1.0 squash, ADR-010; once
+/// the migration <c>AddServiceRequestTemplates</c>): one template per workflow transition that notifies someone, plus
+/// the SLA escalation, each in Arabic and English on the in-app and e-mail channels. Frozen with the migration: changed
+/// wording is a NEW migration. The keys are frozen here as data (this module never references the sample); the
+/// sample's tests prove they equal its <c>ServiceRequestNotificationKeys</c>. Removing the sample module leaves these
+/// rows; they are never sent again. Placeholders (<c>{{name}}</c>):
 /// <see cref="RecordNumber"/> in every text, plus <see cref="DueAt"/> in the SLA escalation. In-app bodies are plain
 /// text; e-mail bodies are HTML (the Arabic ones right to left).
 /// </summary>

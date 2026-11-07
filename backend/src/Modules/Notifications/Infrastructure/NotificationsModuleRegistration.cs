@@ -1,5 +1,5 @@
-using Codelab.Errors;
-using Codelab.Integration.Gateway;
+using Codelab.Errors; // codelab:module Sms
+using Codelab.Integration.Gateway; // codelab:module Sms
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +39,8 @@ public static class NotificationsModuleRegistration
         services.AddModuleDbContext<NotificationsDbContext>(NotificationsDbContext.SchemaName);
         services.AddScoped<INotificationStore, EfNotificationStore>();
         services.AddScoped<ITemplateStore, EfTemplateStore>();
-        AddSenders(services, configuration);
+        AddSenders(services);
+        AddGatewaySms(services, configuration); // codelab:module Sms
         AddDelivery(services);
         AddUseCases(services);
         // scaffold:registrations
@@ -62,7 +63,7 @@ public static class NotificationsModuleRegistration
         services.AddSingleton(provider => new DeliverySettings(provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value.Enabled));
     }
 
-    private static void AddSenders(IServiceCollection services, IConfiguration configuration)
+    private static void AddSenders(IServiceCollection services)
     {
         services.AddSingleton<SmtpEmailSender>();
         services.AddSingleton<FileDropEmailSender>();
@@ -71,9 +72,29 @@ public static class NotificationsModuleRegistration
             provider.GetRequiredService<IOptions<EmailDeliveryOptions>>().Value.Mode == EmailDeliveryMode.Smtp
                 ? provider.GetRequiredService<SmtpEmailSender>()
                 : provider.GetRequiredService<FileDropEmailSender>());
-        services.AddScoped<ISmsSender>(provider => UsesGateway(provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value)
-            ? provider.GetRequiredService<GatewaySmsSender>()
-            : provider.GetRequiredService<FileSmsSender>());
+        services.AddScoped<ISmsSender>(SelectSmsSender);
+    }
+
+    /// <summary>The SMS sender of the configured mode: the gateway sender while it is in use, otherwise the file sink.</summary>
+    private static ISmsSender SelectSmsSender(IServiceProvider provider)
+    {
+        // codelab:module-begin Sms
+        if (UsesGateway(provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value))
+        {
+            return provider.GetRequiredService<GatewaySmsSender>();
+        }
+
+        // codelab:module-end Sms
+        return provider.GetRequiredService<FileSmsSender>();
+    }
+    // codelab:module-begin Sms
+
+    /// <summary>
+    /// Registers the gateway SMS path (the gateway client and <see cref="GatewaySmsSender"/>) when SMS is enabled in
+    /// gateway mode, and the SMS failure codes.
+    /// </summary>
+    private static void AddGatewaySms(IServiceCollection services, IConfiguration configuration)
+    {
         if (UsesGateway(ConfiguredSms(configuration)))
         {
             AddGatewayClientOnce(services, configuration);
@@ -113,6 +134,7 @@ public static class NotificationsModuleRegistration
             services.AddCodelabGatewayClient(configuration);
         }
     }
+    // codelab:module-end Sms
 
     private static void AddDelivery(IServiceCollection services)
     {

@@ -75,7 +75,7 @@ public sealed class IdentityModelTests
         Assert.Equal(TableNames.UserSessions, context.Model.FindEntityType(typeof(UserSession))!.GetTableName());
         Assert.Equal(TableNames.AuthEvents, context.Model.FindEntityType(typeof(AuthEvent))!.GetTableName());
         Assert.Equal(
-            [Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.InitialCreate, Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.AccountAdministration],
+            [Starter.Modules.Identity.Infrastructure.Persistence.Migrations.IdentityMigrationIds.InitialCreate],
             context.Database.GetMigrations());
         Assert.False(context.Database.HasPendingModelChanges());
     }

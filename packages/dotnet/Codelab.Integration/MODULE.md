@@ -135,6 +135,7 @@ app.MapGroup(string.Empty)
 
 ## Rules
 
+- The public API is stable since 1.0.0 (`PublicAPI.Shipped.txt`): a breaking change needs a new major version; a fix ships as a patch release (ADR-013).
 - No always-true certificate validator, anywhere. `ServerCertificatePolicy` is the only file that may set a
   validation callback. `NoAlwaysTrueValidatorTests` fails the build otherwise.
 - A pinned anchor never excuses a host-name mismatch or a missing certificate (`HandshakeErrors`).

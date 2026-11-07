@@ -1,26 +1,30 @@
 <#
 .SYNOPSIS
-    Runs the starter locally: the API (Development, http://localhost:5180), the Attachment service (Development,
-    http://localhost:5185), the web app (http://localhost:4280) and, when it is installed or reachable, Seq
-    (http://localhost:5341 or $env:CODELAB_SEQ_URL).
+    Runs the starter locally: the API (Development, http://localhost:5180), the Attachment service (:5185), the
+    integration gateway (:5187, when the fork has the sso login mode or the sms module), the Ops Console API (:5188,
+    when the ops module is on), the web app (http://localhost:4280) and, when it is installed or reachable, Seq
+    (http://localhost:5341 or $env:CODELAB_SEQ_URL). What starts follows codelab.starter.json (loginModes,
+    optionalModules, removedModules; a missing field means everything on).
 
 .DESCRIPTION
     Writes the missing local secrets (tools\devseed\New-LocalSecrets.ps1 adds missing keys only and never changes a
     value), starts LocalDB (MSSQLLocalDB), builds and starts the API and then the Attachment service with the private
-    .NET SDK, starts the web app with the private Node, health-checks each in that order, then prints the URLs and the
-    break-glass user. The processes keep running after this script returns; their
+    .NET SDK, then the gateway and the Ops Console, starts the web app with the private Node, health-checks each on its
+    own health endpoint (/health/ready of each host, the web root, Seq /health), prints a healthy/unhealthy line per
+    service, then the URLs and the break-glass user. The processes keep running after this script returns; their
     PIDs and logs are under %TEMP%\codelab-starter. -Stop stops only those recorded PIDs.
 
     It never installs or deletes anything: run npm install at the repo root before the first web start.
     The logic lives in tools\run-local (Node, unit-tested); see tools\run-local\README.md.
 
-    Exit codes: 0 ok, 1 refused or failed (already running, a port in use, a failed health check), 2 usage.
+    Exit codes: 0 ok (every service healthy), 1 refused or failed (already running, a port in use, any service
+    unhealthy: everything started is stopped again), 2 usage.
 
 .PARAMETER Stop
     Stops the processes a previous run started (only the recorded PIDs, and only while they are still those processes).
 
 .PARAMETER NoWeb
-    Starts the API only.
+    Does not start the web app.
 
 .PARAMETER NoSeq
     Does not probe or start Seq.
@@ -28,9 +32,15 @@
 .PARAMETER NoAttachments
     Does not start the Attachment service (attachment uploads and downloads then fail until it runs).
 
+.PARAMETER NoGateway
+    Does not start the integration gateway (SSO sign-in and SMS then fail until it runs).
+
+.PARAMETER NoOps
+    Does not start the Ops Console API.
+
 .PARAMETER Slot
     Runs a second stack next to a running one (0-9, default 0). Slot n moves every port up by n * 100 (slot 1: API
-    :5280, Attachment service :5285, web :4380), builds into %TEMP%\codelab-starter\slot-<n> instead of bin\Debug, uses
+    :5280, Attachment service :5285, gateway :5287, Ops Console :5288, web :4380), builds into %TEMP%\codelab-starter\slot-<n> instead of bin\Debug, uses
     the configured database renamed <name>_Slot<n> and its own attachment storage (slot-<n>\attachments-storage,
     created before the slot's Attachment service starts), and serves a frozen development build of the web app instead of ng serve. -Stop -Slot n stops only that slot. The default stack is never touched.
 
@@ -50,6 +60,8 @@ param(
     [switch] $NoWeb,
     [switch] $NoSeq,
     [switch] $NoAttachments,
+    [switch] $NoGateway,
+    [switch] $NoOps,
     # Validated by tools\run-local (0-9; anything else exits 2 with the usage).
     [string] $Slot
 )
@@ -68,6 +80,8 @@ if ($Stop) { $arguments += '--stop' }
 if ($NoWeb) { $arguments += '--no-web' }
 if ($NoSeq) { $arguments += '--no-seq' }
 if ($NoAttachments) { $arguments += '--no-attachments' }
+if ($NoGateway) { $arguments += '--no-gateway' }
+if ($NoOps) { $arguments += '--no-ops' }
 if ($PSBoundParameters.ContainsKey('Slot')) { $arguments += @('--slot', $Slot) }
 
 & $node @arguments

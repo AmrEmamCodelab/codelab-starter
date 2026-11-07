@@ -7,6 +7,12 @@ import {
   apiAssemblyPath,
   apiEnvironment,
   attachmentsDecision,
+  gatewayDecision,
+  healthReport,
+  healthUrl,
+  hostsMissingSecrets,
+  opsDecision,
+  starterFeatures,
   attachmentsEnvironment,
   breakGlassUser,
   developmentConnectionString,
@@ -38,9 +44,11 @@ import {
 
 describe('arguments', () => {
   it('parses the switches and the root', () => {
-    assert.deepEqual(parseArguments(['--stop', '--no-web', '--no-seq', '--no-attachments', '--root', 'x'], 'R'), {
-      stop: true, noWeb: true, noSeq: true, noAttachments: true, help: false, root: path.resolve('x'), slot: 0,
+    assert.deepEqual(parseArguments(['--stop', '--no-web', '--no-seq', '--no-attachments', '--no-gateway', '--no-ops', '--root', 'x'], 'R'), {
+      stop: true, noWeb: true, noSeq: true, noAttachments: true, noGateway: true, noOps: true, help: false, root: path.resolve('x'), slot: 0,
     });
+    assert.equal(parseArguments([], 'R').noGateway, false, 'the gateway starts by default when the fork needs it');
+    assert.equal(parseArguments([], 'R').noOps, false, 'the Ops Console starts by default when the fork has it');
     assert.equal(parseArguments([], 'R').root, 'R');
     assert.equal(parseArguments([], 'R').noAttachments, false, 'the Attachment service starts by default');
   });
@@ -100,10 +108,13 @@ describe('slots (a second stack next to a running one)', () => {
       Auth__WebBaseUrl: 'http://localhost:4380',
       Users__Activation__LinkBaseUrl: 'http://localhost:4380',
       Attachments__ServiceBaseUrl: 'http://localhost:5285',
+      Codelab__Integration__Gateway__BaseUrl: 'http://localhost:5287',
+      Codelab__Ops__ReadinessProbes__0__Url: 'http://localhost:5285/health/ready',
+      Codelab__Ops__ReadinessProbes__1__Url: 'http://localhost:5287/health/ready',
       ConnectionStrings__Starter: 'Server=a;Database=b_Slot1',
     });
     assert.deepEqual(attachments, { Attachments__Cors__AllowedOrigins__0: 'http://localhost:4380', Attachments__Storage__RootPath: 'S' });
-    assert.deepEqual(slotOverrides({ slot: 0, urls: Urls }), { api: {}, attachments: {} });
+    assert.deepEqual(slotOverrides({ slot: 0, urls: Urls }), { api: {}, attachments: {}, gateway: {}, ops: {} });
     assert.equal(hostEnvironment({}, urls.api, null, api).ConnectionStrings__Starter, 'Server=a;Database=b_Slot1');
   });
 
@@ -317,5 +328,110 @@ describe('secretsNeedSeeding', () => {
 
   it('seeds when the API file predates the dedicated upload-ticket ring', () => {
     assert.equal(secretsNeedSeeding({ apiSecretsText: beforeUploadTicketRing, serviceSecretsExists: true, withAttachments: true }), true);
+  });
+});
+
+describe('fork choices (codelab.starter.json)', () => {
+  it('treats a missing file, unreadable JSON and missing fields as everything on', () => {
+    const allOn = { loginModes: ['basic', 'ad', 'sso'], optionalModules: { attachments: true, portal: true, sms: true, ops: true } };
+    assert.deepEqual(starterFeatures(null), allOn);
+    assert.deepEqual(starterFeatures('{not json'), allOn);
+    assert.deepEqual(starterFeatures('{"schemaVersion":1,"removedModules":[]}'), allOn);
+    assert.deepEqual(starterFeatures('{"loginModes":[]}').loginModes, ['basic', 'ad', 'sso'], 'an empty list is not "no login"');
+  });
+
+  it('reads the login modes and optional modules, a missing id staying on', () => {
+    const features = starterFeatures('{"loginModes":["basic","AD"],"optionalModules":{"attachments":false,"sms":true}}');
+    assert.deepEqual(features.loginModes, ['basic', 'ad']);
+    assert.deepEqual(features.optionalModules, { attachments: false, portal: true, sms: true, ops: true });
+  });
+
+  it('turns off a module listed in removedModules, whatever the letter case', () => {
+    const features = starterFeatures('{"optionalModules":{"ops":true},"removedModules":["Ops","Attachments"]}');
+    assert.equal(features.optionalModules.ops, false);
+    assert.equal(features.optionalModules.attachments, false);
+    assert.equal(features.optionalModules.sms, true);
+  });
+});
+
+describe('the integration gateway and the Ops Console', () => {
+  it('starts the gateway for the sso login mode or the sms module, and not otherwise', () => {
+    assert.equal(gatewayDecision({ projectExists: true, features: starterFeatures('{"loginModes":["sso"],"optionalModules":{"sms":false}}') }).start, true);
+    assert.equal(gatewayDecision({ projectExists: true, features: starterFeatures('{"loginModes":["basic"],"optionalModules":{"sms":true}}') }).start, true);
+    const neither = gatewayDecision({ projectExists: true, features: starterFeatures('{"loginModes":["basic","ad"],"optionalModules":{"sms":false}}') });
+    assert.equal(neither.start, false);
+    assert.match(neither.reason, /no sso login mode/);
+    assert.equal(gatewayDecision({ projectExists: true }).start, true, 'no manifest: everything on');
+  });
+
+  it('skips the gateway with -NoGateway or without its project', () => {
+    assert.match(gatewayDecision({ noGateway: true, projectExists: true }).reason, /-NoGateway/);
+    assert.match(gatewayDecision({ projectExists: false }).reason, /does not exist/);
+  });
+
+  it('starts the Ops Console only when the ops module is on, its project exists and -NoOps is not given', () => {
+    assert.equal(opsDecision({ projectExists: true }).start, true);
+    assert.match(opsDecision({ projectExists: true, features: starterFeatures('{"optionalModules":{"ops":false}}') }).reason, /ops module is off/);
+    assert.match(opsDecision({ projectExists: true, features: starterFeatures('{"removedModules":["Ops"]}') }).reason, /ops module is off/);
+    assert.match(opsDecision({ noOps: true, projectExists: true }).reason, /-NoOps/);
+    assert.match(opsDecision({ projectExists: false }).reason, /does not exist/);
+  });
+
+  it('does not start the Attachment service when the attachments module is off', () => {
+    const decision = attachmentsDecision({ projectExists: true, features: starterFeatures('{"optionalModules":{"attachments":false}}') });
+    assert.match(decision.reason, /attachments module is off/);
+  });
+
+  it('orders the plan API, attachments, gateway, ops, web', () => {
+    assert.deepEqual(startPlan({ attachments: true, gateway: true, ops: true, web: true }), ['api', 'attachments', 'gateway', 'ops', 'web']);
+    assert.deepEqual(startPlan({ gateway: true }), ['api', 'gateway']);
+    assert.deepEqual(portsToCheck(['api', 'gateway', 'ops']), [Urls.api, 'http://localhost:5187', 'http://localhost:5188']);
+  });
+
+  it('moves the gateway and Ops Console ports with the slot', () => {
+    assert.deepEqual([slotUrls(1).gateway, slotUrls(1).ops, slotUrls(0).gateway, slotUrls(0).ops], [
+      'http://localhost:5287', 'http://localhost:5288', 'http://localhost:5187', 'http://localhost:5188',
+    ]);
+  });
+
+  it('points the slot Ops Console at the slot API and keeps the gateway upstreams', () => {
+    const { ops, gateway } = slotOverrides({ slot: 2, urls: slotUrls(2), connectionString: null, storageRoot: 'S' });
+    assert.deepEqual(ops, { Codelab__OpsConsole__Api__BaseUrl: 'http://localhost:5380/' });
+    assert.deepEqual(gateway, {});
+  });
+});
+
+describe('health endpoints and the health report', () => {
+  it('checks every host on its real readiness endpoint, the web root and Seq /health', () => {
+    const urls = slotUrls(1);
+    assert.equal(healthUrl('api', urls), 'http://localhost:5280/health/ready');
+    assert.equal(healthUrl('attachments', urls), 'http://localhost:5285/health/ready');
+    assert.equal(healthUrl('gateway', urls), 'http://localhost:5287/health/ready');
+    assert.equal(healthUrl('ops', urls), 'http://localhost:5288/health/ready');
+    assert.equal(healthUrl('web', urls), 'http://localhost:4380/');
+    assert.equal(healthUrl('seq', urls, 'http://localhost:5341'), 'http://localhost:5341/health');
+  });
+
+  it('lists the planned hosts whose own local secrets file is missing', () => {
+    const present = new Set([Hosts.attachments.secretsFile]);
+    assert.deepEqual(hostsMissingSecrets(['api', 'attachments', 'gateway', 'ops', 'web'], (host) => present.has(host.secretsFile)), ['gateway', 'ops']);
+    assert.deepEqual(hostsMissingSecrets(['api', 'web'], () => false), []);
+  });
+
+  it('reports each service healthy or unhealthy and is ok only when all are healthy', () => {
+    const report = healthReport([
+      { name: 'api', url: 'http://a/health/ready', outcome: 'ready', timeoutMs: 1000 },
+      { name: 'gateway', url: 'http://g/health/ready', outcome: 'exited', timeoutMs: 1000, hint: 'no secrets' },
+      { name: 'web', url: 'http://w/', outcome: 'timeout', timeoutMs: 6000 },
+    ]);
+    assert.equal(report.ok, false);
+    assert.match(report.lines[0], /api\s+healthy\s+http:\/\/a\/health\/ready$/);
+    assert.match(report.lines[1], /gateway\s+unhealthy\s+http:\/\/g\/health\/ready: exited before it was healthy \(no secrets\)$/);
+    assert.match(report.lines[2], /web\s+unhealthy\s+http:\/\/w\/: not healthy within 6 s$/);
+    assert.equal(healthReport([{ name: 'api', url: 'u', outcome: 'ready', timeoutMs: 1 }]).ok, true);
+  });
+
+  it('turns Angular CLI analytics off for the web process', () => {
+    assert.equal(webEnvironment({}, null).NG_CLI_ANALYTICS, 'false');
   });
 });

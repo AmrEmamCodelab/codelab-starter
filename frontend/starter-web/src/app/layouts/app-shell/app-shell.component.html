@@ -1,8 +1,10 @@
 <div class="shell">
   <header class="shell__header">
     <a class="shell__brand" [routerLink]="homeLink">
-      <dga-icon name="home" size="md" />
-      <span>{{ 'layout.shell.brand' | t }}</span>
+      @if (brand.logoSrc; as logo) {
+        <img class="shell__logo" [src]="logo" alt="" />
+      }
+      <span class="shell__name">{{ brand.name() }}</span>
     </a>
 
     <nav class="shell__nav" [attr.aria-label]="'layout.shell.nav-label' | t">

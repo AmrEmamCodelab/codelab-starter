@@ -1,0 +1,60 @@
+# CI preset matrix (build plan phase 10, ADR-007). Every leg forks the starter with one preset of
+# tools/ci/presets/*.json, runs init.ps1 in the fork, checks package consumption and fixture keys
+# (tools/ci/fork-checks.mjs, tools/devseed/Test-NoFixtureKeys.mjs) and runs the full CI contract there.
+# All logic lives in repo scripts: this file only calls tools/build.ps1 and tools/ci/presets/preset-leg.mjs.
+name: presets
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: presets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preset:
+    name: preset ${{ matrix.preset }}
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [all, core-only, sso-only]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: npm ci
+        run: npm ci --no-audit --no-fund
+      - name: pack the Codelab packages into feed/
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -Pack
+      - name: init the fork, check it and run CI in it
+        run: node tools/ci/presets/preset-leg.mjs run --preset ${{ matrix.preset }} --work ${{ runner.temp }}/preset-${{ matrix.preset }}
+
+  scrub-on-tag:
+    name: scrub sweep on the release tag
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: scrub sweep
+        run: node tools/extract/scrub-sweep.mjs --root .

@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using System.Security.Cryptography;
-using Codelab.Security.Keys;
-using Codelab.Security.ServiceAuth;
-using Codelab.Security.Uploads;
+using System.Security.Cryptography; // codelab:module Attachments
+using Codelab.Security.Keys; // codelab:module Attachments
+using Codelab.Security.ServiceAuth; // codelab:module Attachments
+using Codelab.Security.Uploads; // codelab:module Attachments
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,11 +13,11 @@ using Starter.Application.Notifications;
 using Starter.Application.Records;
 using Starter.Application.Users;
 using Starter.Infrastructure.Workflow;
-using Starter.Integration.Tests.Attachments.Http;
+using Starter.Integration.Tests.Attachments.Http; // codelab:module Attachments
 using Starter.Integration.Tests.Support;
-using Starter.Modules.Attachments.Application;
-using Starter.Modules.Attachments.Infrastructure.Options;
-using Starter.Tests.Hosting;
+using Starter.Modules.Attachments.Application; // codelab:module Attachments
+using Starter.Modules.Attachments.Infrastructure.Options; // codelab:module Attachments
+using Starter.Tests.Hosting; // codelab:module Attachments
 
 namespace Starter.Integration.Tests.Records;
 
@@ -31,17 +31,19 @@ namespace Starter.Integration.Tests.Records;
 /// </summary>
 public sealed class RecordsHost() : IntegrationHost(Environments.Development)
 {
-    private const string FirstItem = "0";
-    private const string ServiceName = "starter-api";
-    private const string Audience = "starter-attachments";
+    private const string FirstItem = "0"; // codelab:module Attachments
+    private const string ServiceName = "starter-api"; // codelab:module Attachments
+    private const string Audience = "starter-attachments"; // codelab:module Attachments
 
-    private readonly string _clientKeyId = StarterTestAccounts.NewKeyId();
-    private readonly string _receiptKeyId = StarterTestAccounts.NewKeyId();
+    private readonly string _clientKeyId = StarterTestAccounts.NewKeyId(); // codelab:module Attachments
+    private readonly string _receiptKeyId = StarterTestAccounts.NewKeyId(); // codelab:module Attachments
     private readonly SemaphoreSlim _seedLock = new(initialCount: 1, maxCount: 1);
     private bool _seeded;
+    // codelab:module-begin Attachments
 
     /// <summary>The attachment service as the host sees it.</summary>
     public InMemoryAttachmentStorage Storage { get; } = new();
+    // codelab:module-end Attachments
 
     /// <summary>Every notification the host was asked to send.</summary>
     public RecordedNotifications Notifications { get; } = new();
@@ -74,6 +76,7 @@ public sealed class RecordsHost() : IntegrationHost(Environments.Development)
         using var client = CreateClient();
         return (await client.LoginAsync(Accounts.DevUserName, Accounts.DevUserPassword)).AccessToken;
     }
+    // codelab:module-begin Attachments
 
     /// <inheritdoc />
     protected override IReadOnlyDictionary<string, string?> ExtraSettings => new Dictionary<string, string?>
@@ -88,13 +91,14 @@ public sealed class RecordsHost() : IntegrationHost(Environments.Development)
         [StarterHostSettings.Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.KeyId))] = _clientKeyId,
         [StarterHostSettings.Key(ServiceAssertionClientOptions.SectionName, nameof(ServiceAssertionClientOptions.PrivateKeyPem))] = NewClientKeyPem(),
     };
+    // codelab:module-end Attachments
 
     /// <inheritdoc />
     protected override void ConfigureServices(IServiceCollection services)
     {
         base.ConfigureServices(services);
-        services.RemoveAll<IAttachmentStorageClient>();
-        services.AddSingleton<IAttachmentStorageClient>(Storage);
+        services.RemoveAll<IAttachmentStorageClient>(); // codelab:module Attachments
+        services.AddSingleton<IAttachmentStorageClient>(Storage); // codelab:module Attachments
         services.RemoveAll<INotificationService>();
         services.AddSingleton<INotificationService>(Notifications);
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPermissionCatalogSource, ProbeRecord.PermissionCatalog>());
@@ -114,7 +118,7 @@ public sealed class RecordsHost() : IntegrationHost(Environments.Development)
         {
             if (!_seeded)
             {
-                await TestSqlServer.ExecuteAsync(DatabaseName, ProbeRecord.RequiredDocumentInsert, ProbeRecord.RequiredDocumentValues);
+                await TestSqlServer.ExecuteAsync(DatabaseName, ProbeRecord.RequiredDocumentInsert, ProbeRecord.RequiredDocumentValues); // codelab:module Attachments
                 _seeded = true;
             }
         }
@@ -134,12 +138,14 @@ public sealed class RecordsHost() : IntegrationHost(Environments.Development)
 
         base.Dispose(disposing);
     }
+    // codelab:module-begin Attachments
 
     private static string NewClientKeyPem()
     {
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         return key.ExportPkcs8PrivateKeyPem();
     }
+    // codelab:module-end Attachments
 
     /// <summary>Exposes only <see cref="ProbeRecordsController"/> from this test assembly to MVC.</summary>
     private sealed class ProbeControllerPart : ApplicationPart, IApplicationPartTypeProvider

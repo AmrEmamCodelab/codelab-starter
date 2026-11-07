@@ -1,0 +1,26 @@
+{
+  "description": "Copy of packages/dotnet/Codelab.Security/PublishedMaterial/published-material.fixtures.json (digests of digests of the TEST-ONLY fixture keys, never values), kept here so an init-ed project without packages/ can run Test-NoFixtureKeys. Written by: node tools/devseed/Test-NoFixtureKeys.mjs --refresh-digests.",
+  "source": "packages/dotnet/Codelab.Security/PublishedMaterial/published-material.fixtures.json",
+  "keyDigestHashes": [
+    "04540fcca65a80192f2cbda7280bf1a70aa9c6fecb0fe103fd53f53007702ae5",
+    "059dbee4576b8df326554f7b6338372c842cf589fb55b2a2183c4f43400d2ae6",
+    "07c74557baea2936de0a3565c73de913ba69913d715a266100e13896d0e97cf3",
+    "11d35d79e3a51b60f25377c2a9c5ebd34e394df35fd1df276207286ba61d559a",
+    "18c84e57475817ca0f9787acd34dc748449bb4a5e6c5f7395ed257417241be57",
+    "2208ebc9bd6be0db371c5560c95a18d258a4ffeccda57aa56983fb299f08fcc1",
+    "484a26b39f7bbb8c91672cff43b302d774e70b4c842c30332a3e8c63ace1287e",
+    "4877c7b038e83913a56cadd0f26e190e02f7499161bb0f62ae90e1c40f46406e",
+    "6219356fd95ab285c7cb8df494d3cd2ffb0e00fb68c587f532adeac46c986bfe",
+    "93f7987f4d545183826c9d226099455684055fd2170ddbd0ab21f830a85ad5ae",
+    "b1d2bc8cc4237220b2b21d96ef9ed2dfa196e3e901cfa34a74c07efac437aa43",
+    "bd42b915e221a485a07b1b91007dcc615592efe8a1f309e04291ece1d299b2ad",
+    "c1e540179bdf4a796f66cb8af21bb18d9aa3170f67e4f34cb5a944c6a324de63",
+    "d6e7af3c7a3d472fb8bf7917468e15801e224d0153f27282a71e6887909a12d3",
+    "d94da36616cdfe94e810ac33043a87363a94f89b596f2757b21294fd36ff3aef",
+    "da3f2cb80fda21e58df60b894e6a62d5c2bcb5b917427d7f20dd8eb231bfb799",
+    "dfcb14471c68cfb6ab8d2a4ec924e85498423cfcc0430e5b6b74e2c27812ca34",
+    "e1be41bddcb33e2f1076a1ead922558dcdb606537c1ae07d5353b2441a177574",
+    "f6340c613edc4d2792457115321618093dbf4f3546259d3685b250b0d605eaf0",
+    "f71b2611025051f37fafcda0925b6e360d0e477fe54454a01fb29f0efb3b8891"
+  ]
+}

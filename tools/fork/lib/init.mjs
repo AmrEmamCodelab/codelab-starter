@@ -1,4 +1,4 @@
-// init.ps1 -Minimal: turns a fresh clone of the starter into a fork in ONE recorded commit (ADR-002, ADR-003).
+// init.ps1 -Minimal (the full init is init-steps.mjs, which reuses the helpers exported here): turns a fresh clone of the starter into a fork in ONE recorded commit (ADR-002, ADR-003).
 // Order: validate everything first (nothing changes on a refusal), then remove modules, remove packages/, switch
 // to feed mode, apply the renameMap, set the prefix, regenerate the rules outputs, create local secrets, hash and
 // write codelab.starter.json, and commit.
@@ -16,6 +16,7 @@ import {
   PACKAGES_PROPS_FILE,
   REMOVE_MODULE_SCRIPT,
   RENAME_PROTECTED_NAMES,
+  NPM_REINSTALL_ARGUMENTS,
   ROOT_NPM_LOCK,
   SOLUTION_FILE,
 } from './constants.mjs';
@@ -59,7 +60,7 @@ function optionalTargets(root, manifest) {
 }
 
 function validate(options) {
-  if (!options.minimal) throw new UsageError('Only init.ps1 -Minimal is implemented (P2 prototype); the interactive init arrives in P10.');
+  if (!options.minimal) throw new UsageError('runInit is the -Minimal init; the full init is runInitProject (init-steps.mjs).');
   const prefixRefusal = refusalForPrefix(options.productPrefix);
   if (prefixRefusal) throw new RefusalError(prefixRefusal);
   const manifest = readManifest(options.root);
@@ -94,7 +95,8 @@ function removeModules(options, io) {
   }
 }
 
-function removePackages(root, io) {
+/** Removes packages/ and its solution projects (ADR-002). */
+export function removePackages(root, io) {
   const solution = path.join(root, SOLUTION_FILE);
   const result = removeSolutionProjects(readFileSync(solution, 'utf8'), (projectPath) => projectPath.startsWith(PACKAGES_DIR));
   writeFileSync(solution, result.text);
@@ -110,7 +112,8 @@ function applyRename(root, renameMap, io) {
   return renamer;
 }
 
-function setPrefix(root, prefixTargets, prefix, io) {
+/** Sets the product prefix at every prefix target that exists. */
+export function setPrefix(root, prefixTargets, prefix, io) {
   for (const target of prefixTargets) {
     const file = path.join(root, target.file);
     if (!existsSync(file)) {
@@ -123,7 +126,20 @@ function setPrefix(root, prefixTargets, prefix, io) {
   }
 }
 
-function refreshNpmLock(options, io) {
+/**
+ * Reinstalls the npm dependencies (package-lock.json and node_modules) unless options.skipNpmLock: after packages/ is
+ * removed, the @codelab/* links in node_modules point at folders that no longer exist until npm installs the feed
+ * tarballs.
+ */
+export function reinstallNpm(options, io) {
+  if (options.skipNpmLock) return io.log('Skipped the npm reinstall (-SkipNpmLock).');
+  if (!existsSync(path.join(options.root, ROOT_NPM_LOCK))) return io.log(`No ${ROOT_NPM_LOCK}; nothing to reinstall.`);
+  io.log('Reinstalling the npm dependencies for the feed tarballs');
+  return npm(options.root, [...NPM_REINSTALL_ARGUMENTS], { inherit: true });
+}
+
+/** Refreshes package-lock.json for the feed tarballs unless options.skipNpmLock. */
+export function refreshNpmLock(options, io) {
   if (options.skipNpmLock) return io.log(`Skipped the ${ROOT_NPM_LOCK} refresh (-SkipNpmLock).`);
   if (!existsSync(path.join(options.root, ROOT_NPM_LOCK))) return io.log(`No ${ROOT_NPM_LOCK}; nothing to refresh.`);
   io.log(`Refreshing ${ROOT_NPM_LOCK} for the feed tarballs`);

@@ -1,0 +1,10 @@
+{
+  "prefix": "ACMESSO",
+  "nameEn": "Acme SSO Portal",
+  "nameAr": "بوابة أكمي للدخول الموحد",
+  "primaryColor": "#7a3e9d",
+  "logoPath": null,
+  "loginModes": ["sso"],
+  "optionalModules": { "attachments": true, "portal": true, "sms": true, "ops": true },
+  "database": { "connectionString": null, "skip": true }
+}

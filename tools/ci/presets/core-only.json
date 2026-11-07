@@ -1,0 +1,10 @@
+{
+  "prefix": "ACMECORE",
+  "nameEn": "Acme Core Portal",
+  "nameAr": "بوابة أكمي الأساسية",
+  "primaryColor": "#1b7f4c",
+  "logoPath": null,
+  "loginModes": ["basic"],
+  "optionalModules": { "attachments": false, "portal": false, "sms": false, "ops": false },
+  "database": { "connectionString": null, "skip": true }
+}
