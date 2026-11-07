@@ -31,8 +31,8 @@
 .PARAMETER Slot
     Runs a second stack next to a running one (0-9, default 0). Slot n moves every port up by n * 100 (slot 1: API
     :5280, Attachment service :5285, web :4380), builds into %TEMP%\codelab-starter\slot-<n> instead of bin\Debug, uses
-    the configured database renamed <name>_Slot<n> and its own attachment storage, and serves a frozen development
-    build of the web app instead of ng serve. -Stop -Slot n stops only that slot. The default stack is never touched.
+    the configured database renamed <name>_Slot<n> and its own attachment storage (slot-<n>\attachments-storage,
+    created before the slot's Attachment service starts), and serves a frozen development build of the web app instead of ng serve. -Stop -Slot n stops only that slot. The default stack is never touched.
 
 .EXAMPLE
     powershell -NoProfile -ExecutionPolicy Bypass -File run-local.ps1

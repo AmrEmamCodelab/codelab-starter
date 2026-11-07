@@ -29,6 +29,7 @@
     <CodelabPackageReference Include="Codelab.Errors" />
     <CodelabPackageReference Include="Codelab.Observability" />
     <CodelabPackageReference Include="Codelab.Identity" />
+    <CodelabPackageReference Include="Codelab.Integration" />
   </ItemGroup>
 
   <ItemGroup>

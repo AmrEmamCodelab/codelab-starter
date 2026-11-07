@@ -1,4 +1,5 @@
 using System.Net.Mail;
+using Codelab.Integration.Gateway;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +28,10 @@ public enum SmsDeliveryMode
     /// </summary>
     File = 1,
 
-    /// <summary>The integration gateway's SMS relay profile (completed in phase 8; refused at start until then).</summary>
+    /// <summary>
+    /// The integration gateway's SMS relay profile (<c>GatewaySmsSender</c>, signed with this API's ES256 service
+    /// assertion): the production path of a backend without egress. Needs <c>Codelab:Integration:Gateway:BaseUrl</c>.
+    /// </summary>
     Gateway = 2,
 }
 
@@ -124,7 +128,7 @@ public sealed class SmsDeliveryOptions
     /// <summary>Whether SMS is delivered at all (default false: SMS channels end Disabled).</summary>
     public bool Enabled { get; set; }
 
-    /// <summary>File (default; Development, elsewhere only with <see cref="AllowFileSink"/>) or the integration gateway (phase 8).</summary>
+    /// <summary>File (default; Development, elsewhere only with <see cref="AllowFileSink"/>) or the integration gateway.</summary>
     public SmsDeliveryMode Mode { get; set; } = SmsDeliveryMode.File;
 
     /// <summary>
@@ -215,9 +219,10 @@ public sealed class EmailDeliveryOptionsValidator(IHostEnvironment environment) 
 
 /// <summary>
 /// Start-up validation of <see cref="SmsDeliveryOptions"/>. Outside Development an enabled file sink is refused unless
-/// <see cref="SmsDeliveryOptions.AllowFileSink"/> is set.
+/// <see cref="SmsDeliveryOptions.AllowFileSink"/> is set; an enabled gateway mode needs the gateway's base URL (the
+/// gateway client's own validator then checks its scheme, audience and the S2S identity).
 /// </summary>
-public sealed class SmsDeliveryOptionsValidator(IHostEnvironment environment) : IValidateOptions<SmsDeliveryOptions>
+public sealed class SmsDeliveryOptionsValidator(IHostEnvironment environment, IOptions<GatewayOptions> gateway) : IValidateOptions<SmsDeliveryOptions>
 {
     /// <inheritdoc />
     public ValidateOptionsResult Validate(string? name, SmsDeliveryOptions options)
@@ -229,9 +234,11 @@ public sealed class SmsDeliveryOptionsValidator(IHostEnvironment environment) : 
             problems.Add($"{SmsDeliveryOptions.SectionName}:{nameof(options.Mode)} must be 1 (File) or 2 (Gateway).");
         }
 
-        if (options.Enabled && options.Mode == SmsDeliveryMode.Gateway)
+        if (options.Enabled && options.Mode == SmsDeliveryMode.Gateway && gateway.Value.BaseUrl is null)
         {
-            problems.Add($"{SmsDeliveryOptions.SectionName}:{nameof(options.Mode)} 2 (Gateway) is not available yet: the integration gateway SMS relay arrives in phase 8. Use 1 (File) or disable SMS.");
+            problems.Add(
+                $"{GatewayOptions.SectionName}:{nameof(GatewayOptions.BaseUrl)} is required when {SmsDeliveryOptions.SectionName}:{nameof(options.Mode)} "
+                + $"is {(int)SmsDeliveryMode.Gateway} (Gateway) and SMS is enabled: the SMS relay is the integration gateway.");
         }
 
         if (!string.IsNullOrWhiteSpace(options.FilePath) && !Path.IsPathFullyQualified(options.FilePath))

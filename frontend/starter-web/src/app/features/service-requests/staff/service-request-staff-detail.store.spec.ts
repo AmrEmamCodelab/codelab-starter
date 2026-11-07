@@ -3,8 +3,15 @@ import { HttpStatus } from '@codelab/ng-security';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueuesClient, RecordsClient, WorkflowErrorCodes } from '../../../shared/records';
-import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestActions, ServiceRequestStatus, ServiceRequestsClient } from '../data';
-import { TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
+import {
+  SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE,
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
+  ServiceRequestActions,
+  ServiceRequestStatus,
+  ServiceRequestsClient,
+} from '../data';
+import { TEST_ATTACHMENTS_RECORD_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
 import { ServiceRequestStaffDetailStore } from './service-request-staff-detail.store';
 import {
   OTHER_USER_ID,
@@ -55,6 +62,28 @@ describe('ServiceRequestStaffDetailStore', () => {
       ServiceRequestActions.Return,
       ServiceRequestActions.Reject,
     ]);
+  });
+
+  it('takes the attachments target from the record: the attachments id, never the request id', async () => {
+    expect(store.attachments()).toBeNull();
+    await store.open(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toEqual({ recordType: SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, recordId: TEST_ATTACHMENTS_RECORD_ID });
+    expect(store.attachments()?.recordId).not.toBe(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachmentsError()).toBeNull();
+  });
+
+  it('keeps the attachments target after a decision answers the record', async () => {
+    await store.open(TEST_SERVICE_REQUEST_ID);
+    await store.choose(store.decisionButtons()[0]);
+    expect(records.transition).toHaveBeenCalled();
+    expect(store.attachments()?.recordId).toBe(TEST_ATTACHMENTS_RECORD_ID);
+  });
+
+  it('reports the attachments unavailable when the record carries no attachments id', async () => {
+    records.detail.mockReturnValue(of(staffRecord({ attachmentsRecordId: 'not-a-wire-id' })));
+    await store.open(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toBeNull();
+    expect(store.attachmentsError()).toBe(SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE);
   });
 
   it('shows "not found" for an id that is not a PublicId, without calling the API', async () => {

@@ -36,6 +36,11 @@ export interface ApiOptions {
    * server checks proofs only on authenticated requests and never signs the answer to an anonymous one.
    */
   readonly anonymous?: boolean;
+  /**
+   * The bearer token to send instead of the stored session's. Only for the signing-key issuance of a session that is
+   * not published yet (`AuthService` adopts the keys before it stores the tokens). Ignored for an anonymous call.
+   */
+  readonly accessToken?: string;
 }
 
 /**
@@ -115,7 +120,7 @@ export class ApiService {
   }
 
   private requestOptions(options?: ApiOptions) {
-    const token = options?.anonymous ? null : this.tokens.accessToken();
+    const token = options?.anonymous ? null : (options?.accessToken ?? this.tokens.accessToken());
     return {
       headers: {
         ...(token ? { [AUTHORIZATION_HEADER]: `${BEARER_SCHEME} ${token}` } : {}),

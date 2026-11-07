@@ -43,8 +43,9 @@
      17. frontend lint      npm run lint --workspace frontend/starter-web   (ESLint, Stylelint, i18n parity; step 11
                             lints packages/npm only)
      18. fork-model test    tools\fork\Test-ForkModel.ps1 -RemoveModule Demo   (ADR-003; all in %TEMP%, the repo is only read)
-     19. deploy-kit tests   Invoke-Pester deploy/kits/tests (Install-Common, Install-Attachment; Pester 3.4, Windows
-                            PowerShell 5.1; no IIS change, no admin)
+     19. deploy-kit tests   Invoke-Pester -EnableExit over deploy/kits/tests (every Install-*.Tests.ps1 and the
+                            security-header parity test), tools/kit/tests, tools/sql-kit/tests and deploy/seq/tests
+                            (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin)
      20. no dev autofill    node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web   (the
                             production bundle step 11 built holds no DevAutofill code)
      21. module deletability tools/ci/module-deletability.ps1 -Name ServiceRequests   (removes the sample module from a
@@ -73,6 +74,11 @@
     -Pack -DryRun prints the plan and runs the same refusal checks, but packs and changes nothing.
     With -Target CI, packing runs only when every CI step passed.
 
+    -Kit builds the deploy kit publish\deploy-<shortsha>\ with tools\kit\New-DeployKit.ps1 (the prep-deploy skill).
+    -KitComponent names the components (api, attachment, gateway, web, ops; default: the catalog's default set).
+    -Kit -DryRun prints the kit plan only. -Target CI -Kit builds the kit only when every CI step passed; -Kit alone
+    runs no CI step. With -Pack, the kit is built after the pack.
+
     dotnet is resolved as: $env:CODELAB_DOTNET, else E:\codelab-tools\dotnet10\dotnet.exe when present, else dotnet
     on PATH. Node: $env:CODELAB_NODE_DIR, else E:\codelab-tools\node24 when present, is put first on PATH for this
     process; otherwise node and npm come from PATH.
@@ -85,6 +91,8 @@
     powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Pack -CiNumber 42
 .EXAMPLE
     powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack -Release -DryRun
+.EXAMPLE
+    powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Kit -KitComponent api,web
 #>
 [CmdletBinding()]
 param(
@@ -96,7 +104,7 @@ param(
     # With -Pack: pack the exact packages/versions.json versions (no -ci.<n>); refused when one is already in the feed.
     [switch] $Release,
 
-    # With -Pack: print the plan and run the refusal checks only; nothing is packed and no file is changed.
+    # With -Pack or -Kit: print the plan and run the refusal checks only; nothing is packed or built, no file changes.
     [switch] $DryRun,
 
     # With -Pack -DryRun: check against another feed folder (holding nuget\ and npm\). Default: the repo's feed\.
@@ -114,7 +122,13 @@ param(
     [switch] $FailFast,
 
     # Git ref the branch is diffed against (docs gate DOCS005, protected-path report). Default: see .DESCRIPTION.
-    [string] $BaseRef
+    [string] $BaseRef,
+
+    # Build the deploy kit publish\deploy-<shortsha>\ (tools\kit\New-DeployKit.ps1); with -Target CI only after a green run.
+    [switch] $Kit,
+
+    # With -Kit: the components to build (api, attachment, gateway, web, ops). Default: the catalog's default set.
+    [string[]] $KitComponent
 )
 
 Set-StrictMode -Version Latest
@@ -192,8 +206,11 @@ $GeneratedDocsDir      = 'docs/generated'
 $FrontendWorkspace     = 'frontend/starter-web'
 $ForkModelScript       = 'tools/fork/Test-ForkModel.ps1'
 $ForkModelModule       = 'Demo'
-$KitModuleTests        = 'deploy/kits/tests/Install-Common.Tests.ps1'
-$KitAttachmentTests    = 'deploy/kits/tests/Install-Attachment.Tests.ps1'
+# Step 19: every Pester suite of the deploy side (install scripts, header parity, kit builder, DBA SQL kit, Seq).
+$PesterTestFolders     = @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests')
+# -Kit: the deploy-kit builder (the prep-deploy skill) and the separator of its -Component list.
+$DeployKitScript       = 'tools/kit/New-DeployKit.ps1'
+$KitComponentSeparator = ','
 # Steps 20 and 21: the phase 7 exit checks (no DevAutofill code in the production bundle; the sample module is deletable).
 $NoDevAutofillScript   = 'tools/ci/no-dev-autofill.mjs'
 $StarterWebDist        = 'frontend/starter-web/dist/starter-web'
@@ -654,10 +671,10 @@ function Invoke-ForkModelStep {
     return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
 }
 
-# Step 19: the deploy-kit module and the attachment kit (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin).
+# Step 19: every deploy-side Pester suite (Pester 3.4, Windows PowerShell 5.1; no IIS change, no admin).
 function Invoke-KitModuleTestStep {
-    if (-not (Test-EntryPoints @($KitModuleTests, $KitAttachmentTests) 'deploy/kits')) { return $false }
-    $command = "Invoke-Pester @('$KitModuleTests', '$KitAttachmentTests') -EnableExit"
+    if (-not (Test-EntryPoints $PesterTestFolders 'deploy/kits + tools/kit + tools/sql-kit + deploy/seq')) { return $false }
+    $command = "Invoke-Pester @('$($PesterTestFolders -join "', '")') -EnableExit"
     $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', $command)
     return (Invoke-Native 'powershell.exe' $arguments) -eq $ExitSuccess
 }
@@ -964,7 +981,9 @@ function Invoke-FeedModeBuild([string] $Dotnet) {
 }
 
 function Assert-PackSwitches {
-    if (-not $Pack -and ($Release -or $DryRun)) { throw '-Release and -DryRun are options of -Pack.' }
+    if (-not $Pack -and $Release) { throw '-Release is an option of -Pack.' }
+    if (-not $Pack -and -not $Kit -and $DryRun) { throw '-DryRun is an option of -Pack and -Kit.' }
+    if (-not $Kit -and $KitComponent) { throw '-KitComponent is an option of -Kit.' }
     if ($Release -and $CiNumber -gt 0) { throw '-CiNumber has no meaning with -Release (exact versions are packed).' }
     $isDefaultFeed = [string]::Equals($FeedDir.TrimEnd('\', '/'), $DefaultFeedDir.TrimEnd('\', '/'), [StringComparison]::OrdinalIgnoreCase)
     if (-not $isDefaultFeed -and -not $DryRun) {
@@ -999,10 +1018,28 @@ function Invoke-PackTarget([string] $Dotnet, [bool] $IsRelease) {
     finally { [IO.File]::WriteAllText($RepoPackagesProps, $originalPins, (New-Object Text.UTF8Encoding($false))) }
 }
 
+# The arguments of tools\kit\New-DeployKit.ps1 for -Kit (a -File script under 5.1 takes a list as one comma string).
+function Get-DeployKitArguments([string[]] $Components, [bool] $IsDryRun) {
+    $arguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $RepoRoot $DeployKitScript))
+    $requested = @($Components | Where-Object { $_ })
+    if ($requested.Count -gt 0) { $arguments += @('-Component', ($requested -join $KitComponentSeparator)) }
+    if ($IsDryRun) { $arguments += '-DryRun' }
+    return $arguments
+}
+
+# -Kit: builds (or with -DryRun plans) the deploy kit publish\deploy-<shortsha>\.
+function Invoke-KitTarget {
+    if (-not (Test-EntryPoints @($DeployKitScript) 'tools/kit')) { throw "Cannot build the deploy kit without $DeployKitScript." }
+    Write-Banner $(if ($DryRun) { 'Deploy kit plan (dry run)' } else { 'Deploy kit' })
+    if ((Invoke-Native 'powershell.exe' (Get-DeployKitArguments $KitComponent $DryRun.IsPresent)) -ne $ExitSuccess) {
+        throw "$DeployKitScript failed; no kit was handed over."
+    }
+}
+
 # ---------------------------------------------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------------------------------------------
-if (-not $Target) { $Target = $(if ($Pack) { 'None' } else { 'CI' }) }
+if (-not $Target) { $Target = $(if ($Pack -or $Kit) { 'None' } else { 'CI' }) }
 
 Push-Location $RepoRoot
 try {
@@ -1023,6 +1060,7 @@ try {
         Write-Host $(if ($Quick) { 'CI PASSED (quick: steps 13, 14, 18, 21 skipped).' } else { 'CI PASSED.' }) -ForegroundColor Green
     }
     if ($Pack) { Invoke-PackTarget $dotnet $Release.IsPresent }
+    if ($Kit) { Invoke-KitTarget }
     exit $ExitSuccess
 }
 catch {

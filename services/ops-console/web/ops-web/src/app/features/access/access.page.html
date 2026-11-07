@@ -1,0 +1,8 @@
+<main class="access">
+  <dga-card class="access__card" icon="lock" effect="shadow" [heading]="text().title | t" [description]="text().body | t" [headingLevel]="1">
+    <div dgaCardActions class="access__actions">
+      <dga-button size="md" data-testid="access-try-again" (click)="tryAgain()">{{ keys.TryAgain | t }}</dga-button>
+      <dga-button variant="transparent" size="md" leadIcon="language" (click)="language.toggle()">{{ common.Language.Switch | t }}</dga-button>
+    </div>
+  </dga-card>
+</main>

@@ -9,7 +9,7 @@ constants; it renders nothing. Features, layouts and shared code import from cor
 | --- | --- | --- |
 | Config | `config.json` loaded and validated before bootstrap (`loadRuntimeConfig`), `AppConfigService` (API root, origins, signing prefix, default language, `permissionRefreshSeconds`) | `config/` |
 | API | `ApiService`, the ONLY `HttpClient` user: joins `ApiPaths` onto the API root and adds the bearer token. Thin clients per area: `AuthClient`, `MeClient`, `FeaturesClient`, `DashboardClient`, `AccessClient`, `TranslationsClient`. `api/generated/openapi.ts` and `permissions/permission-keys.generated.ts` are written by `npm run api:gen` from DocsGen's OpenAPI and permission catalog (Phase 5 adds the lookups, audit, settings, jobs, notifications and portal schemas and keys). `ApiService.getBlob(path)` for downloads; `ApiService.uploadMultipart(absoluteUrl, formData, headers)` posts multipart to a URL under `origins.attachment` with progress events, no bearer/signature/cookies, self-handled (`UntrustedUploadUrlError` otherwise) | `api/api.service.ts`, `api/clients/` |
-| HTTP | Response-phase interceptors (`sessionExpiredInterceptor`, `forbiddenInterceptor`, `errorDialogInterceptor`), `ErrorDialogStore`, the `SKIP_ERROR_DIALOG` / `SKIP_SESSION_EXPIRY` contexts, `provideStarterHttp()`, the static JSON loader | `http/` |
+| HTTP | Response-phase interceptors (`sessionExpiredInterceptor`, `forbiddenInterceptor`, `errorDialogInterceptor`), `ErrorDialogStore`, the failure parsers `parseHttpFailure` / `referenceCodeOf` (`api-failure.ts`), the `SKIP_ERROR_DIALOG` / `SKIP_SESSION_EXPIRY` contexts, `provideStarterHttp()`, the static JSON loader | `http/` |
 | Security | `provideStarterSecurity(config)`: `@codelab/ng-security` request signing and response verification with the prefix and API roots from `config.json` | `security/` |
 | Auth | `AuthService` (basic, Active Directory and SSO sign-in, proactive refresh, logout incl. SSO end-session, expiry), `TokenStore` (remembers the `SignInMode`), `SignInMode`, the login-rejection mapper (`loginRejectionFrom`, `ssoErrorRejection`, `IdentityErrorCodes`), the SSO callback fragment contract (`sso.ts`), `authGuard`, `permissionGuard()` | `auth/` |
 | Permissions | `holdsPermissions(has, required, mode)`, `PermissionMatchMode`, `PermissionRequirement` (one key or a list; an empty list never matches; `shared` re-exports them for `*hasPermission`), `PermissionStore` (`has`, `held`, `permissions`, `loaded`; all signals, change-only writes) and `PermissionSyncService` (`GET api/me/permissions`, plus the live triggers: focus, visibility, `NavigationEnd`, interval) | `permissions/` |
@@ -52,9 +52,13 @@ inject(AuthClient).modes();  inject(AuthClient).activate({ ticket, password });
 - `AuthService.logout()` picks the endpoint from `TokenStore.signInMode()`: an SSO session calls `api/auth/sso/logout`
   and, when it answers `{ endSessionUrl }`, the whole page navigates there (`BrowserLocation.assign`); a 204, an error,
   or a basic/AD session goes to the login page.
-- The layout renders the error dialog from `ErrorDialogStore.current()`, `messageKey()` and `referenceCode()` and
-  calls `dismiss()`. A caller that shows its own error passes `context: quietContext()` (or `selfHandledContext()`
-  for calls outside a session).
+- The layout renders the error dialog from `ErrorDialogStore.current()`, `messageKey()`, `referenceCode()`,
+  `hasReferenceCode()` and `correlationId()` (the full trace id Ops Console and Seq search by) and calls `dismiss()`.
+  A caller that shows its own error passes `context: quietContext()` (or `selfHandledContext()` for calls outside a
+  session).
+- A self-handled failure (a page-feedback error state) reads its reference code with `referenceCodeOf(error)` (an
+  `HttpErrorResponse`, a parsed `ApiError`, or null for anything else) and passes it as a translation parameter;
+  `parseHttpFailure(error)` gives the whole `ApiError`. Never call `parseApiError` directly for a dialog or a code.
 - Language switch: `LanguageService.set('en')`; read `current()` and `dir()`.
 - Specs provide `provideTestAppConfig()` (`config/app-config.testing.ts`) and `{ provide: BROWSER_STORAGE,
   useValue: new MemoryStorage() }`.
@@ -86,6 +90,15 @@ inject(AuthClient).modes();  inject(AuthClient).activate({ ticket, password });
 - An anonymous call (`ApiOptions.anonymous`) and the signing-key issuance (`AuthClient.signingKey()`) go out unsigned
   (`UNSIGNED_REQUEST`): the API checks proofs only on authenticated requests and answers those calls unsigned, so a
   signed one would have its unsigned 200 refused (`response_signature_missing`).
+- Every failure shown to the user is parsed with `parseHttpFailure`: the problem+json body wins; when it carries no
+  correlation id (a body-less 404/413, a proxy's HTML page) the `X-Correlation-ID` response header
+  (`CORRELATION_ID_HEADER`) supplies it and the reference code is derived with the server's rule
+  (`referenceCodeFrom`). A header that is not a 32-hex trace id is ignored (a code that matches no log line is worse
+  than none).
+- A session is published (`TokenStore.save`) only AFTER its signing keys are adopted (`AuthService.adoptSession`).
+  Everything that follows `TokenStore.session()` calls the API at once, so publishing first sent those calls unsigned
+  during the key round trip. The key request therefore carries the new token explicitly (`AuthClient.signingKey(token)`
+  through `ApiOptions.accessToken`); keep that order for any new sign-in method.
 - A 403 whose signature could not be verified (`ResponseSignatureError` with status 403) counts as a 403 in
   `forbiddenInterceptor` (`isForbidden`): it can only take access away from the view.
 - No literals used as keys: API paths, routes, query parameters, route data keys, storage keys, flags and
@@ -109,6 +122,12 @@ inject(AuthClient).modes();  inject(AuthClient).activate({ ticket, password });
   while the providers are built. A malformed file stops the app with an `AppConfigInvalidError` in the console.
 - The prefix in `config.json` must equal the API's `Codelab:Security:Protocol:Prefix`; a mismatch is a uniform 401.
 - WebCrypto needs a secure context: plain HTTP works only on `localhost`.
+- The `X-Correlation-ID` header is readable cross-origin only when the API's CORS policy exposes it; without that the
+  header fallback finds nothing and a body-less failure shows no reference code.
+- A root service that follows the session (`ApiNotificationsSource`, `PermissionSyncService`) outlives a logout, so on
+  the NEXT sign-in it reacts during the sign-in itself. Regression (P8): logout, a refused attempt, then a good
+  password used to send `GET api/notifications` unsigned (401 `signature_missing`) and bounce the user to the login
+  page; `core/auth/signed-session.spec.ts` covers that sequence.
 - `ProtectedTranslationsService` is off unless the API returns `protectedTranslations: true` from `api/features`;
   the P2 API serves no `api/i18n` yet.
 - Specs run without Vitest globals, so `src/test-setup.ts` resets `TestBed` after each test. Use

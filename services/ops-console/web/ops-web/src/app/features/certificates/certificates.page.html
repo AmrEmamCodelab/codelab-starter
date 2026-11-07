@@ -1,0 +1,27 @@
+<section class="ops-page" aria-labelledby="certificates-title">
+  <header class="ops-page__header">
+    <div>
+      <h1 class="ops-page__title" id="certificates-title">{{ keys.Title | t }}</h1>
+      <p class="ops-page__subtitle">{{ keys.Subtitle | t }}</p>
+    </div>
+    <dga-button variant="secondary-outline" size="md" leadIcon="clock" [loading]="store.loading()" (click)="store.load()">
+      {{ common.Actions.Refresh | t }}
+    </dga-button>
+  </header>
+
+  <app-ops-list
+    [captionKey]="keys.Caption"
+    [columns]="columns"
+    [rows]="store.rows()"
+    [rowId]="rowId"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [emptyKey]="keys.Empty"
+    (retry)="store.load()"
+  >
+    <ng-template opsListCell="notAfter" let-row>{{ row.notAfter | dateTime }}</ng-template>
+    <ng-template opsListCell="status" let-row>
+      <dga-status-tag [tone]="statusView(row.status).tone">{{ statusView(row.status).labelKey | t }}</dga-status-tag>
+    </ng-template>
+  </app-ops-list>
+</section>

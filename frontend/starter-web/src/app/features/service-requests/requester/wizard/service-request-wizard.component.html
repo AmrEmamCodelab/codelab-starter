@@ -140,8 +140,21 @@
               </dga-alert>
             }
             <p class="sr-wizard__hint">{{ keys.AttachmentsHint | t }}</p>
-            @if (store.id(); as id) {
-              <app-record-attachments [recordType]="attachableType" [recordId]="id" />
+            @if (store.attachments(); as target) {
+              <app-record-attachments [recordType]="target.recordType" [recordId]="target.recordId" />
+            } @else if (attachmentsFeedback(); as feedback) {
+              <div class="sr-wizard__attachments-failed" data-testid="sr-wizard-attachments-failed">
+                <dga-page-feedback [state]="feedback" [moveFocus]="false" />
+                <dga-button
+                  variant="secondary-outline"
+                  size="sm"
+                  data-public-action
+                  data-testid="sr-wizard-attachments-retry"
+                  (click)="store.retryAttachments()"
+                >
+                  {{ keys.Retry | t }}
+                </dga-button>
+              </div>
             }
           </ng-template>
         </app-wizard-pattern>

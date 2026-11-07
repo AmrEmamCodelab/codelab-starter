@@ -42,5 +42,6 @@
     <ProjectReference Include="..\Modules\Assignments\Starter.Modules.Assignments.csproj" />
     <ProjectReference Include="..\Modules\Deadlines\Starter.Modules.Deadlines.csproj" />
     <ProjectReference Include="..\Modules\ServiceRequests\Starter.Modules.ServiceRequests.csproj" /> <!-- codelab:module ServiceRequests -->
+    <ProjectReference Include="..\Modules\Ops\Starter.Modules.Ops.csproj" /> <!-- codelab:module Ops -->
   </ItemGroup>
 </Project>

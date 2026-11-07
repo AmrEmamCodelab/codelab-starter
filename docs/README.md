@@ -12,6 +12,7 @@ Human- and agent-readable documentation for the starter: standards and decisions
 | [adr/](adr/README.md) | You need to know why the repo is shaped the way it is, or you are about to change a structural decision. |
 | [recipes/](recipes/README.md) | You are adding an endpoint (step-by-step recipes). |
 | [generated/](generated/README.md) | You need the current permission, endpoint, error-code or config-key list (derived; never hand-edited). |
+| [runbooks/](runbooks/README.md) | You operate a deployed environment (Seq, gateway, key rotation, CSP enforcement, certificate renewal, upstream merge). |
 
 Later phases add more recipes (permission, workflow type, page, integration, notification, lookup), `runbooks/` and `design/`.
 

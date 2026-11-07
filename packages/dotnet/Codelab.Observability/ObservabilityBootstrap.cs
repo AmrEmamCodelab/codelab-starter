@@ -32,7 +32,8 @@ public static class ObservabilityBootstrap
 
     /// <summary>
     /// Configures the host's Serilog logger, the opt-in tracer, the <see cref="UserIdHash"/>, the
-    /// <see cref="JobFailureLogFilter"/>, health checks and the outbound propagation default. Throws
+    /// <see cref="JobFailureLogFilter"/>, health checks, the outbound propagation default and the inbound one (a caller's
+    /// <c>traceparent</c> is ignored). Throws
     /// <see cref="InvalidOperationException"/>, naming the key, for a setting the host must refuse to start with.
     /// <para>
     /// Every event carries <see cref="LogPropertyNames.Application"/>, <see cref="LogPropertyNames.Environment"/>,
@@ -53,6 +54,7 @@ public static class ObservabilityBootstrap
         var inputs = new LoggerPipelineInputs(options, settings, builder.Configuration, environment);
 
         PropagationScope.DenyOutboundByDefault();
+        IgnoreInboundTraceContext(builder.Services);
         RegisterServices(builder.Services, settings, environment);
         builder.Services.Configure<QuietRequestPathsOptions>(quiet => quiet.Paths = options.QuietRequestPaths);
 
@@ -64,6 +66,13 @@ public static class ObservabilityBootstrap
         builder.AddCodelabTracing(options, settings.Tracing);
         return builder;
     }
+
+    /// <summary>
+    /// Replaces the propagator ASP.NET Core hosting reads the inbound <c>traceparent</c> with: a request's trace id is
+    /// its correlation id, so no caller may choose it (<see cref="PropagationScope.InboundPropagator"/>).
+    /// </summary>
+    internal static void IgnoreInboundTraceContext(IServiceCollection services) =>
+        services.Replace(ServiceDescriptor.Singleton(PropagationScope.InboundPropagator));
 
     private static void RegisterServices(IServiceCollection services, ObservabilitySettings settings, IHostEnvironment environment)
     {

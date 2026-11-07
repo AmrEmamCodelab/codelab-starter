@@ -4,7 +4,7 @@
 Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/build.ps1 -Target CI`); the Claude hooks refuse violating edits early. Owners: @platform-owner.
 
 ## Dependencies
-- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabObservability`, `CodelabErrors`, `CodelabIdentity`
+- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabObservability`, `CodelabErrors`, `CodelabIdentity`, `CodelabIntegration`
 - Must not depend on: `Access`, `Users`
 
 ## Required

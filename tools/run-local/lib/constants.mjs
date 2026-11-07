@@ -83,6 +83,17 @@ export const ATTACHMENTS_PROJECT_FILE = 'services/attachment-service/src/Codelab
 export const ATTACHMENTS_BUILD_OUTPUT_DIR = 'services/attachment-service/src/Codelab.Attachments.Api/bin/Debug';
 export const ATTACHMENTS_ASSEMBLY = 'Codelab.Attachments.Api.dll';
 export const ATTACHMENTS_SECRETS_FILE = 'services/attachment-service/src/Codelab.Attachments.Api/appsettings.Development.local.json';
+/** How the service file's ticket ring (Codelab:Security:Tickets) relates to the API's upload-ticket ring. */
+export const TicketRingState = Object.freeze({
+  /** The service ring is the API's UploadTickets ring: uploads work. */
+  matches: 0,
+  /** The service file has no ticket ring yet; New-LocalSecrets.ps1 adds it from the API file. */
+  missing: 1,
+  /** The service ring holds a key of the API's own Tickets ring (SSO, activation): a file from before UploadTickets. */
+  apiTicketRing: 2,
+  /** The service ring differs from the API's UploadTickets ring: every upload ticket is refused (401). */
+  mismatch: 3,
+});
 export const FRONTEND_WORKSPACE = 'frontend/starter-web';
 export const FRONTEND_MANIFEST = 'frontend/starter-web/package.json';
 export const FRONTEND_START_SCRIPT = 'start';

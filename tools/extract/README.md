@@ -93,7 +93,7 @@ references), and `tests/batches.test.mjs` checks that hard-deny recorded the nat
 - Never write to the source repository or the harvest copy. Only read-only git is allowed (`rev-parse`, `ls-tree`,
   `hash-object` without `-w`).
 - Source-product terms are allowed only under `provenance/` and `docs/adr/`. The national-integration terms are also
-  allowed in `docs/integrations/gateway-extension-points.md`. The sweep's own configuration files and
+  allowed in `services/integration-gateway/docs/future-profiles.md`. The sweep's own configuration files and
   `tests/fixtures/` are the only other exceptions.
 - `secret-digests.json` stores digests and a coarse kind only. No value, no path and no setting name is stored.
 - Scanners never print a secret. Excerpts are redacted (`abcd****`) and national IDs are masked.

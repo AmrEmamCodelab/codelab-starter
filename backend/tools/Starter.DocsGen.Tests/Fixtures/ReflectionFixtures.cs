@@ -77,6 +77,22 @@ public sealed class FixtureNestedOptions
     public bool Enabled { get; set; } = true;
 }
 
+/// <summary>Options holding certificates supplied in code (never bound, never read by the scanner).</summary>
+public sealed class FixtureCertificateOptions
+{
+    /// <summary>The section.</summary>
+    public const string SectionName = "Fixture:Certificates";
+
+    /// <summary>The bundle path.</summary>
+    public string? BundlePath { get; set; }
+
+    /// <summary>Authorities supplied in code.</summary>
+    public System.Security.Cryptography.X509Certificates.X509Certificate2Collection Authorities { get; } = [];
+
+    /// <summary>A certificate supplied in code.</summary>
+    public System.Security.Cryptography.X509Certificates.X509Certificate2? Pinned { get; set; }
+}
+
 /// <summary>Switches bound at the section root.</summary>
 public sealed class FixtureSwitches : Dictionary<string, bool>
 {

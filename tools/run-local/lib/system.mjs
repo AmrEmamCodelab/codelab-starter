@@ -24,6 +24,10 @@ export function createSystem() {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, text, UTF8);
     },
+    /** Creates a folder and its parents; a folder that already exists is left as it is. */
+    ensureDir: (dir) => {
+      fs.mkdirSync(dir, { recursive: true });
+    },
     /** Removes the state file run-local wrote; never anything else. */
     removeStateFile: (file) => fs.rmSync(file, { force: true }),
     /** Runs a helper command to completion: { code, output } (code null when it could not start). */

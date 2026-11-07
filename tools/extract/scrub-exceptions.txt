@@ -12,8 +12,8 @@
 provenance/**                                    term-*,dga-*
 docs/adr/**                                      term-*,dga-*
 
-# The gateway extension-point doc describes the future national-integration profiles by name.
-docs/integrations/gateway-extension-points.md    term-integration-*
+# The gateway future-profiles doc describes the later national-integration profiles by name.
+services/integration-gateway/docs/future-profiles.md    term-integration-*
 
 # The sweep's own configuration has to spell out what it denies.
 tools/extract/modhs-terms.txt                    term-*

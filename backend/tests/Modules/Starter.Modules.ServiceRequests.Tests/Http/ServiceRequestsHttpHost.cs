@@ -175,7 +175,8 @@ public sealed class ServiceRequestsHttpHost : IAsyncLifetime, IDisposable
 
     private sealed record LoginRequest(string UserName, string Password);
 
-    private static string ConnectionStringFor(string database) =>
+    /// <summary>The connection string of <paramref name="database"/> on the test server (Windows authentication).</summary>
+    internal static string ConnectionStringFor(string database) =>
         new SqlConnectionStringBuilder
         {
             DataSource = Server,
@@ -184,7 +185,8 @@ public sealed class ServiceRequestsHttpHost : IAsyncLifetime, IDisposable
             TrustServerCertificate = true,
         }.ConnectionString;
 
-    private static async Task ExecuteOnMasterAsync(string sql)
+    /// <summary>Runs <paramref name="sql"/> on the test server's master database (create and drop throwaway databases).</summary>
+    internal static async Task ExecuteOnMasterAsync(string sql)
     {
         await using var connection = new SqlConnection(ConnectionStringFor(MasterDatabase));
         await connection.OpenAsync();

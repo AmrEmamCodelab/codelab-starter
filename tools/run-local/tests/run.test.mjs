@@ -43,6 +43,7 @@ function fakeSystem({ files = {}, statuses = {}, alive = new Map(), commands = {
     readText: (file) => disk.get(file),
     writeText: (file, text) => disk.set(file, text),
     removeStateFile: (file) => disk.delete(file),
+    ensureDir: (dir) => calls.push(['mkdir', dir]),
     runSync: (command, args) => {
       calls.push([command, ...args]);
       if (command === 'tasklist.exe') {
@@ -96,9 +97,13 @@ const COMPLETE_SECRETS = JSON.stringify({
     },
   },
 });
+/** A service file whose ticket ring is the API's upload-ticket ring (key ids only; no material in the fixtures). */
+const SERVICE_WITH_UPLOAD_RING = JSON.stringify({ Codelab: { Security: { Tickets: { ActiveKeyId: 'c' } } } });
+/** A service file from before the dedicated upload-ticket ring: it holds the API's own Tickets ring. */
+const SERVICE_WITH_API_RING = JSON.stringify({ Codelab: { Security: { Tickets: { ActiveKeyId: 'a' } } } });
 const WITH_ATTACHMENTS = {
   [SECRETS]: COMPLETE_SECRETS,
-  [SERVICE_SECRETS]: '{}',
+  [SERVICE_SECRETS]: SERVICE_WITH_UPLOAD_RING,
   [ATTACHMENTS_PROJECT]: '<Project />',
   [MANIFEST]: '{"scripts":{"start":"ng serve"}}',
   [NODE_MODULES]: '',
@@ -196,6 +201,8 @@ describe('the Attachment service', () => {
 
     const lines = await start(system, { root: ROOT, noWeb: false, noSeq: true, noAttachments: false });
 
+    assert.ok(!system.calls.some((call) => call[0] === 'mkdir'), 'slot 0 storage is as configured and never created by run-local');
+
     assert.deepEqual(JSON.parse(system.disk.get(STATE)).processes.map((entry) => entry.name), ['api', 'attachments', 'web']);
     const steps = system.calls
       .filter((call) => call[1] === 'build' || call[0] === 'spawn')
@@ -248,7 +255,7 @@ describe('the Attachment service', () => {
   });
 
   it('patches the secrets when the API file predates the service', async () => {
-    const files = { ...WITH_ATTACHMENTS, [SECRETS]: '{"Codelab":{"Security":{"Tickets":{"ActiveKeyId":"a"}}}}' };
+    const files = { ...WITH_ATTACHMENTS, [SECRETS]: '{"Codelab":{"Security":{"Tickets":{"ActiveKeyId":"a"}}}}', [SERVICE_SECRETS]: '{}' };
     const system = fakeSystem({ files, statuses: healthy });
 
     await start(system, { root: ROOT, noWeb: true, noSeq: true });
@@ -256,6 +263,34 @@ describe('the Attachment service', () => {
     const seed = system.calls.find((call) => call[0] === 'powershell.exe');
     assert.ok(seed && seed.at(-1).endsWith('New-LocalSecrets.ps1'), 'the seeding script runs');
     assert.ok(!seed.includes('-Force'), 'never with -Force: existing values are kept');
+  });
+
+  it('refuses to start when the service file still holds the API ticket ring, naming New-LocalSecrets.ps1 -Force', async () => {
+    const system = fakeSystem({ files: { ...WITH_ATTACHMENTS, [SERVICE_SECRETS]: SERVICE_WITH_API_RING }, statuses: healthy });
+
+    await assert.rejects(
+      start(system, { root: ROOT, noWeb: true, noSeq: true }),
+      (error) => /holds the API's own ticket ring/.test(error.message) && /New-LocalSecrets\.ps1 -Force/.test(error.message),
+    );
+    assert.ok(!system.calls.some((call) => call[0] === 'spawn'), 'nothing starts');
+    assert.ok(!system.calls.some((call) => call[0] === 'powershell.exe'), 'seeding cannot repair it, so it is not run');
+    assert.equal(await main({ root: ROOT, noWeb: true, noSeq: true, noAttachments: false, stop: false }, system), ExitCode.failed);
+  });
+
+  it('refuses to start when the service ring differs from the API upload-ticket ring', async () => {
+    const stale = JSON.stringify({ Codelab: { Security: { Tickets: { ActiveKeyId: 'z' } } } });
+    const system = fakeSystem({ files: { ...WITH_ATTACHMENTS, [SERVICE_SECRETS]: stale }, statuses: healthy });
+
+    await assert.rejects(start(system, { root: ROOT, noWeb: true, noSeq: true }), /does not match the API's upload-ticket ring/);
+    assert.ok(!system.calls.some((call) => call[0] === 'spawn'));
+  });
+
+  it('does not check the service ring when the Attachment service is not started', async () => {
+    const system = fakeSystem({ files: { ...WITH_ATTACHMENTS, [SERVICE_SECRETS]: SERVICE_WITH_API_RING }, statuses: healthy });
+
+    await start(system, { root: ROOT, noWeb: true, noSeq: true, noAttachments: true });
+
+    assert.deepEqual(JSON.parse(system.disk.get(STATE)).processes.map((entry) => entry.name), ['api']);
   });
 
   it('refuses when :5185 is taken', async () => {
@@ -378,6 +413,27 @@ describe('slots: a second stack next to a running default stack', () => {
 
     assert.ok(lines.some((line) => line.includes(`API      ${SLOT_URLS.api}`)) && lines.some((line) => line.includes(`Web      ${SLOT_URLS.web}`)));
     assert.ok(lines.some((line) => line.endsWith('run-local.ps1 -Stop -Slot 1')));
+  });
+
+  it('creates the slot attachment storage folder before it starts the slot Attachment service', async () => {
+    const system = fakeSystem(ownerRunning());
+
+    await start(system, { root: ROOT, noWeb: true, noSeq: true, slot: 1 });
+
+    const storage = path.join(SLOT_DIR, 'attachments-storage');
+    const mkdirAt = system.calls.findIndex((call) => call[0] === 'mkdir' && call[1] === storage);
+    const serviceAt = system.calls.findIndex((call) => call[0] === 'spawn' && call.at(-1).endsWith(ATTACHMENTS_ASSEMBLY));
+    assert.ok(mkdirAt >= 0, 'the storage folder is created');
+    assert.ok(mkdirAt < serviceAt, 'before the Attachment service starts');
+    assert.equal(system.spawned[1].options.env.Attachments__Storage__RootPath, storage, 'the service is pointed at that folder');
+  });
+
+  it('creates no storage folder for a slot started without the Attachment service', async () => {
+    const system = fakeSystem(ownerRunning());
+
+    await start(system, { root: ROOT, noWeb: true, noSeq: true, noAttachments: true, slot: 1 });
+
+    assert.ok(!system.calls.some((call) => call[0] === 'mkdir'));
   });
 
   it('honours a connection-string override but still renames its database for the slot', async () => {

@@ -27,7 +27,7 @@ answer. `-Slot <n>` (1-9) runs the current tree next to it without touching it:
 | State and logs | `%TEMP%\codelab-starter` | `%TEMP%\codelab-starter\slot-<n>` |
 | .NET build output | the project's `bin\Debug` | `slot-<n>\build\<api or attachments>` (`dotnet build -o`), so the DLLs a running stack holds open are never overwritten |
 | Database | as configured | `ConnectionStrings__Starter` (or the development settings) with the database renamed `<name>_Slot<n>`; migrations apply there, never to the other stack's database |
-| Attachment storage | as configured | `slot-<n>\attachments-storage` |
+| Attachment storage | as configured (run-local never creates or changes it) | `slot-<n>\attachments-storage`, created (idempotent) before the slot's Attachment service starts, because the service's readiness check fails on a missing storage root |
 | Web app | `ng serve` (hot reload) | a frozen development build in `slot-<n>\web`, its `config.json` pointed at the slot's API and Attachment service, served by `static-server.mjs` (unknown routes fall back to `index.html`) |
 
 The slot's API and Attachment service get their web origin (CORS), SSO return URLs, web links and service URL
@@ -39,6 +39,11 @@ A start:
 1. Runs `tools/devseed/New-LocalSecrets.ps1` when a local secrets file is missing or the API file lacks the
    attachment keys (an API file from before the Attachment service or before the dedicated `Codelab:Security:UploadTickets` ring). The script only adds missing keys, so existing
    passwords, sessions and PublicIds keep working; see [tools/devseed/README.md](../devseed/README.md).
+   With the Attachment service, the start then **fails** when the service file's `Codelab:Security:Tickets` ring is
+   not exactly the API's `Codelab:Security:UploadTickets` ring (compared by key id and key, never printed): a service
+   file from before the dedicated ring holds the API's own SSO/activation ring and every upload would be refused
+   with 401. Seeding cannot repair it (it never changes a value); delete the service file and start again, or run
+   `New-LocalSecrets.ps1 -Force` (regenerates both files).
 2. Starts LocalDB (`sqllocaldb start MSSQLLocalDB`), unless `ConnectionStrings__Starter` is set to another server
    (for example a throwaway database on `(localdb)\P2Proof`): then that instance is left alone.
 3. Uses Seq when it answers at `CODELAB_SEQ_URL` or `http://localhost:5341`, starts the `Seq` Windows service when
@@ -72,7 +77,8 @@ Exit codes: 0 ok, 1 refused or failed, 2 usage. PIDs and logs live in `%TEMP%\co
 ## Rules
 
 - It never installs or deletes anything: no `npm install`, no database drop, no file removal except its own state
-  file. A missing prerequisite is a warning or a refusal with the command to run.
+  file. A missing prerequisite is a warning or a refusal with the command to run. The only folders it creates are its
+  state folders and a slot's attachment storage folder (`system.ensureDir`, idempotent).
 - `-Stop` kills only recorded PIDs, and only while each still runs the recorded image (`tasklist` check), so a reused
   PID is never killed. It kills the process tree (`taskkill /T`), because `dotnet run` and `npm` start children.
 - Private toolchain only: `CODELAB_DOTNET` or `E:\codelab-tools\dotnet10\dotnet.exe`; `CODELAB_NODE_DIR` or

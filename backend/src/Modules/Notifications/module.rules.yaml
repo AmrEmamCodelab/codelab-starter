@@ -4,8 +4,8 @@
 schemaVersion: 1
 module: Notifications
 kind: dotnet
-description: "Notifications (module 12), in process: bilingual templates seeded by migration in schema notifications, the bell items and feed API, and e-mail and SMS delivery through the outbox (SMTP to the internal relay or .eml file drop; SMS to a JSON-lines file, the integration-gateway SMS sender a stub until phase 8)."
-mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
+description: "Notifications (module 12), in process: bilingual templates seeded by migration in schema notifications, the bell items and feed API, and e-mail and SMS delivery through the outbox (SMTP to the internal relay or .eml file drop; SMS to a JSON-lines file or the integration gateway SMS relay)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors, CodelabIntegration]
 mustNotDependOn: [Identity, Access, Users]
 required:
   - id: notifications.thin-endpoints
@@ -27,7 +27,7 @@ required:
     statement: An outbox handler sends a channel only while its state is Pending and records Sent (or NoAddress) right after, so a re-delivered outbox message is not sent twice once recorded.
     enforcedBy: [review]
   - id: notifications.no-egress
-    statement: E-mail goes only to the SMTP relay inside the backend zone or the pickup folder; SMS only to the file sink or (phase 8) the integration gateway. No sender calls an internet host (decision D2).
+    statement: E-mail goes only to the SMTP relay inside the backend zone or the pickup folder; SMS only to the file sink or the integration gateway SMS relay (GatewaySmsSender). No sender calls an internet host (decision D2).
     enforcedBy: [review]
 forbidden:
   - id: notifications.no-module-reference

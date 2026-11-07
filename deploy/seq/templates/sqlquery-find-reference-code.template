@@ -1,0 +1,8 @@
+{
+  "$entity": "sqlquery",
+  "Title": "Ops: Find by reference code",
+  "Description": "Replace XXXXX-XXXXX with the reference code from the error dialog. Every event of that request, oldest first.",
+  "Sql": "select @Timestamp, @Level, Application, DeploymentEnvironment, RouteTemplate, StatusCode, Code, ErrorFingerprint, CorrelationId, @Message from stream where ReferenceCode = 'XXXXX-XXXXX' order by @Timestamp limit 500",
+  "IsProtected": true,
+  "OwnerId": null
+}

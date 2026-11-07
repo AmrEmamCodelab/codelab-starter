@@ -60,6 +60,21 @@ describe('ApiService', () => {
     request.flush({});
   });
 
+  it('sends the given access token instead of the stored one (a session not published yet)', () => {
+    TestBed.inject(TokenStore).save(SESSION, SignInMode.Basic);
+    api.get('api/x', { accessToken: 'access-2' }).subscribe();
+    const request = http.expectOne(`${TEST_API_BASE_URL}/api/x`);
+    expect(request.request.headers.get(AUTHORIZATION_HEADER)).toBe('Bearer access-2');
+    request.flush({});
+  });
+
+  it('sends the given access token without a stored session', () => {
+    api.get('api/x', { accessToken: 'access-2' }).subscribe();
+    const request = http.expectOne(`${TEST_API_BASE_URL}/api/x`);
+    expect(request.request.headers.get(AUTHORIZATION_HEADER)).toBe('Bearer access-2');
+    request.flush({});
+  });
+
   it('omits the token for anonymous calls and passes params, headers and context', () => {
     TestBed.inject(TokenStore).save(SESSION, SignInMode.Basic);
     api

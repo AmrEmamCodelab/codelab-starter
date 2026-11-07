@@ -3,8 +3,9 @@ import { HttpStatus } from '@codelab/ng-security';
 import { Subject, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import type { RecordDetail } from '../../../../shared/records';
-import { ServiceRequestActions, ServiceRequestStatus } from '../../data';
+import { SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE, ServiceRequestActions, ServiceRequestStatus } from '../../data';
 import {
+  TEST_ATTACHMENTS_RECORD_ID,
   TEST_SERVICE_REQUEST_ID,
   aRecord,
   aStep,
@@ -17,6 +18,8 @@ import {
   serviceRequestDetails,
 } from '../requester.testing';
 import { ServiceRequestDetailStore } from './service-request-detail.store';
+
+const ATTACHMENTS = { recordType: SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, recordId: TEST_ATTACHMENTS_RECORD_ID };
 
 function setUp(records = fakeRecordsClient(), requests = fakeServiceRequestsClient()) {
   TestBed.configureTestingModule({
@@ -32,8 +35,24 @@ describe('ServiceRequestDetailStore', () => {
     expect(records.detail).toHaveBeenCalledWith('service-request', TEST_SERVICE_REQUEST_ID);
     expect(records.timeline).toHaveBeenCalledWith('service-request', TEST_SERVICE_REQUEST_ID);
     expect(requests.get).toHaveBeenCalledWith(TEST_SERVICE_REQUEST_ID);
-    expect(store.view()).toEqual({ record: aRecord(), timeline: [aStep()], details: serviceRequestDetails() });
+    expect(store.view()).toEqual({ record: aRecord(), timeline: [aStep()], details: serviceRequestDetails(), attachments: ATTACHMENTS });
     expect(store.loading()).toBe(false);
+  });
+
+  it('takes the attachments target from the record (the attachments id, never the request id)', () => {
+    const { store } = setUp();
+    expect(store.attachments()).toBeNull();
+    store.load(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toEqual(ATTACHMENTS);
+    expect(store.attachments()?.recordId).not.toBe(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachmentsError()).toBeNull();
+  });
+
+  it('reports the attachments unavailable when the record carries no attachments id', () => {
+    const { store } = setUp(fakeRecordsClient({ detail: vi.fn(() => of(aRecord(ServiceRequestStatus.Submitted, { attachmentsRecordId: 'bad' }))) }));
+    store.load(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toBeNull();
+    expect(store.attachmentsError()).toBe(SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE);
   });
 
   it('does not ask a draft for its fields', () => {
@@ -72,6 +91,7 @@ describe('ServiceRequestDetailStore', () => {
     expect(store.view()?.record).toBe(cancelled);
     expect(store.view()?.timeline).toHaveLength(2);
     expect(store.view()?.details).toEqual(serviceRequestDetails());
+    expect(store.attachments()).toEqual(ATTACHMENTS);
   });
 
   it('keeps a refused decision for the dialog and leaves the record as it was', () => {

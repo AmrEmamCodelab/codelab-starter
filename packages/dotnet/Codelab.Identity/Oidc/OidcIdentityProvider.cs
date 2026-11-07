@@ -20,13 +20,13 @@ internal sealed class OidcIdentityProvider : IOidcIdentityProvider
     public OidcIdentityProvider(
         IOptions<OidcOptions> options,
         OidcIdTokenValidator validator,
-        IHttpClientFactory clients,
+        IOidcBackChannel backChannel,
         ILogger<OidcIdentityProvider> logger)
     {
         this.options = options;
         this.validator = validator;
         this.logger = logger;
-        tokens = new OidcTokenClient(clients, logger);
+        tokens = new OidcTokenClient(backChannel, logger);
     }
 
     public OidcAuthorizationRequest BeginAuthorization(string returnUrl)

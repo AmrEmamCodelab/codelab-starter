@@ -23,9 +23,13 @@
     <div detailSummary>
       <app-record-detail-cards [cards]="cards()" [headingLevel]="cardHeadingLevel" />
     </div>
-    @if (store.detail(); as detail) {
+    @if (store.attachments(); as target) {
       <div detailAttachments>
-        <app-record-attachments readonly [recordType]="attachableType" [recordId]="detail.id" />
+        <app-record-attachments readonly [recordType]="target.recordType" [recordId]="target.recordId" />
+      </div>
+    } @else if (attachmentsFeedback(); as feedback) {
+      <div detailAttachments data-testid="admin-detail-attachments-failed">
+        <dga-page-feedback [state]="feedback" [moveFocus]="false" />
       </div>
     }
   </app-requester-detail-pattern>

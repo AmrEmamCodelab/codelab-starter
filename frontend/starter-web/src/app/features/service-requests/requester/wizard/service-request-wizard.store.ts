@@ -6,12 +6,16 @@ import { firstValueFrom } from 'rxjs';
 import { APP_CLOCK } from '../../../../core/session/clock';
 import { NO_FIELD_ERRORS, type FieldErrorMap } from '../../../../patterns';
 import { AttachmentErrorCodes } from '../../../../shared/attachments/attachment-error-codes';
-import { RECORDS_TRANSLATED_CODES, RecordsErrorCodes, recordsApiErrorFrom } from '../../../../shared/records';
+import { RECORDS_TRANSLATED_CODES, RecordsClient, RecordsErrorCodes, recordsApiErrorFrom } from '../../../../shared/records';
 import {
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
   ServiceRequestDraftStep,
   ServiceRequestsClient,
+  serviceRequestAttachmentsTargetOf,
   serviceRequestFieldErrorsFrom,
   todayInTimeZone,
+  type ServiceRequestAttachmentsTarget,
   type ServiceRequestId,
 } from '../../data';
 import { SERVICE_REQUESTS_REQUESTER_BASE_LINK, serviceRequestsRequesterLinks } from '../requester-paths';
@@ -41,10 +45,14 @@ const FIRST_STEP = 0;
  * - Every save sends all fields plus the step the server validates; saves run one after another (never two creates).
  * - Submit saves once more and submits; it answers the number (`SR-2026-001`). A 400 maps its field errors to the
  *   fields (`serviceRequestFieldErrorsFrom`), a 409 `ATTACHMENTS_REQUIRED_MISSING` flags the attachments step.
+ * - Once the draft exists (created or resumed), its generic record is read for the attachments target: the
+ *   Records-kernel `attachmentsRecordId`, which is NOT the request id. The widget waits for it; a failure is kept in
+ *   `attachmentsError` and `retryAttachments` reads it again.
  */
 @Injectable()
 export class ServiceRequestWizardStore {
   private readonly client = inject(ServiceRequestsClient);
+  private readonly records = inject(RecordsClient);
   private readonly categoriesClient = inject(ServiceRequestCategoriesClient);
   private readonly location = inject(Location);
   private readonly clock = inject(APP_CLOCK);
@@ -69,6 +77,8 @@ export class ServiceRequestWizardStore {
   private readonly categoriesState = signal<readonly ServiceRequestCategory[]>([]);
   private readonly categoriesErrorState = signal<ApiError | null>(null);
   private readonly resumedIdState = signal<ServiceRequestId | null>(null);
+  private readonly attachmentsState = signal<ServiceRequestAttachmentsTarget | null>(null);
+  private readonly attachmentsErrorState = signal<ApiError | null>(null);
 
   /** Bumped on every form event (value, status, touched): read it in a `computed` that inspects the form. */
   readonly revision = this.revisionState.asReadonly();
@@ -91,6 +101,10 @@ export class ServiceRequestWizardStore {
   readonly categoriesError = this.categoriesErrorState.asReadonly();
   /** True while the wizard resumes a saved draft (rather than starting a new one). */
   readonly resuming = computed(() => this.resumedIdState() !== null);
+  /** Where the draft's files live (`attachmentsRecordId`, never the request id); null until the draft's record is read. */
+  readonly attachments = this.attachmentsState.asReadonly();
+  /** Why the attachments target could not be read (the step shows it with a retry), or null. */
+  readonly attachmentsError = this.attachmentsErrorState.asReadonly();
 
   constructor() {
     this.form.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.revisionState.update((count) => count + 1));
@@ -115,6 +129,12 @@ export class ServiceRequestWizardStore {
     const id = this.resumedIdState();
     if (id !== null) this.resume(id);
     if (this.categoriesErrorState() !== null) this.loadCategories();
+  }
+
+  /** Reads the draft's attachments target again after a failure. Nothing to do before the draft exists. */
+  retryAttachments(): void {
+    const id = this.idState();
+    if (id !== null) this.loadAttachments(id);
   }
 
   /** Saves the draft on demand (unvalidated on the client; the server validates `step`). */
@@ -153,6 +173,7 @@ export class ServiceRequestWizardStore {
         next: (draft) => {
           patchFromDraft(this.form, draft);
           this.idState.set(draft.id);
+          this.loadAttachments(draft.id);
           this.startStepState.set(resumeStepIndex(draft, this.today()));
           this.loadState.set(WizardLoadState.Ready);
         },
@@ -160,6 +181,22 @@ export class ServiceRequestWizardStore {
           this.loadErrorState.set(recordsApiErrorFrom(failure));
           this.loadState.set(WizardLoadState.Failed);
         },
+      });
+  }
+
+  /** Reads the draft's generic record for its attachments target; the widget stays hidden until it is known. */
+  private loadAttachments(id: ServiceRequestId): void {
+    this.attachmentsErrorState.set(null);
+    this.records
+      .detail(SERVICE_REQUEST_RECORD_TYPE, id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (record) => {
+          const target = serviceRequestAttachmentsTargetOf(record);
+          this.attachmentsState.set(target);
+          this.attachmentsErrorState.set(target === null ? SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE : null);
+        },
+        error: (failure: unknown) => this.attachmentsErrorState.set(recordsApiErrorFrom(failure)),
       });
   }
 
@@ -192,6 +229,7 @@ export class ServiceRequestWizardStore {
     const { id } = await firstValueFrom(this.client.create());
     this.idState.set(id);
     this.location.replaceState(this.links.draft(id));
+    this.loadAttachments(id);
     return id;
   }
 

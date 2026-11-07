@@ -15,6 +15,9 @@ public enum EndpointAccess
 
     /// <summary>Any signed-in user; no permission key.</summary>
     Authenticated = 2,
+
+    /// <summary>Only a Codelab.Security ES256 service assertion (policy names the CodelabServiceAssertion scheme only); no user credential.</summary>
+    ServiceAssertion = 3,
 }
 
 /// <summary>One endpoint that carries no permission key, and why.</summary>
@@ -67,6 +70,12 @@ public static class EndpointAccessContract
         if (endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null)
         {
             return EndpointAccess.Anonymous;
+        }
+
+        if (endpoint.Metadata.GetMetadata<HasPermissionAttribute>() is null
+            && endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().Any(data => string.Equals(data.AuthenticationSchemes, Codelab.Security.ServiceAuth.ServiceAssertionAuthenticationHandler.SchemeName, StringComparison.Ordinal)))
+        {
+            return EndpointAccess.ServiceAssertion;
         }
 
         return endpoint.Metadata.GetMetadata<HasPermissionAttribute>() is null ? EndpointAccess.Authenticated : null;

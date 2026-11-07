@@ -1,3 +1,4 @@
+using Codelab.Integration.Gateway;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -84,6 +85,45 @@ public sealed class NotificationsModuleTests
         Assert.IsType(smsSender, provider.GetRequiredService<ISmsSender>());
         Assert.Equal(smsEnabled, provider.GetRequiredService<DeliverySettings>().SmsEnabled);
         Assert.Equal(EmailDeliveryOptions.DefaultFromAddress, provider.GetRequiredService<IOptions<EmailDeliveryOptions>>().Value.FromAddress);
+    }
+
+    [Theory]
+    [InlineData("true", "2", true)]
+    [InlineData("false", "2", false)]
+    [InlineData("true", "1", false)]
+    public void The_gateway_sms_sender_and_client_are_registered_only_for_enabled_gateway_sms(string enabled, string mode, bool gateway)
+    {
+        var settings = new Dictionary<string, string?>
+        {
+            [$"{EmailDeliveryOptions.SectionName}:{nameof(EmailDeliveryOptions.Smtp)}:{nameof(SmtpRelayOptions.Host)}"] = "relay.internal.test",
+            [$"{SmsDeliveryOptions.SectionName}:{nameof(SmsDeliveryOptions.Enabled)}"] = enabled,
+            [$"{SmsDeliveryOptions.SectionName}:{nameof(SmsDeliveryOptions.Mode)}"] = mode,
+            [$"{GatewayOptions.SectionName}:{nameof(GatewayOptions.BaseUrl)}"] = "https://gateway.example.test/",
+        };
+        var services = new ServiceCollection();
+        services.AddSingleton<IHostEnvironment>(new NamedEnvironment(Environments.Development));
+
+        services.AddNotificationsModule(new ConfigurationBuilder().AddInMemoryCollection(settings).Build());
+
+        Assert.Equal(gateway ? 1 : 0, services.Count(descriptor => descriptor.ServiceType == typeof(GatewayRelayClient)));
+        Assert.Equal(gateway, services.Any(descriptor => descriptor.ServiceType == typeof(GatewaySmsSender)));
+        Assert.Equal(ServiceLifetime.Scoped, services.Single(descriptor => descriptor.ServiceType == typeof(ISmsSender)).Lifetime);
+    }
+
+    [Fact]
+    public void A_gateway_client_registered_by_another_module_is_reused()
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [$"{SmsDeliveryOptions.SectionName}:{nameof(SmsDeliveryOptions.Enabled)}"] = "true",
+            [$"{SmsDeliveryOptions.SectionName}:{nameof(SmsDeliveryOptions.Mode)}"] = "2",
+        }).Build();
+        var services = new ServiceCollection();
+        services.AddCodelabGatewayClient(configuration);
+
+        services.AddNotificationsModule(configuration);
+
+        Assert.Single(services, descriptor => descriptor.ServiceType == typeof(GatewayRelayClient));
     }
 
     [Fact]

@@ -23,7 +23,10 @@ import {
 } from '../../../shared/records';
 import { translated } from '../../../shared/records/records.testing';
 import { ServiceRequestActions, ServiceRequestStatus, SERVICE_REQUEST_RECORD_TYPE } from '../data';
-import { TEST_SERVICE_REQUEST_ID } from '../data/service-requests.testing';
+import { TEST_SERVICE_REQUEST_ID, recordAttachmentsWire, type RecordAttachmentsWireFields } from '../data/service-requests.testing';
+
+/** A record as the generic records endpoint sends it: the shared shape plus the attachment fields. */
+export type StaffWireRecord = RecordDetail & RecordAttachmentsWireFields;
 
 /** Spec fixtures and helpers of the staff and admin screens. Spec-only: nothing in the app imports this file. */
 
@@ -101,7 +104,7 @@ function wording(statusKey: string) {
 }
 
 /** A request under review, held by the signed-in user, with the review decisions allowed. */
-export function staffRecord(overrides: Partial<RecordDetail> = {}): RecordDetail {
+export function staffRecord(overrides: Partial<StaffWireRecord> = {}): StaffWireRecord {
   return {
     id: TEST_SERVICE_REQUEST_ID,
     recordType: SERVICE_REQUEST_RECORD_TYPE,
@@ -118,12 +121,13 @@ export function staffRecord(overrides: Partial<RecordDetail> = {}): RecordDetail
     allowedActions: reviewDecisions(),
     assignee: assignee(),
     sla: { state: SlaState.OnTrack, dueAt: '2026-11-06T09:00:00Z' },
+    ...recordAttachmentsWire(),
     ...overrides,
   };
 }
 
 /** The same request in another status (wording follows), terminal for 6, 7 and 8 with no allowed action. */
-export function recordIn(status: ServiceRequestStatus, statusKey: string, overrides: Partial<RecordDetail> = {}): RecordDetail {
+export function recordIn(status: ServiceRequestStatus, statusKey: string, overrides: Partial<StaffWireRecord> = {}): StaffWireRecord {
   const terminal = status === ServiceRequestStatus.Approved || status === ServiceRequestStatus.Rejected || status === ServiceRequestStatus.Cancelled;
   return staffRecord({ status, statusKey, wording: wording(statusKey), isTerminal: terminal, allowedActions: terminal ? [] : reviewDecisions(), ...overrides });
 }

@@ -4,6 +4,6 @@
 schemaVersion: 1
 module: CodelabIntegration
 kind: dotnet
-description: "Outbound integration engine 0.1: typed client builder, retry and timeout policy, failure classification, certificate validation on."
-mayDependOn: []
-mustNotDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors, CodelabTesting]
+description: "Outbound integration engine and gateway contracts 0.6: typed client builder, retry and timeout policy, failure classification, certificate validation on, gateway relay contracts, profile registry and the ES256-signed gateway relay client."
+mayDependOn: [CodelabSecurity]
+mustNotDependOn: [CodelabObservability, CodelabErrors, CodelabTesting]

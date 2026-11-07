@@ -1,0 +1,34 @@
+{
+  "$entity": "alert",
+  "Title": "Ops: [{{env}}] Background job failures",
+  "Description": "Runbook: docs/runbooks/seq.md, section 'Background job failures'.",
+  "OwnerId": null,
+  "IsProtected": true,
+  "IsDisabled": false,
+  "DataSource": "Stream",
+  "Joins": [],
+  "SignalExpression": {
+    "Kind": "Signal",
+    "SignalId": "{{ref:signal-job-failures.template}}"
+  },
+  "Where": "DeploymentEnvironment = '{{env}}'",
+  "GroupBy": [
+    {
+      "Value": "Job",
+      "Label": null,
+      "IsCaseInsensitive": false
+    }
+  ],
+  "TimeGrouping": "00:05:00",
+  "Select": [
+    {
+      "Value": "count(*)",
+      "Label": "n"
+    }
+  ],
+  "Having": "n > 0",
+  "NotificationLevel": "Error",
+  "NotificationProperties": [],
+  "NotificationChannels": "{{json:notificationChannels}}",
+  "SuppressionTime": "01:00:00"
+}

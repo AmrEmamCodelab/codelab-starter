@@ -126,7 +126,8 @@
         "CodelabSecurity",
         "CodelabObservability",
         "CodelabErrors",
-        "CodelabIdentity"
+        "CodelabIdentity",
+        "CodelabIntegration"
       ],
       "mustNotDependOn": [
         "Access",
@@ -180,12 +181,39 @@
         "StarterApplication",
         "StarterInfrastructure",
         "CodelabSecurity",
-        "CodelabErrors"
+        "CodelabErrors",
+        "CodelabIntegration"
       ],
       "mustNotDependOn": [
         "Identity",
         "Access",
         "Users"
+      ]
+    },
+    {
+      "module": "Ops",
+      "kind": "dotnet",
+      "path": "backend/src/Modules/Ops",
+      "mayDependOn": [
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure",
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "Identity",
+        "Access",
+        "Users",
+        "Settings",
+        "Lookups",
+        "Audit",
+        "Jobs",
+        "Notifications",
+        "Portal",
+        "Attachments",
+        "Records"
       ]
     },
     {
@@ -499,9 +527,10 @@
       "module": "CodelabIntegration",
       "kind": "dotnet",
       "path": "packages/dotnet/Codelab.Integration",
-      "mayDependOn": [],
+      "mayDependOn": [
+        "CodelabSecurity"
+      ],
       "mustNotDependOn": [
-        "CodelabSecurity",
         "CodelabObservability",
         "CodelabErrors",
         "CodelabTesting"
@@ -587,6 +616,47 @@
         "StarterApplication",
         "StarterInfrastructure"
       ]
+    },
+    {
+      "module": "IntegrationGateway",
+      "kind": "dotnet",
+      "path": "services/integration-gateway",
+      "mayDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors",
+        "CodelabIntegration"
+      ],
+      "mustNotDependOn": [
+        "CodelabTesting",
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure"
+      ]
+    },
+    {
+      "module": "OpsConsole",
+      "kind": "dotnet",
+      "path": "services/ops-console",
+      "mayDependOn": [
+        "CodelabSecurity",
+        "CodelabObservability",
+        "CodelabErrors"
+      ],
+      "mustNotDependOn": [
+        "CodelabIntegration",
+        "CodelabTesting",
+        "StarterDomain",
+        "StarterApplication",
+        "StarterInfrastructure"
+      ]
+    },
+    {
+      "module": "OpsConsoleWeb",
+      "kind": "angular",
+      "path": "services/ops-console/web/ops-web",
+      "mayDependOn": [],
+      "mustNotDependOn": []
     }
   ]
 }

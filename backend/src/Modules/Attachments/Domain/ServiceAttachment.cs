@@ -4,8 +4,9 @@ namespace Starter.Modules.Attachments.Domain;
 /// One attachment type of the catalog (<c>attachments.ServiceAttachments</c>): which record type it belongs to, whether
 /// a record needs one before it can move on (<see cref="IsRequired"/>), how many files a record may hold under it and
 /// which extensions it accepts (a subset of <c>Codelab:Security:Uploads:AllowedExtensions</c>, checked at start).
-/// Created only by a migration, with a fixed <see cref="Id"/> from <c>Starter.Domain.Attachments.AttachmentTypeIds</c>;
-/// at run time only <see cref="IsActive"/> changes.
+/// Created by a migration (the Attachments module's own types) or by the start-up synchronisation of the types an
+/// owning module declares (<c>IAttachmentTypeSeedSource</c>), always with a fixed <see cref="Id"/> from
+/// <c>Starter.Domain.Attachments.AttachmentTypeIds</c>; at run time only <see cref="IsActive"/> changes.
 /// </summary>
 public sealed class ServiceAttachment
 {
@@ -83,6 +84,42 @@ public sealed class ServiceAttachment
     /// <summary>True when this type counts for the interlock: active and required.</summary>
     public bool IsEnforcedAsRequired => IsActive && IsRequired;
 
+    /// <summary>
+    /// Brings the names and rules of this type to <paramref name="seed"/> (the start-up synchronisation of the types an
+    /// owning module declares); true when anything changed. The id, key and record type identify the type and never
+    /// change, and <see cref="IsActive"/> stays an operator decision (a retired type is not revived).
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="seed"/> is not well formed or names another type.</exception>
+    public bool Refresh(ServiceAttachmentSeed seed)
+    {
+        var wanted = Seeded(seed);
+        if (!wanted.HasSameIdentityAs(this))
+        {
+            throw new ArgumentException($"The seed names type {wanted.Id} '{wanted.Key}' of '{wanted.RecordType}', not type {Id} '{Key}' of '{RecordType}'.", nameof(seed));
+        }
+
+        if (HasSameContentAs(wanted))
+        {
+            return false;
+        }
+
+        NameAr = wanted.NameAr;
+        NameEn = wanted.NameEn;
+        IsRequired = wanted.IsRequired;
+        MaxFiles = wanted.MaxFiles;
+        AllowedExtensionsValue = wanted.AllowedExtensionsValue;
+        return true;
+    }
+
+    /// <summary>True when <paramref name="other"/> is the same type: the same id, key and record type.</summary>
+    public bool HasSameIdentityAs(ServiceAttachment other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        return other.Id == Id
+            && string.Equals(other.Key, Key, StringComparison.Ordinal)
+            && string.Equals(other.RecordType, RecordType, StringComparison.Ordinal);
+    }
+
     /// <summary>Switches the type on or off; true when the state changed.</summary>
     public bool SetActive(bool isActive)
     {
@@ -102,6 +139,14 @@ public sealed class ServiceAttachment
         && IsName(seed.Names.Ar)
         && IsName(seed.Names.En)
         && seed.Rules.MaxFiles is >= 1 and <= AttachmentsLimits.MaxFilesCeiling;
+
+    /// <summary>True when <paramref name="other"/> has the same names and rules (ids and the active flag not compared).</summary>
+    internal bool HasSameContentAs(ServiceAttachment other) =>
+        string.Equals(NameAr, other.NameAr, StringComparison.Ordinal)
+        && string.Equals(NameEn, other.NameEn, StringComparison.Ordinal)
+        && IsRequired == other.IsRequired
+        && MaxFiles == other.MaxFiles
+        && string.Equals(AllowedExtensionsValue, other.AllowedExtensionsValue, StringComparison.Ordinal);
 
     private static bool IsName(string? name) => !string.IsNullOrWhiteSpace(name) && name.Length <= AttachmentsLimits.NameMaxLength;
 }

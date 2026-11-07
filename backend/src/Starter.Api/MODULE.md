@@ -34,7 +34,8 @@ powershell -File tools\devseed\New-LocalSecrets.ps1          # once: appsettings
 - Without the local secrets file the start fails on the Codelab.Security key rings; run `New-LocalSecrets.ps1`.
 - `Database:ApplyMigrationsOnStartup` is true only in `appsettings.Development.json`; any other environment refuses it.
 - Modules referenced today: Identity, Access, Users, Lookups, Audit, Settings, Jobs, Notifications, Portal,
-  Attachments, Records, Assignments, Deadlines and the deletable sample ServiceRequests (each a ProjectReference in
+  Attachments, Records, Assignments, Deadlines, Ops (marker `codelab:module Ops`; its settings live under
+  `Codelab:Ops` in `appsettings.json`) and the deletable sample ServiceRequests (each a ProjectReference in
   `Starter.Api.csproj`; the sample's line carries the `codelab:module ServiceRequests` marker, so
   `tools/remove-module.ps1 -Name ServiceRequests` drops it). With Records in the host, every registered record type
   needs a workflow (`AddRecordWorkflow<TDefinition>()`) or the start fails (`RecordTypesStartupCheck`); a test host

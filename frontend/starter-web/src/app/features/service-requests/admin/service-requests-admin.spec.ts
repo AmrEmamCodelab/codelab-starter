@@ -1,11 +1,13 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { DgaPageFeedbackKind } from '@codelab/ng-dga';
 import { HttpStatus } from '@codelab/ng-security';
 import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecordAttachmentsComponent } from '../../../shared/record-attachments/record-attachments.component';
 import { RecordsClient, TransitionSide, type OversightListItem, type RecordPage } from '../../../shared/records';
 import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestActions, ServiceRequestStatus, ServiceRequestsClient } from '../data';
-import { TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
+import { TEST_ATTACHMENTS_RECORD_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
 import {
   RecordAttachmentsStubComponent,
   SECOND_REQUEST_ID,
@@ -183,6 +185,22 @@ describe('admin oversight', () => {
       expect(host.textContent).toContain('Staff One');
       expect(host.textContent).toContain('Attach the signed form.');
       expect(host.textContent).toContain('serviceRequests.status.returned.admin');
+    });
+
+    it('gives the attachments widget the attachments id, never the request id', async () => {
+      await render();
+      const widget = fixture.debugElement.query(By.directive(RecordAttachmentsStubComponent)).componentInstance as RecordAttachmentsStubComponent;
+      expect(widget.recordId()).toBe(TEST_ATTACHMENTS_RECORD_ID);
+      expect(widget.recordId()).not.toBe(TEST_SERVICE_REQUEST_ID);
+    });
+
+    it('shows page feedback instead of the widget when the record carries no attachments id', async () => {
+      records.detail.mockReturnValue(of(recordIn(ServiceRequestStatus.Approved, 'approved', { attachmentsRecordId: '' })));
+      await render();
+      expect(fixture.debugElement.query(By.directive(RecordAttachmentsStubComponent))).toBeNull();
+      const feedback = allByTestId(host, 'admin-detail-attachments-failed')[0]?.querySelector('.dga-page-feedback');
+      expect(feedback?.getAttribute('data-kind')).toBe(DgaPageFeedbackKind.Error);
+      expect(feedback?.textContent).toContain('errors.INTERNAL_ERROR');
     });
 
     it('renders no decision panel, no action group and no button, even when the server sent allowed actions', async () => {

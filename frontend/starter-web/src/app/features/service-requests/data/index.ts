@@ -9,3 +9,4 @@ export * from './service-request-today';
 export * from './service-request-steps';
 export * from './service-request-cards';
 export * from './service-requests-translation-keys';
+export * from './service-request-attachments';

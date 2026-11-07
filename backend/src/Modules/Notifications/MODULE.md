@@ -19,8 +19,10 @@ to give its own connection string. It owns:
 - **Delivery**: e-mail and SMS go through the kernel outbox (`notification-email`, `notification-sms`), retried with
   the outbox back-off (1/5/15/60 min, Failed after 8 attempts). Senders: `SmtpEmailSender` (the internal relay in the
   backend zone; no credentials, no internet egress, D2) or `FileDropEmailSender` (`.eml` files, Development, or a test or
-  CI host that sets `AllowFileSink`), `FileSmsSender` (JSON lines, the same rule) or `GatewaySmsSender` (a stub until phase 8: the
-  integration gateway SMS relay profile through Codelab.Integration with the ES256 service assertion).
+  CI host that sets `AllowFileSink`), `FileSmsSender` (JSON lines, the same rule) or `GatewaySmsSender` (the production
+  path, decision D2: POST `/relay/sms` to the integration gateway's SMS relay profile through Codelab.Integration's
+  `GatewayRelayClient`, every attempt signed with the API's ES256 service assertion; the gateway in the DMZ calls the SMS
+  provider).
 - **The feed API** for the bell and the notifications page, and the administrator's test send.
 
 ## Use
@@ -63,9 +65,23 @@ Configuration (validated on start; see `docs/generated/config-keys.md`):
 | `Notifications:Email:PickupDirectory` | `%TEMP%\starter-mail` | absolute folder of the `.eml` files |
 | `Notifications:Email:Smtp:Host` / `Port` / `EnableTls` / `TimeoutSeconds` | none / 25 / true / 30 | the internal relay (Host required in Smtp mode; port 1-65535; timeout 1-300 s) |
 | `Notifications:Sms:Enabled` | `false` | SMS on or off (init ticks it per project) |
-| `Notifications:Sms:Mode` | `1` File | `1` File (refused at start outside Development while enabled, unless `AllowFileSink`), `2` Gateway (refused at start while enabled, until phase 8) |
+| `Notifications:Sms:Mode` | `1` File | `1` File (refused at start outside Development while enabled, unless `AllowFileSink`), `2` Gateway (the integration gateway SMS relay; needs `Codelab:Integration:Gateway:BaseUrl` while enabled) |
 | `Notifications:Sms:AllowFileSink` | `false` | `true` lets a test or CI host use the SMS file outside Development |
 | `Notifications:Sms:FilePath` | `%TEMP%\starter-sms\sms.jsonl` | absolute path of the SMS file |
+| `Codelab:Integration:Gateway:BaseUrl` | none | the gateway's absolute URL (https outside Development); read only while SMS is enabled in mode `2` (or the SSO back channel is the relay) |
+| `Codelab:Integration:Gateway:Audience` | `integration-gateway` | the gateway's service-assertion audience |
+| `Codelab:Security:ServiceAssertions:Client:ServiceName` / `KeyId` / `PrivateKeyPem` | | the API's S2S identity (the private key is a secret, never committed); the gateway trusts its public key |
+
+With SMS enabled in mode `2` the module registers the gateway client (`AddCodelabGatewayClient`, once, shared with the
+SSO relay) and `GatewaySmsSender` (scoped, like the typed client). A failure is an `SmsDeliveryException`
+(`SmsRelayFailures` decides; codes in `SmsDeliveryErrorCodes`, recorded as the outbox message's last error through the
+classifier `SmsDeliveryFailures`):
+
+| What happened | `IsRetryable` | Code |
+| --- | --- | --- |
+| Gateway `GATEWAY_UPSTREAM_UNAVAILABLE` after a connection failure, timeout, throttle, server error or unknown transport fault | yes | `NOTIFICATIONS_SMS_RELAY_UNAVAILABLE` |
+| Gateway `GATEWAY_UPSTREAM_REJECTED` or `GATEWAY_PROFILE_DISABLED`; the gateway refusing the API (401/403, another 4xx, a refused certificate); `accepted:false` | no | `NOTIFICATIONS_SMS_RELAY_REJECTED` |
+| Number or text outside the relay's bounds (nothing is sent) | no | `NOTIFICATIONS_SMS_MESSAGE_INVALID` |
 
 ## Extend
 
@@ -75,7 +91,10 @@ Configuration (validated on start; see `docs/generated/config-keys.md`):
   `InitialCreate`).
 - **A direct SMS adapter** (a provider reachable inside the backend zone): implement `ISmsSender` in
   `Infrastructure/Sending`, add an `SmsDeliveryMode` value with an explicit number and select it in
-  `NotificationsModuleRegistration.AddSenders`. The default path (phase 8) is `GatewaySmsSender`.
+  `NotificationsModuleRegistration.AddSenders`. The default production path is `GatewaySmsSender`; a new provider is
+  usually a change on the gateway's SMS profile, not here.
+- **A new failure meaning:** only `SmsRelayFailures` decides what a relay failure is; add a row to
+  `GatewaySmsSenderTests.Retryability_follows_the_gateway_code_and_the_outbound_failure_kind`.
 - **New permission:** `node tools/scaffold/new-permission.mjs --module Notifications --action <kebab>`.
 
 ## Rules
@@ -86,7 +105,8 @@ Configuration (validated on start; see `docs/generated/config-keys.md`):
 - Templates come only from migrations, in Arabic and English for every channel a key is sent on.
 - Outbox payloads carry the notification id and channel only (`DeliveryPayload`). Logs carry ids, never addresses,
   placeholder values or rendered texts.
-- No SMTP credentials (`NetworkCredential` is a forbidden pattern); no sender calls an internet host.
+- No SMTP credentials (`NetworkCredential` is a forbidden pattern); no sender calls an internet host: SMS leaves the
+  backend zone only through the integration gateway.
 - Every use case, the renderer, the handlers, the senders and the options have unit tests in
   `backend/tests/Modules/Starter.Modules.Notifications.Tests`.
 
@@ -108,6 +128,13 @@ Configuration (validated on start; see `docs/generated/config-keys.md`):
   a loopback SMTP stub (`SmtpStub`: no STARTTLS, no credentials) and checks the envelope, the UTF-8 subject and the
   HTML body; with `EnableTls` true a relay that offers no STARTTLS is refused, never sent to in clear. The phase 5
   integration flows still read `.eml` files (FileDrop), because no SMTP sink runs in CI.
+- **A permanent SMS failure is still retried today.** The kernel outbox retries every handler failure with its
+  back-off until attempt 8; it does not yet read `SmsDeliveryException.IsRetryable`. A permanent refusal therefore
+  costs up to 8 refused relay calls (nothing is sent twice: a refused message was not sent) and its outbox row records
+  `NOTIFICATIONS_SMS_RELAY_REJECTED` or `NOTIFICATIONS_SMS_MESSAGE_INVALID`, so an operator can tell it from an outage
+  (`NOTIFICATIONS_SMS_RELAY_UNAVAILABLE`).
+- **The gateway client is registered from configuration at start.** Turning SMS on in mode `2` needs a restart; the
+  gateway client needs `AddCodelabSecurity` (the protocol) and the S2S client identity, validated on start.
 - **The bell texts are rendered when the notification is written**: a later wording migration changes new
   notifications only.
 - `CLAUDE.md`, `BannedSymbols.generated.txt`, `.editorconfig` and `CodeMetricsConfig.txt` in this folder are generated

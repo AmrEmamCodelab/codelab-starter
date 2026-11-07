@@ -1,0 +1,8 @@
+{
+  "environment": "development",
+  "serverErrorsPerFiveMinutes": 50,
+  "gatewayFailuresPerFiveMinutes": 20,
+  "cspViolationsPerHour": 500,
+  "certificateAlertEnabled": false,
+  "gatewayNodes": []
+}

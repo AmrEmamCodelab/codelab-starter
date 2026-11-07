@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Text.Json;
 using Codelab.Identity.Diagnostics;
 
@@ -9,38 +8,29 @@ internal sealed record TokenExchange(string? IdToken, OidcSignInResult? Failure)
 
 /// <summary>
 /// The token request (RFC 6749 4.1.3 with the RFC 7636 verifier, <c>client_secret_post</c> when a secret is configured)
-/// over the named client. Never throws for a provider fault: 5xx and transport failures are unavailable, 4xx and an
-/// answer without an id_token are rejections. The OAuth <c>error</c> code is logged (a fixed vocabulary); the body is not.
+/// over the configured <see cref="IOidcBackChannel"/> (direct, or the integration gateway relay). Never throws for a
+/// provider fault: 5xx and transport failures are unavailable, 4xx and an answer without an id_token are rejections. The
+/// OAuth <c>error</c> code is logged (a fixed vocabulary); the body is not.
 /// </summary>
-internal sealed class OidcTokenClient(IHttpClientFactory clients, ILogger logger)
+internal sealed class OidcTokenClient(IOidcBackChannel backChannel, ILogger logger)
 {
     private const int FirstServerError = 500;
     private const string NoOAuthError = "(none)";
 
     internal async Task<TokenExchange> ExchangeAsync(OidcOptions settings, string code, string codeVerifier, CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, settings.TokenEndpoint)
+        var response = await backChannel.RedeemCodeAsync(FormOf(settings, code, codeVerifier), cancellationToken);
+        switch (response.Outcome)
         {
-            Content = new FormUrlEncodedContent(FormOf(settings, code, codeVerifier)),
-        };
-        request.Headers.ExpectContinue = false;
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(OidcProtocol.JsonMediaType));
-
-        int status;
-        string body;
-        try
-        {
-            using var response = await clients.CreateClient(OidcHttpClient.Name).SendAsync(request, cancellationToken);
-            status = (int)response.StatusCode;
-            body = await response.Content.ReadAsStringAsync(cancellationToken);
+            case OidcBackChannelOutcome.Answered:
+                return Interpret(response.StatusCode ?? 0, response.Body ?? string.Empty);
+            case OidcBackChannelOutcome.Rejected:
+                IdentityLog.OidcTokenEndpointRefused(logger, response.StatusCode ?? 0, response.FailureReason ?? NoOAuthError);
+                return new TokenExchange(IdToken: null, Failure: OidcSignInResult.Rejected(OidcFailureReason.TokenRequestRejected));
+            default:
+                IdentityLog.OidcTokenEndpointUnreachable(logger, response.FailureReason ?? response.Outcome.ToString());
+                return new TokenExchange(IdToken: null, Failure: OidcSignInResult.Unavailable());
         }
-        catch (Exception failure) when (OidcHttpClient.IsTransportFailure(failure, cancellationToken))
-        {
-            IdentityLog.OidcTokenEndpointUnreachable(logger, failure.GetType().Name);
-            return new TokenExchange(IdToken: null, Failure: OidcSignInResult.Unavailable());
-        }
-
-        return Interpret(status, body);
     }
 
     private TokenExchange Interpret(int status, string body)

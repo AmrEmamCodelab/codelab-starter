@@ -13,7 +13,9 @@ administrator's "run now". It replaces jobs that acted as a seeded user holding 
   `Running = 2`, `Succeeded = 3`, `Failed = 4`), `Trigger` (`JobTrigger`, int: `Schedule = 1`, `Manual = 2`), `Actor`
   (always `SYSTEM`), `TriggeredBySubjectId` (the administrator's token subject for a manual run), `QueuedAt`,
   `StartedAt`, `FinishedAt`, `CorrelationId`, and for a failure only `ErrorCode` (a classified code) and
-  `ReferenceCode`. The table is `[NotAudited]`: it is a trail of its own.
+  `ReferenceCode`. The table is `[NotAudited]`: it is a trail of its own. Other modules read the newest run of each
+  job through the kernel port `IJobRunHistory` (`JobRunHistory`: status, trigger, start, end and reference code only;
+  the Ops job status uses it).
 - **The scheduler**: Hangfire with SQL Server storage in schema `hangfire` of the application database. Recurring
   schedules come from each job's `Cron`, in the `Jobs:TimeZoneId` time zone. The Hangfire dashboard is never mapped.
 - **The built-in jobs**: `outbox-drain` (`*/5 * * * *`, one pass of the kernel `IOutboxDrainRunner`) and

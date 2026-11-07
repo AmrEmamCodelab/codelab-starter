@@ -11,7 +11,9 @@ One observability setup for every Codelab host (it replaces the three separate s
   host cannot start.
 - **Correlation and reference codes.** One server-owned correlation id per request (the W3C trace id), echoed as
   `X-Correlation-ID` on every response and pushed onto every log line with its `ReferenceCode` (`9C1E5-B7A20`, what a
-  user reads to the helpdesk). `CorrelationScope` carries an id into background work.
+  user reads to the helpdesk). `CorrelationScope` carries an id into background work. No caller chooses it: an inbound
+  `X-Correlation-ID` is only logged as `InboundCorrelationId`, and an inbound `traceparent`/`tracestate`/`baggage` is
+  ignored (`PropagationScope.InboundPropagator` replaces the hosting propagator), so every request starts its own trace.
 - **PII-safe logging.** `PiiMask` and the `[Pii(PiiKind.X)]` destructuring policy, the keyed `UserIdHash` (HMAC-SHA256
   of the NameIdentifier), `ExceptionTextRedaction` for values quoted by database errors, and `RetainedSinkPolicy` for
   framework lines that carry query strings or SQL text.
@@ -94,6 +96,13 @@ A Hangfire host adds the filter itself: `services.AddHangfire((sp, c) => c.UseFi
 - **Source overrides are root-only in Serilog.** The retained sub-logger filters; it never overrides levels.
 - **Without a key outside Production** the hash uses a random per-process key and a startup Warning says so: hashes
   then differ across restarts and nodes.
+- **A caller's `traceparent` never becomes the correlation id.** ASP.NET Core hosting adopts the inbound trace id
+  by default, which let an anonymous caller choose its reference code and plant sightings under another user's code.
+  `AddCodelabObservability` registers `PropagationScope.InboundPropagator` (extracts nothing) in DI, and
+  `CorrelationId.For` also refuses an Activity whose trace began outside the process (second line of defence).
+  Consequence: an internal call (`AsInternalService()`) still SENDS trace context, but the receiving Codelab host
+  starts a new trace; join the two by the receiver's `InboundCorrelationId`. Pinned by
+  `RequestPipelineTests.A_caller_supplied_traceparent_never_sets_the_correlation_id_or_the_trace`.
 - **Not carried from the source product (yet):** trusted-parent trace adoption for internal callers, the heartbeat and
   OTLP export health listener, the PII-safe span processor and step spans, the Serilog SelfLog file, and baggage
   allowlists (baggage never leaves a host now). They return with the gateway and Ops Console work (phase 8) if needed.

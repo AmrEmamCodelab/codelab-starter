@@ -133,7 +133,18 @@ Every constant of every public static `*ErrorCodes` class (each module's `<Name>
 | `NOTIFICATIONS_PLACEHOLDER_MISSING` | `NotificationsErrorCodes.PlaceholderMissing` | The template uses a placeholder the caller gave no value for (a caller defect, 422). |
 | `NOTIFICATIONS_RECIPIENT_HAS_NO_EMAIL` | `NotificationsErrorCodes.RecipientHasNoEmail` | The recipient has no e-mail address for an immediate e-mail (a caller defect, 422). |
 | `NOTIFICATIONS_RECIPIENT_NOT_FOUND` | `NotificationsErrorCodes.RecipientNotFound` | The caller has no user account to notify (404). |
+| `NOTIFICATIONS_SMS_MESSAGE_INVALID` | `SmsDeliveryErrorCodes.MessageInvalid` | The message cannot be relayed as it is (number or text out of the relay's bounds, unknown language) (permanent). |
+| `NOTIFICATIONS_SMS_RELAY_REJECTED` | `SmsDeliveryErrorCodes.RelayRejected` | The provider refused or did not accept the message, the gateway refused this API (S2S key, audience, certificate) or its SMS profile is off: repeating the same message does not help until something is fixed (permanent). |
+| `NOTIFICATIONS_SMS_RELAY_UNAVAILABLE` | `SmsDeliveryErrorCodes.RelayUnavailable` | The gateway or the SMS provider could not be reached or timed out; the same message may go through later (retryable). |
 | `NOTIFICATIONS_TEMPLATE_NOT_FOUND` | `NotificationsErrorCodes.TemplateNotFound` | No template text exists for the key, channel and language (a seeding defect, 422). |
+
+## Ops
+
+| Code | Constant | Description |
+| --- | --- | --- |
+| `OPS_OPERATOR_REQUIRED` | `OpsErrorCodes.OperatorRequired` | 400: the call did not carry a usable operator name (`X-Codelab-Operator`). |
+| `OPS_REFERENCE_CODE_INVALID` | `OpsErrorCodes.ReferenceCodeInvalid` | 400: the reference code is not two groups of five hex characters joined by a hyphen. |
+| `OPS_REFERENCE_CODE_NOT_FOUND` | `OpsErrorCodes.ReferenceCodeNotFound` | 404: no error response with that reference code is on record (never seen, or older than the retention). |
 
 ## Portal
 

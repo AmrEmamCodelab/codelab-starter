@@ -69,9 +69,15 @@ export class AuthClient {
   /**
    * The request-signing block of the current session (404 when the server does not sign). Sent unsigned: the server
    * exempts key issuance from proofs and answers it unsigned, also after a refresh while the old keys are held.
+   *
+   * @param accessToken the access token of the session the keys belong to, which is not stored yet: the session is
+   *   published only once it can sign.
    */
-  signingKey(): Observable<SigningSessionBlock> {
-    return this.api.get<SigningSessionBlock>(ApiPaths.SessionSigningKey, { context: unsignedSelfHandledContext() });
+  signingKey(accessToken: string): Observable<SigningSessionBlock> {
+    return this.api.get<SigningSessionBlock>(ApiPaths.SessionSigningKey, {
+      accessToken,
+      context: unsignedSelfHandledContext(),
+    });
   }
 
   logout(): Observable<void> {

@@ -157,6 +157,25 @@ public sealed class ConfigKeyScannerTests
     }
 
     [Fact]
+    public void Framework_objects_supplied_in_code_are_not_keys_and_are_never_read()
+    {
+        Assert.Contains(Keys, key => key.Key == "Fixture:Certificates:BundlePath");
+        Assert.DoesNotContain(Keys, key => key.Key.StartsWith("Fixture:Certificates:Authorities", StringComparison.Ordinal));
+        Assert.DoesNotContain(Keys, key => key.Key.StartsWith("Fixture:Certificates:Pinned", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(typeof(System.Security.Cryptography.X509Certificates.X509Certificate2), true)]
+    [InlineData(typeof(PathString), true)]
+    [InlineData(typeof(FixtureNestedOptions), false)]
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(TimeSpan), false)]
+    public void Only_framework_object_types_are_code_supplied(Type type, bool expected)
+    {
+        Assert.Equal(expected, TypeShapes.IsCodeSupplied(type));
+    }
+
+    [Fact]
     public void Root_dictionaries_and_root_collections_bind_at_the_section()
     {
         Assert.Contains(Keys, key => key.Key == "FixtureSwitches:<name>" && key.Type == "bool");

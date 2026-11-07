@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Codelab.Integration.Gateway;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -113,13 +114,6 @@ public sealed class FileSmsSenderTests : IDisposable
         Assert.Equal("Test SMS", english.Text);
     }
 
-    [Fact]
-    public async Task The_gateway_sender_is_a_stub_until_phase_8()
-    {
-        await Assert.ThrowsAsync<NotSupportedException>(() =>
-            new GatewaySmsSender().SendAsync(new SmsMessage("+10000000001", "x", AppLanguage.Arabic), CancellationToken.None));
-    }
-
     public void Dispose()
     {
         if (Directory.Exists(_folder))
@@ -200,7 +194,7 @@ public sealed class DeliveryOptionsTests
         Assert.Equal(EmailDeliveryMode.Smtp, email.Mode);
         Assert.False(email.AllowFileSink);
         Assert.True(new EmailDeliveryOptionsValidator(Production).Validate(name: null, email).Failed); // no Smtp:Host
-        Assert.True(new SmsDeliveryOptionsValidator(Production).Validate(name: null, sms).Succeeded);
+        Assert.True(SmsValidator(Production).Validate(name: null, sms).Succeeded);
         Assert.False(sms.Enabled);
         Assert.StartsWith(Path.GetTempPath(), email.ResolvedPickupDirectory, StringComparison.OrdinalIgnoreCase);
         Assert.EndsWith(SmsDeliveryOptions.DefaultFileName, sms.ResolvedFilePath, StringComparison.Ordinal);
@@ -239,12 +233,12 @@ public sealed class DeliveryOptionsTests
     [Fact]
     public void An_enabled_sms_file_sink_outside_development_fails_at_start_unless_opted_in()
     {
-        var production = new SmsDeliveryOptionsValidator(Production);
+        var production = SmsValidator(Production);
 
         Assert.True(production.Validate(name: null, new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.File }).Failed);
         Assert.True(production.Validate(name: null, new SmsDeliveryOptions { Enabled = false, Mode = SmsDeliveryMode.File }).Succeeded);
         Assert.True(production.Validate(name: null, new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.File, AllowFileSink = true }).Succeeded);
-        Assert.True(new SmsDeliveryOptionsValidator(Development).Validate(name: null, new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.File }).Succeeded);
+        Assert.True(SmsValidator(Development).Validate(name: null, new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.File }).Succeeded);
     }
 
     [Fact]
@@ -273,15 +267,40 @@ public sealed class DeliveryOptionsTests
     }
 
     [Fact]
-    public void The_gateway_sms_mode_is_refused_while_sms_is_enabled()
+    public void The_gateway_sms_mode_needs_the_gateway_base_url_while_sms_is_enabled()
     {
-        var validator = new SmsDeliveryOptionsValidator(Development);
+        var withoutGateway = SmsValidator(Production);
+        var withGateway = SmsValidator(Production, new Uri("https://gateway.example.test/"));
+        var enabled = new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.Gateway };
 
-        Assert.True(validator.Validate(name: null, new SmsDeliveryOptions { Enabled = true, Mode = SmsDeliveryMode.Gateway }).Failed);
-        Assert.True(validator.Validate(name: null, new SmsDeliveryOptions { Enabled = false, Mode = SmsDeliveryMode.Gateway }).Succeeded);
+        var refused = withoutGateway.Validate(name: null, enabled);
+
+        Assert.True(refused.Failed);
+        Assert.Equal(
+            "Codelab:Integration:Gateway:BaseUrl is required when Notifications:Sms:Mode is 2 (Gateway) and SMS is enabled: the SMS relay is the integration gateway.",
+            Assert.Single(refused.Failures!));
+        Assert.True(withGateway.Validate(name: null, enabled).Succeeded);
+        Assert.True(withoutGateway.Validate(name: null, new SmsDeliveryOptions { Enabled = false, Mode = SmsDeliveryMode.Gateway }).Succeeded);
+    }
+
+    [Fact]
+    public void Bad_sms_settings_fail_at_start()
+    {
+        var validator = SmsValidator(Development);
+
         Assert.True(validator.Validate(name: null, new SmsDeliveryOptions { Mode = (SmsDeliveryMode)9 }).Failed);
         Assert.True(validator.Validate(name: null, new SmsDeliveryOptions { FilePath = "sms.jsonl" }).Failed);
     }
+
+    [Fact]
+    public void The_sms_modes_have_their_contract_values()
+    {
+        Assert.Equal(1, (int)SmsDeliveryMode.File);
+        Assert.Equal(2, (int)SmsDeliveryMode.Gateway);
+    }
+
+    internal static SmsDeliveryOptionsValidator SmsValidator(IHostEnvironment environment, Uri? gatewayBaseUrl = null) =>
+        new(environment, Options.Create(new GatewayOptions { BaseUrl = gatewayBaseUrl }));
 }
 
 /// <summary>A host environment with only a name (the validators read nothing else).</summary>

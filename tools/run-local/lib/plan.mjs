@@ -9,9 +9,11 @@ import {
   Ports,
   SLOT_DATABASE_SUFFIX,
   SLOT_DIR_PREFIX,
+  SLOT_STORAGE_DIR,
   SSO_CALLBACK_PATH,
   SlotSettings,
   Slots,
+  TicketRingState,
   DEVELOPMENT,
   LOCALDB_INSTANCE,
   DOTNET_ENV,
@@ -176,6 +178,16 @@ export function slotStateDir(baseDir, slot) {
 }
 
 /**
+ * The attachment storage folder of a slot, under that slot's own state folder (`<state>\slot-<n>\attachments-storage`),
+ * or null for slot 0, whose storage is the configured one (the local secrets) and is never touched by run-local.
+ * run-local creates this folder before it starts the slot's Attachment service: the service's readiness check
+ * (StorageReadinessCheck) reports a missing storage root as unhealthy.
+ */
+export function slotStorageRoot(slotStateDirectory, slot) {
+  return slot === Slots.default ? null : path.join(slotStateDirectory, SLOT_STORAGE_DIR);
+}
+
+/**
  * The connection string of slot n: the same server with the database renamed to `<name>_Slot<n>` (idempotent), so a
  * slot never migrates or writes the default stack's database. Slot 0 and a string without a database name are kept.
  */
@@ -229,11 +241,11 @@ export function slotWebConfig(config, urls) {
 
 /**
  * True when the local secrets must be (re)seeded: the API file is missing, or the Attachment service starts and its
- * file is missing or the API file lacks the attachment keys (an API file from before the service or from before the
- * dedicated upload-ticket ring). The seeding script
- * only adds missing keys, so existing values are never changed.
+ * file is missing, the API file lacks the attachment keys (an API file from before the service or from before the
+ * dedicated upload-ticket ring), or the service file has no ticket ring yet. The seeding script only adds missing
+ * keys, so existing values are never changed (a wrong ring is reported by serviceTicketRingState, not reseeded).
  */
-export function secretsNeedSeeding({ apiSecretsText, serviceSecretsExists, withAttachments }) {
+export function secretsNeedSeeding({ apiSecretsText, serviceSecretsExists, serviceSecretsText = null, withAttachments }) {
   if (apiSecretsText === null || apiSecretsText === undefined) return true;
   if (!withAttachments) return false;
   if (!serviceSecretsExists) return true;
@@ -243,11 +255,66 @@ export function secretsNeedSeeding({ apiSecretsText, serviceSecretsExists, withA
       !security?.Tickets?.ActiveKeyId ||
       !security?.UploadTickets?.ActiveKeyId ||
       !security?.Uploads?.ActiveKeyId ||
-      !security?.ServiceAssertions?.Client?.PrivateKeyPem
+      !security?.ServiceAssertions?.Client?.PrivateKeyPem ||
+      (serviceSecretsText !== null && serviceTicketRingState({ apiSecretsText, serviceSecretsText }) === TicketRingState.missing)
     );
   } catch {
     return true;
   }
+}
+
+/** The JSON object of a secrets file text, or null when it is not one. */
+function parseSecrets(text) {
+  try {
+    const value = JSON.parse(text);
+    return value !== null && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The keys of a ring (Keys[*]); an empty list when it has none. */
+function ringKeys(ring) {
+  return Array.isArray(ring?.Keys) ? ring.Keys.filter((key) => key !== null && typeof key === 'object') : [];
+}
+
+/** The ActiveKeyId and every Keys[*].KeyId of a ring. */
+function ringKeyIds(ring) {
+  return [ring?.ActiveKeyId, ...ringKeys(ring).map((key) => key.KeyId)].filter((id) => typeof id === 'string' && id !== '');
+}
+
+/** The Keys[*].MaterialBase64 of a ring (compared in memory only; never logged). */
+function ringMaterials(ring) {
+  return ringKeys(ring).map((key) => key.MaterialBase64).filter((material) => typeof material === 'string' && material !== '');
+}
+
+/** True when two rings share a key id or a key. */
+function ringsOverlap(first, second) {
+  const ids = new Set(ringKeyIds(first));
+  const materials = new Set(ringMaterials(first));
+  return ringKeyIds(second).some((id) => ids.has(id)) || ringMaterials(second).some((material) => materials.has(material));
+}
+
+/** True when two rings have the same active key and the same keys (id and material, in order). */
+function ringsEqual(first, second) {
+  const keys = (ring) => JSON.stringify(ringKeys(ring).map((key) => [key.KeyId ?? null, key.MaterialBase64 ?? null]));
+  return first?.ActiveKeyId === second?.ActiveKeyId && keys(first) === keys(second);
+}
+
+/**
+ * How the Attachment service file's ticket ring (Codelab:Security:Tickets) relates to the API file's rings. The
+ * service must hold exactly the API's upload-ticket ring (Codelab:Security:UploadTickets) and never a key of the
+ * API's own ticket ring (Codelab:Security:Tickets: SSO and activation tickets). A service file from before the
+ * dedicated upload-ticket ring holds the API's own ring: every upload is refused with 401.
+ */
+export function serviceTicketRingState({ apiSecretsText, serviceSecretsText }) {
+  const apiSecurity = parseSecrets(apiSecretsText)?.Codelab?.Security;
+  const service = parseSecrets(serviceSecretsText);
+  if (service === null) return TicketRingState.mismatch;
+  const serviceRing = service.Codelab?.Security?.Tickets;
+  if (ringKeyIds(serviceRing).length === 0) return TicketRingState.missing;
+  if (ringsOverlap(apiSecurity?.Tickets, serviceRing)) return TicketRingState.apiTicketRing;
+  return ringsEqual(apiSecurity?.UploadTickets, serviceRing) ? TicketRingState.matches : TicketRingState.mismatch;
 }
 
 /**

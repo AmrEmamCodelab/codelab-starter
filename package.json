@@ -9,7 +9,8 @@
   },
   "workspaces": [
     "packages/npm/*",
-    "frontend/starter-web"
+    "frontend/starter-web",
+    "services/ops-console/web/ops-web"
   ],
   "scripts": {
     "ci": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -Target CI",

@@ -55,11 +55,24 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -
 | 16 | generated drift | `<dotnet> run --project backend/tools/Starter.DocsGen -- --out docs/generated --check`, then `npm run api:gen:check --workspace frontend/starter-web` (needs no SQL and no secrets file) |
 | 17 | frontend lint | `npm run lint --workspace frontend/starter-web`: ESLint (module boundaries, HTTP only in `core/api`), Stylelint (tokens, logical CSS) and `tools/i18n-parity.mjs`. Step 11 lints `packages/npm` only |
 | 18 | fork-model test | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\fork\Test-ForkModel.ps1 -RemoveModule Demo` (ADR-003): scaffold Demo upstream, fork, `init.ps1 -Minimal -RemoveModule Demo`, upstream merge, then build and test the fork from the feed, all in `%TEMP%` |
+| 19 | deploy-kit tests | `Invoke-Pester @('deploy/kits/tests', 'tools/kit/tests', 'tools/sql-kit/tests', 'deploy/seq/tests') -EnableExit` in Windows PowerShell 5.1 (Pester 3.4): every `Install-*.Tests.ps1`, the nginx/web.config security-header parity test, the kit builder (with `build.ps1 -Kit -DryRun`), the DBA SQL kit and Seq. No IIS change, no admin |
 | 20 | no dev autofill | `node tools/ci/no-dev-autofill.mjs --dist frontend/starter-web/dist/starter-web`: the production bundle step 11 built holds no DevAutofill code |
 | 21 | module deletability | `powershell -NoProfile -ExecutionPolicy Bypass -File tools\ci\module-deletability.ps1 -Name ServiceRequests` (ADR-004): removes the sample module from a `%TEMP%` copy, then build, backend tests (`CODELAB_TEST_SQL`), frontend tests and production build. Heavy: skipped by `-Quick` |
 
 After the steps, the platform-owned paths the branch changes against the base ref are listed (owner review before a
 local merge, while no host enforces CODEOWNERS).
+
+### Deploy kit
+
+`-Kit` builds `publish\deploy-<shortsha>\` with `tools\kit\New-DeployKit.ps1` (see [tools/kit/MODULE.md](kit/MODULE.md)
+and the `prep-deploy` skill). `-KitComponent api,web` picks the components (default: the catalog's default set),
+`-Kit -DryRun` prints the plan only, and `-Target CI -Kit` builds the kit only after every CI step passed (`-Kit`
+alone runs no CI step).
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Kit -KitComponent api,attachment,web -DryRun
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Kit
+```
 
 ### Pack and release
 
@@ -109,7 +122,11 @@ project or an npm workspace package is missing from it.
 
   A released version is never packed again. A release skips a package that is already in the feed at its
   `versions.json` version and has no `Unreleased` changelog section (released and unchanged), so one changed package
-  can ship without bumping the others; a package in the feed that still has an `Unreleased` section is refused.
+  can ship without bumping the others; a package in the feed that still has an `Unreleased` section is refused, and
+  so is a NuGet package in the feed whose `PublicAPI.Unshipped.txt` still lists API lines (its source changed after
+  the release, so a fork would keep restoring the old build). A `versions.json` version the changelog marks
+  **Known insecure** is refused in every mode, and `tools/ci/tests/package-versions.test.mjs` fails while any pin in
+  `Directory.Packages.props` or `packages/samples/Codelab.Versions.props` names one.
 - **CI never writes to the feed:** when a sample pin is missing (a fresh clone, or a version not yet released),
   `-Target CI` step 13 packs a ci prerelease into a temporary feed, tests the sample against it and removes it.
   `feed\` and the `Directory.Build.props` SDK pin change only through `-Pack`.

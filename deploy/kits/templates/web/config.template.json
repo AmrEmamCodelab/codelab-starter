@@ -1,0 +1,7 @@
+{
+  "apiBaseUrl": "",
+  "origins": {
+    "api": [],
+    "attachment": []
+  }
+}

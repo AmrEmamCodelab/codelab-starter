@@ -126,7 +126,28 @@ signature checks can be bypassed (see 0.5.1, Fixed).
 
 ## Codelab.Observability
 
-### [0.5.1] - 2026-11-04
+### [Unreleased] - 0.5.2
+
+#### Security
+
+- A caller can no longer choose a request's correlation id and reference code. ASP.NET Core hosting adopted the
+  inbound `traceparent`, whose trace id became the correlation id, so an anonymous caller could plant log lines and
+  reference-code sightings under a code of its choosing. `AddCodelabObservability` now registers
+  `PropagationScope.InboundPropagator`, which ignores an inbound `traceparent`, `tracestate` and `baggage`, and
+  `CorrelationId.For` refuses an Activity whose trace began outside the process (second line of defence).
+
+#### Added
+
+- `PropagationScope.InboundPropagator`: reads nothing and sends nothing; the propagator hosting resolves from DI.
+
+#### Changed
+
+- A Codelab host called through `AsInternalService()` still receives the trace headers but starts its own trace.
+  **Migration:** join the two traces by the receiver's `InboundCorrelationId` log property.
+
+### [0.5.1] - 2026-11-04 - Known insecure: do not use; upgrade to 0.5.2
+
+A caller's `traceparent` sets the correlation id and reference code (see 0.5.2, Security).
 
 #### Fixed
 
@@ -153,6 +174,14 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Errors
 
+### [Unreleased] - 0.5.2
+
+#### Changed
+
+- Depends on Codelab.Observability 0.5.2 (an inbound `traceparent` no longer sets the correlation id and reference
+  code). No API change. It is released in step with Observability because a pack gives a package and its project
+  references one version.
+
 ### [0.5.1] - 2026-11-04
 
 #### Changed
@@ -172,6 +201,19 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 - Pipeline order: `UseCodelabObservability()` first, then `UseCodelabErrors()`.
 
 ## Codelab.Identity
+
+### [Unreleased] - 0.6.0
+
+#### Added
+
+- The OIDC back channel port `IOidcBackChannel` (`Mode`, `RedeemCodeAsync`, `GetJwksAsync`) with `OidcBackChannelResponse` (`Answered`, `Unavailable`, `Rejected`; `ToString` never prints the body) and `OidcBackChannelOutcome` (Answered 1, Unavailable 2, Rejected 3). The token request and the JWKS fetch go through it; `AddCodelabOidc` registers the direct implementation unless the host registered its own first.
+- `OidcOptions.BackChannel` (`OidcBackChannel.Direct = 1` default, `GatewayRelay = 2`: the token and JWKS calls go through a host relay such as the integration gateway's SSO profile; the authorize and end_session redirects are unchanged) and `OidcOptions.NoEgress` (default false).
+- `SsoDeploymentGuard`: refuses an undefined `BackChannel`, and outside Development refuses `BackChannel` Direct when `NoEgress` is true; `TokenEndpoint` and `JwksUri` are not required in relay mode. A start-up check refuses a registered back channel whose mode differs from `BackChannel`.
+- `JwksSigningKeySource(IOidcBackChannel, TimeProvider, ILogger)`.
+
+#### Changed
+
+- The OIDC token exchange and JWKS fetch run through `IOidcBackChannel`; the existing public `JwksSigningKeySource(IHttpClientFactory, IOptions<OidcOptions>, TimeProvider, ILogger)` constructor keeps working (direct). **Migration:** none for direct deployments. A deployment without egress registers a relay `IOidcBackChannel` and sets `Codelab:Identity:Sso:BackChannel` to 2 (and `NoEgress` true).
 
 ### [Unreleased] - 0.5.0
 
@@ -199,6 +241,19 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Integration
 
+### [Unreleased] - 0.6.0
+
+#### Added
+
+- Integration gateway contracts (namespace `Codelab.Integration.Gateway`): profile keys `GatewayProfileKey` (`sso`, `sms`), relay and health routes `GatewayRoutes`, the DTOs `SsoTokenRelayRequest`, `SmsRelayRequest` / `SmsRelayResult` with `SmsRelayRequestValidator`, `GatewayRelayLimits`, `GatewayLanguages`, `GatewayJson.Options`, and the problem codes `GatewayFailureCodes` (`GATEWAY_UPSTREAM_UNAVAILABLE` 503, `GATEWAY_UPSTREAM_REJECTED` 502, `GATEWAY_PROFILE_DISABLED` 404) with `GatewayProblems.For`.
+- The profile extension point: `IGatewayProfile`, `AddGatewayProfile<T>()`, `AddCodelabGatewayProfiles(configuration)`, `GatewayProfileRegistry` (a malformed or duplicate key, or an enabled key with no profile, fails the start) and `MapGatewayProfiles()` (a disabled profile answers 404 `GATEWAY_PROFILE_DISABLED`).
+- `AddCodelabGatewayClient(configuration)`: the typed `GatewayRelayClient` (`RelaySsoTokenAsync`, `GetSsoJwksAsync`, `RelaySmsAsync`, plus `PostJsonAsync` / `GetJsonAsync` for a project's own profiles) on the outbound engine. Every attempt carries a fresh Codelab.Security ES256 service assertion with the gateway audience (`Codelab:Integration:Gateway:Audience`, default `integration-gateway`). Failures surface as `GatewayRelayException`, mapped through `OutboundFailureClassifier`. Options section `Codelab:Integration:Gateway` {BaseUrl, Audience, Profiles, Retry, Timeout, Certificate}, validated at start-up (https outside Development).
+
+#### Changed
+
+- The package now depends on Codelab.Security and the ASP.NET Core shared framework, and no longer lists the Microsoft.Extensions.* packages (they come from the framework). **Migration:** none for ASP.NET Core hosts; a plain console host now also takes the ASP.NET Core shared framework.
+- The version goes from 0.1.0 to 0.6.0 (0.2 to 0.5 are skipped) so that it matches Codelab.Security. A pack gives a package and the Codelab packages it references the same version, so they must share it.
+
 ### [0.1.0] - 2026-11-04
 
 #### Added
@@ -213,7 +268,15 @@ Outside Development it accepts a starter test fixture key as the user-hash key (
 
 ## Codelab.Testing
 
-### [0.5.0] - 2026-11-04
+### [Unreleased] - 0.6.0
+
+#### Added
+
+- `SourceSweepOptions.IncludedDirectories`: folders under `Root` to sweep (empty means the whole root). Findings and
+  allowance globs stay relative to `Root`, so a repository's exception list applies unchanged.
+- `DeployableSweep` (`Check`, `Rules`, `Allowances`, `LocalOnlyFiles`, `LocalOnlyDirectoryNames`): the scrub and
+  secret sweep over the folders a deployment ships, with the repository's term list (`tools/extract/*-terms.txt`) and
+  exception list (`tools/extract/scrub-exceptions.txt`).
 
 #### Added
 
@@ -317,6 +380,7 @@ values name this line. 1.0.0 itself is released in Phase 10.
 
 #### Added
 
+- `dga-error-dialog`: the reference code carries `data-testid="error-reference-code"` and the copy button `data-testid="error-reference-copy"` (exported as `DGA_ERROR_REFERENCE_CODE_TEST_ID` / `DGA_ERROR_REFERENCE_COPY_TEST_ID`) for browser tests; new optional input `copyAriaLabel` (the copy button's accessible name) and helper `copyButtonAccessibleName`.
 - Components: `dga-accordion` and `dga-accordion-item` (single or multiple open sections), `dga-alert` (info,
   success, warning and error tones, optional close), `dga-header` (brand, one-level submenu navigation, start and
   actions slots, collapses below the md breakpoint), `dga-hero` and `dga-hero-slider` (slides with previous/next,

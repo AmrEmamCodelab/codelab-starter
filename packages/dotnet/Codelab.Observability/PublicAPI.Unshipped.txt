@@ -1,1 +1,2 @@
 #nullable enable
+static Codelab.Observability.PropagationScope.InboundPropagator.get -> System.Diagnostics.DistributedContextPropagator!

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Codelab.OpsConsole.Application: the Ops Console's host-free logic. The reference-code lookup (normalize the code,
+    ask the API's /api/ops and Seq, merge both into one trace) behind two ports, IOpsApiClient and ILogEventSource,
+    whose adapters live in Codelab.OpsConsole.Api. No HTTP, no ASP.NET Core types.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.OpsConsole.Application</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- The rules engine emits the module files at the service root (services/ops-console/module.rules.yaml). -->
+    <CodelabProjectBannedSymbolsFile>../../BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
+    <CodelabProjectCodeMetricsFile>../../CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ReferenceCode (the one owner of the reference-code rule). -->
+    <CodelabPackageReference Include="Codelab.Observability" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.OpsConsole.Application.Tests" />
+  </ItemGroup>
+</Project>

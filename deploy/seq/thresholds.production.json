@@ -1,0 +1,8 @@
+{
+  "environment": "production",
+  "serverErrorsPerFiveMinutes": 20,
+  "gatewayFailuresPerFiveMinutes": 5,
+  "cspViolationsPerHour": 50,
+  "certificateAlertEnabled": true,
+  "gatewayNodes": []
+}

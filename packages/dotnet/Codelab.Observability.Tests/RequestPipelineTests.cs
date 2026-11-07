@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using Codelab.Observability.Tests.Support;
 using Microsoft.AspNetCore.Builder;
@@ -81,6 +82,53 @@ public sealed class RequestPipelineTests
         using var other = await client.GetAsync(new Uri("/elsewhere", UriKind.Relative));
         await sink.WaitForAsync(IsRequestLine);
         Assert.DoesNotContain(sink.Events, e => IsRequestLine(e) && e.Properties["RequestPath"].ToString().Contains(HealthEndpoints.BasePath, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task A_caller_supplied_traceparent_never_sets_the_correlation_id_or_the_trace()
+    {
+        const string plantedTraceId = "9c1e5b7a20d84f6e8a3b1c2d4e5f6a7b";
+        const string tracePath = "/trace";
+        var (app, _) = await TestHosts.StartAsync(TestHosts.Pipeline(web =>
+        {
+            web.UseCodelabObservability();
+            web.MapGet(tracePath, () => Results.Text(Activity.Current?.TraceId.ToHexString() ?? string.Empty));
+        }));
+        await using var _app = app;
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(tracePath, UriKind.Relative));
+        request.Headers.Add(PropagationScope.TraceParentHeader, $"00-{plantedTraceId}-b7ad6b7169203331-01");
+
+        using var response = await app.GetTestClient().SendAsync(request);
+        var correlationId = response.Headers.GetValues(CorrelationId.Header).Single();
+        var serverTraceId = await response.Content.ReadAsStringAsync();
+
+        Assert.NotEqual(plantedTraceId, correlationId);
+        Assert.NotEqual(ReferenceCode.From(plantedTraceId), ReferenceCode.From(correlationId));
+        Assert.NotEqual(plantedTraceId, serverTraceId);
+    }
+
+    [Fact]
+    public void Hosting_resolves_the_inbound_propagator_that_ignores_every_header()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(DistributedContextPropagator.CreateDefaultPropagator());
+
+        ObservabilityBootstrap.IgnoreInboundTraceContext(services);
+
+        using var provider = services.BuildServiceProvider();
+        Assert.Same(PropagationScope.InboundPropagator, provider.GetRequiredService<DistributedContextPropagator>());
+        PropagationScope.InboundPropagator.ExtractTraceIdAndState(
+            carrier: null,
+            static (object? _, string _, out string? value, out IEnumerable<string>? values) =>
+            {
+                value = "00-9c1e5b7a20d84f6e8a3b1c2d4e5f6a7b-b7ad6b7169203331-01";
+                values = null;
+            },
+            out var traceId,
+            out var traceState);
+        Assert.Null(traceId);
+        Assert.Null(traceState);
+        Assert.Null(PropagationScope.InboundPropagator.ExtractBaggage(carrier: null, getter: null));
     }
 
     [Theory]

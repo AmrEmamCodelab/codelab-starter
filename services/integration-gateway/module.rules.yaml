@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../rules/rules.schema.json
+# Rules for the integration gateway (inherits rules/base.rules.yaml): Codelab.Gateway.Api, the DMZ relay deployable.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: IntegrationGateway
+kind: dotnet
+description: "The integration gateway deployable (DMZ): relays the backend's outbound calls (the OIDC token and JWKS back channel, SMS) to upstreams the backend cannot reach. Callers authenticate only with the Codelab.Security ES256 service assertion; upstream TLS is validated by the Codelab.Integration certificate policy."
+mayDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIntegration]
+mustNotDependOn: [CodelabTesting, StarterDomain, StarterApplication, StarterInfrastructure]
+required:
+  - id: integrationgateway.assertion-only
+    statement: The gateway authenticates exactly one credential - the CodelabServiceAssertion scheme (ES256, jti replay guard, method/path/body binding) as the default and fallback policy; only /health/live and /health/ready are anonymous. No JWT bearer, no API key, no cookie, no default scheme.
+    enforcedBy: [contract-test, review]
+  - id: integrationgateway.profiles-only
+    statement: Every relay route belongs to an IGatewayProfile registered with AddGatewayProfile and mapped by MapGatewayProfiles under /relay/{key}; a profile that is not listed in Codelab:Integration:Gateway:Profiles answers 404 GATEWAY_PROFILE_DISABLED and registers no upstream client.
+    enforcedBy: [contract-test, review]
+  - id: integrationgateway.coded-upstream-failures
+    statement: Every upstream failure is answered with GatewayProblems.For and a GatewayFailureCodes code (UpstreamFailureMapper decides which), every bad request with a Codelab.Errors CodedRefusal or ProblemEnvelopeResult; no endpoint writes an error body by hand and no upstream text reaches a caller.
+    enforcedBy: [contract-test, review]
+  - id: integrationgateway.validated-upstream-tls
+    statement: Upstream clients are Codelab.Integration outbound clients (AddCodelabOutboundClient), so the certificate policy (system trust, pinned authority or pinned leaf) always validates; plain http upstreams are allowed only in Development.
+    enforcedBy: [contract-test, review]
+  - id: integrationgateway.no-secret-logging
+    statement: Relayed bodies (token request forms, tokens, SMS recipients and texts) and the SMS provider credential are never logged; log lines carry the profile, the operation, the failure kind and the upstream status only.
+    enforcedBy: [review]
+  - id: integrationgateway.no-key-material
+    statement: Committed appsettings and web.config carry no key material; the trusted caller keys and the SMS provider credential come from the environment or a secret store (Development - the gitignored appsettings.Development.local.json).
+    enforcedBy: [contract-test, review]
+forbidden:
+  - id: integrationgateway.no-other-credential
+    description: A bearer, API-key or cookie scheme would let something other than a trusted backend service use the relay.
+    pattern: '(AddJwtBearer|JwtBearerDefaults|AddCookie\s*\(|ApiKey\w*(?:Handler|Scheme|Authentication))'
+    appliesTo: ["src/**/*.cs"]
+    fix: Callers sign each request with an ES256 service assertion (AddCodelabServiceAssertion); add the caller to Codelab:Security:ServiceAssertions:Server:TrustedServices.
+    severity: error
+  - id: integrationgateway.no-raw-http-client
+    description: A hand-made HttpClient or handler skips the Codelab.Integration certificate policy, timeouts and failure classification.
+    pattern: '(new\s+HttpClient\s*\(|new\s+(?:HttpClientHandler|SocketsHttpHandler)\s*\()'
+    appliesTo: ["src/**/*.cs"]
+    fix: Register a typed upstream client with AddCodelabOutboundClient and inject it.
+    severity: error

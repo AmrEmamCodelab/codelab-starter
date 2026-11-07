@@ -5,8 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 namespace Codelab.Identity.Oidc;
 
 /// <summary>
-/// The provider's JSON Web Key Set at <see cref="OidcOptions.JwksUri"/>, fetched over the named OIDC client
-/// (<see cref="OidcHttpClient.Name"/>, certificate validation on) and cached in this instance.
+/// The provider's JSON Web Key Set, fetched over the configured <see cref="IOidcBackChannel"/> (directly from
+/// <see cref="OidcOptions.JwksUri"/> over the named client <see cref="OidcHttpClient.Name"/>, certificate validation on;
+/// or through the integration gateway relay) and cached in this instance.
 /// <para>
 /// <b>Freshness.</b> A set younger than <see cref="CacheLifetime"/> is served as is. A token naming a <c>kid</c> the set
 /// lacks forces one refetch (how a key rotation is picked up early), at most once per <see cref="UnknownKidRefreshInterval"/>,
@@ -37,21 +38,25 @@ public sealed class JwksSigningKeySource : IIdTokenSigningKeySource, IDisposable
 
     private const string SignatureUse = "sig";
 
-    private readonly IHttpClientFactory clients;
-    private readonly IOptions<OidcOptions> options;
+    private readonly IOidcBackChannel backChannel;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<JwksSigningKeySource> logger;
     private readonly SemaphoreSlim refresh = new(initialCount: 1, maxCount: 1);
     private CachedKeys? cached;
     private DateTimeOffset? lastForcedRefresh;
 
-    /// <summary>A source over the configured <see cref="OidcOptions.JwksUri"/>.</summary>
+    /// <summary>A source over the configured <see cref="OidcOptions.JwksUri"/>, fetched directly over the named client.</summary>
     public JwksSigningKeySource(IHttpClientFactory clients, IOptions<OidcOptions> options, TimeProvider timeProvider, ILogger<JwksSigningKeySource> logger)
+        : this(new DirectOidcBackChannel(clients, options), timeProvider, logger)
     {
-        this.clients = clients;
-        this.options = options;
-        this.timeProvider = timeProvider;
-        this.logger = logger;
+    }
+
+    /// <summary>A source over <paramref name="backChannel"/> (the one <c>AddCodelabOidc</c> registers uses the registered back channel).</summary>
+    public JwksSigningKeySource(IOidcBackChannel backChannel, TimeProvider timeProvider, ILogger<JwksSigningKeySource> logger)
+    {
+        this.backChannel = backChannel ?? throw new ArgumentNullException(nameof(backChannel));
+        this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <inheritdoc />
@@ -128,21 +133,25 @@ public sealed class JwksSigningKeySource : IIdTokenSigningKeySource, IDisposable
 
     private async Task<IReadOnlyList<SecurityKey>?> FetchAsync(CancellationToken cancellationToken)
     {
+        var response = await backChannel.GetJwksAsync(cancellationToken);
+        if (response.Outcome != OidcBackChannelOutcome.Answered)
+        {
+            IdentityLog.OidcJwksFetchFailed(logger, response.FailureReason ?? response.Outcome.ToString());
+            return null;
+        }
+
+        var status = response.StatusCode.GetValueOrDefault();
+        if (status is < (int)System.Net.HttpStatusCode.OK or >= (int)System.Net.HttpStatusCode.MultipleChoices)
+        {
+            IdentityLog.OidcJwksFetchFailed(logger, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"HTTP {status}"));
+            return null;
+        }
+
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, options.Value.JwksUri);
-            request.Headers.ExpectContinue = false;
-            using var response = await clients.CreateClient(OidcHttpClient.Name).SendAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                IdentityLog.OidcJwksFetchFailed(logger, $"HTTP {(int)response.StatusCode}");
-                return null;
-            }
-
-            return SigningKeysOf(await response.Content.ReadAsStringAsync(cancellationToken));
+            return SigningKeysOf(response.Body ?? string.Empty);
         }
-        catch (Exception failure) when (OidcHttpClient.IsTransportFailure(failure, cancellationToken)
-                                        || failure is ArgumentException or System.Text.Json.JsonException)
+        catch (Exception failure) when (failure is ArgumentException or System.Text.Json.JsonException)
         {
             IdentityLog.OidcJwksFetchFailed(logger, failure.GetType().Name);
             return null;

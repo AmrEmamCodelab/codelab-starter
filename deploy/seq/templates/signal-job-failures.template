@@ -1,0 +1,24 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: Background job failures",
+  "Description": "Background jobs that failed (one line per failure from the jobs failure filter: job id, code, job name, retry count).",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "SourceContext = 'Codelab.Jobs' and @MessageTemplate like 'Job failed%'",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "Application" },
+    { "Expression": "Job" },
+    { "Expression": "Code" },
+    { "Expression": "Retry" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}

@@ -1,7 +1,8 @@
 import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { HttpStatus, parseApiError } from '@codelab/ng-security';
+import { HttpStatus } from '@codelab/ng-security';
 import { catchError, throwError } from 'rxjs';
+import { parseHttpFailure } from './api-failure';
 import { SKIP_ERROR_DIALOG } from './http-context';
 import { ErrorDialogStore } from './error-dialog.store';
 
@@ -10,7 +11,8 @@ const HANDLED_ELSEWHERE: ReadonlySet<number> = new Set([HttpStatus.unauthorized,
 
 /**
  * Response phase only: an API failure the caller did not opt out of (`SKIP_ERROR_DIALOG`) is parsed
- * with the ng-security problem+json parser and shown in the error dialog. The error is always rethrown,
+ * with {@link parseHttpFailure} (the problem+json body, then the `X-Correlation-ID` header for the reference
+ * code) and shown in the error dialog. The error is always rethrown,
  * so the caller still sees it.
  */
 export const errorDialogInterceptor: HttpInterceptorFn = (request, next) => {
@@ -22,7 +24,7 @@ export const errorDialogInterceptor: HttpInterceptorFn = (request, next) => {
         !request.context.get(SKIP_ERROR_DIALOG) &&
         !HANDLED_ELSEWHERE.has(error.status);
       if (shows) {
-        dialog.show(parseApiError(error));
+        dialog.show(parseHttpFailure(error));
       }
       return throwError(() => error);
     }),

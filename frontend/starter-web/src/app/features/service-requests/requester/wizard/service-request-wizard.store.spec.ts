@@ -3,32 +3,42 @@ import { TestBed } from '@angular/core/testing';
 import { HttpStatus } from '@codelab/ng-security';
 import { Subject, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
-import { ServiceRequestDraftStep, ServiceRequestValidationCodes } from '../../data';
 import {
+  SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE,
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
+  ServiceRequestDraftStep,
+  ServiceRequestStatus,
+  ServiceRequestValidationCodes,
+} from '../../data';
+import {
+  TEST_ATTACHMENTS_RECORD_ID,
   TEST_CATEGORY_ID,
   TEST_PHONE,
   TEST_SERVICE_REQUEST_ID,
   aDraft,
+  aRecord,
   clientProviders,
   failing,
   fakeCategoriesClient,
+  fakeRecordsClient,
   fakeServiceRequestsClient,
   httpRefusal,
   requesterTestProviders,
 } from '../requester.testing';
 import { ServiceRequestWizardStore, WizardLoadState } from './service-request-wizard.store';
 
-function setUp(requests = fakeServiceRequestsClient(), categories = fakeCategoriesClient()) {
+function setUp(requests = fakeServiceRequestsClient(), categories = fakeCategoriesClient(), records = fakeRecordsClient()) {
   const location = { replaceState: vi.fn() };
   TestBed.configureTestingModule({
     providers: [
       ...requesterTestProviders(),
-      ...clientProviders({ requests, categories }),
+      ...clientProviders({ requests, categories, records }),
       { provide: Location, useValue: location },
       ServiceRequestWizardStore,
     ],
   });
-  return { store: TestBed.inject(ServiceRequestWizardStore), requests, categories, location };
+  return { store: TestBed.inject(ServiceRequestWizardStore), requests, categories, records, location };
 }
 
 function fill(store: ServiceRequestWizardStore): void {
@@ -103,6 +113,53 @@ describe('ServiceRequestWizardStore', () => {
     expect(store.loadError()?.code).toBe('RECORDS_NOT_FOUND');
     store.retry();
     expect(store.load()).toBe(WizardLoadState.Ready);
+  });
+
+  it('has no attachments target before the draft exists', () => {
+    const { store, records } = setUp();
+    store.start(null);
+    expect(store.attachments()).toBeNull();
+    expect(store.attachmentsError()).toBeNull();
+    store.retryAttachments();
+    expect(records.detail).not.toHaveBeenCalled();
+  });
+
+  it('reads the attachments target of a created draft from its record (the attachments id, never the request id)', async () => {
+    const { store, records } = setUp();
+    store.start(null);
+    expect(await store.saveStep(ServiceRequestDraftStep.Request)).toBe(true);
+    expect(records.detail).toHaveBeenCalledWith(SERVICE_REQUEST_RECORD_TYPE, TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toEqual({ recordType: SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, recordId: TEST_ATTACHMENTS_RECORD_ID });
+    expect(store.attachments()?.recordId).not.toBe(TEST_SERVICE_REQUEST_ID);
+    await store.saveStep(ServiceRequestDraftStep.Details);
+    expect(records.detail).toHaveBeenCalledTimes(1);
+  });
+
+  it('reads the attachments target of a resumed draft', () => {
+    const records = fakeRecordsClient({ detail: vi.fn(() => of(aRecord(ServiceRequestStatus.Draft))) });
+    const { store } = setUp(fakeServiceRequestsClient(), fakeCategoriesClient(), records);
+    store.start(TEST_SERVICE_REQUEST_ID);
+    expect(records.detail).toHaveBeenCalledWith(SERVICE_REQUEST_RECORD_TYPE, TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()?.recordId).toBe(TEST_ATTACHMENTS_RECORD_ID);
+  });
+
+  it('keeps a failed attachments read and reads it again on retry', () => {
+    const detail = vi.fn().mockReturnValueOnce(failing(httpRefusal(HttpStatus.notFound, 'RECORDS_NOT_FOUND'))).mockReturnValue(of(aRecord()));
+    const { store } = setUp(fakeServiceRequestsClient(), fakeCategoriesClient(), fakeRecordsClient({ detail }));
+    store.start(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toBeNull();
+    expect(store.attachmentsError()?.code).toBe('RECORDS_NOT_FOUND');
+    store.retryAttachments();
+    expect(store.attachmentsError()).toBeNull();
+    expect(store.attachments()?.recordId).toBe(TEST_ATTACHMENTS_RECORD_ID);
+  });
+
+  it('reports the attachments unavailable when the record carries no attachments id', () => {
+    const records = fakeRecordsClient({ detail: vi.fn(() => of(aRecord(ServiceRequestStatus.Draft, { attachmentsRecordId: '' }))) });
+    const { store } = setUp(fakeServiceRequestsClient(), fakeCategoriesClient(), records);
+    store.start(TEST_SERVICE_REQUEST_ID);
+    expect(store.attachments()).toBeNull();
+    expect(store.attachmentsError()).toBe(SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE);
   });
 
   it('treats a malformed resume id as a request that does not exist, without a call', () => {

@@ -1,0 +1,24 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: Gateway relay failures",
+  "Description": "Relay calls through the integration gateway that failed: the upstream did not answer, refused the call, or the profile is disabled.",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "Code in ['GATEWAY_UPSTREAM_UNAVAILABLE', 'GATEWAY_UPSTREAM_REJECTED', 'GATEWAY_PROFILE_DISABLED']",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "Application" },
+    { "Expression": "Code" },
+    { "Expression": "RouteTemplate" },
+    { "Expression": "StatusCode" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}

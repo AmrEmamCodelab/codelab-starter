@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, type OnInit, computed, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DgaAlertComponent, DgaButtonComponent, type DgaStatusTone } from '@codelab/ng-dga';
+import { DgaAlertComponent, DgaButtonComponent, DgaPageFeedbackComponent, type DgaStatusTone } from '@codelab/ng-dga';
 import { HttpStatus, type ApiError } from '@codelab/ng-security';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { TranslatePipe } from '../../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../../core/i18n/translation.service';
 import {
   RequesterDetailActionsDirective,
   RequesterDetailAttachmentsDirective,
@@ -20,11 +21,7 @@ import {
   statusWordingKey,
   type RecordDecision,
 } from '../../../../shared/records';
-import {
-  SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE,
-  serviceRequestCardsAdapter,
-  type ServiceRequestId,
-} from '../../data';
+import { serviceRequestAttachmentsFeedback, serviceRequestCardsAdapter, type ServiceRequestId } from '../../data';
 import { SERVICE_REQUESTS_REQUESTER_BASE_LINK, serviceRequestIdOf, serviceRequestsRequesterLinks } from '../requester-paths';
 import {
   REQUESTER_AUDIENCE,
@@ -60,6 +57,7 @@ const NOT_FOUND: ApiError = Object.freeze({ status: HttpStatus.notFound, code: R
     DecisionPanelComponent,
     DgaAlertComponent,
     DgaButtonComponent,
+    DgaPageFeedbackComponent,
     HasPermissionDirective,
     RecordAttachmentsComponent,
     RecordDetailCardsComponent,
@@ -82,11 +80,11 @@ export class ServiceRequestDetailComponent implements OnInit {
   protected readonly store = inject(ServiceRequestDetailStore);
   private readonly router = inject(Router);
   private readonly language = inject(LanguageService);
+  private readonly translations = inject(TranslationService);
 
   protected readonly keys = ServiceRequestsRequesterTranslationKeys.Detail;
   protected readonly gates = RequesterGates;
   protected readonly audience = REQUESTER_AUDIENCE;
-  protected readonly attachableType = SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE;
   protected readonly translatedCodes = RECORDS_TRANSLATED_CODES;
   protected readonly statusKeyFor = serviceRequestStatusWording;
   protected readonly actionLabelKeyFor = serviceRequestActionLabelKey;
@@ -115,11 +113,15 @@ export class ServiceRequestDetailComponent implements OnInit {
     const record = this.record();
     return record !== null && isDraftStatus(record.status);
   });
-  /** The record whose files the page lists: none for a draft (its files are attached in the wizard). */
-  readonly attachmentsRecordId = computed(() => {
-    const record = this.record();
-    return record === null || isDraftStatus(record.status) ? null : record.id;
-  });
+  /**
+   * Where the page lists the files: the record's Records-kernel attachments id (never the request id). None for a
+   * draft (its files are attached in the wizard) and none until the record is loaded.
+   */
+  readonly attachmentsTarget = computed(() => (this.isDraft() ? null : this.store.attachments()));
+  /** The error shown in place of the attachments when the record carried no attachments id (not for a draft). */
+  readonly attachmentsFeedback = computed(() =>
+    this.isDraft() ? null : serviceRequestAttachmentsFeedback(this.store.attachmentsError(), (key, params) => this.translations.translate(key, params)),
+  );
   readonly attachmentsReadonly = computed(() => {
     const record = this.record();
     return record === null || !attachmentsEditable(record);

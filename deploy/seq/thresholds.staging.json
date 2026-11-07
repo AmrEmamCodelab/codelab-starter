@@ -1,0 +1,8 @@
+{
+  "environment": "staging",
+  "serverErrorsPerFiveMinutes": 20,
+  "gatewayFailuresPerFiveMinutes": 10,
+  "cspViolationsPerHour": 200,
+  "certificateAlertEnabled": true,
+  "gatewayNodes": []
+}

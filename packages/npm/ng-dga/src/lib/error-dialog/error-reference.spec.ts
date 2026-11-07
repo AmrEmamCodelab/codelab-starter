@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { copyButtonLabel, showsCopyButton } from './error-reference';
+import { copyButtonAccessibleName, copyButtonLabel, showsCopyButton } from './error-reference';
 
 const TEXTS = { referenceCode: '7Q2KD-M4XWB', copyLabel: 'Copy', copiedLabel: 'Copied' };
 
@@ -24,5 +24,17 @@ describe('copyButtonLabel', () => {
 
   it('is empty without a copy label', () => {
     expect(copyButtonLabel({ ...TEXTS, copyLabel: null }, false)).toBe('');
+  });
+});
+
+describe('copyButtonAccessibleName', () => {
+  it('uses the aria label when given', () => {
+    expect(copyButtonAccessibleName({ ...TEXTS, copyAriaLabel: 'Copy the reference code' })).toBe('Copy the reference code');
+  });
+
+  it('leaves the visible label to name the button otherwise', () => {
+    expect(copyButtonAccessibleName(TEXTS)).toBeNull();
+    expect(copyButtonAccessibleName({ ...TEXTS, copyAriaLabel: null })).toBeNull();
+    expect(copyButtonAccessibleName({ ...TEXTS, copyAriaLabel: '' })).toBeNull();
   });
 });

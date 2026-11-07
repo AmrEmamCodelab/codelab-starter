@@ -30,6 +30,9 @@ public static class EndpointAllowlist
     /// <summary>The deletable sample record type module.</summary>
     public const string ServiceRequestsModule = "ServiceRequests"; // codelab:module ServiceRequests
 
+    /// <summary>The module that owns the Ops Console's /api/ops surface.</summary>
+    public const string OpsModule = "Ops"; // codelab:module Ops
+
     /// <summary>Wire members that legitimately carry a number: lookup ids seeded by migrations (Type.Member), passed to the PublicId contract.</summary>
     public static IReadOnlyCollection<string> NumericLookupIdMembers { get; } = ["SubmitContactMessageCommand.TopicId"];
 
@@ -48,7 +51,10 @@ public static class EndpointAllowlist
     ];
 
     /// <summary>Every wire member the PublicId contract lets through, each listed above with its reason.</summary>
-    public static IReadOnlyCollection<string> PublicIdExemptMembers => [.. NumericLookupIdMembers, .. LookupTokenStringMembers];
+    /// <summary>Wire members that carry trace identifiers (correlation and W3C trace ids), not database ids (Type.Member).</summary>
+    public static IReadOnlyCollection<string> TraceIdentifierMembers { get; } = ["ReferenceCodeResponse.CorrelationId", "ReferenceCodeResponse.TraceId"]; // codelab:module Ops
+
+    public static IReadOnlyCollection<string> PublicIdExemptMembers => [.. NumericLookupIdMembers, .. LookupTokenStringMembers, .. TraceIdentifierMembers];
 
     /// <summary>Every allowlisted endpoint.</summary>
     public static IReadOnlyList<AllowlistEntry> Entries { get; } =
@@ -76,6 +82,11 @@ public static class EndpointAllowlist
         new("POST /api/records/{recordType}/{id:publicid}/transitions", EndpointAccess.Authenticated, RecordsModule, "Takes a workflow action; the permission is the transition rule's own key (catalog data), decided live by RecordWorkflowEngine.Decide after the visibility check (403 WORKFLOW_FORBIDDEN, 404 hidden)."),
         new("GET /api/service-requests/{id:publicid}", EndpointAccess.Authenticated, ServiceRequestsModule, "The sample's detail cards for whoever may see the record, decided live by the Records module (IRecordVisibility, the RecordLoader rule): the owner with service-requests.view-own; once submitted, a service-requests.queue or records.oversight.view holder whose scope reaches the record; anyone else gets 404."), // codelab:module ServiceRequests
         new("GET /api/features", EndpointAccess.Anonymous, EndpointOwners.Kernel, "Feature flags are read before sign-in; flags only, never identities."),
+        new("POST /api/security/csp-reports", EndpointAccess.Anonymous, EndpointOwners.Kernel, "The CSP report sink: browsers post violation reports without the page's credentials or request proof, so an authorized sink would receive nothing. Rate-limited per client (Codelab client policy), body capped at 16 KiB, application/csp-report and application/reports+json only; logs redacted fields (no query strings, referrer or script sample) and stores nothing."),
+        new("GET /api/ops/health", EndpointAccess.ServiceAssertion, OpsModule, "Ops Console API only: ES256 service assertion of the trusted caller (Codelab:Ops:TrustedCallerKeyId); no user credential opens it; operator recorded."), // codelab:module Ops
+        new("GET /api/ops/jobs", EndpointAccess.ServiceAssertion, OpsModule, "Ops Console API only (service assertion); job catalog and newest runs."), // codelab:module Ops
+        new("GET /api/ops/certificates", EndpointAccess.ServiceAssertion, OpsModule, "Ops Console API only (service assertion); certificate expiry."), // codelab:module Ops
+        new("GET /api/ops/reference-codes/{code}", EndpointAccess.ServiceAssertion, OpsModule, "Ops Console API only (service assertion); reference-code lookup, codes not record ids."), // codelab:module Ops
         new("GET /api/security/session-signing-key", EndpointAccess.Authenticated, EndpointOwners.Platform, "Issues the caller's session signing key right after sign-in; Codelab.Security requires authentication."),
         new("* /health/live", EndpointAccess.Anonymous, EndpointOwners.Platform, "Liveness probe for the load balancer; runs no check."),
         new("* /health/ready", EndpointAccess.Anonymous, EndpointOwners.Platform, "Readiness probe for the load balancer."),

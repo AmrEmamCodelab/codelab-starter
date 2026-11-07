@@ -57,10 +57,11 @@ describe('core API clients', () => {
     expect(request.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
   });
 
-  it('reads the session signing key, handling its own failures', () => {
-    TestBed.inject(AuthClient).signingKey().subscribe();
+  it('reads the session signing key with the given access token, handling its own failures', () => {
+    TestBed.inject(AuthClient).signingKey('access-new').subscribe();
     const request = http.expectOne(url(ApiPaths.SessionSigningKey));
     expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get(AUTHORIZATION_HEADER)).toBe('Bearer access-new');
     expect(request.request.context.get(SKIP_ERROR_DIALOG)).toBe(true);
     expect(request.request.context.get(SKIP_SESSION_EXPIRY)).toBe(true);
     expect(request.request.context.get(UNSIGNED_REQUEST)).toBe(true);

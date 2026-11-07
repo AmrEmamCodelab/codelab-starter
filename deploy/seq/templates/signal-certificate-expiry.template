@@ -1,0 +1,22 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: Certificate expiry warnings",
+  "Description": "Certificates the Ops checks report as Warning (2), Critical (3) or Expired (4).",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "Has(CertificateStatus) and CertificateStatus in [2, 3, 4]",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "Application" },
+    { "Expression": "CertificateStatus" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}

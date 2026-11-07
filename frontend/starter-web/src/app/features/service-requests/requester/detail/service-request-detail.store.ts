@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { ApiError } from '@codelab/ng-security';
 import { forkJoin, map, of, switchMap, type Observable } from 'rxjs';
@@ -9,7 +9,15 @@ import {
   type RecordDetail,
   type TimelineEntry,
 } from '../../../../shared/records';
-import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestsClient, type ServiceRequestDetails, type ServiceRequestId } from '../../data';
+import {
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
+  ServiceRequestsClient,
+  serviceRequestAttachmentsTargetOf,
+  type ServiceRequestAttachmentsTarget,
+  type ServiceRequestDetails,
+  type ServiceRequestId,
+} from '../../data';
 import { isDraftStatus } from '../requester-status';
 
 /** Everything the requester detail page shows of one request. `details` is null for a draft (it has no fields yet). */
@@ -17,6 +25,11 @@ export interface RequesterRequestView {
   readonly record: RecordDetail;
   readonly timeline: readonly TimelineEntry[];
   readonly details: ServiceRequestDetails | null;
+  /**
+   * Where the request's files live: the Records-kernel attachments id the record answered (`attachmentsRecordId`),
+   * never the request id. Null when the answer carried none. Read once on load: a decision does not move the files.
+   */
+  readonly attachments: ServiceRequestAttachmentsTarget | null;
 }
 
 /**
@@ -45,6 +58,13 @@ export class ServiceRequestDetailStore {
   readonly busy = this.busyState.asReadonly();
   /** The refusal of the last decision (shown in the decision panel's dialog). */
   readonly actionError = this.actionErrorState.asReadonly();
+  /** Where the request's files live, or null until the request is loaded (or when the answer carried no attachments id). */
+  readonly attachments = computed(() => this.viewState()?.attachments ?? null);
+  /** The refusal to show in place of the attachments: the loaded record carried no usable attachments id. */
+  readonly attachmentsError = computed<ApiError | null>(() => {
+    const view = this.viewState();
+    return view !== null && view.attachments === null ? SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE : null;
+  });
 
   load(id: ServiceRequestId): void {
     this.currentId = id;
@@ -55,7 +75,11 @@ export class ServiceRequestDetailStore {
       timeline: this.records.timeline(SERVICE_REQUEST_RECORD_TYPE, id),
     })
       .pipe(
-        switchMap(({ record, timeline }) => this.withDetails(id, record).pipe(map((details) => ({ record, timeline, details })))),
+        switchMap(({ record, timeline }) =>
+          this.withDetails(id, record).pipe(
+            map((details) => ({ record, timeline, details, attachments: serviceRequestAttachmentsTargetOf(record) })),
+          ),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

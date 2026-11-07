@@ -12,7 +12,15 @@ import {
   type RecordDetail,
   type TimelineEntry,
 } from '../../../shared/records';
-import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestsClient, type ServiceRequestDetails, type ServiceRequestId } from '../data';
+import {
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
+  ServiceRequestsClient,
+  serviceRequestAttachmentsTargetOf,
+  type ServiceRequestAttachmentsTarget,
+  type ServiceRequestDetails,
+  type ServiceRequestId,
+} from '../data';
 import { SERVICE_REQUEST_NOT_FOUND, serviceRequestIdFromRoute } from './service-request-route-id';
 import { AssignmentHolder, assignmentHolder, findRecordAction, staffDecisionButtons } from './staff-decisions';
 
@@ -21,6 +29,8 @@ interface LoadedRequest {
   readonly detail: RecordDetail;
   readonly details: ServiceRequestDetails;
   readonly timeline: readonly TimelineEntry[];
+  /** Where the files live (the record's Records-kernel attachments id), read once on load; null when it carried none. */
+  readonly attachments: ServiceRequestAttachmentsTarget | null;
 }
 
 /**
@@ -56,6 +66,13 @@ export class ServiceRequestStaffDetailStore {
   readonly detail = computed(() => this.loaded()?.detail ?? null);
   readonly details = computed(() => this.loaded()?.details ?? null);
   readonly timeline = computed<readonly TimelineEntry[]>(() => this.loaded()?.timeline ?? []);
+  /** Where the request's files live (`attachmentsRecordId`, never the request id), or null until loaded. */
+  readonly attachments = computed(() => this.loaded()?.attachments ?? null);
+  /** The refusal shown in place of the attachments: the loaded record carried no usable attachments id. */
+  readonly attachmentsError = computed<ApiError | null>(() => {
+    const loaded = this.loaded();
+    return loaded !== null && loaded.attachments === null ? SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE : null;
+  });
   readonly loading = this.busy.asReadonly();
   readonly loadError = this.loadFailure.asReadonly();
   readonly assigning = this.assigningNow.asReadonly();
@@ -114,7 +131,7 @@ export class ServiceRequestStaffDetailStore {
         timeline: this.records.timeline(SERVICE_REQUEST_RECORD_TYPE, id),
       }));
       if (current === this.sequence) {
-        this.loaded.set(loaded);
+        this.loaded.set({ ...loaded, attachments: serviceRequestAttachmentsTargetOf(loaded.detail) });
       }
     } catch (error: unknown) {
       if (current === this.sequence) {

@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DgaAlertComponent, DgaAlertVariant, DgaIconComponent } from '@codelab/ng-dga';
+import { DgaAlertComponent, DgaAlertVariant, DgaIconComponent, DgaPageFeedbackComponent } from '@codelab/ng-dga';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import {
   RequesterDetailAttachmentsDirective,
   RequesterDetailPatternComponent,
 } from '../../../patterns';
 import { RecordAttachmentsComponent } from '../../../shared/record-attachments/record-attachments.component';
 import { RECORDS_TRANSLATED_CODES, RecordDetailCardsComponent, StatusWordingPipe, WorkflowAudience } from '../../../shared/records';
-import { SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE } from '../data';
+import { serviceRequestAttachmentsFeedback } from '../data';
 import { serviceRequestDetailCards } from '../staff/service-request-record-card';
 import { serviceRequestStatusTone } from '../staff/service-request-status-display';
 import { adminHistory, adminHistoryTone } from './admin-history';
@@ -31,6 +32,7 @@ const CARD_HEADING_LEVEL = 2;
   imports: [
     DgaAlertComponent,
     DgaIconComponent,
+    DgaPageFeedbackComponent,
     RecordAttachmentsComponent,
     RecordDetailCardsComponent,
     RequesterDetailAttachmentsDirective,
@@ -50,13 +52,13 @@ export class ServiceRequestAdminDetailPageComponent {
 
   protected readonly store = inject(ServiceRequestAdminDetailStore);
   private readonly language = inject(LanguageService);
+  private readonly translations = inject(TranslationService);
 
   protected readonly keys = ServiceRequestsAdminTranslationKeys.Detail;
   protected readonly paths = ServiceRequestsAdminPaths;
   protected readonly audience = WorkflowAudience.Admin;
   protected readonly AlertVariant = DgaAlertVariant;
   protected readonly translatedCodes = RECORDS_TRANSLATED_CODES;
-  protected readonly attachableType = SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE;
   protected readonly cardHeadingLevel = CARD_HEADING_LEVEL;
   protected readonly historyTone = adminHistoryTone;
 
@@ -67,6 +69,11 @@ export class ServiceRequestAdminDetailPageComponent {
     const details = this.store.details();
     return detail === null || details === null ? [] : serviceRequestDetailCards(detail, details, this.language.current());
   });
+
+  /** The error shown in place of the attachments when the record carried no attachments id. */
+  protected readonly attachmentsFeedback = computed(() =>
+    serviceRequestAttachmentsFeedback(this.store.attachmentsError(), (key, params) => this.translations.translate(key, params)),
+  );
 
   constructor() {
     effect(() => {

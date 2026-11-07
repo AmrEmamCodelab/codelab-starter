@@ -1,0 +1,89 @@
+<section class="ops-page" aria-labelledby="reference-title">
+  <header class="ops-page__header">
+    <div>
+      <h1 class="ops-page__title" id="reference-title">{{ keys.Title | t }}</h1>
+      <p class="ops-page__subtitle">{{ keys.Subtitle | t }}</p>
+    </div>
+  </header>
+
+  <form class="reference__form" role="search" (submit)="onSubmit($event)">
+    <dga-text-input
+      class="reference__input"
+      name="code"
+      autocomplete="off"
+      leadIcon="search"
+      data-testid="reference-code-input"
+      [label]="keys.Label | t"
+      [hint]="keys.Hint | t"
+      [error]="store.invalid() ? (keys.Invalid | t) : null"
+      [maxLength]="maxLength"
+      [value]="query()"
+      (valueChange)="query.set($event)"
+    />
+    <dga-button type="submit" size="md" data-testid="reference-code-search" [loading]="store.loading()">{{ keys.Search | t }}</dga-button>
+  </form>
+
+  @if (store.notFound()) {
+    <p class="reference__not-found" role="status" data-testid="reference-not-found">{{ keys.NotFound | t: { code: store.code() ?? '' } }}</p>
+  }
+
+  @if (store.error(); as error) {
+    <app-ops-list [captionKey]="keys.EventsCaption" [columns]="columns" [rowId]="rowId" [error]="error" (retry)="store.reload()" />
+  }
+
+  @if (store.trace(); as trace) {
+    <section class="reference__detail" aria-labelledby="reference-request-title" data-testid="reference-trace">
+      <div class="ops-page__header">
+        <h2 class="ops-page__section-title" id="reference-request-title">{{ keys.Request | t }}</h2>
+        @if (store.seqUrl(); as seqUrl) {
+          <div class="reference__seq">
+            <a class="reference__seq-link" target="_blank" rel="noopener noreferrer" data-testid="seq-link" [href]="seqUrl">
+              {{ keys.Seq.Open | t }}
+              <dga-icon name="external-link" size="sm" />
+            </a>
+            <dga-button variant="secondary-outline" size="sm" data-testid="copy-seq-link" (click)="store.copySeqLink()">
+              {{ keys.Seq.Copy | t }}
+            </dga-button>
+            <span class="reference__copy-outcome" role="status">
+              @if (store.copyOutcome() === copied) {
+                {{ keys.Seq.Copied | t }}
+              } @else if (store.copyOutcome() === copyFailed) {
+                {{ keys.Seq.CopyFailed | t }}
+              }
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="ops-page__grid">
+        <dga-info-field [label]="keys.Fields.ReferenceCode | t" valueDir="ltr">{{ trace.referenceCode }}</dga-info-field>
+        <dga-info-field [label]="keys.Fields.FirstSeen | t">{{ (trace.firstSeen | dateTime) || (common.NotAvailable | t) }}</dga-info-field>
+        @if (trace.request; as request) {
+          <dga-info-field [label]="keys.Fields.Method | t" valueDir="ltr">{{ request.method }}</dga-info-field>
+          <dga-info-field [label]="keys.Fields.Status | t" valueDir="ltr">{{ request.status }}</dga-info-field>
+          <dga-info-field [label]="keys.Fields.Path | t" valueDir="ltr" wide>{{ request.path }}</dga-info-field>
+        }
+        <dga-info-field [label]="keys.Fields.CorrelationId | t" valueDir="ltr" wide>{{ trace.correlationId ?? (common.NotAvailable | t) }}</dga-info-field>
+        <dga-info-field [label]="keys.Fields.TraceId | t" valueDir="ltr" wide>{{ trace.traceId ?? (common.NotAvailable | t) }}</dga-info-field>
+      </div>
+
+      @if (!trace.seqAvailable) {
+        <dga-alert variant="warning" data-testid="seq-unavailable">{{ keys.Seq.Unavailable | t }}</dga-alert>
+      }
+
+      <h2 class="ops-page__section-title">{{ keys.Events | t }}</h2>
+      <app-ops-list
+        [captionKey]="keys.EventsCaption"
+        [columns]="columns"
+        [rows]="store.events()"
+        [rowId]="rowId"
+        [emptyKey]="keys.NoEvents"
+      >
+        <ng-template opsListCell="timestamp" let-row>{{ row.timestamp | dateTime }}</ng-template>
+        <ng-template opsListCell="level" let-row>
+          <dga-tag [tone]="levelTone(row.level)">{{ row.level }}</dga-tag>
+        </ng-template>
+      </app-ops-list>
+    </section>
+  }
+</section>

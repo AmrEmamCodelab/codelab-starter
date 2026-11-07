@@ -48,6 +48,7 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Codelab:Identity:Sso:AllowedAlgorithms:<n>` | string |  | The accepted id_token algorithms. Empty means `Default` (RS256). Only asymmetric algorithms are ever accepted. |
 | `Codelab:Identity:Sso:Authority` | string |  | The issuer identifier. The id_token's `iss` must equal it exactly (no trailing-slash folding). |
 | `Codelab:Identity:Sso:AuthorizationEndpoint` | string |  | Where the browser signs in (authorization code + PKCE S256). |
+| `Codelab:Identity:Sso:BackChannel` | enum OidcBackChannel (Direct, GatewayRelay) | `Direct` | How the token and JWKS calls reach the provider (`Direct` by default). The browser redirects (authorize, end_session) never change. |
 | `Codelab:Identity:Sso:BackchannelTimeoutSeconds` | int | `15` | The timeout of each back-channel call, in seconds. |
 | `Codelab:Identity:Sso:Claims:DisplayName` | string | `name` | The display name claim. |
 | `Codelab:Identity:Sso:Claims:Email` | string | `email` | The email claim. |
@@ -61,8 +62,9 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Codelab:Identity:Sso:EffectiveScopes:<n>` | string |  | The scopes actually requested. |
 | `Codelab:Identity:Sso:Enabled` | bool | `false` | Whether the provider is on. Off: nothing else here is read. |
 | `Codelab:Identity:Sso:EndSessionEndpoint` | string |  | Where the browser ends the provider session (RP-initiated logout). |
-| `Codelab:Identity:Sso:JwksUri` | string |  | The provider's JSON Web Key Set (used when `SigningKeyMode` is `Jwks`). |
+| `Codelab:Identity:Sso:JwksUri` | string |  | The provider's JSON Web Key Set (used when `SigningKeyMode` is `Jwks` and `BackChannel` is `Direct`; the gateway holds it in relay mode). |
 | `Codelab:Identity:Sso:MatchBy` | enum LoginMatchField (Email, LoginName, Upn) | `Email` | Which identity value finds the local account (`Email` by default). |
+| `Codelab:Identity:Sso:NoEgress` | bool | `false` | True when this deployment's backend zone has no internet egress (decision D2). Then the start is refused outside Development unless `BackChannel` is `GatewayRelay`: a direct call would fail every sign-in. Default false. |
 | `Codelab:Identity:Sso:PinnedKeys:<n>:Kid` | string |  | The key's `kid` as the provider publishes it. Optional: blank keys are tried for any token. |
 | `Codelab:Identity:Sso:PinnedKeys:<n>:PublicKey` | string |  | An RSA (2048 bits or more) or EC public key: SubjectPublicKeyInfo PEM (`BEGIN PUBLIC KEY`) or its base64 DER. |
 | `Codelab:Identity:Sso:PostLogoutRedirectUri` | string |  | The post-logout redirect URI registered at the provider. Optional; sent on end_session when set. |
@@ -70,7 +72,27 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Codelab:Identity:Sso:RequireVerifiedEmail` | bool | `true` | Whether the email is released only when the token asserts `email_verified`. Default true (fail closed): an unverified email that finds an account could claim somebody else's. |
 | `Codelab:Identity:Sso:Scopes:<n>` | string |  | The scopes requested. Empty means `DefaultScopes`. Must include `openid`. |
 | `Codelab:Identity:Sso:SigningKeyMode` | enum SigningKeyMode (Jwks, Pinned) | `Jwks` | Where the id_token signing keys come from. |
-| `Codelab:Identity:Sso:TokenEndpoint` | string |  | Where the server redeems the code. |
+| `Codelab:Identity:Sso:TokenEndpoint` | string |  | Where the server redeems the code (the gateway holds it in `GatewayRelay` mode; optional there). |
+
+## Codelab.Integration
+
+### `Codelab:Integration:Gateway`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Codelab:Integration:Gateway:Audience` | string | `integration-gateway` | The service-assertion audience of the gateway (`aud`). Caller side. |
+| `Codelab:Integration:Gateway:BaseUrl` | Uri |  | The gateway's absolute base address (https outside Development). Caller side. |
+| `Codelab:Integration:Gateway:Certificate:AuthorityBundlePath` | string |  | `PinnedAuthority`: a PEM file holding the internal CA certificate(s) the server chain must end in. Read when the client's handler is created. |
+| `Codelab:Integration:Gateway:Certificate:CheckRevocation` | bool | `false` | Checks revocation online while building the chain. Off by default, like .NET itself, because a backend zone without egress usually cannot reach a CRL or OCSP endpoint; turn it on where the CA publishes one internally. |
+| `Codelab:Integration:Gateway:Certificate:Mode` | enum CertificateTrustMode (SystemTrust, PinnedAuthority, PinnedLeaf) | `SystemTrust` | The trust anchor. Default: the operating-system trust store. |
+| `Codelab:Integration:Gateway:Certificate:PinnedThumbprints:<n>` | string |  | `PinnedLeaf`: SHA-256 thumbprints (64 hex characters, case and ':' separators ignored) of the server certificates this client accepts. |
+| `Codelab:Integration:Gateway:Profiles:<n>` | string |  | The keys of the enabled profiles (`GatewayProfileKey`). Gateway side; a caller may list them for documentation. |
+| `Codelab:Integration:Gateway:Retry:BaseDelay` | TimeSpan | `00:00:00.4000000` | The first back-off delay (exponential growth with jitter after it). |
+| `Codelab:Integration:Gateway:Retry:MaxDelay` | TimeSpan | `00:00:10` | The longest back-off delay; also caps an upstream Retry-After value. |
+| `Codelab:Integration:Gateway:Retry:MaxRetries` | int | `2` | Retries after the first attempt; 0 turns retries off. At most `MaxRetriesCeiling`. |
+| `Codelab:Integration:Gateway:Retry:UseJitter` | bool | `true` | Adds jitter to the back-off so many clients do not retry in lockstep. |
+| `Codelab:Integration:Gateway:Timeout:AttemptTimeout` | TimeSpan | `00:00:10` | The timeout of one attempt. |
+| `Codelab:Integration:Gateway:Timeout:TotalTimeout` | TimeSpan | `00:00:30` | The timeout of the whole call, every attempt and back-off delay included. |
 
 ## Codelab.Observability
 
@@ -365,7 +387,29 @@ Every key bound by an options class that declares `public const string SectionNa
 | `Notifications:Sms:AllowFileSink` | bool | `false` | True to allow `File` outside the Development environment while SMS is enabled (a CI or test host only). Default false. |
 | `Notifications:Sms:Enabled` | bool | `false` | Whether SMS is delivered at all (default false: SMS channels end Disabled). |
 | `Notifications:Sms:FilePath` | string |  | An absolute file for `File`; unset means `%TEMP%\starter-sms\sms.jsonl`. |
-| `Notifications:Sms:Mode` | enum SmsDeliveryMode (File, Gateway) | `File` | File (default; Development, elsewhere only with `AllowFileSink`) or the integration gateway (phase 8). |
+| `Notifications:Sms:Mode` | enum SmsDeliveryMode (File, Gateway) | `File` | File (default; Development, elsewhere only with `AllowFileSink`) or the integration gateway. |
+
+## Ops
+
+### `Codelab:Ops`
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Codelab:Ops:CaptureReferenceCodes` | bool | `true` | Record every problem+json error response in the reference-code index. Default true. |
+| `Codelab:Ops:CertificateCriticalDays` | int | `7` | Fewer whole days left than this (below the warning days) is critical. Default 7. |
+| `Codelab:Ops:CertificateWarningDays` | int | `30` | Fewer whole days left than this is a certificate warning. Default 30. |
+| `Codelab:Ops:Certificates:<n>:Name` | string |  | The row name (lowercase kebab), for example `api-tls`. |
+| `Codelab:Ops:Certificates:<n>:Path` | string |  | The path of a public certificate file. |
+| `Codelab:Ops:Certificates:<n>:StoreLocation` | string | `LocalMachine` | The store location (`LocalMachine` or `CurrentUser`). Default `LocalMachine`. |
+| `Codelab:Ops:Certificates:<n>:StoreName` | string | `My` | The store name (`My`, `Root`, ...). Default `My`. |
+| `Codelab:Ops:Certificates:<n>:Thumbprint` | string |  | The thumbprint in the store (hex, spaces ignored). |
+| `Codelab:Ops:IdentityProviderJwksUrl` | string |  | The identity provider's JWKS URL, read directly for the end dates of its signing certificates (`x5c`) only when single sign-on is not a login mode of this host; with `sso` on, the JWKS is read through the sign-in's own back channel (direct or the gateway relay) and this URL is ignored. The API must reach it over validated TLS. |
+| `Codelab:Ops:ProbeTimeoutSeconds` | int | `5` | How long one component check may take, in seconds (1 to 30). Default 5. |
+| `Codelab:Ops:ReadinessProbes:<n>:Name` | string |  | The component name (lowercase kebab), for example `attachment-service` or `integration-gateway`. |
+| `Codelab:Ops:ReadinessProbes:<n>:Url` | string |  | The absolute readiness URL, for example `https://attachments.example.test/health/ready`. |
+| `Codelab:Ops:ReferenceCodeRetentionDays` | int | `30` | How long a reference-code sighting is kept, in days (1 to 365). Default 30. |
+| `Codelab:Ops:SearchMarginMinutes` | int | `15` | How far before and after an error the log search window reaches, in minutes (1 to 1440). Default 15. |
+| `Codelab:Ops:TrustedCallerKeyId` | string |  | The key id (`kid`) of the Ops Console API's ES256 key, which must be one of `Codelab:Security:ServiceAssertions:Server:TrustedServices`. Empty: the Ops surface is closed (every call answers 401) and no server assertion settings are required. |
 
 ## Portal
 

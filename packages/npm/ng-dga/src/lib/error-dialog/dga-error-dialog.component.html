@@ -19,7 +19,7 @@
         @if (referenceLabel(); as label) {
           <span class="dga-error-dialog__reference-label">{{ label }}</span>
         }
-        <code class="dga-error-dialog__reference-code" dir="ltr" data-fixed-direction>{{ referenceCode() }}</code>
+        <code class="dga-error-dialog__reference-code" dir="ltr" data-fixed-direction [attr.data-testid]="referenceCodeTestId">{{ referenceCode() }}</code>
       </div>
       @if (canCopy()) {
         <dga-button
@@ -27,6 +27,8 @@
           variant="secondary-outline"
           size="sm"
           [leadIcon]="copyIcon()"
+          [label]="copyName()"
+          [attr.data-testid]="copyTestId"
           (click)="copy()"
         >
           {{ copyText() }}

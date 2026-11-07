@@ -4,8 +4,8 @@
 Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/build.ps1 -Target CI`); the Claude hooks refuse violating edits early. Owners: @platform-owner.
 
 ## Dependencies
-- May depend on: _none_
-- Must not depend on: `CodelabSecurity`, `CodelabObservability`, `CodelabErrors`, `CodelabTesting`
+- May depend on: `CodelabSecurity`
+- Must not depend on: `CodelabObservability`, `CodelabErrors`, `CodelabTesting`
 
 ## Required
 - `base.thin-controllers`: Controllers and endpoints only bind input, call one Application use case and map the result; no business logic, no data access. (enforced by architecture-test, review, automated from P2)

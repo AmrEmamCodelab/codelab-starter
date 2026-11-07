@@ -94,11 +94,30 @@ public static class SourceSweep
     {
         var excludedDirectories = new HashSet<string>(options.ExcludedDirectoryNames, StringComparer.OrdinalIgnoreCase);
         var extensions = new HashSet<string>(options.IncludeExtensions, StringComparer.OrdinalIgnoreCase);
-        return Walk(options.Root, excludedDirectories)
+        return StartDirectories(options)
+            .SelectMany(directory => Walk(directory, excludedDirectories))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .Where(file => extensions.Count == 0 || extensions.Contains(Path.GetExtension(file)))
             .Where(file => !options.ExcludedPaths.Any(glob => GlobPattern.IsMatch(Path.GetRelativePath(options.Root, file), glob)))
             .Where(file => new FileInfo(file).Length <= options.MaxFileBytes)
             .Order(StringComparer.Ordinal);
+    }
+
+    private static List<string> StartDirectories(SourceSweepOptions options)
+    {
+        if (options.IncludedDirectories.Count == 0)
+        {
+            return [options.Root];
+        }
+
+        var directories = options.IncludedDirectories.Select(relative => Path.GetFullPath(Path.Combine(options.Root, relative))).ToList();
+        var missing = directories.Find(directory => !Directory.Exists(directory));
+        if (missing is not null)
+        {
+            throw new DirectoryNotFoundException($"The sweep folder '{missing}' does not exist.");
+        }
+
+        return directories;
     }
 
     private static IEnumerable<string> Walk(string directory, HashSet<string> excludedDirectories)

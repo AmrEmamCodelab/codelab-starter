@@ -1,0 +1,34 @@
+{
+  "$entity": "alert",
+  "Title": "Ops: [{{env}}] Gateway relay failures",
+  "Description": "Runbook: docs/runbooks/seq.md, section 'Gateway relay failures'.",
+  "OwnerId": null,
+  "IsProtected": true,
+  "IsDisabled": false,
+  "DataSource": "Stream",
+  "Joins": [],
+  "SignalExpression": {
+    "Kind": "Signal",
+    "SignalId": "{{ref:signal-gateway-relay-failures.template}}"
+  },
+  "Where": "DeploymentEnvironment = '{{env}}'",
+  "GroupBy": [
+    {
+      "Value": "Code",
+      "Label": null,
+      "IsCaseInsensitive": false
+    }
+  ],
+  "TimeGrouping": "00:05:00",
+  "Select": [
+    {
+      "Value": "count(*)",
+      "Label": "n"
+    }
+  ],
+  "Having": "n > {{gatewayFailuresPerFiveMinutes}}",
+  "NotificationLevel": "Error",
+  "NotificationProperties": [],
+  "NotificationChannels": "{{json:notificationChannels}}",
+  "SuppressionTime": "01:00:00"
+}

@@ -30,9 +30,9 @@ export const ACCESS_TOKEN_REFRESH_LEAD_MS = MILLISECONDS_PER_MINUTE;
  * - Logout of an SSO session calls `api/auth/sso/logout` and then navigates the whole page to the identity
  *   provider's end-session URL (a GET carrying id_token_hint, so the provider redirects back); basic and AD
  *   sessions call `api/auth/logout` and go to the login page.
- * - Login stores the tokens and adopts the request-signing keys: the login response's `signing` block, else
- *   the block of `GET api/security/session-signing-key` (a 404 there means the server does not sign),
- *   and syncs the permissions. Its failures propagate unchanged (an `HttpErrorResponse` the login form
+ * - Login adopts the request-signing keys (the login response's `signing` block, else the block of
+ *   `GET api/security/session-signing-key`, where a 404 means the server does not sign), THEN stores the tokens,
+ *   so no caller sees a session that cannot sign yet, and syncs the permissions. Its failures propagate unchanged (an `HttpErrorResponse` the login form
  *   parses with `parseApiError`, or an ng-security signing error).
  * - The access token is refreshed one minute before it expires. A failed refresh (refused, unverifiable, or its new
  *   signing keys refused) is reported to the `ErrorHandler` and expires the session: the user returns to the login
@@ -212,28 +212,33 @@ export class AuthService {
     return true;
   }
 
+  /**
+   * Adopts the signing keys, THEN publishes the session. Everything that follows `TokenStore.session()` (the
+   * notifications feed, the permission sync, any effect on {@link isAuthenticated}) calls the API the moment the
+   * session appears; published before its keys, those calls went out unsigned during the key round trip
+   * (401 `signature_missing`) and expired the new session. The key request carries the new access token explicitly.
+   */
   private async adoptSession(response: SessionResponse, mode: SignInMode): Promise<void> {
-    // The tokens come first: the signing-key request is authenticated with the new access token.
-    this.tokens.save(response, mode);
     try {
       await this.adoptSigningKeys(response);
     } catch (error) {
       this.tokens.clear();
       throw error;
     }
+    this.tokens.save(response, mode);
     this.scheduleRefresh();
   }
 
   private async adoptSigningKeys(response: SessionResponse): Promise<void> {
     if (!this.signingKeys) return;
-    const block = response.signing ?? (await this.fetchSigningBlock());
+    const block = response.signing ?? (await this.fetchSigningBlock(response.accessToken));
     if (block) await this.signingKeys.adopt(block);
   }
 
   /** The session's signing block, or null when the server does not sign (404). */
-  private async fetchSigningBlock(): Promise<SigningSessionBlock | null> {
+  private async fetchSigningBlock(accessToken: string): Promise<SigningSessionBlock | null> {
     try {
-      return await firstValueFrom(this.client.signingKey());
+      return await firstValueFrom(this.client.signingKey(accessToken));
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.NotFound) return null;
       throw error;

@@ -121,6 +121,31 @@ describe('AuthService', () => {
     expect(keys.adopt).toHaveBeenCalledWith(SIGNING);
   });
 
+  it('fetches the signing keys with the new access token before the session is stored', async () => {
+    const auth = setUp();
+    let storedWhileFetching: boolean | undefined;
+    client.signingKey.mockImplementation(() => {
+      storedWhileFetching = auth.isAuthenticated();
+      return of(SIGNING);
+    });
+    await auth.login('user', 'secret');
+    expect(client.signingKey).toHaveBeenCalledWith('a1');
+    expect(storedWhileFetching).toBe(false);
+  });
+
+  it('publishes the session only after its signing keys are adopted', async () => {
+    client.login.mockReturnValue(of(response('a1', SIGNING)));
+    const auth = setUp();
+    let storedWhileAdopting: boolean | undefined;
+    keys.adopt.mockImplementation(() => {
+      storedWhileAdopting = auth.isAuthenticated();
+      return Promise.resolve({});
+    });
+    await auth.login('user', 'secret');
+    expect(storedWhileAdopting).toBe(false);
+    expect(auth.isAuthenticated()).toBe(true);
+  });
+
   it('does not fetch the signing keys when the login response carries them', async () => {
     client.login.mockReturnValue(of(response('a1', SIGNING)));
     await setUp().login('user', 'secret');

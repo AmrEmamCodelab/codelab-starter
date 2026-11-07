@@ -1,0 +1,17 @@
+.access {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--dga-space-16);
+  padding-inline: var(--dga-space-4);
+}
+
+.access__card {
+  inline-size: 100%;
+  max-inline-size: 36rem;
+}
+
+.access__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dga-space-3);
+}

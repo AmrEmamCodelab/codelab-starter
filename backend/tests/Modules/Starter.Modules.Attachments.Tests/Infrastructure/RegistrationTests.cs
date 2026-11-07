@@ -103,6 +103,40 @@ public sealed class RegistrationTests
         AssertRegistered<IRequiredAttachments>(services);
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IOutboxHandler) && descriptor.ImplementationType == typeof(DeleteAttachmentFileHandler));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IStartupTask) && descriptor.ImplementationType == typeof(AttachmentCatalogStartupCheck));
+        var tasks = services.Where(descriptor => descriptor.ServiceType == typeof(IStartupTask)).Select(descriptor => descriptor.ImplementationType).ToList();
+        Assert.True(tasks.IndexOf(typeof(AttachmentTypeSeedStartupTask)) is >= 0 and var seeding && seeding < tasks.IndexOf(typeof(AttachmentCatalogStartupCheck)));
+    }
+
+    [Fact]
+    public void Without_a_declaring_module_no_type_is_declared()
+    {
+        using var provider = Provider(Environments.Production, StubHandler.Status(HttpStatusCode.OK));
+
+        Assert.Empty(provider.GetRequiredService<AttachmentTypeDeclarations>().Seeds);
+    }
+
+    [Fact]
+    public void The_types_a_module_declares_reach_the_synchronizer()
+    {
+        using var provider = Provider(
+            Environments.Production,
+            StubHandler.Status(HttpStatusCode.OK),
+            services => services.AddSingleton<IAttachmentTypeSeedSource>(new DeclaringSource()));
+
+        var seed = Assert.Single(provider.GetRequiredService<AttachmentTypeDeclarations>().Seeds);
+
+        Assert.Equal(DeclaringSource.Definition.Key, seed.Key);
+    }
+
+    [Fact]
+    public void A_module_that_declares_the_demo_type_stops_the_host()
+    {
+        using var provider = Provider(
+            Environments.Production,
+            StubHandler.Status(HttpStatusCode.OK),
+            services => services.AddSingleton<IAttachmentTypeSeedSource>(new DeclaringSource(AttachmentTypeIds.DemoDocument)));
+
+        Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<AttachmentTypeDeclarations>());
     }
 
     [Fact]
@@ -157,6 +191,18 @@ public sealed class RegistrationTests
         services.AddHttpClient<IAttachmentStorageClient, HttpAttachmentStorageClient>().ConfigurePrimaryHttpMessageHandler(() => handler);
         extra?.Invoke(services);
         return services.BuildServiceProvider();
+    }
+
+    /// <summary>A module that declares one attachment type (id 90 unless given).</summary>
+    private sealed class DeclaringSource(int id = DeclaringSource.DefaultId) : IAttachmentTypeSeedSource
+    {
+        private const int DefaultId = 90;
+
+        public static AttachmentTypeDefinition Definition { get; } = new(
+            Id: DefaultId, Key: "sourced-file", RecordType: SourcedRecordType, NameAr: "ملف", NameEn: "File",
+            IsRequired: false, MaxFiles: 2, AllowedExtensions: [".pdf"]);
+
+        public IEnumerable<AttachmentTypeDefinition> Types => [Definition with { Id = id }];
     }
 
     /// <summary>A source serving one access that allows nothing, as the Records module serves one per record type.</summary>

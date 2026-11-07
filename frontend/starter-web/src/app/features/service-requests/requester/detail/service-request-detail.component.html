@@ -40,9 +40,13 @@
     />
   </div>
 
-  @if (attachmentsRecordId(); as recordId) {
+  @if (attachmentsTarget(); as target) {
     <div detailAttachments data-testid="sr-detail-attachments">
-      <app-record-attachments [recordType]="attachableType" [recordId]="recordId" [readonly]="attachmentsReadonly()" />
+      <app-record-attachments [recordType]="target.recordType" [recordId]="target.recordId" [readonly]="attachmentsReadonly()" />
+    </div>
+  } @else if (attachmentsFeedback(); as feedback) {
+    <div detailAttachments data-testid="sr-detail-attachments-failed">
+      <dga-page-feedback [state]="feedback" [moveFocus]="false" />
     </div>
   }
 

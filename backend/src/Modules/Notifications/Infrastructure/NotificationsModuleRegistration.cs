@@ -1,3 +1,5 @@
+using Codelab.Errors;
+using Codelab.Integration.Gateway;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +24,9 @@ public static class NotificationsModuleRegistration
 {
     /// <summary>
     /// Registers the permission catalog source, the delivery options (validated on start), the DbContext in schema
-    /// <c>notifications</c> and its stores, the senders picked by mode, the kernel <see cref="INotificationService"/>, the
+    /// <c>notifications</c> and its stores, the senders picked by mode (with SMS enabled in gateway mode, also the
+    /// integration gateway client of <c>Codelab:Integration:Gateway</c>, which needs <c>AddCodelabSecurity</c> and the S2S
+    /// client identity) and the SMS failure classifier, the kernel <see cref="INotificationService"/>, the
     /// two outbox handlers (notification-email, notification-sms) and the feed use cases. The recipients come from the
     /// kernel <see cref="INotificationRecipients"/> port (Identity), the current user from <c>IUserDirectory</c>.
     /// </summary>
@@ -35,7 +39,7 @@ public static class NotificationsModuleRegistration
         services.AddModuleDbContext<NotificationsDbContext>(NotificationsDbContext.SchemaName);
         services.AddScoped<INotificationStore, EfNotificationStore>();
         services.AddScoped<ITemplateStore, EfTemplateStore>();
-        AddSenders(services);
+        AddSenders(services, configuration);
         AddDelivery(services);
         AddUseCases(services);
         // scaffold:registrations
@@ -58,20 +62,56 @@ public static class NotificationsModuleRegistration
         services.AddSingleton(provider => new DeliverySettings(provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value.Enabled));
     }
 
-    private static void AddSenders(IServiceCollection services)
+    private static void AddSenders(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<SmtpEmailSender>();
         services.AddSingleton<FileDropEmailSender>();
         services.AddSingleton<FileSmsSender>();
-        services.AddSingleton<GatewaySmsSender>();
         services.AddSingleton<IEmailSender>(provider =>
             provider.GetRequiredService<IOptions<EmailDeliveryOptions>>().Value.Mode == EmailDeliveryMode.Smtp
                 ? provider.GetRequiredService<SmtpEmailSender>()
                 : provider.GetRequiredService<FileDropEmailSender>());
-        services.AddSingleton<ISmsSender>(provider =>
-            provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value.Mode == SmsDeliveryMode.Gateway
-                ? provider.GetRequiredService<GatewaySmsSender>()
-                : provider.GetRequiredService<FileSmsSender>());
+        services.AddScoped<ISmsSender>(provider => UsesGateway(provider.GetRequiredService<IOptions<SmsDeliveryOptions>>().Value)
+            ? provider.GetRequiredService<GatewaySmsSender>()
+            : provider.GetRequiredService<FileSmsSender>());
+        if (UsesGateway(ConfiguredSms(configuration)))
+        {
+            AddGatewayClientOnce(services, configuration);
+            services.AddScoped<GatewaySmsSender>();
+        }
+
+        services.Configure<CodelabErrorsOptions>(errors => errors.AddSmsDeliveryFailures());
+    }
+
+    /// <summary>SMS goes to the integration gateway only while it is enabled and in gateway mode.</summary>
+    internal static bool UsesGateway(SmsDeliveryOptions options) => options.Enabled && options.Mode == SmsDeliveryMode.Gateway;
+
+    /// <summary>
+    /// The SMS section as configured at registration, read leniently: an unreadable section registers no gateway client
+    /// and is refused by the options validation on start.
+    /// </summary>
+    private static SmsDeliveryOptions ConfiguredSms(IConfiguration configuration)
+    {
+        try
+        {
+            return configuration.GetSection(SmsDeliveryOptions.SectionName).Get<SmsDeliveryOptions>() ?? new SmsDeliveryOptions();
+        }
+        catch (InvalidOperationException)
+        {
+            return new SmsDeliveryOptions();
+        }
+    }
+
+    /// <summary>
+    /// <c>AddCodelabGatewayClient</c> unless another module (the SSO relay) registered it already: a second call would add
+    /// the signing handler twice.
+    /// </summary>
+    private static void AddGatewayClientOnce(IServiceCollection services, IConfiguration configuration)
+    {
+        if (!services.Any(descriptor => descriptor.ServiceType == typeof(GatewayRelayClient)))
+        {
+            services.AddCodelabGatewayClient(configuration);
+        }
     }
 
     private static void AddDelivery(IServiceCollection services)

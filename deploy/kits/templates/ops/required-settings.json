@@ -1,0 +1,12 @@
+{
+  "requirements": [
+    { "path": "Codelab:OpsConsole:Api:BaseUrl", "format": 2 },
+    { "path": "Codelab:OpsConsole:OperatorGroup", "format": 1 },
+    { "path": "Codelab:OpsConsole:Seq:BaseUrl", "format": 2 },
+    { "path": "Codelab:OpsConsole:Seq:ApiKey", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Client:ServiceName", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Client:Audience", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Client:KeyId", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Client:PrivateKeyPem", "format": 1 }
+  ]
+}

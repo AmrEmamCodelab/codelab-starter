@@ -20,6 +20,7 @@ const CODE = '9TQ4M-2HXRB';
         [referenceCode]="code()"
         [copyLabel]="copyLabel()"
         copiedLabel="Copied"
+        [copyAriaLabel]="copyAriaLabel()"
         closeLabel="Close"
         (closed)="closedCount = closedCount + 1"
         (copied)="copiedCodes.push($event)"
@@ -32,6 +33,7 @@ class HostComponent {
   readonly open = signal(true);
   readonly code = signal<string | null>(CODE);
   readonly copyLabel = signal<string | null>('Copy');
+  readonly copyAriaLabel = signal<string | null>(null);
   closedCount = 0;
   readonly copiedCodes: string[] = [];
 }
@@ -80,6 +82,27 @@ describe('DgaErrorDialogComponent', () => {
     expect(code.getAttribute('dir')).toBe('ltr');
     expect(code.hasAttribute('data-fixed-direction')).toBe(true);
     expect(root.querySelector('.dga-error-dialog__reference-label')?.textContent).toBe('Reference code');
+  });
+
+  it('marks the code and the copy button for browser tests', async () => {
+    const { root } = await render();
+    expect(root.querySelector('[data-testid="error-reference-code"]')?.textContent).toBe(CODE);
+    expect(root.querySelector('[data-testid="error-reference-copy"] button')).not.toBeNull();
+  });
+
+  it('names the copy button with the aria label when given, else by its visible label', async () => {
+    const plain = await render();
+    expect(plain.copyButton()?.hasAttribute('aria-label')).toBe(false);
+    expect(plain.copyButton()?.textContent).toContain('Copy');
+    document.body.replaceChildren();
+    const named = await render((host) => host.copyAriaLabel.set('Copy the reference code'));
+    expect(named.copyButton()?.getAttribute('aria-label')).toBe('Copy the reference code');
+  });
+
+  it('hides the test-marked code when there is no code', async () => {
+    const { root } = await render((host) => host.code.set(null));
+    expect(root.querySelector('[data-testid="error-reference-code"]')).toBeNull();
+    expect(root.querySelector('[data-testid="error-reference-copy"]')).toBeNull();
   });
 
   it('hides the reference block without a code, and the copy button without a copy label', async () => {

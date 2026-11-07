@@ -83,6 +83,33 @@ The delivery state of an outbox row. Stored as the integer value.
 | 3 | `Failed` | Delivery gave up: no handler for the type, or `MaxAttempts` attempts failed. A Failed row is never delivered again; an operator decides whether the recipient still needs it. |
 | 4 | `Processing` | Claimed by a drain that holds a lease until `LockedUntil`; reclaimed only after the lease expires. |
 
+## Ops
+
+### `CertificateStatus`
+
+`Starter.Modules.Ops.Domain.Certificates.CertificateStatus`
+
+How close a certificate is to its end (sent as the integer value).
+
+| Value | Name | Description |
+| --- | --- | --- |
+| 1 | `Ok` | At least `Codelab:Ops:CertificateWarningDays` whole days left. |
+| 2 | `Warning` | Fewer than the warning days left. |
+| 3 | `Critical` | Fewer than `Codelab:Ops:CertificateCriticalDays` whole days left, or the end date cannot be read. |
+| 4 | `Expired` | The end date has passed. |
+
+### `ComponentStatus`
+
+`Starter.Modules.Ops.Domain.Health.ComponentStatus`
+
+The health of one component, or of the whole system (sent as the integer value).
+
+| Value | Name | Description |
+| --- | --- | --- |
+| 1 | `Healthy` | The component answered and is ready. |
+| 2 | `Degraded` | The component answered ready, but slower than half the probe timeout. |
+| 3 | `Unhealthy` | The component did not answer, or answered that it is not ready. |
+
 ## Users
 
 ### `ImportBatchStatus`

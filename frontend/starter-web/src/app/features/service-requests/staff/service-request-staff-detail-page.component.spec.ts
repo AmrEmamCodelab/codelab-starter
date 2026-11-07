@@ -1,10 +1,12 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { DgaPageFeedbackKind } from '@codelab/ng-dga';
+import { NEVER, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecordAttachmentsComponent } from '../../../shared/record-attachments/record-attachments.component';
 import { QueuesClient, RecordsClient, TransitionSide } from '../../../shared/records';
 import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestActions, ServiceRequestStatus, ServiceRequestsClient } from '../data';
-import { TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
+import { TEST_ATTACHMENTS_RECORD_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
 import { ServiceRequestStaffDetailPageComponent } from './service-request-staff-detail-page.component';
 import { ServiceRequestsStaffPermissionKeys } from './service-requests-staff.permissions';
 import { ServiceRequestsStaffTranslationKeys } from './service-requests-staff-translation-keys';
@@ -93,6 +95,28 @@ describe('ServiceRequestStaffDetailPageComponent', () => {
     expect(steps[0].textContent).toContain('Staff One');
     expect(steps[0].textContent).toContain('serviceRequests.action.start-review');
     expect(allByTestId(host, 'detail-assignee')[0].textContent).toContain('Staff One');
+  });
+
+  it('gives the attachments widget the attachments id, never the request id', async () => {
+    await render(ServiceRequestsStaffPermissionKeys.Queue);
+    const widget = fixture.debugElement.query(By.directive(RecordAttachmentsStubComponent)).componentInstance as RecordAttachmentsStubComponent;
+    expect(widget.recordId()).toBe(TEST_ATTACHMENTS_RECORD_ID);
+    expect(widget.recordId()).not.toBe(TEST_SERVICE_REQUEST_ID);
+  });
+
+  it('hides the attachments widget until the record is loaded', async () => {
+    records.detail.mockReturnValue(NEVER);
+    await render(ServiceRequestsStaffPermissionKeys.Queue);
+    expect(fixture.debugElement.query(By.directive(RecordAttachmentsStubComponent))).toBeNull();
+  });
+
+  it('shows page feedback instead of the widget when the record carries no attachments id', async () => {
+    records.detail.mockReturnValue(of(staffRecord({ attachmentsRecordId: '' })));
+    await render(ServiceRequestsStaffPermissionKeys.Queue);
+    expect(fixture.debugElement.query(By.directive(RecordAttachmentsStubComponent))).toBeNull();
+    const feedback = allByTestId(host, 'detail-attachments-failed')[0]?.querySelector('.dga-page-feedback');
+    expect(feedback?.getAttribute('data-kind')).toBe(DgaPageFeedbackKind.Error);
+    expect(feedback?.textContent).toContain('errors.INTERNAL_ERROR');
   });
 
   it('renders the decisions from the allowed actions only', async () => {

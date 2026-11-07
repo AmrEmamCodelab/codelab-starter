@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Tests of the Ops module. Unit tier (no database, no network): the domain rules (reference-code format, operator
+    name, certificate expiry, health roll-up), every use case over fakes, the options validator, the trusted-caller
+    policy, the probes and certificate sources over fake HTTP handlers and runtime-generated certificates, the
+    reference-code capture and writer, and the EF model against its InitialCreate migration.
+    HTTP tier (OpsHttpTests): the kernel host with the Ops module on a throwaway database StarterOpsIt_<guid> on
+    (localdb)\P2Proof (CODELAB_TEST_SQL overrides the server), dropped afterwards: a valid ES256 assertion is accepted,
+    and a bearer token, an API-key header, a replayed assertion and no credential are each 401.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Modules\Ops\Starter.Modules.Ops.csproj" />
+  </ItemGroup>
+</Project>

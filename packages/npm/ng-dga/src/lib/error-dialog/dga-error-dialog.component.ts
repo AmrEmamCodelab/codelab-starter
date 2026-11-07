@@ -21,7 +21,14 @@ import type { DgaIconName } from '../icon/dga-icon-names.generated';
 import { hasText } from '../internal/aria';
 import { createDgaId } from '../internal/unique-id';
 import { DGA_CLIPBOARD } from './dga-clipboard';
-import { copyButtonLabel, DGA_COPY_FEEDBACK_MS, showsCopyButton } from './error-reference';
+import {
+  copyButtonAccessibleName,
+  copyButtonLabel,
+  DGA_COPY_FEEDBACK_MS,
+  DGA_ERROR_REFERENCE_CODE_TEST_ID,
+  DGA_ERROR_REFERENCE_COPY_TEST_ID,
+  showsCopyButton,
+} from './error-reference';
 
 const NATIVE_BUTTON_SELECTOR = 'button';
 const COPY_ICON: DgaIconName = 'file';
@@ -35,13 +42,16 @@ const COPIED_ICON: DgaIconName = 'check';
  *   `message`). The close button and Escape emit `closed`; the caller sets `open` back to false.
  * - `referenceCode` (language-neutral, shown left-to-right even in Arabic) appears under `referenceLabel`. With a
  *   `copyLabel`, a copy button writes the code to the clipboard (`DGA_CLIPBOARD`), reads `copiedLabel` for a moment
- *   and announces it politely, and emits `copied`.
+ *   and announces it politely, and emits `copied`. `copyAriaLabel` names the button for assistive technology ("Copy the
+ *   reference code") when the visible label alone is too terse.
+ * - The code carries `data-testid="error-reference-code"` and the copy button `data-testid="error-reference-copy"`
+ *   ({@link DGA_ERROR_REFERENCE_CODE_TEST_ID}, {@link DGA_ERROR_REFERENCE_COPY_TEST_ID}) for browser tests.
  * - Focus moves to the close button on open, Tab stays inside, and focus returns to the opener on close.
  *
  * @example
  * <dga-error-dialog [open]="failed()" [title]="'errors.title' | t" [message]="messageKey() | t"
  *   [referenceLabel]="'errors.reference' | t" [referenceCode]="code()" [copyLabel]="'common.copy' | t"
- *   [copiedLabel]="'common.copied' | t" [closeLabel]="'common.close' | t" (closed)="dismiss()" />
+ *   [copiedLabel]="'common.copied' | t" [copyAriaLabel]="'errors.copy-reference' | t" [closeLabel]="'common.close' | t" (closed)="dismiss()" />
  */
 @Component({
   selector: 'dga-error-dialog',
@@ -64,6 +74,8 @@ export class DgaErrorDialogComponent {
   readonly copyLabel = input<string | null>(null);
   /** The copy button's label right after a copy, also announced (already translated). */
   readonly copiedLabel = input<string | null>(null);
+  /** The copy button's accessible name (already translated); without it the visible label names the button. */
+  readonly copyAriaLabel = input<string | null>(null);
   readonly closeLabel = input.required<string>();
   readonly closed = output<void>();
   /** Emitted with the copied code after a successful copy. */
@@ -75,6 +87,8 @@ export class DgaErrorDialogComponent {
   private readonly clipboard = inject(DGA_CLIPBOARD);
   private revertTimer: ReturnType<typeof setTimeout> | undefined;
 
+  readonly referenceCodeTestId = DGA_ERROR_REFERENCE_CODE_TEST_ID;
+  readonly copyTestId = DGA_ERROR_REFERENCE_COPY_TEST_ID;
   readonly titleId = createDgaId('dga-error-dialog-title');
   readonly messageId = `${this.titleId}-message`;
   /** True for a moment after a successful copy. */
@@ -84,9 +98,11 @@ export class DgaErrorDialogComponent {
     referenceCode: this.referenceCode(),
     copyLabel: this.copyLabel(),
     copiedLabel: this.copiedLabel(),
+    copyAriaLabel: this.copyAriaLabel(),
   }));
   readonly canCopy = computed(() => showsCopyButton(this.referenceTexts()));
   readonly copyText = computed(() => copyButtonLabel(this.referenceTexts(), this.justCopied()));
+  readonly copyName = computed(() => copyButtonAccessibleName(this.referenceTexts()));
   readonly copyIcon = computed(() => (this.justCopied() ? COPIED_ICON : COPY_ICON));
 
   constructor() {

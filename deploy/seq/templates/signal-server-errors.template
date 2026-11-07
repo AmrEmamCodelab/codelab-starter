@@ -1,0 +1,24 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: Server errors (5xx)",
+  "Description": "Requests that ended with a 5xx status, from any application.",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "StatusCode >= 500",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "Application" },
+    { "Expression": "RouteTemplate" },
+    { "Expression": "Code" },
+    { "Expression": "ErrorFingerprint" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}

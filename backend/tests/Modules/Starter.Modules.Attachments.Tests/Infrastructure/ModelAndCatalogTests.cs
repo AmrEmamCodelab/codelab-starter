@@ -69,9 +69,21 @@ public sealed class AttachmentsModelTests
         Assert.DoesNotContain("ON DELETE CASCADE", script, StringComparison.Ordinal);
         Assert.Contains($"CREATE UNIQUE INDEX [{AttachmentsMigrationIds.RecordAttachmentsFileIdIndex}]", script, StringComparison.Ordinal);
         Assert.Contains("[attachments].[__EFMigrationsHistory]", script, StringComparison.Ordinal);
-        Assert.Equal(AttachmentTypeSeed.Rows.Count + AddServiceRequestAttachmentTypes.Rows.Count, script.Split("INSERT INTO [attachments].[ServiceAttachments]").Length - 1);
+        Assert.Equal(AttachmentTypeSeed.Rows.Count, script.Split("INSERT INTO [attachments].[ServiceAttachments]").Length - 1);
         Assert.Contains("N'.pdf;.png;.jpg;.jpeg'", script, StringComparison.Ordinal);
         Assert.Contains("N'مستند تجريبي'", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_retired_sample_seed_migration_keeps_its_id_and_writes_nothing_but_its_history_row()
+    {
+        using var context = NewContext();
+
+        var script = context.GetService<IMigrator>().GenerateScript(fromMigration: AttachmentsMigrationIds.InitialCreate, toMigration: AddServiceRequestAttachmentTypes.MigrationId);
+
+        Assert.Equal("20261106150100_AddServiceRequestAttachmentTypes", AddServiceRequestAttachmentTypes.MigrationId);
+        Assert.DoesNotContain("[attachments].[ServiceAttachments]", script, StringComparison.Ordinal);
+        Assert.Contains($"N'{AddServiceRequestAttachmentTypes.MigrationId}'", script, StringComparison.Ordinal);
     }
 
     [Fact]

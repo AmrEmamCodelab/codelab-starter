@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    Codelab.Identity 0.5: the two external sign-in providers a starter host can switch on. Active Directory over
+    Codelab.Identity 0.6: the two external sign-in providers a starter host can switch on. Active Directory over
     LDAP/LDAPS (bind then search, a certificate reader and a diagnostic connection probe) and generic OpenID Connect
-    (authorization code + PKCE S256, id_token validation against JWKS or pinned keys, RP-initiated logout), each with
-    a fail-fast deployment guard. Read MODULE.md first. Public surface is tracked in PublicAPI.*.txt.
+    (authorization code + PKCE S256, id_token validation against JWKS or pinned keys, RP-initiated logout; the token
+    and JWKS calls through IOidcBackChannel, direct or a host's integration gateway relay), each with a fail-fast
+    deployment guard. Read MODULE.md first. Public surface is tracked in PublicAPI.*.txt.
   -->
   <PropertyGroup>
     <TargetFramework>$(CodelabTargetFramework)</TargetFramework>

@@ -107,6 +107,8 @@ Configuration:
 - `Auth:WebBaseUrl` (the SPA's absolute base URL)
 - `Codelab:Identity:ActiveDirectory:*` and `Codelab:Identity:Sso:*` (see the Codelab.Identity MODULE.md; `MatchBy` chooses e-mail, login name or UPN)
 - `Codelab:Security:Tickets:*` (required for `sso`)
+- `Codelab:Identity:Sso:BackChannel` (1 Direct, default; 2 GatewayRelay) and `Codelab:Identity:Sso:NoEgress`: with 2, `LoginModesRegistration` registers the integration gateway client (`Codelab:Integration:Gateway:*`, shared with the Notifications SMS relay, registered once) and `Infrastructure/LoginModes/GatewaySsoBackChannel.cs`, so the token exchange and the JWKS fetch go to the gateway's `/relay/sso/token` and `/relay/sso/jwks` with the API's ES256 service assertion; the authorize and end_session redirects are unchanged. A relayed provider refusal (`GATEWAY_UPSTREAM_REJECTED`) is a rejected sign-in; anything else (unreachable, a disabled profile, the gateway refusing the API) is `IDENTITY_SSO_UNAVAILABLE`.
+- With `sso` listed, the module also offers the kernel `IIdentityProviderKeySet` (`Infrastructure/LoginModes/SsoIdentityProviderKeySet.cs`): the provider's JWKS text over the registered back channel (direct or the gateway relay), null on any failure. The Ops certificate list reads the IdP signing certificates through it, so their expiry alert works in a backend zone without egress.
 
 Login-mode gotchas:
 - **The ticket travels in the URL fragment.** A browser never sends the fragment to a server, so the ticket reaches no proxy, server log or Referer header. The SPA reads it, removes it from the address bar and posts it to `sso/exchange` within 2 minutes. The ticket is a sealed, one-time Codelab.Security ticket that carries the new session's refresh token; the exchange spends it through `RefreshSessionUseCase`. The session starts at the callback, which is when `LoginSucceeded` is recorded.
@@ -145,6 +147,7 @@ The surface they build on (owned here):
 - Generated files (`CLAUDE.md`, `.editorconfig`, `BannedSymbols.generated.txt`, `CodeMetricsConfig.txt`) are never hand-edited. A migration that has shipped is never changed; add a new one.
 
 ## Gotchas
+- **A backend without egress uses the relay.** Set `Codelab:Identity:Sso:BackChannel=2` and `NoEgress=true`; with `NoEgress` true and the direct back channel the start fails outside Development. The relay setting is read at registration: changing it needs a restart.
 - **`Codelab:Security:Tickets` never leaves the API.** That ring seals the SSO pending and exchange tickets and the activation tickets; it must never be deployed to another host. The attachment service gets only the separate `Codelab:Security:UploadTickets` ring.
 - **A reused refresh token ends the session.** Presenting a refresh token that was already rotated is treated as theft: the session is revoked, so the legitimate holder must sign in again too. Clients must never send the same refresh token twice (serialize refreshes).
 - **Refresh failures are one code.** Malformed, unknown, expired, idle, rotated, revoked, deactivated and version-bumped all answer `IDENTITY_REFRESH_REJECTED`, by design; the auth event says which.

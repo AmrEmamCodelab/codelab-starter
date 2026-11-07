@@ -1,5 +1,11 @@
 import { WIRE_ID_PAYLOAD_LENGTH, WIRE_ID_VERSION, asId } from '@codelab/ng-security';
-import type { ServiceRequestCategoryId, ServiceRequestDetails, ServiceRequestId } from './service-request.models';
+import type { AttachableRecordId } from '../../../shared/attachments/attachments.models';
+import {
+  SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE,
+  type ServiceRequestCategoryId,
+  type ServiceRequestDetails,
+  type ServiceRequestId,
+} from './service-request.models';
 
 /** Spec fixtures for the Service Request data layer and its screens. Not used by production code. */
 
@@ -25,4 +31,22 @@ export function serviceRequestDetails(overrides: Partial<ServiceRequestDetails> 
     preferredDate: '2026-11-20',
     ...overrides,
   };
+}
+
+/**
+ * The Records-kernel attachments id of the test request (`attachmentsRecordId`, family `attachable-records`). It is
+ * deliberately different from `TEST_SERVICE_REQUEST_ID`: a page that passed the request id to the attachments widget
+ * fails the specs.
+ */
+export const TEST_ATTACHMENTS_RECORD_ID: AttachableRecordId = asId('attachable-record', wireToken('A'));
+
+/** The two attachment fields the generic records endpoint adds to a record (`RecordDetailResponse`). */
+export interface RecordAttachmentsWireFields {
+  readonly attachableRecordType: string;
+  readonly attachmentsRecordId: string;
+}
+
+/** The attachment fields of the test request, as the server sends them. */
+export function recordAttachmentsWire(overrides: Partial<RecordAttachmentsWireFields> = {}): RecordAttachmentsWireFields {
+  return { attachableRecordType: SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, attachmentsRecordId: TEST_ATTACHMENTS_RECORD_ID, ...overrides };
 }

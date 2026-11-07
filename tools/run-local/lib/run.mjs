@@ -30,7 +30,6 @@ import {
   SEQ_SERVICE,
   SERVICE_CONTROL,
   SLOT_BUILD_DIR,
-  SLOT_STORAGE_DIR,
   SLOT_WEB_DIR,
   STATIC_SERVER_SCRIPT,
   Services,
@@ -39,6 +38,7 @@ import {
   STATE_FILE,
   TASKKILL,
   TASKLIST,
+  TicketRingState,
   Timeouts,
   WEB_BROWSER_DIR,
   WEB_HEALTH_PATH,
@@ -56,11 +56,13 @@ import {
   resolveDotnet,
   resolveNodeDir,
   secretsNeedSeeding,
+  serviceTicketRingState,
   seqDecision,
   seqUrl,
   serializeState,
   slotOverrides,
   slotStateDir,
+  slotStorageRoot,
   slotUrls,
   slotWebConfig,
   startPlan,
@@ -112,18 +114,47 @@ export function stop(baseSystem, slot = Slots.default) {
   return lines;
 }
 
-/** Runs New-LocalSecrets.ps1 when a secrets file or the attachment keys are missing (it only adds missing keys). */
+/** The text of a file, or null when it does not exist. */
+function readIfExists(system, file) {
+  return system.exists(file) ? system.readText(file) : null;
+}
+
+/**
+ * Runs New-LocalSecrets.ps1 when a secrets file or the attachment keys are missing (it only adds missing keys), then
+ * refuses to start when the Attachment service holds a ticket ring other than the API's upload-ticket ring.
+ */
 function ensureSecrets(system, root, withAttachments) {
   const apiSecrets = path.join(root, LOCAL_SECRETS_FILE);
+  const serviceSecrets = path.join(root, ATTACHMENTS_SECRETS_FILE);
   const needed = secretsNeedSeeding({
-    apiSecretsText: system.exists(apiSecrets) ? system.readText(apiSecrets) : null,
-    serviceSecretsExists: system.exists(path.join(root, ATTACHMENTS_SECRETS_FILE)),
+    apiSecretsText: readIfExists(system, apiSecrets),
+    serviceSecretsExists: system.exists(serviceSecrets),
+    serviceSecretsText: readIfExists(system, serviceSecrets),
     withAttachments,
   });
-  if (!needed) return;
-  system.log(`Writing the missing local secrets with ${SECRETS_SCRIPT} (existing values are kept).`);
-  const result = system.runSync(POWERSHELL, [...POWERSHELL_FILE_ARGUMENTS, path.join(root, SECRETS_SCRIPT)], { cwd: root });
-  if (result.code !== 0) throw new RunLocalError(`${SECRETS_SCRIPT} failed:\n${result.output}`);
+  if (needed) {
+    system.log(`Writing the missing local secrets with ${SECRETS_SCRIPT} (existing values are kept).`);
+    const result = system.runSync(POWERSHELL, [...POWERSHELL_FILE_ARGUMENTS, path.join(root, SECRETS_SCRIPT)], { cwd: root });
+    if (result.code !== 0) throw new RunLocalError(`${SECRETS_SCRIPT} failed:\n${result.output}`);
+  }
+  if (withAttachments) assertServiceTicketRing(system, root, apiSecrets, serviceSecrets);
+}
+
+/** Fails the start when the service file's ticket ring is not the API's upload-ticket ring (seeding never repairs it). */
+function assertServiceTicketRing(system, root, apiSecrets, serviceSecrets) {
+  const serviceSecretsText = readIfExists(system, serviceSecrets);
+  if (serviceSecretsText === null) return;
+  const state = serviceTicketRingState({ apiSecretsText: readIfExists(system, apiSecrets), serviceSecretsText });
+  if (state === TicketRingState.matches || state === TicketRingState.missing) return;
+  const why = state === TicketRingState.apiTicketRing
+    ? "holds the API's own ticket ring (Codelab:Security:Tickets: SSO and activation tickets), a file from before the dedicated upload-ticket ring"
+    : "does not match the API's upload-ticket ring (Codelab:Security:UploadTickets)";
+  throw new RunLocalError(
+    `The Attachment service's local secrets (${serviceSecrets}) ${why}: every upload would be refused with 401. ` +
+      `Delete that file and start again (run-local rewrites it from the API file; its Attachments:Storage:RootPath goes ` +
+      `back to the default), or run powershell -NoProfile -ExecutionPolicy Bypass -File ${path.join(root, SECRETS_SCRIPT)} -Force ` +
+      `(regenerates both files: existing sessions, PublicIds, tickets and receipts stop working).`,
+  );
 }
 
 function startLocalDb(system) {
@@ -310,7 +341,18 @@ function launch(system, root, plan, chosenSeq, started, layout) {
   return launched;
 }
 
+/**
+ * Creates the slot's attachment storage folder (idempotent) before its Attachment service starts: the service reports
+ * a missing storage root as not ready, so a fresh slot would never become healthy. Slot 0 has none (as configured).
+ */
+function prepareAttachmentStorage(system, layout) {
+  if (!layout.storageRoot) return;
+  system.ensureDir(layout.storageRoot);
+  system.log(`Slot ${layout.slot}: attachment storage ${layout.storageRoot}.`);
+}
+
 function launchOne(system, root, name, chosenSeq, layout) {
+  if (name === Services.attachments.name) prepareAttachmentStorage(system, layout);
   if (name !== Services.web.name) return startHost(system, root, Hosts[name], chosenSeq, layout);
   return layout.slot === Slots.default ? startWeb(system, root, layout.urls) : startSlotWeb(system, root, layout.urls);
 }
@@ -321,13 +363,13 @@ function launchOne(system, root, name, chosenSeq, layout) {
  */
 function slotLayout(system, root, slot) {
   const urls = slotUrls(slot);
-  if (slot === Slots.default) return { slot, urls, overrides: slotOverrides({ slot, urls }) };
+  if (slot === Slots.default) return { slot, urls, overrides: slotOverrides({ slot, urls }), storageRoot: null };
   const settings = path.join(root, API_DEVELOPMENT_SETTINGS);
   const configured = system.env[CONNECTION_STRING_ENV] ?? (system.exists(settings) ? developmentConnectionString(system.readText(settings)) : null);
-  const storageRoot = path.join(system.stateDir, SLOT_STORAGE_DIR);
+  const storageRoot = slotStorageRoot(system.stateDir, slot);
   const overrides = slotOverrides({ slot, urls, connectionString: configured, storageRoot });
   system.log(`Slot ${slot}: API ${urls.api}, Attachment service ${urls.attachments}, web ${urls.web}, state ${system.stateDir}.`);
-  return { slot, urls, overrides };
+  return { slot, urls, overrides, storageRoot };
 }
 
 /**

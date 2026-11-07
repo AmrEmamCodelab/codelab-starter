@@ -15,6 +15,7 @@ using Starter.Infrastructure.Startup;
 using Starter.Modules.Attachments.Application;
 using Starter.Modules.Attachments.Infrastructure.Options;
 using Starter.Modules.Attachments.Infrastructure.Persistence;
+using Starter.Modules.Attachments.Infrastructure.Persistence.Migrations;
 using Starter.Modules.Attachments.Infrastructure.Security;
 using Starter.Modules.Attachments.Infrastructure.Startup;
 using Starter.Modules.Attachments.Infrastructure.Storage;
@@ -31,8 +32,8 @@ public static class AttachmentsModuleRegistration
     /// ticket issuer over it, the attachment service
     /// client (typed <see cref="HttpClient"/> with the ES256 service assertion, <c>Codelab:Security:ServiceAssertions:Client</c>,
     /// validated on start), the outbox cleanup and its handler, the 503 classifier of a service outage, the start-up
-    /// catalog check, the record access gate (the Development demo record type only in Development), the use cases,
-    /// the validators and the kernel <see cref="IRequiredAttachments"/> interlock.
+    /// synchronisation of the attachment types owning modules declare, the start-up catalog check, the record access
+    /// gate (the Development demo record type only in Development), the use cases, the validators and the kernel <see cref="IRequiredAttachments"/> interlock.
     /// </summary>
     public static IServiceCollection AddAttachmentsModule(this IServiceCollection services, IConfiguration configuration)
     {
@@ -46,6 +47,7 @@ public static class AttachmentsModuleRegistration
         AddStorage(services, configuration);
         AddRecordAccess(services);
         AddUseCases(services);
+        AddTypeSeeding(services);
         services.AddScoped<IStartupTask, AttachmentCatalogStartupCheck>();
         // scaffold:registrations
         return services;
@@ -71,6 +73,21 @@ public static class AttachmentsModuleRegistration
         return provider.GetRequiredService<IHostEnvironment>().IsDevelopment()
             ? registered.Append(provider.GetRequiredService<DemoRecordAccess>())
             : registered;
+    }
+
+    /// <summary>
+    /// The seam through which an owning module declares its attachment types (<see cref="IAttachmentTypeSeedSource"/>,
+    /// registered by that module): the validated declarations (none may take a type the module's own migrations seed,
+    /// <see cref="AttachmentTypeSeed.Rows"/>), the synchronizer and its start-up task, registered ahead of the catalog
+    /// check so the check sees the synchronized rows.
+    /// </summary>
+    private static void AddTypeSeeding(IServiceCollection services)
+    {
+        services.AddSingleton(provider => new AttachmentTypeDeclarations(
+            sources: provider.GetServices<IAttachmentTypeSeedSource>(),
+            reserved: AttachmentTypeSeed.Rows));
+        services.AddScoped<AttachmentTypeSynchronizer>();
+        services.AddScoped<IStartupTask, AttachmentTypeSeedStartupTask>();
     }
 
     private static void AddOptions(IServiceCollection services, IConfiguration configuration)

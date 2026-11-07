@@ -12,6 +12,7 @@
     { "name": "referenceCode", "type": "string | null", "required": false, "default": "null", "description": "The short code support looks the failure up by; shown left-to-right. Without it the reference block is hidden." },
     { "name": "copyLabel", "type": "string | null", "required": false, "default": "null", "description": "The copy button's label (translated); without it there is no copy button." },
     { "name": "copiedLabel", "type": "string | null", "required": false, "default": "null", "description": "The copy button's label right after a copy, also announced politely (translated)." },
+    { "name": "copyAriaLabel", "type": "string | null", "required": false, "default": "null", "description": "The copy button's accessible name (translated), e.g. \"Copy the reference code\"; without it the visible label names the button." },
     { "name": "closeLabel", "type": "string", "required": true, "description": "The close button's label (translated)." }
   ],
   "outputs": [
@@ -19,6 +20,6 @@
     { "name": "copied", "type": "string", "description": "The code was written to the clipboard (DGA_CLIPBOARD); emits the code." }
   ],
   "slots": [],
-  "a11y": "Native modal <dialog> with role=alertdialog and aria-modal, named by the title and described by the message. Focus moves to the close button on open, Tab stays inside, Escape closes and focus returns to the opener. The code is dir=ltr so it is never reordered in Arabic; a successful copy is announced through an aria-live=polite region.",
+  "a11y": "Native modal <dialog> with role=alertdialog and aria-modal, named by the title and described by the message. Focus moves to the close button on open, Tab stays inside, Escape closes and focus returns to the opener. The code is dir=ltr so it is never reordered in Arabic and carries data-testid=error-reference-code (the copy button data-testid=error-reference-copy) for browser tests; a successful copy is announced through an aria-live=polite region.",
   "since": "1.0.0"
 }

@@ -4,7 +4,7 @@
 schemaVersion: 1
 module: Attachments
 kind: dotnet
-description: "Attachments (module 13): the attachment type catalog (ServiceAttachment, seeded by migration) and typed links of files to any record (RecordAttachment) in schema attachments; sealed upload tickets for the browser, receipt-verified links, downloads and removals relayed to the attachment service over the ES256 service assertion, and the required-attachments interlock (IRequiredAttachments)."
+description: "Attachments (module 13): the attachment type catalog (ServiceAttachment, seeded by migration or declared by owning modules through IAttachmentTypeSeedSource) and typed links of files to any record (RecordAttachment) in schema attachments; sealed upload tickets for the browser, receipt-verified links, downloads and removals relayed to the attachment service over the ES256 service assertion, and the required-attachments interlock (IRequiredAttachments)."
 mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabErrors]
 mustNotDependOn: [Identity, Users, Access, Lookups, Audit, Settings, Jobs, Notifications, Portal]
 required:
@@ -23,7 +23,7 @@ required:
     statement: A link stores only what IAttachmentReceiptVerifier verified (file id, name, size, SHA-256; MIME type from the extension) after the receipt scope equals UploadScopes.For(record, type, user); never a client-sent hash, size or name.
     enforcedBy: [review]
   - id: attachments.types-seeded-by-migrations
-    statement: Attachment types are created and changed only by a migration (docs/recipes/add-attachment-type.md) with an id from Starter.Domain.Attachments.AttachmentTypeIds and a key from AttachmentTypeKeys; their extensions stay inside Codelab:Security:Uploads AllowedExtensions (AttachmentTypeCatalog.FindViolations at start).
+    statement: "Attachment types are never edited at run time except IsActive. The Attachments module seeds its own types by migration; a record type's types are declared by the module that owns the record type through Starter.Application.Attachments.IAttachmentTypeSeedSource and written at start by AttachmentTypeSynchronizer (AttachmentTypeSeeding.Plan, matched by key: insert missing, refresh names and rules, never change id, key, record type or IsActive). Every type uses an id from Starter.Domain.Attachments.AttachmentTypeIds and a key from AttachmentTypeKeys, never reused, and its extensions stay inside Codelab:Security:Uploads AllowedExtensions (checked at start)."
     enforcedBy: [review]
   - id: attachments.cleanup-after-save
     statement: A removal is soft and saved first; the deletion of the bytes is enqueued afterwards through IAttachmentFileCleanup (outbox type attachments.delete-file), never called inline.

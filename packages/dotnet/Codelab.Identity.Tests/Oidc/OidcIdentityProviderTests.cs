@@ -40,7 +40,7 @@ public sealed class OidcIdentityProviderTests : IDisposable
             ? new PinnedSigningKeySource(settings)
             : new JwksSigningKeySource(clients, settings, clock, NullLogger<JwksSigningKeySource>.Instance);
         var validator = new OidcIdTokenValidator(settings, keys, clock, NullLogger<OidcIdTokenValidator>.Instance);
-        return new OidcIdentityProvider(settings, validator, clients, NullLogger<OidcIdentityProvider>.Instance);
+        return new OidcIdentityProvider(settings, validator, new DirectOidcBackChannel(clients, settings), NullLogger<OidcIdentityProvider>.Instance);
     }
 
     private Task<OidcSignInResult> Complete(OidcIdentityProvider? provider = null, OidcCallback? callback = null) =>

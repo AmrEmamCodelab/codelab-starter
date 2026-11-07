@@ -1,0 +1,36 @@
+<section class="ops-page" aria-labelledby="overview-title">
+  <header class="ops-page__header">
+    <div>
+      <h1 class="ops-page__title" id="overview-title">{{ keys.Title | t }}</h1>
+      <p class="ops-page__subtitle">{{ keys.Subtitle | t }}</p>
+    </div>
+    <dga-button variant="secondary-outline" size="md" leadIcon="clock" [loading]="store.loading()" (click)="store.load()">
+      {{ common.Actions.Refresh | t }}
+    </dga-button>
+  </header>
+
+  @if (store.overall(); as overall) {
+    <div class="ops-page__summary" data-testid="overall-health">
+      <span class="ops-page__summary-label">{{ keys.Overall | t }}</span>
+      <dga-status-tag [tone]="overall.tone">{{ overall.labelKey | t }}</dga-status-tag>
+      <span class="ops-page__summary-meta">{{ keys.CheckedAt | t: { time: (store.report()?.checkedAt | dateTime) } }}</span>
+    </div>
+  }
+
+  <app-ops-list
+    [captionKey]="keys.Caption"
+    [columns]="columns"
+    [rows]="store.checks()"
+    [rowId]="rowId"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [emptyKey]="keys.Empty"
+    (retry)="store.load()"
+  >
+    <ng-template opsListCell="status" let-row>
+      <dga-status-tag [tone]="statusView(row.status).tone">{{ statusView(row.status).labelKey | t }}</dga-status-tag>
+    </ng-template>
+    <ng-template opsListCell="durationMs" let-row>{{ keys.Duration | t: { count: row.durationMs } }}</ng-template>
+    <ng-template opsListCell="description" let-row>{{ row.description ?? (common.NotAvailable | t) }}</ng-template>
+  </app-ops-list>
+</section>

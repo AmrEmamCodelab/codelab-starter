@@ -1,0 +1,7 @@
+{
+  "/ops-api": {
+    "target": "http://localhost:5188",
+    "changeOrigin": false,
+    "logLevel": "warn"
+  }
+}

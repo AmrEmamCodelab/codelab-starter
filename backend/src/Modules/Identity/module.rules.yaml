@@ -9,7 +9,7 @@ owners:
   - "@platform-owner"
 # Layers by namespace (ADR-004): Domain <- Application <- Infrastructure <- Api. Identity depends on the kernel
 # (Starter.Domain/Application/Infrastructure) and the Codelab packages only; it never references another module.
-mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIdentity]
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabObservability, CodelabErrors, CodelabIdentity, CodelabIntegration]
 mustNotDependOn: [Access, Users]
 required:
   - id: identity.layers

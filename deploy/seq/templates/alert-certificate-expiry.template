@@ -1,0 +1,34 @@
+{
+  "$entity": "alert",
+  "Title": "Ops: [{{env}}] Certificate expiry warnings",
+  "Description": "Runbook: docs/runbooks/seq.md, section 'Certificate expiry warnings'.",
+  "OwnerId": null,
+  "IsProtected": true,
+  "IsDisabled": "{{json:certificateAlertDisabled}}",
+  "DataSource": "Stream",
+  "Joins": [],
+  "SignalExpression": {
+    "Kind": "Signal",
+    "SignalId": "{{ref:signal-certificate-expiry.template}}"
+  },
+  "Where": "DeploymentEnvironment = '{{env}}'",
+  "GroupBy": [
+    {
+      "Value": "Application",
+      "Label": null,
+      "IsCaseInsensitive": false
+    }
+  ],
+  "TimeGrouping": "01:00:00",
+  "Select": [
+    {
+      "Value": "count(*)",
+      "Label": "n"
+    }
+  ],
+  "Having": "n > 0",
+  "NotificationLevel": "Warning",
+  "NotificationProperties": [],
+  "NotificationChannels": "{{json:notificationChannels}}",
+  "SuppressionTime": "1.00:00:00"
+}

@@ -53,7 +53,7 @@ public static class OutboundClientServiceCollectionExtensions
         return services;
     }
 
-    private static IHttpClientBuilder AddClient<TClient>(IServiceCollection services, string name)
+    internal static IHttpClientBuilder AddClient<TClient>(IServiceCollection services, string name)
         where TClient : class
     {
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<OutboundClientOptions>, OutboundClientOptionsValidator>());

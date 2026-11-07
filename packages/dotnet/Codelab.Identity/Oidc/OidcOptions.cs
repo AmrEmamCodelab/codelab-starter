@@ -6,8 +6,12 @@ namespace Codelab.Identity.Oidc;
 /// Bound from <see cref="SectionName"/>: the OpenID Connect provider a host signs users in through.
 /// <para>
 /// <b>Every endpoint is explicit.</b> A production backend zone usually has no egress to fetch a discovery document,
-/// and an unreachable discovery endpoint would take every sign-in down with it; the endpoints are configuration, and
-/// phase 8 can route the back channel through the integration gateway by replacing the named client's handler.
+/// and an unreachable discovery endpoint would take every sign-in down with it; the endpoints are configuration.
+/// </para>
+/// <para>
+/// <b>Back channel.</b> <see cref="BackChannel"/> says how the token and JWKS calls reach the provider: directly, or
+/// through the integration gateway's SSO relay (<see cref="OidcBackChannel.GatewayRelay"/>, a backend zone without
+/// egress). A deployment that declares <see cref="NoEgress"/> must use the relay outside Development.
 /// </para>
 /// <para><see cref="ClientSecret"/> is a credential: it has no committed value and arrives from the environment or a secret store.</para>
 /// </summary>
@@ -46,13 +50,29 @@ public sealed class OidcOptions
     /// <summary>Where the browser signs in (authorization code + PKCE S256).</summary>
     public string AuthorizationEndpoint { get; set; } = string.Empty;
 
-    /// <summary>Where the server redeems the code.</summary>
+    /// <summary>
+    /// How the token and JWKS calls reach the provider (<see cref="OidcBackChannel.Direct"/> by default). The browser
+    /// redirects (authorize, end_session) never change.
+    /// </summary>
+    public OidcBackChannel BackChannel { get; set; } = OidcBackChannel.Direct;
+
+    /// <summary>
+    /// True when this deployment's backend zone has no internet egress (decision D2). Then the start is refused outside
+    /// Development unless <see cref="BackChannel"/> is <see cref="OidcBackChannel.GatewayRelay"/>: a direct call would
+    /// fail every sign-in. Default false.
+    /// </summary>
+    public bool NoEgress { get; set; }
+
+    /// <summary>Where the server redeems the code (the gateway holds it in <see cref="OidcBackChannel.GatewayRelay"/> mode; optional there).</summary>
     public string TokenEndpoint { get; set; } = string.Empty;
 
     /// <summary>Where the browser ends the provider session (RP-initiated logout).</summary>
     public string EndSessionEndpoint { get; set; } = string.Empty;
 
-    /// <summary>The provider's JSON Web Key Set (used when <see cref="SigningKeyMode"/> is <see cref="Oidc.SigningKeyMode.Jwks"/>).</summary>
+    /// <summary>
+    /// The provider's JSON Web Key Set (used when <see cref="SigningKeyMode"/> is <see cref="Oidc.SigningKeyMode.Jwks"/>
+    /// and <see cref="BackChannel"/> is <see cref="OidcBackChannel.Direct"/>; the gateway holds it in relay mode).
+    /// </summary>
     public string JwksUri { get; set; } = string.Empty;
 
     /// <summary>Where the id_token signing keys come from.</summary>

@@ -42,9 +42,18 @@ public sealed partial class PackageSourceTests
             .Where(file => !file.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Any(segment => segment is "bin" or "obj"));
     }
 
-    private static string Root()
+    /// <summary>
+    /// The folder holding the solution file: above the test output, or (when the build output lives outside the
+    /// repository, <c>--artifacts-path</c>) above this source file's compile-time path.
+    /// </summary>
+    private static string Root() =>
+        FindAbove(AppContext.BaseDirectory)
+        ?? FindAbove(Path.GetDirectoryName(SourceFilePath()))
+        ?? throw new InvalidOperationException($"No {SolutionFileName} above {AppContext.BaseDirectory} or the test sources.");
+
+    private static string? FindAbove(string? start)
     {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        for (var directory = start is null ? null : new DirectoryInfo(start); directory is not null; directory = directory.Parent)
         {
             if (File.Exists(Path.Combine(directory.FullName, SolutionFileName)))
             {
@@ -52,8 +61,10 @@ public sealed partial class PackageSourceTests
             }
         }
 
-        throw new InvalidOperationException($"No {SolutionFileName} above {AppContext.BaseDirectory}.");
+        return null;
     }
+
+    private static string SourceFilePath([System.Runtime.CompilerServices.CallerFilePath] string path = "") => path;
 
     [GeneratedRegex(@"ServerCertificateCustomValidationCallback|DangerousAcceptAny|VerifyServerCertificate\s*=|RemoteCertificateValidationCallback\s*=")]
     private static partial Regex Bypass();

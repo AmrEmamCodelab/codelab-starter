@@ -10,8 +10,10 @@ namespace Codelab.Identity.Oidc;
 /// <para>
 /// Rules while <see cref="OidcOptions.Enabled"/>: <c>Authority</c>, <c>RedirectUri</c>, <c>AuthorizationEndpoint</c>,
 /// <c>TokenEndpoint</c> and <c>EndSessionEndpoint</c> are absolute http(s) URIs (and <c>PostLogoutRedirectUri</c> when
-/// set); outside Development every one of them is https; <c>ClientId</c> is set; the scopes include <c>openid</c>;
-/// signing keys exist (<c>JwksUri</c> in Jwks mode, at least one parseable pinned key in Pinned mode); every allowed
+/// set; <c>TokenEndpoint</c> only with the direct back channel, the gateway holds it in relay mode); outside Development
+/// every one of them is https; <c>BackChannel</c> is defined, and is <c>GatewayRelay</c> outside Development when the
+/// deployment declares <c>NoEgress</c>; <c>ClientId</c> is set; the scopes include <c>openid</c>; signing keys exist
+/// (<c>JwksUri</c> in Jwks mode with the direct back channel, at least one parseable pinned key in Pinned mode); every allowed
 /// algorithm is asymmetric (<c>none</c> and HS* refused); clock skew and back-channel timeout are in range; the enums and
 /// claim names are defined. A message names keys, never values: the client secret lives in this section.
 /// </para>
@@ -36,6 +38,7 @@ public static class SsoDeploymentGuard
         }
 
         var problems = new List<string>();
+        CheckBackChannel(problems, options, isDevelopment);
         CheckUris(problems, options, isDevelopment);
         if (string.IsNullOrWhiteSpace(options.ClientId))
         {
@@ -54,12 +57,32 @@ public static class SsoDeploymentGuard
         return problems;
     }
 
+    private static void CheckBackChannel(List<string> problems, OidcOptions options, bool isDevelopment)
+    {
+        if (!Enum.IsDefined(options.BackChannel))
+        {
+            problems.Add(Key(nameof(OidcOptions.BackChannel), $"must be {(int)OidcBackChannel.Direct} ({OidcBackChannel.Direct}) or {(int)OidcBackChannel.GatewayRelay} ({OidcBackChannel.GatewayRelay})"));
+        }
+        else if (options.NoEgress && options.BackChannel == OidcBackChannel.Direct && !isDevelopment)
+        {
+            problems.Add(Key(
+                nameof(OidcOptions.BackChannel),
+                $"must be {(int)OidcBackChannel.GatewayRelay} ({OidcBackChannel.GatewayRelay}) outside Development: {nameof(OidcOptions.NoEgress)} declares that this backend cannot reach the provider"));
+        }
+    }
+
+    private static bool UsesDirectBackChannel(OidcOptions options) => options.BackChannel != OidcBackChannel.GatewayRelay;
+
     private static void CheckUris(List<string> problems, OidcOptions options, bool isDevelopment)
     {
         CheckUri(problems, nameof(OidcOptions.Authority), options.Authority, isDevelopment);
         CheckUri(problems, nameof(OidcOptions.RedirectUri), options.RedirectUri, isDevelopment);
         CheckUri(problems, nameof(OidcOptions.AuthorizationEndpoint), options.AuthorizationEndpoint, isDevelopment);
-        CheckUri(problems, nameof(OidcOptions.TokenEndpoint), options.TokenEndpoint, isDevelopment);
+        if (UsesDirectBackChannel(options))
+        {
+            CheckUri(problems, nameof(OidcOptions.TokenEndpoint), options.TokenEndpoint, isDevelopment);
+        }
+
         CheckUri(problems, nameof(OidcOptions.EndSessionEndpoint), options.EndSessionEndpoint, isDevelopment);
         if (!string.IsNullOrWhiteSpace(options.PostLogoutRedirectUri))
         {
@@ -85,8 +108,10 @@ public static class SsoDeploymentGuard
     {
         switch (options.SigningKeyMode)
         {
-            case SigningKeyMode.Jwks:
+            case SigningKeyMode.Jwks when UsesDirectBackChannel(options):
                 CheckUri(problems, nameof(OidcOptions.JwksUri), options.JwksUri, isDevelopment);
+                break;
+            case SigningKeyMode.Jwks:
                 break;
             case SigningKeyMode.Pinned:
                 CheckPinnedKeys(problems, options.PinnedKeys);

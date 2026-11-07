@@ -32,12 +32,12 @@ import { WizardPatternComponent, WizardStepDirective, type WizardStepChange, typ
 import { DevAutofillComponent } from '../../../../shared/dev-autofill';
 import { RecordAttachmentsComponent } from '../../../../shared/record-attachments/record-attachments.component';
 import {
-  SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE,
   SERVICE_REQUEST_FIELD_LABEL_KEYS,
   SERVICE_REQUEST_STEPS,
   ServiceRequestFields,
   ServiceRequestLimits,
   ServiceRequestStepIds,
+  serviceRequestAttachmentsFeedback,
   type ServiceRequestField,
   type ServiceRequestStep,
 } from '../../data';
@@ -112,7 +112,6 @@ export class ServiceRequestWizardComponent implements OnInit {
   protected readonly loadStates = WizardLoadState;
   protected readonly alertVariants = DgaAlertVariant;
   protected readonly formKey = SERVICE_REQUEST_WIZARD_FORM_KEY;
-  protected readonly attachableType = SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE;
   protected readonly translatedCodes = WIZARD_TRANSLATED_CODES;
   protected readonly links = serviceRequestsRequesterLinks(inject(SERVICE_REQUESTS_REQUESTER_BASE_LINK));
 
@@ -140,6 +139,10 @@ export class ServiceRequestWizardComponent implements OnInit {
   });
   readonly draftSavedFeedback = computed<DgaPageFeedbackState | null>(() =>
     this.store.draftSaved() ? { kind: DgaPageFeedbackKind.Success, message: this.translations.translate(this.keys.DraftSaved) } : null,
+  );
+  /** The error shown on the attachments step, in place of the widget, when the draft's attachments id could not be read. */
+  readonly attachmentsFeedback = computed(() =>
+    serviceRequestAttachmentsFeedback(this.store.attachmentsError(), (key, params) => this.translations.translate(key, params)),
   );
   readonly reviewRows = computed<readonly ReviewRow[]>(() => {
     this.store.revision();

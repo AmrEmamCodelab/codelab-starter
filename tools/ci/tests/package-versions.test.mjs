@@ -21,16 +21,23 @@ import {
   main,
   nextCiNumber,
   parseArguments,
+  readKnownInsecure,
   readUnreleased,
   readVersions,
   sourceOf,
   stampManifest,
+  unshippedApi,
 } from '../package-versions.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const BUILD_SCRIPT = path.join(REPO_ROOT, 'tools', 'build.ps1');
 const SDK_ID = 'Codelab.Build.Sdk';
 const SAMPLE_VERSIONS = Object.freeze({ 'Codelab.Alpha': '0.5.0', '@codelab/ng-beta': '0.1.0' });
+const ALPHA_UNSHIPPED = 'packages/dotnet/Codelab.Alpha/PublicAPI.Unshipped.txt';
+const NULLABLE_HEADER = '#nullable enable';
+const ALPHA_API_LINE = 'static Codelab.Alpha.Scope.Inbound.get -> object!';
+/** Files that pin Codelab package versions: `Include="<id>" Version="x.y.z"` or `<IdWithoutDotsVersion ...>x.y.z<`. */
+const PACKAGE_PIN_FILES = Object.freeze(['Directory.Packages.props', 'packages/samples/Codelab.Versions.props']);
 const tempRoots = [];
 
 function tempDir(prefix) {
@@ -178,6 +185,58 @@ describe('buildPlan', () => {
     assert.deepEqual(buildPlan({ root, feed, mode: PlanMode.Release }).errors, []);
   });
 
+  // Regression: Codelab.Observability changed after 0.5.1 shipped (a security fix plus a new public API), but
+  // versions.json still said 0.5.1, which was in the feed, so the release skipped it and every fork kept 0.5.1.
+  it('refuses a released NuGet package whose PublicAPI.Unshipped.txt lists API lines', () => {
+    const { root, feed } = fakeRepo();
+    writeChangelog(root, {});
+    writeFile(feed, 'nuget/Codelab.Alpha.0.5.0.nupkg');
+    writeFile(root, ALPHA_UNSHIPPED, [NULLABLE_HEADER, ALPHA_API_LINE, ''].join('\r\n'));
+    const plan = buildPlan({ root, feed, mode: PlanMode.Release });
+    const refusal = plan.errors.find((error) => error.includes('Codelab.Alpha 0.5.0'));
+    assert.ok(refusal?.startsWith('REFUSED:'), plan.errors.join('; '));
+    assert.ok(refusal.includes(ALPHA_API_LINE));
+    assert.equal(plan.packages.find((p) => p.id === 'Codelab.Alpha').skip, false);
+  });
+
+  it('still skips a released package whose PublicAPI.Unshipped.txt holds only comments and blank lines', () => {
+    const { root, feed } = fakeRepo();
+    writeChangelog(root, { '@codelab/ng-beta': '0.1.0' });
+    writeFile(feed, 'nuget/Codelab.Alpha.0.5.0.nupkg');
+    writeFile(root, ALPHA_UNSHIPPED, [NULLABLE_HEADER, '', ''].join('\n'));
+    const plan = buildPlan({ root, feed, mode: PlanMode.Release });
+    assert.deepEqual(plan.errors, []);
+    assert.equal(plan.packages.find((p) => p.id === 'Codelab.Alpha').skip, true);
+  });
+
+  it('releases a bumped package whose unshipped API is not in the feed yet', () => {
+    const { root, feed } = fakeRepo({ ...SAMPLE_VERSIONS, 'Codelab.Alpha': '0.5.1' });
+    writeChangelog(root, { 'Codelab.Alpha': '0.5.1' });
+    writeFile(feed, 'nuget/Codelab.Alpha.0.5.0.nupkg');
+    writeFile(root, ALPHA_UNSHIPPED, [NULLABLE_HEADER, ALPHA_API_LINE].join('\n'));
+    assert.deepEqual(buildPlan({ root, feed, mode: PlanMode.Release }).errors, []);
+  });
+
+  it('reads unshipped API lines only for NuGet packages that have the file', () => {
+    const { root } = fakeRepo();
+    assert.deepEqual(unshippedApi(root, 'Codelab.Alpha'), []);
+    writeFile(root, ALPHA_UNSHIPPED, [NULLABLE_HEADER, '', `  ${ALPHA_API_LINE}  `].join('\n'));
+    assert.deepEqual(unshippedApi(root, 'Codelab.Alpha'), [ALPHA_API_LINE]);
+    assert.deepEqual(unshippedApi(root, '@codelab/ng-beta'), []);
+  });
+
+  it('refuses a versions.json version the changelog marks Known insecure, in ci and release mode', () => {
+    const { root, feed } = fakeRepo();
+    const heading = '### [0.5.0] - 2026-11-04 - Known insecure: do not use; upgrade to 0.5.1';
+    writeFile(root, CHANGELOG_FILE, ['# Changelog', '', '## Codelab.Alpha', '', heading, ''].join('\n'));
+    assert.deepEqual([...readKnownInsecure(root)].map(([id, set]) => [id, [...set]]), [['Codelab.Alpha', ['0.5.0']]]);
+    for (const mode of [PlanMode.Ci, PlanMode.Release]) {
+      const { errors } = buildPlan({ root, feed, mode, ciNumber: 1 });
+      assert.ok(errors.some((error) => error.includes('Known insecure') && error.includes('Codelab.Alpha 0.5.0')), mode);
+    }
+    assert.equal(readKnownInsecure(tempDir('no-changelog-')).size, 0);
+  });
+
   it('refuses a ci number that is already in the feed, a missing source and a bad ci number', () => {
     const { root, feed } = fakeRepo();
     writeFile(feed, 'nuget/Codelab.Alpha.0.5.0-ci.2.nupkg');
@@ -256,6 +315,47 @@ describe('repository contract', () => {
     const project = readFileSync(path.join(REPO_ROOT, sourceOf(SDK_ID)), 'utf8');
     const pattern = /<CodelabBuildSdkBaseVersion>(\d[^<]*)<\/CodelabBuildSdkBaseVersion>/;
     assert.equal(pattern.exec(project)?.[1], versions[SDK_ID]);
+  });
+
+  /** Every `<id>` -> version pinned by a file: PackageVersion items and `<IdWithoutDotsVersion>` properties. */
+  function pinsOf(relative) {
+    const text = readFileSync(path.join(REPO_ROOT, relative), 'utf8');
+    const pins = [];
+    for (const match of text.matchAll(/<PackageVersion Include="(Codelab\.[^"]+)" Version="(\d+\.\d+\.\d+)"/g)) {
+      pins.push([match[1], match[2]]);
+    }
+    for (const id of Object.keys(versions).filter((name) => kindOf(name) === PackageKind.NuGet)) {
+      const property = `${id.replaceAll('.', '')}Version`;
+      const match = new RegExp(`<${property}[^>]*>(\\d+\\.\\d+\\.\\d+)</${property}>`).exec(text);
+      if (match) pins.push([id, match[1]]);
+    }
+    return pins;
+  }
+
+  // Regression: Directory.Packages.props kept Codelab.Observability 0.5.1 after a caller's traceparent was found to
+  // set its correlation id; every fork in feed mode restored that version.
+  it('no package pin names a version the changelog marks Known insecure', () => {
+    const insecure = readKnownInsecure(REPO_ROOT);
+    const offending = PACKAGE_PIN_FILES.flatMap((file) =>
+      pinsOf(file).filter(([id, version]) => insecure.get(id)?.has(version)).map(([id, version]) => `${file}: ${id} ${version}`),
+    );
+    assert.deepEqual(offending, []);
+  });
+
+  it('the sample pins every NuGet package at its versions.json version', () => {
+    const samplePins = new Map(pinsOf('packages/samples/Codelab.Versions.props'));
+    for (const id of Object.keys(versions).filter((name) => kindOf(name) === PackageKind.NuGet)) {
+      assert.equal(samplePins.get(id), versions[id], `${id} in packages/samples/Codelab.Versions.props`);
+    }
+  });
+
+  // Regression: a package whose source changed after its release was skipped by the release because its
+  // versions.json version was already in the local feed. Only meaningful where the feed holds releases.
+  it('no package in the local feed has public API changes that are not in a newer versions.json version', () => {
+    const feed = path.join(REPO_ROOT, 'feed');
+    const plan = buildPlan({ root: REPO_ROOT, feed, mode: PlanMode.Release });
+    const drift = plan.errors.filter((error) => error.includes('PublicAPI.Unshipped.txt'));
+    assert.deepEqual(drift, []);
   });
 });
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Starter.Application.Authorization;
+using Starter.Application.Jobs;
 using Starter.Infrastructure.Jobs;
 using Starter.Infrastructure.Persistence;
 using Starter.Modules.Jobs.Application;
@@ -37,6 +38,7 @@ public static class JobsModuleRegistration
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<JobsOptions>, JobsOptionsValidator>());
         services.AddModuleDbContext<JobsDbContext>(JobsDbContext.SchemaName);
         services.AddScoped<IJobRuns, JobRunStore>();
+        services.AddScoped<IJobRunHistory, JobRunHistory>();
         services.AddStarterSystemActor();
         services.TryAddSingleton<IFailureCodeResolver, DefaultFailureCodeResolver>();
         services.TryAddSingleton<JobFailureLogFilter>();

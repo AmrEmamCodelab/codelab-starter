@@ -1,0 +1,32 @@
+<dga-header
+  [brandName]="keys.AppName | t"
+  [homeLink]="homeLink"
+  [navItems]="navItems()"
+  [navLabel]="keys.Nav.Label | t"
+  [menuLabel]="keys.Nav.Menu | t"
+>
+  <div dgaHeaderActions class="shell__actions">
+    @if (operator.name(); as name) {
+      <span class="shell__operator" data-testid="operator-name">
+        <dga-icon name="user" size="sm" />
+        <span class="dga-visually-hidden">{{ keys.Operator.SignedInAs | t }}</span>
+        <bdi>{{ name }}</bdi>
+      </span>
+    }
+    <dga-button
+      variant="transparent"
+      size="sm"
+      leadIcon="language"
+      data-testid="language-switch"
+      [attr.lang]="language.alternate()"
+      (click)="language.toggle()"
+    >
+      {{ keys.Language.Switch | t }}
+    </dga-button>
+  </div>
+</dga-header>
+
+<main class="shell__main">
+  <app-certificate-alert [alert]="certificates.alert()" />
+  <router-outlet />
+</main>

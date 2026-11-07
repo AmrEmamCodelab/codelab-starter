@@ -10,7 +10,9 @@ relays downloads and deletions to the service. It owns, in schema `attachments`:
 - **`ServiceAttachment`**, the attachment type catalog: a fixed int `Id` (`Starter.Domain.Attachments.AttachmentTypeIds`),
   a unique kebab `Key` (`AttachmentTypeKeys`), `NameAr`/`NameEn`, the `RecordType` it belongs to
   (`AttachableRecordTypes`), `IsRequired`, `MaxFiles` (1 to 50), the allowed extensions (stored as `.pdf;.png`,
-  `AttachmentExtensions`) and `IsActive`. Seeded only by migrations.
+  `AttachmentExtensions`) and `IsActive`. Never edited by users: this module's own types are seeded by its
+  migrations; a record type's types are **declared by the module that owns the record type** through the kernel seam
+  `IAttachmentTypeSeedSource` and written here at start (see "Declared types" below).
 - **`RecordAttachment`**, the typed link: `RecordType` + `RecordId` (the record's internal id; no foreign key across
   modules), `ServiceAttachmentId`, the service `FileId`, `FileName`, `SizeBytes`, `Sha256Hex`, `ContentType`,
   `UploadedBySubject`, `UploadedAt`, and `RemovedAt`/`RemovedBySubject` for the soft removal.
@@ -20,11 +22,36 @@ uploads straight to the service with only that ticket, gets back a signed **rece
 **link** the receipt to the record. Downloads and deletions go API to service over the ES256 service assertion; the
 browser never reads from the service.
 
-Seeded types (Development demo):
+Types this module seeds by migration (`InitialCreate`, `AttachmentTypeSeed`):
 
 | Id | Key | Record type | Required | Max files | Extensions |
 | --- | --- | --- | --- | --- | --- |
 | `AttachmentTypeIds.DemoDocument` (1) | `demo-document` | `attachments-demo` | yes | 5 | `.pdf`, `.png`, `.jpg`, `.jpeg` |
+
+Types other modules declare in the starter (present only while that module is in the host):
+
+| Id | Key | Record type | Required | Max files | Extensions | Declared by |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AttachmentTypeIds.ServiceRequestDocument` (2) | `service-request-document` | `service-request` | yes | 3 | `.pdf`, `.jpg`, `.png` | ServiceRequests (`ServiceRequestAttachmentTypes`) |
+| `AttachmentTypeIds.ServiceRequestSupporting` (3) | `service-request-supporting` | `service-request` | no | 5 | `.pdf`, `.jpg`, `.png` | ServiceRequests (`ServiceRequestAttachmentTypes`) |
+
+**Declared types (the seed seam).** A module that owns a record type declares its attachment types by implementing
+`Starter.Application.Attachments.IAttachmentTypeSeedSource` (`Types`: `AttachmentTypeDefinition` records: `Id`, `Key`,
+`RecordType`, `NameAr`, `NameEn`, `IsRequired`, `MaxFiles`, `AllowedExtensions`; ids and keys from the
+`Starter.Domain.Attachments` constants) and registering it
+(`services.TryAddEnumerable(ServiceDescriptor.Singleton<IAttachmentTypeSeedSource, MyTypes>())`). This module never
+names the declaring module and writes no SQL for it:
+
+1. `AttachmentTypeDeclarations` (Application, singleton) collects every source and validates once: each definition well
+   formed (`ServiceAttachment.Seeded`), ids and keys unique across sources, none taking an id or key of the types this
+   module seeds by migration (`AttachmentTypeSeed.Rows`). A violation stops the host.
+2. `AttachmentTypeSeedStartupTask` (Infrastructure, `StartupPhase.ReferenceData`, registered before
+   `AttachmentCatalogStartupCheck`) checks the declared extensions against the upload allowlist first, then runs
+   `AttachmentTypeSynchronizer`: one rule, `AttachmentTypeSeeding.Plan` (Domain), matched **by key**: a missing type is
+   inserted, a type whose names or rules differ is refreshed (`ServiceAttachment.Refresh`), an equal one is left
+   alone. The id, key and record type of a stored type never change (a mismatch is a conflict that stops the host) and
+   `IsActive` is never touched (a retired type stays retired). Idempotent; a node that loses an insert race re-plans
+   once against what the winner wrote. Log event 13003 reports added, refreshed and unchanged.
 
 ## Use
 
@@ -52,6 +79,7 @@ for every record type.
 | --- | --- | --- |
 | `IAttachableRecordAccess` (`RecordType`, `CanViewAsync`, `CanChangeAsync`) | the module that owns each record type, or the Records module for every registered record type through `IAttachableRecordAccessSource` (Attachments itself only for the Development `attachments-demo` type, `DemoRecordAccess`) | this module, through `AttachableRecords` (single registrations plus every source's accesses; two for one record type is a wiring fault), on every use case |
 | `IRequiredAttachments` (`FindMissingTypeKeysAsync`) | this module (`RequiredAttachmentsCheck`) | modules that move a record on, for example the Records submit (P7), which refuses with `AttachmentErrorCodes.RequiredMissing` |
+| `IAttachmentTypeSeedSource` (`Types`: `AttachmentTypeDefinition`) | the module that owns a record type (ServiceRequests: `ServiceRequestAttachmentTypes`) | this module, through `AttachmentTypeDeclarations` and the start-up `AttachmentTypeSynchronizer` |
 
 **Module ports** (Application, implemented in Infrastructure): `IAttachmentStore` (EF repository and unit of work),
 `IAttachmentReceiptVerifier` (offline HMAC check of the `r1.` receipt under the shared receipt ring),
@@ -77,13 +105,15 @@ required.
 | `Codelab:Security:Uploads` | the ONE upload allowlist (`AllowedExtensions`, `BlockedExtensions`, caps) and the receipt key ring, the same as the service |
 | `Codelab:Security:ServiceAssertions:Client` | `ServiceName` `starter-api`, `Audience` `starter-attachments`, `KeyId`, `PrivateKeyPem` (gitignored `appsettings.Development.local.json`, written by `tools/devseed/New-LocalSecrets.ps1`) |
 
-**Infrastructure** (`Infrastructure/`): `AttachmentsDbContext` (schema `attachments`: `ServiceAttachments` with fixed ids, a unique key and the stored `AllowedExtensions` column; `RecordAttachments` with a Restrict FK to the type, a unique `FileId` and the (RecordType, RecordId) index), the reshaped `InitialCreate` + `AttachmentsMigrationModel` (target model and snapshot) seeding the demo type (`AttachmentTypeSeed`), `EfAttachmentStore`, `ReceiptVerifier` (UploadReceiptSigner over the `Codelab:Security:Uploads` ring; MIME from `UploadContentTypes`), `UploadTicketIssuer` (over `UploadTicketRing`, the module's own SealedTicketService on `Codelab:Security:UploadTickets`, registered as that concrete type only, never as `ISealedTicketService`; header `X-{Prefix}-Upload-Ticket`, URL `<root>/api/uploads`), `HttpAttachmentStorageClient` (typed HttpClient + `AddCodelabServiceAssertion`; GET/DELETE `api/files/{fileId}`; 404 = gone, anything else = `AttachmentStorageUnavailableException`, 30 s timeout), `OutboxAttachmentFileCleanup` + `DeleteAttachmentFileHandler` (outbox `attachments.delete-file`), `AttachmentsFailures` (503 classifier ahead of the generic 502), `AttachmentCatalogStartupCheck` (allowlist check at start; warns when receipts are off), `AttachmentsOptions` and `UploadTicketRingOptions` (validated on start; the upload ring is refused when it shares key material with `Codelab:Security:Tickets`).
+**Infrastructure** (`Infrastructure/`): `AttachmentsDbContext` (schema `attachments`: `ServiceAttachments` with fixed ids, a unique key and the stored `AllowedExtensions` column; `RecordAttachments` with a Restrict FK to the type, a unique `FileId` and the (RecordType, RecordId) index), the reshaped `InitialCreate` + `AttachmentsMigrationModel` (target model and snapshot) seeding the demo type (`AttachmentTypeSeed`), the empty `AddServiceRequestAttachmentTypes` (kept for the history, see Gotchas), `AttachmentTypeSynchronizer` + `AttachmentTypeSeedStartupTask` (the declared types, above), `EfAttachmentStore`, `ReceiptVerifier` (UploadReceiptSigner over the `Codelab:Security:Uploads` ring; MIME from `UploadContentTypes`), `UploadTicketIssuer` (over `UploadTicketRing`, the module's own SealedTicketService on `Codelab:Security:UploadTickets`, registered as that concrete type only, never as `ISealedTicketService`; header `X-{Prefix}-Upload-Ticket`, URL `<root>/api/uploads`), `HttpAttachmentStorageClient` (typed HttpClient + `AddCodelabServiceAssertion`; GET/DELETE `api/files/{fileId}`; 404 = gone, anything else = `AttachmentStorageUnavailableException`, 30 s timeout), `OutboxAttachmentFileCleanup` + `DeleteAttachmentFileHandler` (outbox `attachments.delete-file`), `AttachmentsFailures` (503 classifier ahead of the generic 502), `AttachmentCatalogStartupCheck` (allowlist check at start; warns when receipts are off), `AttachmentsOptions` and `UploadTicketRingOptions` (validated on start; the upload ring is refused when it shares key material with `Codelab:Security:Tickets`).
 
 ## Extend
 
 - **New attachment type, or attachments on a new record type:** the recipe
-  [docs/recipes/add-attachment-type.md](../../../../docs/recipes/add-attachment-type.md) (migration seed, required flag,
-  extensions inside the upload allowlist, `IAttachableRecordAccess` in the owning module, the interlock call).
+  [docs/recipes/add-attachment-type.md](../../../../docs/recipes/add-attachment-type.md): the owning module declares the
+  type (`IAttachmentTypeSeedSource`, ids and keys in `Starter.Domain.Attachments`), with its required flag and
+  extensions inside the upload allowlist, its `IAttachableRecordAccess` and the interlock call. Only a type that
+  belongs to this module itself (like the demo) is a migration here.
 - **New endpoint or permission:** `new-endpoint` / `new-permission` with `--module Attachments`.
 - **A new rule on links** (for example a per-type size cap): put it in `ServiceAttachment` (Domain) and call it from
   `LinkUploadedFile.LinkNewAsync`, with tests in `Domain/` and `Application/`.
@@ -103,14 +133,33 @@ required.
   internal number or anyone else's data to the scope (`UploadScopesTests` checks the decimal id never appears).
 - **One allowlist:** the API and the service bind the same `Codelab:Security:Uploads`; a type's extensions must be a
   subset (`AttachmentTypeCatalog.FindViolations`, run at start by Infrastructure).
-- **Types by migration only** (`attachments.types-seeded-by-migrations`, `attachments.no-has-data`); ids and keys only
-  through `AttachmentTypeIds` / `AttachmentTypeKeys`.
+- **Types are never edited by users** (`attachments.types-seeded-by-migrations`, `attachments.no-has-data`): this
+  module's own types by migration, a record type's types declared by its owning module through
+  `IAttachmentTypeSeedSource` and synchronized at start; ids and keys only through `AttachmentTypeIds` /
+  `AttachmentTypeKeys`, never reused. No migration here names another module's record type any more.
 - **No bytes in the database** (`attachments.no-file-bytes-in-database`).
 - **Removal is soft, cleanup after the save** (`attachments.cleanup-after-save`).
 - Never reference another module (`attachments.no-module-reference`); every use case, validator and domain rule has
   unit tests in `backend/tests/Modules/Starter.Modules.Attachments.Tests`.
 
 ## Gotchas
+
+- **`20261106150100_AddServiceRequestAttachmentTypes` is an empty migration on purpose.** It used to insert the
+  sample's two types; they moved to the ServiceRequests module (declared through `IAttachmentTypeSeedSource`) so that
+  removing the sample seeds nothing. The id stays in the code so every database has the same history: a database that
+  applied the old body keeps its rows 2 and 3 and the synchronizer finds them by key (unchanged, never a second
+  insert); a new database records the empty migration and the synchronizer inserts the rows. `Down` is empty as well
+  (the rows belong to the synchronizer). Never delete the class, reuse the id or put a body back; the DBA script of
+  this context only carries the empty history row for it.
+- **Declared types are written by the API at start, not by the DBA script.** Production runs the start-up tasks even
+  with migrations off, so the API's database login needs `INSERT` and `UPDATE` on `attachments.ServiceAttachments` (it
+  already writes `RecordAttachments`). A login that cannot write there fails the start with the SQL error.
+- **Removing a declaring module leaves the rows it already wrote** (existing databases): they stay active but no
+  record of that type can be reached (no access is registered). Retire them with `IsActive` = false (a migration or a
+  DBA update) if the catalog should not list them. Their ids stay reserved in `AttachmentTypeIds`.
+- **A declaration may only change names and rules.** Changing a declared type's id, key or record type stops the host
+  (the stored row keeps its identity, and links point at the id); give a new type a new id and key and retire the old
+  one instead.
 
 - **Linking is idempotent per file id.** The same receipt linked twice answers the existing attachment; a file id
   that is linked to another record or type, or was removed, is refused as `ATTACHMENTS_RECEIPT_INVALID`.

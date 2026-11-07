@@ -177,6 +177,43 @@ public sealed class SsoDeploymentGuardTests
     }
 
     [Fact]
+    public void A_declared_no_egress_deployment_refuses_the_direct_back_channel_outside_development()
+    {
+        var options = Valid(change => change.NoEgress = true);
+
+        Assert.Equal(
+            $"{Section}:{nameof(OidcOptions.BackChannel)} must be 2 (GatewayRelay) outside Development: {nameof(OidcOptions.NoEgress)} declares that this backend cannot reach the provider",
+            Single(options));
+        Assert.Empty(SsoDeploymentGuard.Check(options, isDevelopment: true));
+    }
+
+    [Fact]
+    public void A_no_egress_deployment_on_the_gateway_relay_starts_in_production() =>
+        Assert.Empty(SsoDeploymentGuard.Check(Valid(change => (change.NoEgress, change.BackChannel) = (true, OidcBackChannel.GatewayRelay)), isDevelopment: false));
+
+    [Fact]
+    public void The_gateway_relay_needs_no_token_endpoint_or_jwks_uri_of_its_own()
+    {
+        var options = Valid(change => (change.BackChannel, change.TokenEndpoint, change.JwksUri) = (OidcBackChannel.GatewayRelay, string.Empty, string.Empty));
+
+        Assert.Empty(SsoDeploymentGuard.Check(options, isDevelopment: false));
+    }
+
+    [Fact]
+    public void The_gateway_relay_keeps_the_browser_endpoints_required()
+    {
+        var options = Valid(change => (change.BackChannel, change.EndSessionEndpoint) = (OidcBackChannel.GatewayRelay, string.Empty));
+
+        Assert.Equal($"{Section}:{nameof(OidcOptions.EndSessionEndpoint)} must be an absolute http(s) URI", Single(options));
+    }
+
+    [Fact]
+    public void An_undefined_back_channel_is_refused() =>
+        Assert.Equal(
+            $"{Section}:{nameof(OidcOptions.BackChannel)} must be 1 (Direct) or 2 (GatewayRelay)",
+            Single(Valid(change => change.BackChannel = (OidcBackChannel)9)));
+
+    [Fact]
     public void The_named_client_carries_the_back_channel_timeout_and_size_cap()
     {
         using var provider = Provider(Environments.Production, Configured(new Dictionary<string, string?> { [$"{Section}:BackchannelTimeoutSeconds"] = "9" }));

@@ -1,14 +1,15 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { DgaConfirmDialogComponent } from '@codelab/ng-dga';
-import { HttpStatus } from '@codelab/ng-security';
-import { of } from 'rxjs';
+import { DgaConfirmDialogComponent, DgaPageFeedbackKind } from '@codelab/ng-dga';
+import { ApiErrorCodes, HttpStatus } from '@codelab/ng-security';
+import { NEVER, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { RecordAttachmentsComponent } from '../../../../shared/record-attachments/record-attachments.component';
-import { ServiceRequestActions, ServiceRequestStatus } from '../../data';
+import { SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE, ServiceRequestActions, ServiceRequestStatus } from '../../data';
 import { ServiceRequestsRequesterTranslationKeys as Keys } from '../requester-translation-keys';
 import {
   StubRecordAttachmentsComponent,
+  TEST_ATTACHMENTS_RECORD_ID,
   TEST_SERVICE_REQUEST_ID,
   aRecord,
   aStep,
@@ -105,11 +106,26 @@ describe('ServiceRequestDetailComponent', () => {
     expect(rendered.root.querySelector('app-decision-panel')).toBeNull();
   });
 
-  it('lists the attachments read-only on a submitted request, of the request itself', async () => {
+  it('lists the attachments read-only on a submitted request, under the attachments id (never the request id)', async () => {
     const rendered = await render();
-    expect(attachments(rendered)?.recordId()).toBe(TEST_SERVICE_REQUEST_ID);
-    expect(attachments(rendered)?.recordType()).toBe('service-request');
+    expect(attachments(rendered)?.recordId()).toBe(TEST_ATTACHMENTS_RECORD_ID);
+    expect(attachments(rendered)?.recordId()).not.toBe(TEST_SERVICE_REQUEST_ID);
+    expect(attachments(rendered)?.recordType()).toBe(SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE);
     expect(attachments(rendered)?.readonly()).toBe(true);
+  });
+
+  it('shows no attachments while the record loads', async () => {
+    const rendered = await render(fakeRecordsClient({ detail: vi.fn(() => NEVER) }));
+    expect(attachments(rendered)).toBeNull();
+    expect(rendered.root.querySelector('[data-testid="sr-detail-attachments-failed"]')).toBeNull();
+  });
+
+  it('shows page feedback instead of the widget when the record carries no attachments id', async () => {
+    const rendered = await render(withRecord(ServiceRequestStatus.Submitted, { attachmentsRecordId: '' }));
+    expect(attachments(rendered)).toBeNull();
+    const feedback = rendered.root.querySelector('[data-testid="sr-detail-attachments-failed"] .dga-page-feedback');
+    expect(feedback?.getAttribute('data-kind')).toBe(DgaPageFeedbackKind.Error);
+    expect(feedback?.textContent).toContain(`errors.${ApiErrorCodes.internalError}`);
   });
 
   it('shows no fields and no attachments for a draft (it is edited in the wizard)', async () => {

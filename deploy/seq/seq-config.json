@@ -1,0 +1,23 @@
+{
+  "titlePrefix": "Ops:",
+  "instanceTitleFormat": "Application logs ({0})",
+  "minimumLevel": "Information",
+  "applications": [
+    "starter-api",
+    "starter-attachments",
+    "starter-integration-gateway",
+    "starter-ops-console"
+  ],
+  "gatewayApplication": "starter-integration-gateway",
+  "retention": {
+    "logsDays": 31
+  },
+  "readKeys": [
+    {
+      "name": "ops-console",
+      "permissions": [
+        "Read"
+      ]
+    }
+  ]
+}

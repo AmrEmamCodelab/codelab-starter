@@ -1,0 +1,8 @@
+{
+  "environment": "preproduction",
+  "serverErrorsPerFiveMinutes": 20,
+  "gatewayFailuresPerFiveMinutes": 5,
+  "cspViolationsPerHour": 100,
+  "certificateAlertEnabled": true,
+  "gatewayNodes": []
+}

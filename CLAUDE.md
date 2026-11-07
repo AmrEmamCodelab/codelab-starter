@@ -44,8 +44,9 @@ Describe the work in plain language; pick the skill from this table. A skill mar
 ## Build
 
 ```powershell
-# Full CI contract (18 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
+# Full CI contract (21 steps); add -FailFast to stop at the first failure, -BaseRef <ref> to set the base branch
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Target CI -Kit   # deploy kit publish\deploy-<sha>\ after a green CI (-Kit -DryRun plans only; -KitComponent api,web)
 # Pack every package in packages/versions.json as <version>-ci.<n> prereleases into feed\nuget and feed\npm
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\build.ps1 -Pack
 # Release the exact versions (platform owner only; packs after a green CI, refused when a version is in the feed)

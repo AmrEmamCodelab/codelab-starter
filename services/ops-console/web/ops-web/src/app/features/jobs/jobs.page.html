@@ -1,0 +1,37 @@
+<section class="ops-page" aria-labelledby="jobs-title">
+  <header class="ops-page__header">
+    <div>
+      <h1 class="ops-page__title" id="jobs-title">{{ keys.Title | t }}</h1>
+      <p class="ops-page__subtitle">{{ keys.Subtitle | t }}</p>
+    </div>
+    <dga-button variant="secondary-outline" size="md" leadIcon="clock" [loading]="store.loading()" (click)="store.load()">
+      {{ common.Actions.Refresh | t }}
+    </dga-button>
+  </header>
+
+  @if (store.loaded() && !store.error()) {
+    @if (store.failedCount() > 0) {
+      <dga-alert variant="error" data-testid="jobs-failed">{{ keys.FailedSummary | t: { count: store.failedCount() } }}</dga-alert>
+    } @else {
+      <dga-alert variant="success">{{ keys.AllGood | t }}</dga-alert>
+    }
+  }
+
+  <app-ops-list
+    [captionKey]="keys.Caption"
+    [columns]="columns"
+    [rows]="store.rows()"
+    [rowId]="rowId"
+    [loading]="store.loading()"
+    [error]="store.error()"
+    [emptyKey]="keys.Empty"
+    (retry)="store.load()"
+  >
+    <ng-template opsListCell="lastStatus" let-row>
+      <dga-status-tag [tone]="statusView(row.lastStatus).tone">{{ statusView(row.lastStatus).labelKey | t }}</dga-status-tag>
+    </ng-template>
+    <ng-template opsListCell="lastStartedAt" let-row>{{ (row.lastStartedAt | dateTime) || (common.NotAvailable | t) }}</ng-template>
+    <ng-template opsListCell="lastFinishedAt" let-row>{{ (row.lastFinishedAt | dateTime) || (common.NotAvailable | t) }}</ng-template>
+    <ng-template opsListCell="nextRunAt" let-row>{{ (row.nextRunAt | dateTime) || (common.NotAvailable | t) }}</ng-template>
+  </app-ops-list>
+</section>

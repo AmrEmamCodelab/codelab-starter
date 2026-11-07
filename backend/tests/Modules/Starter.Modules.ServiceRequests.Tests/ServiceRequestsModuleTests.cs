@@ -2,11 +2,13 @@ using Codelab.Security.PublicIds;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
+using Starter.Application.Attachments;
 using Starter.Application.Authorization;
 using Starter.Application.Records;
 using Starter.Application.Workflow;
 using Starter.Modules.ServiceRequests.Api;
 using Starter.Modules.ServiceRequests.Application;
+using Starter.Modules.ServiceRequests.Application.Attachments;
 using Starter.Modules.ServiceRequests.Application.Drafts;
 using Starter.Modules.ServiceRequests.Application.Workflow;
 using Starter.Modules.ServiceRequests.Domain;
@@ -65,6 +67,7 @@ public sealed class ServiceRequestsModuleTests
         AssertRegistered<IRecordTypeRegistrationSource, ServiceRequestRecordTypeSource>(services);
         AssertRegistered<ISlaPolicySource, ServiceRequestSlaPolicySource>(services);
         AssertRegistered<IRecordSubmitValidator, ServiceRequestSubmitValidator>(services);
+        AssertRegistered<IAttachmentTypeSeedSource, ServiceRequestAttachmentTypes>(services);
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IRecordWorkflowCatalogs));
     }
 
@@ -79,6 +82,7 @@ public sealed class ServiceRequestsModuleTests
 
         Assert.Single(services, descriptor => descriptor.ServiceType == typeof(IRecordWorkflowDefinition));
         Assert.Single(services, descriptor => descriptor.ServiceType == typeof(IRecordTypeRegistrationSource));
+        Assert.Single(services, descriptor => descriptor.ServiceType == typeof(IAttachmentTypeSeedSource));
     }
 
     [Fact]

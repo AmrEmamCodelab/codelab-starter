@@ -64,6 +64,10 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | GET | `/api/notifications` | authenticated (allowlisted) | Notifications | One page of the caller's notifications, newest first, in the request language. |
 | GET | `/api/notifications/unread-count` | authenticated (allowlisted) | Notifications | How many of the caller's notifications are unread. |
 | POST | `/api/notifications/{id:publicid}/read` | authenticated (allowlisted) | Notifications | Marks one of the caller's notifications read (idempotent). |
+| GET | `/api/ops/certificates` | authenticated (allowlisted) | Ops | The watched certificates with days left and status, the most urgent first. |
+| GET | `/api/ops/health` | authenticated (allowlisted) | Ops | The health of the database, the attachment service and the gateway, and the system status. |
+| GET | `/api/ops/jobs` | authenticated (allowlisted) | Ops | Every registered job with its schedule and newest run. |
+| GET | `/api/ops/reference-codes/{code}` | authenticated (allowlisted) | Ops | The request behind a reference code and the window to search the log in. |
 | POST | `/api/portal/contact-messages` | anonymous (allowlisted) | Portal | Stores a contact message and answers its reference number (201), the field errors (400), 409 while an administrator has switched the form off, or 429. |
 | GET | `/api/portal/content/{page}` | anonymous (allowlisted) | Portal | One page's content; 404 for an unknown page key. |
 | GET | `/api/queues/{recordType}` | permission `assignments.work` | Assignments | One page of the queue in a view (`unassigned`, `mine`, `all`); 400, 403, 404. |
@@ -78,6 +82,7 @@ Every routed endpoint of the API host in Development (the OpenAPI document is ma
 | GET | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.view` | Attachments | The record's live attachments and the required types it still misses; 404 for an unknown or hidden record. |
 | POST | `/api/records/{recordType}/{recordId:publicid}/attachments` | permission `attachments.upload` | Attachments | Links an uploaded file to the record by its receipt (201 with the attachment); 400 for an invalid, tampered or foreign receipt or an extension the type refuses, 404, or 409 when the type is full. |
 | POST | `/api/records/{recordType}/{recordId:publicid}/attachments/upload-ticket` | permission `attachments.upload` | Attachments | A sealed, single-use ticket to upload files of one type straight to the attachment service; 400, 404, or 409 when the record already holds the type's most files. |
+| POST | `/api/security/csp-reports` | anonymous (allowlisted) | Kernel |  |
 | GET | `/api/security/session-signing-key` | authenticated (allowlisted) | Codelab.Security |  |
 | POST | `/api/service-requests` | permission `service-requests.create` | ServiceRequests | Creates an empty draft owned by the caller: 201 `{ id }`. |
 | GET | `/api/service-requests/{id:publicid}` | authenticated (allowlisted) | ServiceRequests | The request's fields for the detail cards. Signed-in users only; the use case lets through the owner (with `service-requests.view-own`) and queue holders whose scope reaches it, and answers 404 to anyone else. |

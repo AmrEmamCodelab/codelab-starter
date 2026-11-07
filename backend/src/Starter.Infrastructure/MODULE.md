@@ -18,7 +18,8 @@ host use. It never names a module.
 | `Numbering` | NumberingDbContext (schema numbering, no tables; InitialCreate creates the schema), SqlNumberSequences (one SQL SEQUENCE per prefix and year, e.g. numbering.CU_2026, created on first use, NO CACHE), RequestNumberAllocator (IRequestNumberAllocator; year in Numbering:TimeZoneId, default Arab Standard Time, validated on start), AddStarterNumbering |
 | `Auditing` | `AuditSaveChangesInterceptor` (scoped; attached to every module context by `AddModuleDbContext`; captures added/modified/deleted rows, masks `[PersonalData]` with `PiiMask`, leaves out `[NotAudited]`, secrets and binary, name conventions `AuditNamingConventions` as safety net; actor = subject id or SYSTEM, correlation id, `TimeProvider`), `SqlAuditTrailWriter` (same connection and transaction; opens one when the caller has none), `AuditDbContext` (schema `audit`, table `AuditEntries`, reshaped `InitialCreate` + `AuditMigrationModel`), `EfAuditTrailQueries`, `RecordHistoryMapping` (`HasRecordHistory<TRecord, THistory>()` = FK OnDelete(Restrict) + (RecordId, At) index; `EnsureRestrict` run by `ModuleDbContext` refuses a cascading history FK), `AddStarterAuditing` (called by `AddStarterPersistence`) |
 | `Workflow` | `WorkflowRegistration`: `AddRecordWorkflow<TDefinition>()` (the record type's `IRecordWorkflowDefinition` as a singleton, the `IRecordWorkflowCatalogs` registry, the scoped open generic `IRecordWorkflow<TRecord>` facade, idempotent per definition) and `AddRecordWorkflowKernel()` (registry, facade and check without a definition; called by Records, Assignments and Deadlines); `WorkflowCatalogStartupCheck` (an `IHostedLifecycleService` that validates every catalog against the union of the permission catalogs in `StartingAsync`, before any hosted service, and throws `WorkflowCatalogInvalidException` listing every `CatalogViolation`; no database) |
-| `Hosting` | `ApiRoutes.Prefix` (`api`), `AddStarterKernel`, `UseStarterPipeline`, `MapStarterEndpoints` |
+| `Hosting` | `ApiRoutes.Prefix` (`api`), `AddStarterKernel`, `UseStarterPipeline` (runs `CorsOriginBootCheck` first, so a bad `Codelab:Security:Cors:AllowedOrigins` stops the boot), `MapStarterEndpoints` (controllers, module extras, signing key, CSP report sink, health) |
+| `Security` | The security edge: `CspReportEndpoint.MapCspReportSink` (anonymous `POST /api/security/csp-reports`, route `SecurityEdgeRoutes.CspReports`; `application/csp-report` and `application/reports+json` only, otherwise 415; body capped at `CspReportContract.MaxBodyBytes` = 16 KiB, otherwise 413, checked for declared and chunked bodies through `BoundedBody`; 400 when the body is not a report; Codelab client rate limit; exempt from request signing; 204), `CspReportNormalizer` (both formats become `CspViolation`; at most 20 per batch, JSON depth 8, non-`csp-violation` reports skipped), `CspReportUrls` (URLs keep scheme://host[:port]/path only; `data:`/`blob:` keep the scheme; fields clipped to 512 characters, control characters dropped), `CspViolationLog` (one Warning per violation, EventId 1301 `CspViolation`, properties `CspDirective`, `CspDisposition`, `CspDocumentUri`, `CspBlockedUri`, `CspSourceFile`, `CspLineNumber`, `CspColumnNumber`, `CspStatusCode`, `CspReportFormat`), `CorsOriginBootCheck` (Codelab.Security CORS rules plus user info and duplicate origins; throws `OptionsValidationException` listing every problem) |
 | `Configuration` | `AddLocalSecretsFile` (`appsettings.Development.local.json`, Development only) |
 
 ## Use
@@ -34,8 +35,8 @@ builder.Services.AddStarterModules(modules, builder.Configuration);
 ...
 app.UseCodelabObservability();
 app.UseCodelabErrors();
-app.UseStarterPipeline();               // CORS, routing, authentication, user log context, Codelab.Security, authorization
-app.MapStarterEndpoints(modules);       // controllers, module extras, signing-key endpoint, health
+app.UseStarterPipeline();               // CORS origin check (throws), CORS, routing, authentication, user log context, Codelab.Security, authorization
+app.MapStarterEndpoints(modules);       // controllers, module extras, signing-key endpoint, CSP report sink, health
 ```
 A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.SchemaName)`, registers its
 `IPermissionCatalogSource`, `IFeatureFlagSource` and `IStartupTask`s in `Add<Name>Module`, and guards controllers with
@@ -52,6 +53,7 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
   `Program.cs`.
 - **New kernel endpoint:** a controller here under `ApiRoutes.Prefix`, `[AllowAnonymous]` or `[AuthenticatedUser]`
   only with an entry in `backend/tests/Starter.Contract.Tests/EndpointAllowlist.cs`.
+- **Point a CSP at the sink:** the SPA document's `Content-Security-Policy-Report-Only` carries `report-uri /api/security/csp-reports; report-to csp-endpoint` and the response carries `Reporting-Endpoints: csp-endpoint="/api/security/csp-reports"`. Keep both spellings: Chromium uses only report-to, and only over https; Firefox and Safari use report-uri. Seq query: `EventId.Name = 'CspViolation'`, grouped by `CspDirective` and `CspBlockedUri`. Runbook: `docs/runbooks/csp-enforce.md`.
 - Frozen for the modules (contract §3): add members, never rename, remove or change a signature.
 
 ## Rules
@@ -86,3 +88,5 @@ A module calls `services.AddModuleDbContext<RecordsDbContext>(RecordsDbContext.S
   violation (and the permission keys come from every module, so a catalog naming a key of a removed module fails).
 - `ModuleCatalog.Discover` loads assemblies by name; a module listed in the host project but missing from the output
   folder fails the start with a `FileNotFoundException`.
+- **The CSP sink is anonymous by necessity.** A browser posts reports without the page's credentials, so an authorized sink receives nothing. It is rate limited per client and stores nothing. Never log a raw report field: everything goes through `CspReportNormalizer`, which drops query strings, fragments, user info, the referrer and the script sample.
+- **CORS origins are checked in `UseStarterPipeline`, before the host starts.** An origin is exact `scheme://host[:port]`: no trailing slash, no path, no default port, no user info, each listed once, https outside Development. `*` is refused with credentials, and outside Development always. `Codelab.Security`'s own validator may throw first with the same rules.

@@ -1,0 +1,22 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: CSP violations",
+  "Description": "Content Security Policy reports the browser sent to the report sink (event CspViolation). The policy is report-only until the csp-enforce runbook switches it.",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "EventId.Name = 'CspViolation'",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "Application" },
+    { "Expression": "RouteTemplate" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}

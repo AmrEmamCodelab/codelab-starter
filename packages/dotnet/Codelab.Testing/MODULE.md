@@ -58,6 +58,14 @@ For a source sweep, pass the term list and exception list that sit under `tools/
 `SweepConfigurationFiles.ReadTermRules` and `ReadExceptions`. Then pass the rules, plus `SweepRules.Secrets()`, to
 `SourceSweep.Check`.
 
+**Every deployable's test project runs the security sweep over its own folder** (term list, exception list and
+secret rules from `tools/extract/`, repository-relative paths, gitignored local-only files skipped):
+
+```csharp
+[Fact]
+public void The_deployable_source_is_clean() => DeployableSweep.Check(["services/integration-gateway"]).ThrowIfFailed();
+```
+
 **Migrating the phase 0 ArchitectureSpike tests.** `tests/Starter.ArchitectureSpike.*` call NetArchTest directly. They
 stay in place in phase 1. In phase 2, `Starter.Architecture.Tests` replaces them with `ModuleBoundaryRules` and
 `LayerRules` calls, and the spike projects are deleted. `ModuleBoundaryRulesTests` and `LayerRulesTests` in this
@@ -70,6 +78,8 @@ package already prove both outcomes the spike proved: a real dependency is detec
   namespace under `Codelab.Testing.Tests/Fixtures/` and test both.
 - **A new contract:** read endpoint facts through `EndpointDescriptions`, which covers both minimal APIs and MVC. Take
   host types (attributes, validators, wire ids) as parameters, never as references.
+- **A new deployable:** add one `DeployableSweep.Check(["<folder>"])` test to its test project, and add the folder to
+  `DeployableSweepTests.Deployables` here.
 - **A new sweep rule set:** add a factory to `SweepRules`. Build secret-shaped test inputs at run time, so the
   repository's own scanners stay clean.
 - **A vector field that a foreign prefix can derive:** subclass `VectorExpectationRebaser`, or name the field with
@@ -86,6 +96,10 @@ package already prove both outcomes the spike proved: a real dependency is detec
 - The public API is tracked in `PublicAPI.Unshipped.txt`. It moves to `PublicAPI.Shipped.txt` at the 0.5.0 release.
 
 ## Gotchas
+
+- `DeployableSweep` walks the working tree, not git. Files the repository's .gitignore keeps local
+  (`DeployableSweep.LocalOnlyFiles`, `LocalOnlyDirectoryNames`) are skipped; any other untracked file is swept, so a
+  stray local file with a secret fails the test on that machine.
 
 - `ModuleNamespaceMap.FromProjects` reads each module's project file (`RootNamespace`, else the project file name). A
   module folder without a project file is skipped, which is normal while the module is only scaffolded.

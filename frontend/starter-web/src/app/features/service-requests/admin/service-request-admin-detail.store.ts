@@ -7,7 +7,15 @@ import {
   type RecordDetail,
   type TimelineEntry,
 } from '../../../shared/records';
-import { SERVICE_REQUEST_RECORD_TYPE, ServiceRequestsClient, type ServiceRequestDetails, type ServiceRequestId } from '../data';
+import {
+  SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE,
+  SERVICE_REQUEST_RECORD_TYPE,
+  ServiceRequestsClient,
+  serviceRequestAttachmentsTargetOf,
+  type ServiceRequestAttachmentsTarget,
+  type ServiceRequestDetails,
+  type ServiceRequestId,
+} from '../data';
 import { SERVICE_REQUEST_NOT_FOUND, serviceRequestIdFromRoute } from '../staff/service-request-route-id';
 
 /** Everything the admin detail shows of one request. */
@@ -15,11 +23,13 @@ interface LoadedRequest {
   readonly detail: RecordDetail;
   readonly details: ServiceRequestDetails;
   readonly timeline: readonly TimelineEntry[];
+  /** Where the files live (the record's Records-kernel attachments id); null when the record carried none. */
+  readonly attachments: ServiceRequestAttachmentsTarget | null;
 }
 
 /**
  * The state of the admin's read-only detail of one service request (provided per page): the record, the request's
- * own fields and the timeline. READ-ONLY by construction: it loads and nothing else (no transition, claim or upload
+ * own fields, the timeline and where its files live (the attachments id). READ-ONLY by construction: it loads and nothing else (no transition, claim or upload
  * method), and the page never renders the server's allowed actions.
  */
 @Injectable()
@@ -37,6 +47,13 @@ export class ServiceRequestAdminDetailStore {
   readonly detail = computed(() => this.loaded()?.detail ?? null);
   readonly details = computed(() => this.loaded()?.details ?? null);
   readonly timeline = computed<readonly TimelineEntry[]>(() => this.loaded()?.timeline ?? []);
+  /** Where the request's files live (`attachmentsRecordId`, never the request id), or null until loaded. */
+  readonly attachments = computed(() => this.loaded()?.attachments ?? null);
+  /** The refusal shown in place of the attachments: the loaded record carried no usable attachments id. */
+  readonly attachmentsError = computed<ApiError | null>(() => {
+    const loaded = this.loaded();
+    return loaded !== null && loaded.attachments === null ? SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE : null;
+  });
   readonly loading = this.busy.asReadonly();
   readonly error = this.failure.asReadonly();
 
@@ -68,7 +85,7 @@ export class ServiceRequestAdminDetailStore {
         timeline: this.records.timeline(SERVICE_REQUEST_RECORD_TYPE, id),
       }));
       if (current === this.sequence) {
-        this.loaded.set(loaded);
+        this.loaded.set({ ...loaded, attachments: serviceRequestAttachmentsTargetOf(loaded.detail) });
       }
     } catch (error: unknown) {
       if (current === this.sequence) {

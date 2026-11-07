@@ -9,6 +9,8 @@ namespace Starter.DocsGen.Collection;
 /// collections add <see cref="ArrayIndexSegment"/>, dictionaries add <see cref="DictionaryKeySegment"/>, nested
 /// classes recurse. An options class that is itself a dictionary, or whose only bindable member is a get-only
 /// collection, is bound at the section root (for example <c>Features:&lt;name&gt;</c>, <c>Identity:DevUsers:&lt;n&gt;</c>).
+/// A framework object type that is not a scalar (a certificate, a stream) is supplied in code, never bound: it is no
+/// key and is never created or read (<see cref="TypeShapes.IsCodeSupplied"/>).
 /// </summary>
 internal static class ConfigKeyScanner
 {
@@ -105,7 +107,7 @@ internal static class ConfigKeyScanner
         {
             AddElement(elementType, key + KeySeparator + ArrayIndexSegment, description, depth, context);
         }
-        else if (depth < MaxNestingDepth)
+        else if (depth < MaxNestingDepth && !TypeShapes.IsCodeSupplied(type))
         {
             ScanObject(type, key, depth + 1, context);
         }
@@ -118,7 +120,7 @@ internal static class ConfigKeyScanner
         {
             context.Add(key, TypeShapes.Describe(type), defaultValue: string.Empty, description);
         }
-        else if (depth < MaxNestingDepth)
+        else if (depth < MaxNestingDepth && !TypeShapes.IsCodeSupplied(type))
         {
             ScanObject(type, key, depth + 1, context);
         }
@@ -140,6 +142,8 @@ internal static class ConfigKeyScanner
 /// <summary>How the configuration binder sees a type: scalar, collection, dictionary or object.</summary>
 internal static class TypeShapes
 {
+    private const char NamespaceSeparator = '.';
+
     private static readonly Dictionary<Type, string> ScalarNames = new()
     {
         [typeof(bool)] = "bool",
@@ -157,12 +161,29 @@ internal static class TypeShapes
         [typeof(Uri)] = "Uri",
     };
 
+    /// <summary>The root namespaces of .NET and its extensions, whose object types the binder never fills.</summary>
+    private static readonly string[] FrameworkNamespaces = ["System", "Microsoft"];
+
     /// <summary>True for a value the binder converts from one string: the known scalars and enums (nullable or not).</summary>
     public static bool IsScalar(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
         var underlying = Nullable.GetUnderlyingType(type) ?? type;
         return underlying.IsEnum || ScalarNames.ContainsKey(underlying);
+    }
+
+    /// <summary>
+    /// True for a framework object type (namespace <c>System</c> or <c>Microsoft</c>) that is not a scalar, for example
+    /// <c>X509Certificate2</c>: a host supplies it in code, the configuration binder never fills it, and creating or
+    /// reading one by reflection can throw (an empty certificate's properties do). Ask it only for a type that is
+    /// neither a dictionary nor a collection: those are walked by their element type.
+    /// </summary>
+    public static bool IsCodeSupplied(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        return !IsScalar(type)
+            && type.Namespace is { } name
+            && FrameworkNamespaces.Any(root => name == root || name.StartsWith(root + NamespaceSeparator, StringComparison.Ordinal));
     }
 
     /// <summary>A readable type name; an enum lists its members.</summary>

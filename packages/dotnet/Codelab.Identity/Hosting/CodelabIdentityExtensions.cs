@@ -35,7 +35,9 @@ public static class CodelabIdentityExtensions
 
     /// <summary>
     /// Binds <see cref="OidcOptions.SectionName"/> (validated on start), registers the named back-channel client
-    /// <see cref="OidcHttpClient.Name"/>, the signing-key source of the configured <see cref="SigningKeyMode"/>,
+    /// <see cref="OidcHttpClient.Name"/>, the direct <see cref="IOidcBackChannel"/> (unless the host registered its own
+    /// first, such as the integration gateway relay; start-up refuses one whose mode differs from
+    /// <see cref="OidcOptions.BackChannel"/>), the signing-key source of the configured <see cref="SigningKeyMode"/>,
     /// <see cref="OidcIdTokenValidator"/> and <see cref="IOidcIdentityProvider"/>.
     /// </summary>
     public static IServiceCollection AddCodelabOidc(this IServiceCollection services, IConfiguration configuration)
@@ -45,13 +47,18 @@ public static class CodelabIdentityExtensions
 
         services.AddOptions<OidcOptions>().Bind(configuration.GetSection(OidcOptions.SectionName)).ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<OidcOptions>, OidcOptionsValidator>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<OidcOptions>, OidcBackChannelValidator>());
         services.TryAddSingleton(TimeProvider.System);
         services.AddHttpClient(OidcHttpClient.Name).ConfigureHttpClient((provider, client) =>
         {
             client.Timeout = provider.GetRequiredService<IOptions<OidcOptions>>().Value.BackchannelTimeout;
             client.MaxResponseContentBufferSize = OidcHttpClient.MaxResponseBytes;
         });
-        services.TryAddSingleton<JwksSigningKeySource>();
+        services.TryAddSingleton<IOidcBackChannel, DirectOidcBackChannel>();
+        services.TryAddSingleton(provider => new JwksSigningKeySource(
+            provider.GetRequiredService<IOidcBackChannel>(),
+            provider.GetRequiredService<TimeProvider>(),
+            provider.GetRequiredService<ILogger<JwksSigningKeySource>>()));
         services.TryAddSingleton<IIdTokenSigningKeySource>(KeySourceFor);
         services.TryAddSingleton<OidcIdTokenValidator>();
         services.TryAddSingleton<IOidcIdentityProvider, OidcIdentityProvider>();

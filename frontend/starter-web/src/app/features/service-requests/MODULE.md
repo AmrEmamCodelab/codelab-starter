@@ -27,6 +27,7 @@ page patterns.
 | `todayInTimeZone(epochMs)`, `SERVICE_REQUEST_TIME_ZONE` (`Asia/Riyadh`) | `service-request-today.ts` |
 | `SERVICE_REQUEST_STEPS`, `SERVICE_REQUEST_STEP_IDS`, `SERVICE_REQUEST_FIELD_STEPS` (the wizard's `[fieldSteps]`), `SERVICE_REQUEST_FIELD_LABEL_KEYS` | `service-request-steps.ts` |
 | `serviceRequestCardsAdapter(details, language)` → the shared/records detail cards | `service-request-cards.ts` |
+| `ServiceRequestAttachmentsTarget`, `serviceRequestAttachmentsTargetOf(record)` (the record's `attachableRecordType` + `attachmentsRecordId`), `SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE`, `serviceRequestAttachmentsFeedback(error, translate)` | `service-request-attachments.ts` |
 | `validation-parity.fixtures.json`: the FE/BE parity contract | `data/` |
 
 ## Use
@@ -59,8 +60,16 @@ cards = computed(() => serviceRequestCardsAdapter(this.details(), this.language.
 
 - Status, timeline, allowed actions, resubmit, cancel and every staff decision come from the generic
   `api/records/service-request/...` endpoints (shared/records `RecordsClient`), never from this client.
-- Attachments: `<app-record-attachments [recordType]="SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE" [recordId]="id" />` on
-  step 3 and on the detail pages; the required type is `ServiceRequestAttachmentTypes.Document`.
+- Attachments: the widget gets the **Records-kernel attachments id**, never the request id. Every page reads the
+  generic record (`GET api/records/service-request/{id}`, shared/records `RecordsClient.detail`) and takes
+  `serviceRequestAttachmentsTargetOf(record)` → `{ recordType, recordId }` (`attachableRecordType`,
+  `attachmentsRecordId`): `<app-record-attachments [recordType]="target.recordType" [recordId]="target.recordId" />`.
+  The detail stores (requester, staff, admin) read it with the record they already load and expose `attachments` /
+  `attachmentsError`; the wizard store reads it once the draft exists (created on the first save, or resumed) and
+  offers `retryAttachments()`. The widget is hidden until the target is known; a failed read (or a record without a
+  usable id, `SERVICE_REQUEST_ATTACHMENTS_UNAVAILABLE`) shows `<dga-page-feedback>` built by
+  `serviceRequestAttachmentsFeedback` (`errors.<CODE>` text and the reference code, both bundles). The required type
+  is `ServiceRequestAttachmentTypes.Document`.
 - Categories: `GET api/lookups/service-request-categories` (`SERVICE_REQUEST_CATEGORY_LOOKUP_TYPE`); the value `id` is
   the opaque token the draft's `categoryId` carries.
 
@@ -99,6 +108,13 @@ cards = computed(() => serviceRequestCardsAdapter(this.details(), this.language.
   feature.
 
 ## Gotchas
+
+- **The attachments id is not the request id.** `attachmentsRecordId` is a PublicId in another family
+  (`attachable-records`); passing the request id (or `record.id`) to `app-record-attachments` lists nothing and
+  uploads are refused. The shared `RecordDetail` type does not declare the two attachment fields, so read them only
+  through `serviceRequestAttachmentsTargetOf`. A decision (transition) does not move the files: the stores keep the
+  target read on load. The spec fixtures (`aRecord`, `staffRecord`) carry `TEST_ATTACHMENTS_RECORD_ID`, which
+  differs from `TEST_SERVICE_REQUEST_ID`, so a page that passes the wrong id fails its spec.
 
 - `today` is the date in the app time zone, not the browser's: `todayInTimeZone(APP_CLOCK())`. Never `new Date()`
   in a rule, and pass `today` as a function to `serviceRequestValidators.preferredDate` so a wizard left open past

@@ -1,11 +1,11 @@
 {
   "Codelab.Build.Sdk": "0.2.1",
   "Codelab.Security": "0.6.0",
-  "Codelab.Observability": "0.5.1",
-  "Codelab.Errors": "0.5.1",
-  "Codelab.Testing": "0.5.0",
-  "Codelab.Integration": "0.1.0",
-  "Codelab.Identity": "0.5.0",
+  "Codelab.Observability": "0.5.2",
+  "Codelab.Errors": "0.5.2",
+  "Codelab.Testing": "0.6.0",
+  "Codelab.Integration": "0.6.0",
+  "Codelab.Identity": "0.6.0",
   "@codelab/ng-security": "0.5.1",
   "@codelab/ng-tools": "0.5.0",
   "@codelab/ng-dga": "1.0.0"

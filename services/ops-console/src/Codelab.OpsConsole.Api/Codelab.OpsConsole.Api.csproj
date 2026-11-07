@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    Codelab.OpsConsole.Api: the Ops Console's server side (backend-for-frontend of the ops web), a separate deployable
+    (IIS child application or Kestrel on :5188). Operators sign in with Windows (Negotiate) and must belong to the
+    configured AD group; the console then calls the starter API's /api/ops with a Codelab.Security ES256 service
+    assertion per request and reads Seq over its HTTP API. See services/ops-console/MODULE.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
+    <RootNamespace>Codelab.OpsConsole.Api</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <CodelabProjectBannedSymbolsFile>../../BannedSymbols.generated.txt</CodelabProjectBannedSymbolsFile>
+    <CodelabProjectCodeMetricsFile>../../CodeMetricsConfig.txt</CodelabProjectCodeMetricsFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Security" />
+    <CodelabPackageReference Include="Codelab.Observability" />
+    <CodelabPackageReference Include="Codelab.Errors" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Windows (Kerberos/NTLM) sign-in on Kestrel; under IIS it forwards to the server's Windows authentication. -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.OpsConsole.Application\Codelab.OpsConsole.Application.csproj" />
+  </ItemGroup>
+
+  <!--
+    The gitignored per-machine secrets (appsettings.*.local.json: the console's ES256 service key, the Seq API key)
+    must never reach a publish folder, a zip or a handover kit.
+  -->
+  <ItemGroup>
+    <Content Update="appsettings.*.local.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codelab.OpsConsole.Api.Tests" />
+  </ItemGroup>
+</Project>

@@ -1,9 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    Codelab.Integration 0.1: the outbound call engine. Typed outbound clients (AddCodelabOutboundClient<TClient>),
-    an options-driven retry and timeout policy on Microsoft.Extensions.Http.Resilience / Polly.Core, failure
-    classification of outbound errors, and server-certificate validation that is always on (system trust, a pinned
-    internal CA bundle or pinned leaf thumbprints). Gateway contracts arrive in 0.5 (phase 8). See MODULE.md.
+    Codelab.Integration 0.6: the outbound call engine (typed outbound clients, an options-driven retry and timeout
+    policy on Microsoft.Extensions.Http.Resilience / Polly.Core, failure classification, server-certificate validation
+    that is always on) plus the integration gateway contracts: relay routes and DTOs, problem codes, the gateway
+    profile extension point and registry, and the typed GatewayRelayClient that signs every attempt with the
+    Codelab.Security ES256 service assertion. See MODULE.md.
+
+    Since 0.6 it references the ASP.NET Core shared framework (IGatewayProfile maps endpoints) and Codelab.Security
+    (service assertions). The Microsoft.Extensions.* packages come from that framework (NU1510 forbids listing them).
   -->
   <PropertyGroup>
     <TargetFramework>$(CodelabTargetFramework)</TargetFramework>
@@ -12,20 +16,22 @@
     <CodelabPackage>true</CodelabPackage>
     <Authors>Codelab</Authors>
     <Company>Codelab</Company>
-    <Description>Codelab outbound integration engine: typed outbound HTTP clients with options-driven retry and timeout, outbound failure classification, a correlation handler slot, and server-certificate validation that is always on (system trust, pinned internal CA bundle or pinned leaf thumbprints).</Description>
-    <PackageTags>codelab;http;resilience;integration</PackageTags>
+    <Description>Codelab outbound integration engine and integration gateway contracts: typed outbound HTTP clients with options-driven retry and timeout, outbound failure classification, a correlation handler slot, server-certificate validation that is always on, gateway relay routes, DTOs and problem codes, the gateway profile extension point, and a gateway relay client signed with the Codelab ES256 service assertion.</Description>
+    <PackageTags>codelab;http;resilience;integration;gateway</PackageTags>
     <PackageReadmeFile>MODULE.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Http" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
-    <PackageReference Include="Microsoft.Extensions.Options" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Polly.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codelab.Security\Codelab.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>

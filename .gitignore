@@ -11,6 +11,7 @@ bin/
 !packages/npm/*/src/bin/
 obj/
 /artifacts/
+/publish/
 TestResults/
 *.binlog
 coverage/

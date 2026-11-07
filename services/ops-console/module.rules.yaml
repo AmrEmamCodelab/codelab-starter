@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../rules/rules.schema.json
+# Rules for the Ops Console server side (inherits rules/base.rules.yaml): Codelab.OpsConsole.Application and Codelab.OpsConsole.Api.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: OpsConsole
+kind: dotnet
+description: "The Ops Console API: a read-only backend-for-frontend for operators who sign in with Windows and belong to one AD group; it reads the starter API's /api/ops with an ES256 service assertion per request and Seq with a read-only key."
+mayDependOn: [CodelabSecurity, CodelabObservability, CodelabErrors]
+mustNotDependOn: [CodelabIntegration, CodelabTesting, StarterDomain, StarterApplication, StarterInfrastructure]
+required:
+  - id: opsconsole.windows-operators-only
+    statement: Operators authenticate only with Windows sign-in (Negotiate) and must belong to Codelab:OpsConsole:OperatorGroup (OperatorAuthentication.OperatorPolicy, the default and fallback policy, decided only by OperatorGroupMembership); the dev operator scheme is registered only in Development and refused elsewhere at start.
+    enforcedBy: [contract-test, review]
+  - id: opsconsole.assertion-to-api
+    statement: Every call to the starter API's /api/ops goes through IOpsApiClient, whose HTTP client carries AddCodelabServiceAssertion (one fresh ES256 assertion per request) and names the operator in OperatorHeader.Name; no other credential is ever sent to the API.
+    enforcedBy: [contract-test, review]
+  - id: opsconsole.read-only
+    statement: The console's endpoints are GET only under /ops-api (OpsConsoleRoutes), so a forged cross-site request changes nothing and no anti-forgery token is needed.
+    enforcedBy: [contract-test, review]
+  - id: opsconsole.seq-input-normalized
+    statement: Only a reference code normalized by ReferenceCodeInput reaches a Seq filter (SeqQueries); operator text never does, and the Seq read key never reaches a log line or a response.
+    enforcedBy: [contract-test, review]
+  - id: opsconsole.no-key-material
+    statement: Committed appsettings and web.config carry no key material; the service key (Codelab:Security:ServiceAssertions:Client:KeyId and PrivateKeyPem) and Codelab:OpsConsole:Seq:ApiKey come from the environment or a secret store (Development - the gitignored appsettings.Development.local.json).
+    enforcedBy: [contract-test, review]
+forbidden:
+  - id: opsconsole.no-other-credential
+    description: A bearer, API-key or cookie scheme would add a credential besides Windows sign-in; the console has exactly one operator credential.
+    pattern: '(AddJwtBearer|JwtBearerDefaults|AddCookie\s*\(|ApiKey\w*(?:Handler|Scheme|Authentication))'
+    appliesTo: ["src/**/*.cs"]
+    fix: Operators sign in with Windows (OperatorAuthentication); upstream calls carry the service assertion.
+    severity: error
+  - id: opsconsole.no-state-changing-endpoint
+    description: The console is read-only; a POST, PUT, PATCH or DELETE endpoint would need anti-forgery protection and an audit design it does not have.
+    pattern: '\bMap(?:Post|Put|Patch|Delete|Methods)\s*\('
+    appliesTo: ["src/**/*.cs"]
+    fix: Keep the console read-only; an operator action belongs to an audited endpoint of the API itself.
+    severity: error

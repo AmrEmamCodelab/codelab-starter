@@ -1,10 +1,8 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Starter.Application.Notifications;
-using Starter.Domain.Attachments;
 using Starter.Domain.Localization;
 using Starter.Domain.Lookups;
-using Starter.Modules.Attachments.Infrastructure.Persistence.Migrations;
 using Starter.Modules.Lookups.Domain;
 using Starter.Modules.Lookups.Infrastructure.Persistence.Migrations;
 using Starter.Modules.Notifications.Infrastructure.Persistence.Migrations;
@@ -14,8 +12,9 @@ using Starter.Modules.ServiceRequests.Application.Workflow;
 namespace Starter.Modules.ServiceRequests.Tests.Seeds;
 
 /// <summary>
-/// The rows the sample seeds through other modules' migrations (Lookups, Attachments, Notifications) match the
-/// sample's constants: those modules never reference the sample, so they freeze the same values as data.
+/// The rows the sample seeds through other modules' migrations (Lookups, Notifications) match the sample's constants:
+/// those modules never reference the sample, so they freeze the same values as data. The sample's attachment types are
+/// not a migration any more: it declares them itself (<c>Attachments/ServiceRequestAttachmentTypesTests</c>).
 /// </summary>
 public sealed partial class SeedMigrationTests
 {
@@ -31,25 +30,6 @@ public sealed partial class SeedMigrationTests
         Assert.True(items.Length >= 3);
         Assert.All(items, item => Assert.False(string.IsNullOrWhiteSpace(item.Names.Ar) || string.IsNullOrWhiteSpace(item.Names.En), item.Code));
         Assert.Equal("service-request-categories", LookupTypes.ServiceRequestCategories);
-    }
-
-    [Fact]
-    public void The_attachment_types_are_the_required_document_and_the_optional_supporting_files()
-    {
-        var rows = AddServiceRequestAttachmentTypes.Rows;
-
-        Assert.Equal([AttachmentTypeIds.ServiceRequestDocument, AttachmentTypeIds.ServiceRequestSupporting], rows.Select(row => row.Id));
-        Assert.Equal([AttachmentTypeKeys.ServiceRequestDocument, AttachmentTypeKeys.ServiceRequestSupporting], rows.Select(row => row.Key));
-        Assert.All(rows, row => Assert.Equal(AttachableRecordTypes.ServiceRequest, row.RecordType));
-        Assert.Equal([(true, 3), (false, 5)], rows.Select(row => (row.IsRequired, row.MaxFiles)));
-        Assert.All(rows, row => Assert.Equal([".pdf", ".jpg", ".png"], row.AllowedExtensions));
-        Assert.All(rows, row => Assert.True(row.IsActive));
-    }
-
-    [Fact]
-    public void The_attachment_type_ids_do_not_collide_with_the_demo_type()
-    {
-        Assert.DoesNotContain(AttachmentTypeIds.DemoDocument, AddServiceRequestAttachmentTypes.Rows.Select(row => row.Id));
     }
 
     [Fact]
@@ -118,7 +98,6 @@ public sealed partial class SeedMigrationTests
     public void The_seed_migrations_come_after_each_module_s_existing_ones()
     {
         Assert.True(string.CompareOrdinal(AddServiceRequestCategoriesLookup.MigrationId, AddContactTopicsLookup.MigrationId) > 0);
-        Assert.True(string.CompareOrdinal(AddServiceRequestAttachmentTypes.MigrationId, AttachmentsMigrationIds.InitialCreate) > 0);
         Assert.True(string.CompareOrdinal(AddServiceRequestTemplates.MigrationId, NotificationsMigrationIds.InitialCreate) > 0);
     }
 

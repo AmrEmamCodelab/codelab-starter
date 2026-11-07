@@ -491,3 +491,28 @@ static readonly Codelab.Identity.Oidc.JwksSigningKeySource.CacheLifetime -> Syst
 static readonly Codelab.Identity.Oidc.JwksSigningKeySource.MaxStaleness -> System.TimeSpan
 static readonly Codelab.Identity.Oidc.JwksSigningKeySource.RefreshRetryBackoff -> System.TimeSpan
 static readonly Codelab.Identity.Oidc.JwksSigningKeySource.UnknownKidRefreshInterval -> System.TimeSpan
+Codelab.Identity.Oidc.IOidcBackChannel
+Codelab.Identity.Oidc.IOidcBackChannel.GetJwksAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Identity.Oidc.OidcBackChannelResponse!>!
+Codelab.Identity.Oidc.IOidcBackChannel.Mode.get -> Codelab.Identity.Oidc.OidcBackChannel
+Codelab.Identity.Oidc.IOidcBackChannel.RedeemCodeAsync(System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<string!, string!>>! form, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Codelab.Identity.Oidc.OidcBackChannelResponse!>!
+Codelab.Identity.Oidc.JwksSigningKeySource.JwksSigningKeySource(Codelab.Identity.Oidc.IOidcBackChannel! backChannel, System.TimeProvider! timeProvider, Microsoft.Extensions.Logging.ILogger<Codelab.Identity.Oidc.JwksSigningKeySource!>! logger) -> void
+Codelab.Identity.Oidc.OidcBackChannel
+Codelab.Identity.Oidc.OidcBackChannel.Direct = 1 -> Codelab.Identity.Oidc.OidcBackChannel
+Codelab.Identity.Oidc.OidcBackChannel.GatewayRelay = 2 -> Codelab.Identity.Oidc.OidcBackChannel
+Codelab.Identity.Oidc.OidcBackChannelOutcome
+Codelab.Identity.Oidc.OidcBackChannelOutcome.Answered = 1 -> Codelab.Identity.Oidc.OidcBackChannelOutcome
+Codelab.Identity.Oidc.OidcBackChannelOutcome.Rejected = 3 -> Codelab.Identity.Oidc.OidcBackChannelOutcome
+Codelab.Identity.Oidc.OidcBackChannelOutcome.Unavailable = 2 -> Codelab.Identity.Oidc.OidcBackChannelOutcome
+Codelab.Identity.Oidc.OidcBackChannelResponse
+Codelab.Identity.Oidc.OidcBackChannelResponse.Body.get -> string?
+Codelab.Identity.Oidc.OidcBackChannelResponse.FailureReason.get -> string?
+Codelab.Identity.Oidc.OidcBackChannelResponse.Outcome.get -> Codelab.Identity.Oidc.OidcBackChannelOutcome
+Codelab.Identity.Oidc.OidcBackChannelResponse.StatusCode.get -> int?
+Codelab.Identity.Oidc.OidcOptions.BackChannel.get -> Codelab.Identity.Oidc.OidcBackChannel
+Codelab.Identity.Oidc.OidcOptions.BackChannel.set -> void
+Codelab.Identity.Oidc.OidcOptions.NoEgress.get -> bool
+Codelab.Identity.Oidc.OidcOptions.NoEgress.set -> void
+override Codelab.Identity.Oidc.OidcBackChannelResponse.ToString() -> string!
+static Codelab.Identity.Oidc.OidcBackChannelResponse.Answered(int statusCode, string! body) -> Codelab.Identity.Oidc.OidcBackChannelResponse!
+static Codelab.Identity.Oidc.OidcBackChannelResponse.Rejected(int? statusCode, string! reason) -> Codelab.Identity.Oidc.OidcBackChannelResponse!
+static Codelab.Identity.Oidc.OidcBackChannelResponse.Unavailable(string! reason) -> Codelab.Identity.Oidc.OidcBackChannelResponse!

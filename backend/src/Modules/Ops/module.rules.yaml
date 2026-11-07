@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rules/rules.schema.json
+# Rules for the Ops module (inherits rules/base.rules.yaml). Created by tools/scaffold/new-module.mjs.
+# After editing, run: node tools/rules-engine/compile.mjs
+schemaVersion: 1
+module: Ops
+kind: dotnet
+description: "Logs, error reference codes and the Ops surface (module 16, backend): /api/ops (health summary, job catalog, certificate expiry, reference-code lookup) open only to the Ops Console API's ES256 service assertion, the operator audit trail and the reference-code index in schema ops, and the reference-code purge job. Optional (tools/remove-module.ps1 -Name Ops)."
+mayDependOn: [StarterDomain, StarterApplication, StarterInfrastructure, CodelabSecurity, CodelabObservability, CodelabErrors]
+mustNotDependOn: [Identity, Access, Users, Settings, Lookups, Audit, Jobs, Notifications, Portal, Attachments, Records]
+required:
+  - id: ops.service-assertion-only
+    statement: Every endpoint is a thin action of OpsController under OpsRoutes.Root, authorized only by [OpsServiceCaller] (the Codelab.Security service-assertion scheme plus the trusted-caller requirement); never [HasPermission], [AllowAnonymous], [AuthenticatedUser], [SignatureExempt] or a second scheme (JWT, cookie, API key).
+    enforcedBy: [contract-test, review]
+  - id: ops.operator-recorded
+    statement: Every Ops action carries [OpsEndpoint] and runs behind OperatorAccessFilter, which refuses a call without the X-Codelab-Operator header (400 OPS_OPERATOR_REQUIRED) and records the operator in ops.OperatorAccess.
+    enforcedBy: [review]
+  - id: ops.no-exception-text
+    statement: Health components and certificate rows carry only OpsFindingCodes constants, never an exception message, a host name or a URL; failure logs carry identifiers only (endpoint, correlation id, counts), never the operator name.
+    enforcedBy: [review]
+  - id: ops.validated-tls
+    statement: Readiness probes and the JWKS read use the default HttpClient certificate validation; an untrusted certificate is OPS_PROBE_UNREACHABLE or OPS_IDP_KEYS_UNAVAILABLE, never accepted.
+    enforcedBy: [review]
+forbidden:
+  - id: ops.no-module-reference
+    description: The Ops module reads other modules only through kernel ports (IJob registrations, IJobRunHistory and IIdentityProviderKeySet); a module reference couples them and breaks removing either one.
+    pattern: '(?<![A-Za-z0-9_])Modules[.](?:Identity|Access|Users|Settings|Lookups|Audit|Jobs|Notifications|Portal|Attachments|Records|Assignments|Deadlines|ServiceRequests)(?![A-Za-z0-9_])'
+    appliesTo: ["**/*.cs", "**/*.csproj"]
+    fix: Use a kernel port in Starter.Application (ask the kernel owner for one) instead of the module's types.
+  - id: ops.no-certificate-bypass
+    description: Accepting any server certificate hides the very TLS failures the Ops surface exists to show.
+    pattern: 'ServerCertificateCustomValidationCallback|DangerousAcceptAnyServerCertificateValidator'
+    appliesTo: ["**/*.cs"]
+    fix: Trust the issuing CA on the server instead; the probe reports OPS_PROBE_UNREACHABLE until it is trusted.
+recipes: [docs/recipes/add-endpoint.md]

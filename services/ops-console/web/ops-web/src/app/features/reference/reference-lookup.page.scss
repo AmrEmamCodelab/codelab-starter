@@ -1,0 +1,42 @@
+.reference__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--dga-space-3);
+}
+
+.reference__input {
+  flex: 1 1 18rem;
+  max-inline-size: 28rem;
+}
+
+.reference__not-found {
+  margin: 0;
+  color: var(--dga-color-text-muted);
+}
+
+.reference__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-4);
+}
+
+.reference__seq {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.reference__seq-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dga-space-1);
+  color: var(--dga-color-text-link);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.reference__copy-outcome {
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-sm);
+}

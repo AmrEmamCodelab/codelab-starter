@@ -15,6 +15,7 @@ import { quietContext, selfHandledContext } from './http-context';
 import { sessionExpiredInterceptor } from './session-expired.interceptor';
 
 const URL = 'http://api.test/api/x';
+const TRACE_ID = 'd1e8a7c45b2f4e6a9c3b0f7d5a2e8c61';
 const PROBLEM = { code: 'BUSINESS_RULE_VIOLATED', correlationId: 'abc123', referenceCode: 'REF-1' };
 
 describe('core response interceptors', () => {
@@ -57,6 +58,21 @@ describe('core response interceptors', () => {
       expect(fail(422)).toBeDefined();
       expect(dialog.current()?.code).toBe('BUSINESS_RULE_VIOLATED');
       expect(dialog.messageKey()).toBe('errors.BUSINESS_RULE_VIOLATED');
+      expect(dialog.referenceCode()).toBe('REF-1');
+    });
+
+    it('falls back to the X-Correlation-ID header for the reference code when the body has none', () => {
+      http.get(URL).subscribe({ error: () => undefined });
+      backend
+        .expectOne(URL)
+        .flush('', { status: 404, statusText: 'x', headers: { 'X-Correlation-ID': TRACE_ID } });
+      expect(dialog.referenceCode()).toBe('D1E8A-7C45B');
+      expect(dialog.correlationId()).toBe(TRACE_ID);
+    });
+
+    it('keeps the body reference code over the header', () => {
+      http.get(URL).subscribe({ error: () => undefined });
+      backend.expectOne(URL).flush(PROBLEM, { status: 409, statusText: 'x', headers: { 'X-Correlation-ID': TRACE_ID } });
       expect(dialog.referenceCode()).toBe('REF-1');
     });
 

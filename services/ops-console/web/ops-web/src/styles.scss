@@ -1,0 +1,63 @@
+@use '@codelab/ng-dga/styles';
+
+body {
+  margin: 0;
+  background-color: var(--dga-color-surface-page);
+  color: var(--dga-color-text-default);
+}
+
+// The page frame every console screen shares (title band, summary line, detail grid), so no screen repeats it.
+.ops-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dga-space-5);
+}
+
+.ops-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dga-space-3);
+}
+
+.ops-page__title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-2xl);
+  font-weight: var(--dga-font-weight-bold);
+}
+
+.ops-page__subtitle {
+  margin-block: var(--dga-space-1) 0;
+  color: var(--dga-color-text-muted);
+}
+
+.ops-page__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dga-space-3);
+}
+
+.ops-page__summary-label {
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.ops-page__summary-meta {
+  color: var(--dga-color-text-muted);
+  font-size: var(--dga-font-size-sm);
+}
+
+.ops-page__section-title {
+  margin: 0;
+  color: var(--dga-color-text-display);
+  font-size: var(--dga-font-size-lg);
+  font-weight: var(--dga-font-weight-semibold);
+}
+
+.ops-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--dga-space-4);
+}

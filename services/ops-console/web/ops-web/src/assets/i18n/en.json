@@ -1,0 +1,162 @@
+{
+  "app": {
+    "name": "Ops Console"
+  },
+  "nav": {
+    "label": "Ops Console screens",
+    "menu": "Menu",
+    "overview": "Overview",
+    "reference": "Reference lookup",
+    "jobs": "Jobs",
+    "certificates": "Certificates"
+  },
+  "common": {
+    "language": {
+      "switch": "العربية"
+    },
+    "operator": {
+      "signedInAs": "Signed in as"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "retry": "Try again"
+    },
+    "list": {
+      "loading": "Loading...",
+      "empty": "Nothing to show.",
+      "error": "The data could not be loaded."
+    },
+    "referenceCode": "Reference code: {{code}}",
+    "notAvailable": "Not available"
+  },
+  "errors": {
+    "VALIDATION_FAILED": "Some values are not valid.",
+    "MALFORMED_REQUEST": "The request was not understood.",
+    "INVALID_FILE": "The file was refused.",
+    "BUSINESS_RULE_VIOLATED": "The request breaks a rule and was refused.",
+    "UNAUTHENTICATED": "You are not signed in.",
+    "FORBIDDEN": "You do not have access to this information.",
+    "NOT_FOUND": "Nothing was found.",
+    "CONCURRENCY": "The data changed meanwhile. Refresh and try again.",
+    "RETRYABLE": "The service is busy. Try again in a moment.",
+    "UPSTREAM_UNAVAILABLE": "A service the console depends on is not answering.",
+    "INTERNAL_ERROR": "Something went wrong on the server.",
+    "NETWORK": "The console API could not be reached."
+  },
+  "overview": {
+    "title": "Overview",
+    "subtitle": "The health of every deployable and dependency.",
+    "caption": "Health checks",
+    "empty": "No health checks were reported.",
+    "overall": "Overall status",
+    "checkedAt": "Checked {{time}}",
+    "duration": "{{count}} ms",
+    "columns": {
+      "name": "Check",
+      "status": "Status",
+      "duration": "Duration",
+      "description": "Details"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unhealthy": "Unhealthy",
+      "unknown": "Unknown"
+    }
+  },
+  "reference": {
+    "title": "Reference lookup",
+    "subtitle": "Find the request and the log events behind a reference code from an error message.",
+    "label": "Reference code",
+    "hint": "For example ABCDE-12345. A full correlation ID also works.",
+    "invalid": "Enter a reference code such as ABCDE-12345.",
+    "search": "Look up",
+    "notFound": "Nothing in the logs matches {{code}}. Logs are kept for a limited time.",
+    "request": "Request",
+    "events": "Log events",
+    "eventsCaption": "Log events of the request",
+    "noEvents": "No log events were found for this request.",
+    "fields": {
+      "referenceCode": "Reference code",
+      "correlationId": "Correlation ID",
+      "traceId": "Trace ID",
+      "firstSeen": "First seen",
+      "method": "Method",
+      "path": "Path",
+      "status": "HTTP status"
+    },
+    "columns": {
+      "timestamp": "Time",
+      "level": "Level",
+      "message": "Message"
+    },
+    "seq": {
+      "open": "Open in Seq",
+      "copy": "Copy Seq link",
+      "copied": "Link copied.",
+      "copyFailed": "The link could not be copied. Use Open in Seq instead.",
+      "unavailable": "Seq did not answer, so the log events may be incomplete. Try again later."
+    }
+  },
+  "jobs": {
+    "title": "Jobs",
+    "subtitle": "Recurring background jobs and their last run.",
+    "caption": "Background jobs",
+    "empty": "No jobs are registered.",
+    "failedSummary": "Failed jobs: {{count}}. Look up their errors in Seq.",
+    "allGood": "No job failed its last run.",
+    "columns": {
+      "key": "Job",
+      "status": "Last run",
+      "lastStarted": "Started",
+      "lastFinished": "Finished",
+      "nextRun": "Next run"
+    },
+    "status": {
+      "queued": "Queued",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "neverRun": "Never run",
+      "unknown": "Unknown"
+    }
+  },
+  "certificates": {
+    "title": "Certificates",
+    "subtitle": "Certificates the deployment depends on, soonest expiry first.",
+    "caption": "Certificates",
+    "empty": "No certificates are monitored.",
+    "columns": {
+      "name": "Name",
+      "subject": "Subject",
+      "notAfter": "Expires",
+      "daysLeft": "Days left",
+      "status": "Status"
+    },
+    "status": {
+      "ok": "OK",
+      "warning": "Expires soon",
+      "critical": "Critical",
+      "expired": "Expired",
+      "unknown": "Unknown"
+    },
+    "alert": {
+      "idpTitle": "The identity provider's signing certificate needs renewal",
+      "anyTitle": "A certificate needs renewal",
+      "expiresIn": "{{name}} expires in {{days}} days.",
+      "expired": "{{name}} has expired.",
+      "open": "View certificates"
+    }
+  },
+  "access": {
+    "unauthenticated": {
+      "title": "Sign-in required",
+      "body": "The Ops Console uses your Windows sign-in. Open it from a domain-joined computer in the intranet zone, then try again."
+    },
+    "forbidden": {
+      "title": "No access",
+      "body": "You are signed in, but your account is not in the operators group. Ask the platform team for access."
+    },
+    "tryAgain": "Try again"
+  }
+}

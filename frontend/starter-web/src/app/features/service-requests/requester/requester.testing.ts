@@ -29,13 +29,23 @@ import {
   type ServiceRequestDraft,
   type ServiceRequestId,
 } from '../data';
-import { TEST_CATEGORY_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails } from '../data/service-requests.testing';
+import {
+  TEST_ATTACHMENTS_RECORD_ID,
+  TEST_CATEGORY_ID,
+  TEST_SERVICE_REQUEST_ID,
+  recordAttachmentsWire,
+  serviceRequestDetails,
+  type RecordAttachmentsWireFields,
+} from '../data/service-requests.testing';
 import { SERVICE_REQUEST_STATUS_KEYS } from './requester-status';
 import { ServiceRequestCategoriesClient, type ServiceRequestCategory } from './service-request-categories.client';
 
 /** Spec fixtures of the requester screens. Not used by production code. */
 
-export { TEST_CATEGORY_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails };
+export { TEST_ATTACHMENTS_RECORD_ID, TEST_CATEGORY_ID, TEST_SERVICE_REQUEST_ID, serviceRequestDetails };
+
+/** A record as the generic records endpoint sends it: the shared shape plus the attachment fields. */
+export type ServiceRequestWireRecord = RecordDetail & RecordAttachmentsWireFields;
 
 /** 2026-11-06 10:00 in Riyadh (07:00 UTC): the parity fixture's "today". */
 export const TEST_NOW_MS = Date.UTC(2026, 10, 6, 7, 0, 0);
@@ -110,8 +120,11 @@ export function resubmitAction(): RecordAllowedAction {
   };
 }
 
-/** The generic record of a request in `status` (submitted, cancellable, by default). */
-export function aRecord(status: ServiceRequestStatus = ServiceRequestStatus.Submitted, overrides: Partial<RecordDetail> = {}): RecordDetail {
+/** The generic record of a request in `status` (submitted, cancellable, by default), with its attachments id. */
+export function aRecord(
+  status: ServiceRequestStatus = ServiceRequestStatus.Submitted,
+  overrides: Partial<ServiceRequestWireRecord> = {},
+): ServiceRequestWireRecord {
   const terminal = status === ServiceRequestStatus.Approved || status === ServiceRequestStatus.Rejected || status === ServiceRequestStatus.Cancelled;
   return {
     id: TEST_SERVICE_REQUEST_ID,
@@ -129,6 +142,7 @@ export function aRecord(status: ServiceRequestStatus = ServiceRequestStatus.Subm
     allowedActions: terminal ? [] : [cancelAction()],
     assignee: null,
     sla: null,
+    ...recordAttachmentsWire(),
     ...overrides,
   };
 }

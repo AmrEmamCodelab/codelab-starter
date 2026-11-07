@@ -6,6 +6,13 @@ public sealed class SourceSweepOptions
     /// <summary>The folder to sweep (usually the repository root); findings use paths relative to it.</summary>
     public required string Root { get; init; }
 
+    /// <summary>
+    /// Folders under <see cref="Root"/> to sweep, relative to it (for example one deployable's folder). Empty means the
+    /// whole root. Findings and allowance globs stay relative to <see cref="Root"/>, so a repository's exception list
+    /// applies unchanged.
+    /// </summary>
+    public IList<string> IncludedDirectories { get; init; } = [];
+
     /// <summary>File extensions to read, with the dot (<c>.cs</c>). Empty means every file that is not skipped.</summary>
     public IList<string> IncludeExtensions { get; init; } = [];
 

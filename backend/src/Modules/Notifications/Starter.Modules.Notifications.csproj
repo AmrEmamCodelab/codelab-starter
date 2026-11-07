@@ -3,8 +3,8 @@
     Module 12, Notifications (ADR-004), an in-process module of the API (no separate notification service): bilingual
     templates seeded by migration (schema notifications), the bell items and feed API, and e-mail and SMS delivery
     through the outbox (IOutboxHandler per channel). Senders: SMTP to the internal relay or .eml files in a pickup
-    folder (System.Net.Mail, no mail package); SMS to a JSON-lines file, with the integration-gateway sender a stub
-    until phase 8. Layers by namespace: .Domain, .Application, .Infrastructure, .Api. It never references another
+    folder (System.Net.Mail, no mail package); SMS to a JSON-lines file (development) or the integration gateway SMS relay
+    (GatewaySmsSender over Codelab.Integration, ES256 service assertion). Layers by namespace: .Domain, .Application, .Infrastructure, .Api. It never references another
     module. See MODULE.md.
   -->
   <PropertyGroup>
@@ -26,6 +26,7 @@
   <ItemGroup>
     <CodelabPackageReference Include="Codelab.Security" />
     <CodelabPackageReference Include="Codelab.Errors" />
+    <CodelabPackageReference Include="Codelab.Integration" />
   </ItemGroup>
 
   <ItemGroup>

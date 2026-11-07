@@ -8,7 +8,10 @@
 //   node tools/ci/package-versions.mjs plan --root <path> --release [--feed <dir>]
 //       prints the plan for the exact versions.json versions. A package whose exact version is already in the feed
 //       and whose packages/CHANGELOG.md section has no [Unreleased] entry is released and unchanged: it is planned
-//       with skip=true (not packed). One that is in the feed but has an [Unreleased] entry is refused (bump it).
+//       with skip=true (not packed). One that is in the feed but has an [Unreleased] entry is refused (bump it), and
+//       so is a NuGet package in the feed whose PublicAPI.Unshipped.txt lists API lines: its source changed after the
+//       release (a release moves those lines to PublicAPI.Shipped.txt), so the feed version is not the source.
+//   In both modes a versions.json version that packages/CHANGELOG.md marks "Known insecure" is refused.
 //   node tools/ci/package-versions.mjs next-ci --root <path> [--feed <dir>]
 //       prints one above the highest ci.<n> found in the feed (1 for an empty feed).
 //   node tools/ci/package-versions.mjs stamp --manifest <package.json> --version <semver>
@@ -44,6 +47,9 @@ const CI_FILE_PATTERN = new RegExp(`-${CI_LABEL}\\.(\\d+)\\.(nupkg|tgz)$`, 'i');
 const JSON_INDENT = 2;
 const PACKAGE_HEADING = /^## (\S+)\s*$/;
 const UNRELEASED_HEADING = /^### \[Unreleased\](?:\s*-\s*(\S+))?/;
+const KNOWN_INSECURE_HEADING = /^### \[(\d+\.\d+\.\d+)\].*\bKnown insecure\b/i;
+const UNSHIPPED_API_FILE = 'PublicAPI.Unshipped.txt';
+const API_FILE_COMMENT = '#';
 const FIRST_CI_NUMBER = 1;
 const NO_CI_NUMBER = 0;
 
@@ -142,11 +148,55 @@ export function readUnreleased(root) {
   return unreleased;
 }
 
+/**
+ * The versions packages/CHANGELOG.md marks **Known insecure** (`### [x.y.z] - <date> - Known insecure: ...`), per
+ * package section. A pin to one of them must be upgraded. A missing changelog gives an empty map.
+ * @returns {Map<string, Set<string>>}
+ */
+export function readKnownInsecure(root) {
+  const file = path.join(root, CHANGELOG_FILE);
+  const insecure = new Map();
+  if (!existsSync(file)) return insecure;
+  let current = null;
+  for (const line of readFileSync(file, 'utf8').split(/\r?\n/)) {
+    const heading = PACKAGE_HEADING.exec(line);
+    if (heading) {
+      current = heading[1];
+      continue;
+    }
+    const entry = current === null ? null : KNOWN_INSECURE_HEADING.exec(line);
+    if (!entry) continue;
+    if (!insecure.has(current)) insecure.set(current, new Set());
+    insecure.get(current).add(entry[1]);
+  }
+  return insecure;
+}
+
+/**
+ * The public API lines of a NuGet package's PublicAPI.Unshipped.txt (comments such as `#nullable enable` and blank
+ * lines dropped); empty for an npm package or a project without the file. A release moves these lines into
+ * PublicAPI.Shipped.txt, so a released package that still lists one has changed since its release.
+ * @returns {string[]}
+ */
+export function unshippedApi(root, id) {
+  if (kindOf(id) !== PackageKind.NuGet) return [];
+  const file = path.join(root, path.dirname(sourceOf(id)), UNSHIPPED_API_FILE);
+  if (!existsSync(file)) return [];
+  return readFileSync(file, 'utf8')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith(API_FILE_COMMENT));
+}
+
 /** Release-mode decision for one package: pack it, skip it (released, unchanged) or refuse it. */
-function releaseErrors(entry, unreleased) {
+function releaseErrors(entry, unreleased, root) {
   const pending = unreleased.has(entry.id);
   if (entry.inFeed && pending) {
     return [`REFUSED: ${entry.id} ${entry.version} is already in the feed and ${CHANGELOG_FILE} has an [Unreleased] entry for it: bump its version in ${VERSIONS_FILE}.`];
+  }
+  const unshipped = entry.inFeed ? unshippedApi(root, entry.id) : [];
+  if (unshipped.length > 0) {
+    return [`REFUSED: ${entry.id} ${entry.version} is already in the feed, but its ${UNSHIPPED_API_FILE} lists ${unshipped.length} public API line(s) (${unshipped[0]}): the source changed after the release. Bump its version in ${VERSIONS_FILE} and add an [Unreleased] entry to ${CHANGELOG_FILE}.`];
   }
   const named = unreleased.get(entry.id);
   if (!entry.inFeed && named && named !== entry.version) {
@@ -158,8 +208,9 @@ function releaseErrors(entry, unreleased) {
 /**
  * The pack plan. mode 'ci' stamps <version>-ci.<ciNumber>; mode 'release' uses the exact version. A missing source is
  * an error. In ci mode a package already in the feed is an error (a feed version is immutable). In release mode a
- * released, unchanged package (in the feed, no [Unreleased] changelog entry) gets skip=true and is not packed; one
- * with an [Unreleased] entry is refused, and a release that would pack nothing is refused.
+ * released, unchanged package (in the feed, no [Unreleased] changelog entry, no unshipped public API) gets skip=true
+ * and is not packed; one with an [Unreleased] entry or unshipped public API is refused, and a release that would pack
+ * nothing is refused.
  * @param {{ root: string, feed: string, mode: string, ciNumber?: number }} options
  */
 export function buildPlan({ root, feed, mode, ciNumber = NO_CI_NUMBER }) {
@@ -175,13 +226,17 @@ export function buildPlan({ root, feed, mode, ciNumber = NO_CI_NUMBER }) {
     return { id, kind: kindOf(id), baseVersion, version, source, feedFile, inFeed, skip: false };
   });
   const unreleased = mode === PlanMode.Release ? readUnreleased(root) : new Map();
+  const insecure = readKnownInsecure(root);
   for (const entry of packages) {
+    if (insecure.get(entry.id)?.has(entry.baseVersion)) {
+      errors.push(`REFUSED: ${CHANGELOG_FILE} marks ${entry.id} ${entry.baseVersion} Known insecure: bump its version in ${VERSIONS_FILE}.`);
+    }
     if (!existsSync(path.join(root, entry.source))) errors.push(`MISSING: ${entry.source} (source of ${entry.id}).`);
     if (mode !== PlanMode.Release) {
       if (entry.inFeed) errors.push(`REFUSED: ${entry.id} ${entry.version} is already in the feed (${entry.feedFile}).`);
       continue;
     }
-    const refusals = releaseErrors(entry, unreleased);
+    const refusals = releaseErrors(entry, unreleased, root);
     errors.push(...refusals);
     entry.skip = entry.inFeed && refusals.length === 0;
   }

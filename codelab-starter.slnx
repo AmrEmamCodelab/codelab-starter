@@ -42,6 +42,8 @@
     <Project Path="backend/tests/Modules/Starter.Modules.Deadlines.Tests/Starter.Modules.Deadlines.Tests.csproj" />
     <Project Path="backend/src/Modules/ServiceRequests/Starter.Modules.ServiceRequests.csproj" />
     <Project Path="backend/tests/Modules/Starter.Modules.ServiceRequests.Tests/Starter.Modules.ServiceRequests.Tests.csproj" />
+    <Project Path="backend/src/Modules/Ops/Starter.Modules.Ops.csproj" />
+    <Project Path="backend/tests/Modules/Starter.Modules.Ops.Tests/Starter.Modules.Ops.Tests.csproj" />
   </Folder>
   <Folder Name="/packages/">
     <Project Path="packages/dotnet/Codelab.Build.Analyzers/Codelab.Build.Analyzers.csproj" />
@@ -65,6 +67,16 @@
     <Project Path="services/attachment-service/src/Codelab.Attachments.Api/Codelab.Attachments.Api.csproj" />
     <Project Path="services/attachment-service/tests/Codelab.Attachments.Core.Tests/Codelab.Attachments.Core.Tests.csproj" />
     <Project Path="services/attachment-service/tests/Codelab.Attachments.Api.Tests/Codelab.Attachments.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/services/integration-gateway/">
+    <Project Path="services/integration-gateway/src/Codelab.Gateway.Api/Codelab.Gateway.Api.csproj" />
+    <Project Path="services/integration-gateway/tests/Codelab.Gateway.Api.Tests/Codelab.Gateway.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/services/ops-console/">
+    <Project Path="services/ops-console/src/Codelab.OpsConsole.Application/Codelab.OpsConsole.Application.csproj" />
+    <Project Path="services/ops-console/src/Codelab.OpsConsole.Api/Codelab.OpsConsole.Api.csproj" />
+    <Project Path="services/ops-console/tests/Codelab.OpsConsole.Application.Tests/Codelab.OpsConsole.Application.Tests.csproj" />
+    <Project Path="services/ops-console/tests/Codelab.OpsConsole.Api.Tests/Codelab.OpsConsole.Api.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Starter.ArchitectureSpike.Fixture.Api/Starter.ArchitectureSpike.Fixture.Api.csproj" />

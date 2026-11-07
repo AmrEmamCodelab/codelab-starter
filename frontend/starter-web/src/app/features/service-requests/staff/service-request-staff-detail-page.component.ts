@@ -5,11 +5,13 @@ import {
   DgaAlertVariant,
   DgaButtonComponent,
   DgaIconComponent,
+  DgaPageFeedbackComponent,
   DgaStatusTagComponent,
 } from '@codelab/ng-dga';
 import { apiErrorMessageKey, type ApiError } from '@codelab/ng-security';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import { ActionTone, DECISION_REASON_FIELD, DecisionDialogComponent, StaffDetailPatternComponent } from '../../../patterns';
 import { HasPermissionDirective } from '../../../shared/permissions/has-permission.directive';
 import { RecordAttachmentsComponent } from '../../../shared/record-attachments/record-attachments.component';
@@ -21,7 +23,7 @@ import {
   StatusWordingPipe,
   WorkflowAudience,
 } from '../../../shared/records';
-import { SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE } from '../data';
+import { serviceRequestAttachmentsFeedback } from '../data';
 import { serviceRequestDetailCards } from './service-request-record-card';
 import { serviceRequestActionLabelKey, serviceRequestActionTone, serviceRequestStatusTone, serviceRequestStatusWording } from './service-request-status-display';
 import { ServiceRequestStaffDetailStore } from './service-request-staff-detail.store';
@@ -48,6 +50,7 @@ const TIMELINE_HEADING_LEVEL = 3;
     DgaAlertComponent,
     DgaButtonComponent,
     DgaIconComponent,
+    DgaPageFeedbackComponent,
     DgaStatusTagComponent,
     HasPermissionDirective,
     RecordAttachmentsComponent,
@@ -70,6 +73,7 @@ export class ServiceRequestStaffDetailPageComponent {
 
   protected readonly store = inject(ServiceRequestStaffDetailStore);
   private readonly language = inject(LanguageService);
+  private readonly translations = inject(TranslationService);
 
   protected readonly keys = ServiceRequestsStaffTranslationKeys;
   protected readonly paths = ServiceRequestsStaffPaths;
@@ -77,7 +81,6 @@ export class ServiceRequestStaffDetailPageComponent {
   protected readonly audience = WorkflowAudience.Staff;
   protected readonly AlertVariant = DgaAlertVariant;
   protected readonly translatedCodes = RECORDS_TRANSLATED_CODES;
-  protected readonly attachableType = SERVICE_REQUEST_ATTACHABLE_RECORD_TYPE;
   protected readonly reasonLimits = STAFF_REASON_LIMITS;
   protected readonly sectionHeadingLevel = SECTION_HEADING_LEVEL;
   protected readonly timelineHeadingLevel = TIMELINE_HEADING_LEVEL;
@@ -95,6 +98,10 @@ export class ServiceRequestStaffDetailPageComponent {
     const pending = this.store.pending();
     return pending !== null && serviceRequestActionTone(pending.actionKey) === ActionTone.Destructive;
   });
+  /** The error shown in place of the attachments when the record carried no attachments id. */
+  protected readonly attachmentsFeedback = computed(() =>
+    serviceRequestAttachmentsFeedback(this.store.attachmentsError(), (key, params) => this.translations.translate(key, params)),
+  );
   protected readonly reasonField = computed(() => this.store.pending()?.reasonFieldKey ?? DECISION_REASON_FIELD);
   /**
    * The refusals shown above the page: a failed claim or release, and a refused decision taken without the dialog (a

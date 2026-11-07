@@ -1,0 +1,53 @@
+<div class="ops-list">
+  @if (errorMessageKey(); as messageKey) {
+    <div class="ops-list__error" role="alert">
+      <dga-icon name="alert" size="md" />
+      <div class="ops-list__error-text">
+        <p class="ops-list__error-title">{{ keys.List.Error | t }}</p>
+        <p>{{ messageKey | t }}</p>
+        @if (error()?.referenceCode; as code) {
+          <p data-testid="error-reference-code">{{ keys.ReferenceCode | t: { code: code } }}</p>
+        }
+      </div>
+      <dga-button variant="secondary-outline" size="sm" (click)="retry.emit()">{{ keys.Actions.Retry | t }}</dga-button>
+    </div>
+  }
+
+  <div class="ops-list__table-wrap">
+    <table class="ops-list__table" [attr.aria-busy]="loading() ? 'true' : null">
+      <caption class="dga-visually-hidden">{{ captionKey() | t }}</caption>
+      <thead>
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th scope="col" class="ops-list__head">{{ column.headerKey | t }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track rowId()(row)) {
+          <tr class="ops-list__row">
+            @for (column of columns(); track column.key) {
+              <td class="ops-list__cell" [attr.dir]="column.ltr ? 'ltr' : null">
+                @if (templateFor(column); as template) {
+                  <ng-container *ngTemplateOutlet="template; context: cellContext(column, row)" />
+                } @else {
+                  {{ cellTextOf(column, row) }}
+                }
+              </td>
+            }
+          </tr>
+        }
+        @if (showLoadingRow()) {
+          <tr>
+            <td class="ops-list__state" role="status" [attr.colspan]="columns().length">{{ keys.List.Loading | t }}</td>
+          </tr>
+        }
+        @if (showEmpty()) {
+          <tr>
+            <td class="ops-list__state" [attr.colspan]="columns().length">{{ emptyKey() | t }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

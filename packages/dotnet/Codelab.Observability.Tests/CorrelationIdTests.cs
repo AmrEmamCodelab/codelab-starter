@@ -34,6 +34,24 @@ public sealed partial class CorrelationIdTests
     }
 
     [Fact]
+    public void Never_adopts_a_hosting_activity_whose_trace_a_caller_supplied()
+    {
+        Activity.Current = null;
+        var plantedTraceId = ActivityTraceId.CreateRandom();
+        using var hosting = new Activity("hosting");
+        hosting.SetParentId(plantedTraceId, ActivitySpanId.CreateRandom());
+        hosting.Start();
+        using var child = new Activity("child").Start();
+        var context = new DefaultHttpContext();
+        context.Features.Set<IHttpActivityFeature>(new ActivityFeature(hosting));
+
+        var id = CorrelationId.For(context);
+
+        Assert.Matches(ThirtyTwoHex(), id);
+        Assert.NotEqual(plantedTraceId.ToHexString(), id);
+    }
+
+    [Fact]
     public void Mints_32_hex_when_no_activity_and_keeps_it_for_the_request()
     {
         Activity.Current = null;

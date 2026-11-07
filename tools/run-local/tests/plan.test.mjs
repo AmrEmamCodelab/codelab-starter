@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { ATTACHMENTS_HEALTH_PATH, DEVELOPMENT, Hosts, PRIVATE_DOTNET, PRIVATE_NODE_DIR, SEQ_SERVER_URL_ENV, Urls } from '../lib/constants.mjs';
+import { ATTACHMENTS_HEALTH_PATH, DEVELOPMENT, Hosts, PRIVATE_DOTNET, PRIVATE_NODE_DIR, SEQ_SERVER_URL_ENV, TicketRingState, Urls } from '../lib/constants.mjs';
 import {
   UsageError,
   apiAssemblyPath,
@@ -20,12 +20,14 @@ import {
   resolveNodeDir,
   usesDefaultLocalDb,
   secretsNeedSeeding,
+  serviceTicketRingState,
   seqDecision,
   seqUrl,
   serializeState,
   slotConnectionString,
   slotOverrides,
   slotStateDir,
+  slotStorageRoot,
   slotUrls,
   slotWebConfig,
   startPlan,
@@ -69,6 +71,12 @@ describe('slots (a second stack next to a running one)', () => {
     assert.equal(slotStateDir('T', 0), 'T');
     assert.equal(slotStateDir('T', 2), path.join('T', 'slot-2'));
     assert.deepEqual(portsToCheck(['api', 'web'], slotUrls(1)), ['http://localhost:5280', 'http://localhost:4380']);
+  });
+
+  it('gives slot n its own attachment storage folder under its state folder, and slot 0 none (as configured)', () => {
+    assert.equal(slotStorageRoot('T', 0), null);
+    assert.equal(slotStorageRoot(slotStateDir('T', 1), 1), path.join('T', 'slot-1', 'attachments-storage'));
+    assert.equal(slotStorageRoot(slotStateDir('T', 9), 9), path.join('T', 'slot-9', 'attachments-storage'));
   });
 
   it('renames the database for a slot, idempotently, and leaves slot 0 alone', () => {
@@ -242,6 +250,33 @@ describe('the Attachment service', () => {
   });
 });
 
+describe('serviceTicketRingState', () => {
+  // Key ids and placeholder materials only: the check compares, it never reads or prints real key material.
+  const ring = (id, material) => ({ ActiveKeyId: id, Keys: [{ KeyId: id, MaterialBase64: material }] });
+  const api = JSON.stringify({ Codelab: { Security: { Tickets: ring('api-ring', 'QQ=='), UploadTickets: ring('upload-ring', 'Qg==') } } });
+  const service = (tickets) => JSON.stringify({ Codelab: { Security: { Tickets: tickets } } });
+
+  it('matches when the service ring is the API upload-ticket ring', () => {
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service(ring('upload-ring', 'Qg==')) }), TicketRingState.matches);
+  });
+
+  it('flags a service file from before the dedicated ring: it holds the API own Tickets ring (by id or by key)', () => {
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service(ring('api-ring', 'QQ==')) }), TicketRingState.apiTicketRing);
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service(ring('renamed', 'QQ==')) }), TicketRingState.apiTicketRing);
+  });
+
+  it('flags a ring that differs from the API upload-ticket ring (other active id or other key)', () => {
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service(ring('other', 'Qw==')) }), TicketRingState.mismatch);
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service(ring('upload-ring', 'Qw==')) }), TicketRingState.mismatch);
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: 'not json' }), TicketRingState.mismatch);
+  });
+
+  it('reports a service file without a ticket ring as missing (seeding adds it)', () => {
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: '{}' }), TicketRingState.missing);
+    assert.equal(serviceTicketRingState({ apiSecretsText: api, serviceSecretsText: service({ Enabled: true }) }), TicketRingState.missing);
+  });
+});
+
 describe('secretsNeedSeeding', () => {
   const complete = JSON.stringify({
     Codelab: {
@@ -270,6 +305,13 @@ describe('secretsNeedSeeding', () => {
     assert.equal(secretsNeedSeeding({ apiSecretsText: complete, serviceSecretsExists: false, withAttachments: true }), true);
     assert.equal(secretsNeedSeeding({ apiSecretsText: beforeAttachments, serviceSecretsExists: true, withAttachments: true }), true);
     assert.equal(secretsNeedSeeding({ apiSecretsText: 'not json', serviceSecretsExists: true, withAttachments: true }), true);
+  });
+
+  it('seeds when the service file has no ticket ring yet, and not when it has one', () => {
+    const args = { apiSecretsText: complete, serviceSecretsExists: true, withAttachments: true };
+    assert.equal(secretsNeedSeeding({ ...args, serviceSecretsText: '{}' }), true);
+    const withRing = JSON.stringify({ Codelab: { Security: { Tickets: { ActiveKeyId: 'c' } } } });
+    assert.equal(secretsNeedSeeding({ ...args, serviceSecretsText: withRing }), false);
     assert.equal(secretsNeedSeeding({ apiSecretsText: complete, serviceSecretsExists: true, withAttachments: true }), false);
   });
 

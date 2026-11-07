@@ -1,0 +1,6 @@
+{
+  "basePath": "/",
+  "apiBaseUrl": "/ops-api",
+  "defaultLanguage": "ar",
+  "idpCertificateName": null
+}

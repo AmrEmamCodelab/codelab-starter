@@ -75,7 +75,8 @@
   color: var(--dga-color-text-secondary);
 }
 
-.sr-wizard__load-failed {
+.sr-wizard__load-failed,
+.sr-wizard__attachments-failed {
   display: flex;
   flex-direction: column;
   align-items: flex-start;

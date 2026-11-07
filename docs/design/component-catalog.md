@@ -1139,6 +1139,7 @@ A modal failure report with the reference code a user reads out to support and a
 | `referenceCode` | `string \| null` | no | `null` | The short code support looks the failure up by; shown left-to-right. Without it the reference block is hidden. |
 | `copyLabel` | `string \| null` | no | `null` | The copy button's label (translated); without it there is no copy button. |
 | `copiedLabel` | `string \| null` | no | `null` | The copy button's label right after a copy, also announced politely (translated). |
+| `copyAriaLabel` | `string \| null` | no | `null` | The copy button's accessible name (translated), e.g. "Copy the reference code"; without it the visible label names the button. |
 | `closeLabel` | `string` | yes |  | The close button's label (translated). |
 
 #### Outputs
@@ -1154,7 +1155,7 @@ None.
 
 #### Accessibility
 
-Native modal `<dialog>` with role=alertdialog and aria-modal, named by the title and described by the message. Focus moves to the close button on open, Tab stays inside, Escape closes and focus returns to the opener. The code is dir=ltr so it is never reordered in Arabic; a successful copy is announced through an aria-live=polite region.
+Native modal `<dialog>` with role=alertdialog and aria-modal, named by the title and described by the message. Focus moves to the close button on open, Tab stays inside, Escape closes and focus returns to the opener. The code is dir=ltr so it is never reordered in Arabic and carries data-testid=error-reference-code (the copy button data-testid=error-reference-copy) for browser tests; a successful copy is announced through an aria-live=polite region.
 
 ### dga-page-feedback
 

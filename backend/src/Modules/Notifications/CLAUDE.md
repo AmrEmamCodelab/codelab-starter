@@ -4,7 +4,7 @@
 Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/build.ps1 -Target CI`); the Claude hooks refuse violating edits early. Owners: @platform-owner.
 
 ## Dependencies
-- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabErrors`
+- May depend on: `StarterDomain`, `StarterApplication`, `StarterInfrastructure`, `CodelabSecurity`, `CodelabErrors`, `CodelabIntegration`
 - Must not depend on: `Identity`, `Access`, `Users`
 
 ## Required
@@ -30,7 +30,7 @@ Read [MODULE.md](MODULE.md) first. The rules below are enforced by CI (`tools/bu
 - `notifications.no-raw-placeholder`: Every text is rendered by TemplateRenderer; a placeholder without a value refuses the send (NOTIFICATIONS_PLACEHOLDER_MISSING), so a raw {{token}} never reaches a recipient. E-mail bodies HTML-encode every value; subjects and titles are one line. (enforced by review)
 - `notifications.no-secret-in-storage`: Outbox payloads carry only the notification id and channel. A secret-bearing link (activation) is sent with SendImmediateEmailAsync from an outbox handler and never stored; logs carry ids only, never addresses, placeholder values or texts. (enforced by review)
 - `notifications.idempotent-delivery`: An outbox handler sends a channel only while its state is Pending and records Sent (or NoAddress) right after, so a re-delivered outbox message is not sent twice once recorded. (enforced by review)
-- `notifications.no-egress`: E-mail goes only to the SMTP relay inside the backend zone or the pickup folder; SMS only to the file sink or (phase 8) the integration gateway. No sender calls an internet host (decision D2). (enforced by review)
+- `notifications.no-egress`: E-mail goes only to the SMTP relay inside the backend zone or the pickup folder; SMS only to the file sink or the integration gateway SMS relay (GatewaySmsSender). No sender calls an internet host (decision D2). (enforced by review)
 
 ## Forbidden
 - `base.time-provider` (error) in `**/*.cs`: Reading the system clock directly makes time untestable. Fix: Inject TimeProvider and call GetUtcNow() (or GetLocalNow() for display); tests use FakeTimeProvider.

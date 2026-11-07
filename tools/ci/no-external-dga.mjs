@@ -24,7 +24,7 @@ const AT = '@';
 /** The external DGA scopes: the dev scope (any reference) and the short scope as a package path. */
 export const EXTERNAL_DGA_SCOPES = Object.freeze([`${AT}dev-dga`, `${AT}dga/`]);
 /** The folders searched, relative to the root. */
-export const SEARCHED_FOLDERS = Object.freeze(['frontend', 'packages/npm']);
+export const SEARCHED_FOLDERS = Object.freeze(['frontend', 'packages/npm', 'services/ops-console/web']);
 /** Root files searched as well: the workspace manifest and lockfile. */
 export const ROOT_FILES = Object.freeze(['package.json', 'package-lock.json']);
 /** File names searched wherever they are. */

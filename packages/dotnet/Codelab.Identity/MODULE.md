@@ -10,10 +10,14 @@ The external sign-in providers a starter host can switch on (phase 3, ADR-002 pa
   `LdapsCertificateReader` reports the certificate the directory presents; `IActiveDirectoryConnectionProbe` says at
   which layer (TCP, TLS) a connection stops. `ActiveDirectoryDeploymentGuard` refuses an unusable section at start.
 - **Generic OpenID Connect** (`Codelab.Identity.Oidc`): `IOidcIdentityProvider` builds the authorization URL
-  (code + PKCE S256 + state + nonce), completes the callback server-side (code redemption over the named back-channel
-  client, then id_token validation by `OidcIdTokenValidator` against `JwksSigningKeySource` or
-  `PinnedSigningKeySource`) and builds the end_session URL with `id_token_hint`. `SsoDeploymentGuard` refuses an
-  unusable section at start.
+  (code + PKCE S256 + state + nonce), completes the callback server-side (code redemption over the back channel, then
+  id_token validation by `OidcIdTokenValidator` against `JwksSigningKeySource` or `PinnedSigningKeySource`) and builds
+  the end_session URL with `id_token_hint`. `SsoDeploymentGuard` refuses an unusable section at start.
+- **The OIDC back channel** (0.6, `IOidcBackChannel`): the token request and the JWKS fetch go through one port.
+  `OidcBackChannel.Direct = 1` (default) calls the provider over the named client `OidcHttpClient.Name`;
+  `OidcBackChannel.GatewayRelay = 2` is a backend zone without egress, where the host registers an adapter over the
+  integration gateway's SSO relay (`/relay/sso/token`, `/relay/sso/jwks`). The browser redirects (authorize,
+  end_session) never change. This package does not reference Codelab.Integration: the adapter lives in the host.
 - **Login matching** (`LoginMatchField` `Email = 1`, `LoginName = 2`, `Upn = 3`; `LoginMatch.ValueOf`): one mapping
   from either identity to the value the host matches its local account on.
 
@@ -39,8 +43,21 @@ var endSession = provider.BuildEndSessionUrl(idTokenHint, postLogoutRedirectUri:
 ```
 
 Both registrations need the host's `IHostEnvironment` (the guards relax `UseLdaps` and https only in Development) and
-use `TryAdd`, so a host or a test can register its own `ILdapConnectionFactory`, `IIdTokenSigningKeySource` or
-`TimeProvider` first.
+use `TryAdd`, so a host or a test can register its own `ILdapConnectionFactory`, `IIdTokenSigningKeySource`,
+`IOidcBackChannel` or `TimeProvider` first.
+
+A backend without egress (decision D2) relays the back channel through the integration gateway:
+
+```csharp
+// Host adapter (the starter's Identity module: GatewaySsoBackChannel over Codelab.Integration's GatewayRelayClient)
+builder.Services.AddSingleton<IOidcBackChannel, GatewaySsoBackChannel>();   // Mode => OidcBackChannel.GatewayRelay
+builder.Services.AddCodelabOidc(builder.Configuration);                      // keeps it; Codelab:Identity:Sso:BackChannel = 2
+```
+
+An `IOidcBackChannel` never throws for a provider or relay fault: it answers `OidcBackChannelResponse.Answered(status,
+body)`, `.Unavailable(reason)` (the sign-in is Unavailable) or `.Rejected(status, reason)` (the token request is
+rejected). The reason is logged, so it must be secret-free (an exception type or a relay code); the response's
+`ToString` never prints the body.
 
 ### Configuration keys
 `Codelab:Identity:ActiveDirectory` (`ActiveDirectoryOptions`):
@@ -67,8 +84,10 @@ use `TryAdd`, so a host or a test can register its own `ILdapConnectionFactory`,
 | `Authority` | | The issuer; the id_token `iss` must equal it exactly. |
 | `ClientId` / `ClientSecret` | | Secret optional (public client + PKCE); a secret is sent as `client_secret_post`. Never committed. |
 | `RedirectUri` / `PostLogoutRedirectUri` | | As the browser sees them. |
-| `AuthorizationEndpoint`, `TokenEndpoint`, `EndSessionEndpoint` | | Required, explicit (no runtime discovery). |
-| `SigningKeyMode` | `Jwks` | `Jwks` (needs `JwksUri`) or `Pinned` (needs `PinnedKeys`). |
+| `AuthorizationEndpoint`, `TokenEndpoint`, `EndSessionEndpoint` | | Required, explicit (no runtime discovery). `TokenEndpoint` only with `BackChannel` 1: in relay mode the gateway holds it. |
+| `BackChannel` | `1` (Direct) | `1` Direct (this host calls the provider) or `2` GatewayRelay (the token and JWKS calls go through the integration gateway; the host must register a relay `IOidcBackChannel`, or the start fails). |
+| `NoEgress` | `false` | `true` declares that this backend cannot reach the provider: outside Development the start then fails unless `BackChannel` is `2`. |
+| `SigningKeyMode` | `Jwks` | `Jwks` (needs `JwksUri` with `BackChannel` 1) or `Pinned` (needs `PinnedKeys`). |
 | `JwksUri` | | Fetched through the named client, cached (1 h soft, 24 h hard, 2 min backoff, unknown-kid refetch at most every 30 s). |
 | `PinnedKeys:n:Kid`, `PinnedKeys:n:PublicKey` | | SPKI PEM or base64 DER; RSA >= 2048 bits or EC; private keys refused. |
 | `Scopes:n` | `openid profile email` | Must include `openid`. |
@@ -85,9 +104,11 @@ use `TryAdd`, so a host or a test can register its own `ILdapConnectionFactory`,
   `OidcIdentityProvider.IdentityOf`), and extend the identity record additively.
 - **A new LDAP result-code meaning:** only `LdapFailureMapping` decides what a code means; add the constant to
   `LdapResultCodes` and a row to `LdapFailureMappingTests`.
-- **Route the back channel elsewhere** (the phase 8 gateway relay, a test host): replace the primary handler of the named
-  client, `services.AddHttpClient(OidcHttpClient.Name).ConfigurePrimaryHttpMessageHandler(...)`. Keep certificate
-  validation on.
+- **Route the back channel elsewhere** (the integration gateway relay, another relay): implement `IOidcBackChannel`
+  with `Mode` = `GatewayRelay`, register it before `AddCodelabOidc`, and set `BackChannel` to `2`. Map a refusal of the
+  request to `Rejected` and every other fault (unreachable, the relay refusing this host, a disabled profile) to
+  `Unavailable`. A test host can still replace the named client's primary handler for the direct channel. Keep
+  certificate validation on.
 - **Tests without a directory or an IdP:** register a fake `ILdapConnectionFactory` (it throws
   `LdapOperationException` with a result code, and AD's `data 533` style sub-code in `ServerMessage` for a disabled
   account); for OIDC sign id_tokens with a run-time RSA key and serve its JWKS from a stub handler on the named client.
@@ -114,9 +135,14 @@ use `TryAdd`, so a host or a test can register its own `ILdapConnectionFactory`,
 
 ## Gotchas
 - **No egress from the backend zone.** Every OIDC endpoint is explicit configuration, and there is no runtime discovery:
-  an unreachable discovery document would take every sign-in down. Where the API cannot reach the IdP at all, use
-  `SigningKeyMode=Pinned` (rotation becomes a configuration change; pin both keys during the overlap) and, in phase 8,
-  route the token call through the integration gateway by replacing the named client's handler.
+  an unreachable discovery document would take every sign-in down. Where the API cannot reach the IdP at all, set
+  `BackChannel=2` (the token and JWKS calls go through the integration gateway's SSO relay) and `NoEgress=true`, so a
+  deployment that forgets the relay fails at start instead of at the first sign-in. `SigningKeyMode=Pinned` still
+  works with the relay (only the token call is relayed then).
+- **The back channel is checked at start.** `OidcBackChannelValidator` compares `BackChannel` with the registered
+  `IOidcBackChannel.Mode`: relay mode without a relay registered, or a relay registered for a direct deployment, fails
+  the start. The relay answers only a provider success; a provider 4xx arrives as the gateway's
+  `GATEWAY_UPSTREAM_REJECTED` without the OAuth `error` (logged as the relay code instead).
 - **`Authority` is compared exactly** with the id_token `iss`: `https://idp.example.org` and `https://idp.example.org/`
   are different issuers. Copy the value from the provider's discovery document.
 - **Bind name format is a directory decision.** A bare name binds as `user@Domain` (the UPN form); `NETBIOS\user` and

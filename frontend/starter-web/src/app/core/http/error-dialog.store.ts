@@ -18,6 +18,10 @@ export class ErrorDialogStore {
   });
   /** The short code the user reads out to support, when the failure has one. */
   readonly referenceCode = computed(() => this.error()?.referenceCode ?? null);
+  /** The full server trace id behind {@link referenceCode} (what Ops Console and Seq search by), when there is one. */
+  readonly correlationId = computed(() => this.error()?.correlationId ?? null);
+  /** True when the failure has a reference code to show and copy. */
+  readonly hasReferenceCode = computed(() => this.referenceCode() !== null);
 
   show(error: ApiError): void {
     this.error.set(error);

@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <CodelabPackageReference Include="Codelab.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Codelab.Attachments.Api\Codelab.Attachments.Api.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,236 @@
+{
+  "$entity": "dashboard",
+  "Title": "Ops: [{{env}}] Overview",
+  "OwnerId": null,
+  "IsProtected": true,
+  "SignalExpression": null,
+  "Charts": [
+    {
+      "Title": "Errors with a reference code, by application",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-errors-reference-code.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "Application"
+          ],
+          "DisplayStyle": {
+            "Type": "Line",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 6,
+        "HeightRows": 1
+      }
+    }
+    ,
+    {
+      "Title": "Server errors (5xx), by application",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-server-errors.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "Application"
+          ],
+          "DisplayStyle": {
+            "Type": "Line",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 6,
+        "HeightRows": 1
+      }
+    }
+    ,
+    {
+      "Title": "Gateway relay failures, by code",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-gateway-relay-failures.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "Code"
+          ],
+          "DisplayStyle": {
+            "Type": "Bar",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 4,
+        "HeightRows": 1
+      }
+    }
+    ,
+    {
+      "Title": "Background job failures, by job",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-job-failures.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "Job"
+          ],
+          "DisplayStyle": {
+            "Type": "Bar",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 4,
+        "HeightRows": 1
+      }
+    }
+    ,
+    {
+      "Title": "CSP violations, by application",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-csp-violations.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "Application"
+          ],
+          "DisplayStyle": {
+            "Type": "Line",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 4,
+        "HeightRows": 1
+      }
+    }
+    ,
+    {
+      "Title": "Certificate expiry warnings, by status",
+      "SignalExpression": {
+        "Kind": "Signal",
+        "SignalId": "{{ref:signal-certificate-expiry.template}}"
+      },
+      "Queries": [
+        {
+          "Measurements": [
+            {
+              "Value": "count(*)",
+              "Label": "count"
+            }
+          ],
+          "Where": "DeploymentEnvironment = '{{env}}'",
+          "SignalExpression": null,
+          "GroupBy": [
+            "CertificateStatus"
+          ],
+          "DisplayStyle": {
+            "Type": "Bar",
+            "LineFillToZero": true,
+            "LineShowMarkers": false,
+            "BarOverlaySum": false,
+            "SuppressLegend": false,
+            "Palette": "Default"
+          },
+          "Having": null,
+          "OrderBy": [],
+          "Limit": null
+        }
+      ],
+      "DisplayStyle": {
+        "WidthColumns": 12,
+        "HeightRows": 1
+      }
+    }
+  ]
+}

@@ -29,6 +29,12 @@ public static class CorrelationId
     /// <summary>
     /// The id for this request, allocated once and cached on <see cref="HttpContext.Items"/>: the hosting Activity's
     /// trace id, else <see cref="Activity.Current"/>'s, else a random 32-hex id. Always 32 lowercase hex.
+    /// <para>
+    /// An Activity whose trace began outside this process (its root has a parent id, as when hosting adopted a
+    /// caller's <c>traceparent</c>) is never used: a caller would choose the id. <c>AddCodelabObservability</c> already
+    /// stops hosting from adopting one (<see cref="PropagationScope.InboundPropagator"/>); this check is the second
+    /// line, for a host or a test that skips it.
+    /// </para>
     /// </summary>
     public static string For(HttpContext context)
     {
@@ -39,8 +45,8 @@ public static class CorrelationId
             return existing;
         }
 
-        var id = TraceIdOf(context.Features.Get<IHttpActivityFeature>()?.Activity)
-            ?? TraceIdOf(Activity.Current)
+        var id = LocalTraceIdOf(context.Features.Get<IHttpActivityFeature>()?.Activity)
+            ?? LocalTraceIdOf(Activity.Current)
             ?? ActivityTraceId.CreateRandom().ToHexString();
 
         context.Items[ItemKey] = id;
@@ -75,6 +81,21 @@ public static class CorrelationId
         candidate is { Length: >= MinLength and <= MaxLength } && candidate.All(IsAllowedCharacter);
 
     private static bool IsAllowedCharacter(char c) => char.IsAsciiLetterOrDigit(c) || c == '-';
+
+    /// <summary>The trace id of an Activity whose whole chain was started in this process; null for a remote-parented one.</summary>
+    private static string? LocalTraceIdOf(Activity? activity) => IsLocallyRooted(activity) ? TraceIdOf(activity) : null;
+
+    /// <summary>True when the topmost in-process ancestor has no parent id, i.e. no caller supplied the trace.</summary>
+    private static bool IsLocallyRooted(Activity? activity)
+    {
+        var root = activity;
+        while (root?.Parent is { } parent)
+        {
+            root = parent;
+        }
+
+        return root is not null && root.ParentId is null;
+    }
 
     /// <summary>A hierarchical-format Activity has no trace id, so it yields null.</summary>
     private static string? TraceIdOf(Activity? activity) =>

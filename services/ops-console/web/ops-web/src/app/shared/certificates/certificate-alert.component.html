@@ -1,0 +1,12 @@
+@if (alert()) {
+  <dga-alert [variant]="variant()" [title]="titleKey() | t" data-testid="certificate-alert">
+    <ul class="certificate-alert__list">
+      @for (line of lines(); track line.name) {
+        <li>{{ line.key | t: line.params }}</li>
+      }
+    </ul>
+    @if (showLink()) {
+      <a class="certificate-alert__link" [routerLink]="certificatesLink">{{ keys.Alert.Open | t }}</a>
+    }
+  </dga-alert>
+}

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Codelab.Gateway.Api/Codelab.Gateway.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Codelab.Gateway.Api.Tests/Codelab.Gateway.Api.Tests.csproj" />
+  </Folder>
+</Solution>

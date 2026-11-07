@@ -2,6 +2,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using Codelab.Integration.Gateway;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Starter.Modules.Notifications.Application;
 using Starter.Modules.Notifications.Infrastructure.Options;
@@ -55,14 +57,46 @@ public sealed class FileSmsSender(IOptions<SmsDeliveryOptions> options, TimeProv
 }
 
 /// <summary>
-/// The production SMS adapter (<see cref="SmsDeliveryMode.Gateway"/>): a documented STUB until phase 8. Then it calls the
-/// integration gateway's SMS relay profile through Codelab.Integration with the ES256 service-to-service assertion (the
-/// backend zone has no internet egress, decision D2). Start-up validation refuses this mode while SMS is enabled, so it
-/// is never reached; if it is, it throws.
+/// The production SMS adapter (<see cref="SmsDeliveryMode.Gateway"/>): relays each message to the integration gateway's
+/// SMS relay profile (POST <c>/relay/sms</c>) through <see cref="GatewayRelayClient"/>, signed with this API's ES256
+/// service assertion; the gateway in the DMZ calls the client's SMS provider (the backend zone has no internet egress,
+/// decision D2). Returns only when the provider accepted the message. Every failure is a
+/// <see cref="SmsDeliveryException"/> whose <see cref="SmsDeliveryException.IsRetryable"/> says whether repeating the
+/// same message can succeed (<see cref="SmsRelayFailures"/>); the outbox retries it with its back-off. The relay is
+/// never retried inside one attempt: the provider may not de-duplicate.
 /// </summary>
-public sealed class GatewaySmsSender : ISmsSender
+/// <remarks>Scoped, like the typed client it holds. Logs carry the gateway's reference code and the provider's id, never the number or the text.</remarks>
+public sealed partial class GatewaySmsSender(GatewayRelayClient client, ILogger<GatewaySmsSender> logger) : ISmsSender
 {
     /// <inheritdoc />
-    public Task SendAsync(SmsMessage message, CancellationToken cancellationToken) =>
-        throw new NotSupportedException("The integration gateway SMS relay arrives in phase 8; use Notifications:Sms:Mode 1 (File).");
+    /// <exception cref="SmsDeliveryException">The relay failed or the provider did not accept the message.</exception>
+    public async Task SendAsync(SmsMessage message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        var request = SmsRelayFailures.RequestOf(message);
+        if (SmsRelayRequestValidator.Validate(request).Count > 0)
+        {
+            throw SmsRelayFailures.Invalid();
+        }
+
+        SmsRelayResult result;
+        try
+        {
+            result = await client.RelaySmsAsync(request, cancellationToken);
+        }
+        catch (GatewayRelayException failure)
+        {
+            throw SmsRelayFailures.From(failure);
+        }
+
+        if (!result.Accepted)
+        {
+            throw SmsRelayFailures.NotAccepted(result.ReferenceCode);
+        }
+
+        LogRelayed(logger, result.ReferenceCode, result.ProviderMessageId);
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SMS relayed through the integration gateway (gateway reference {ReferenceCode}, provider message {ProviderMessageId}).")]
+    private static partial void LogRelayed(ILogger logger, string? referenceCode, string? providerMessageId);
 }

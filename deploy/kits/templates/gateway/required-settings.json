@@ -1,0 +1,11 @@
+{
+  "requirements": [
+    { "path": "Codelab:Integration:Gateway:Profiles", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Server:Audience", "format": 1 },
+    { "path": "Codelab:Security:ServiceAssertions:Server:TrustedServices", "format": 1 },
+    { "path": "Gateway:Sso:TokenEndpoint", "format": 2, "when": [ { "path": "Codelab:Integration:Gateway:Profiles", "equals": "sso" } ] },
+    { "path": "Gateway:Sso:JwksUri", "format": 2, "when": [ { "path": "Codelab:Integration:Gateway:Profiles", "equals": "sso" } ] },
+    { "path": "Gateway:Sms:UrlTemplate", "format": 2, "when": [ { "path": "Codelab:Integration:Gateway:Profiles", "equals": "sms" } ] },
+    { "path": "Gateway:Sms:BodyTemplate", "format": 1, "when": [ { "path": "Codelab:Integration:Gateway:Profiles", "equals": "sms" }, { "path": "Gateway:Sms:Method", "equals": "2" } ] }
+  ]
+}

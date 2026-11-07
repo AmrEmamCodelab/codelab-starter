@@ -70,6 +70,9 @@ could not be read. The tool needs no local secrets file and no SQL Server.
   SDK). A missing `<summary>` gives an empty cell; overloaded actions get no summary (doc ids are matched by name).
 - An options class whose only bindable member is a get-only collection (for example `Identity:DevUsers`) is documented
   as an array at the section root, because that is how the module binds it.
+- A framework object type that is not a scalar (namespace `System` or `Microsoft`, for example `X509Certificate2` or
+  `X509Certificate2Collection` in `Codelab:Integration:Gateway:Certificate`) is supplied in code, never bound: it is
+  not a key, and the scanner never creates or reads one (an empty certificate throws on read). `TypeShapes.IsCodeSupplied`.
 - **Workflow collection fails the tool (exit 3)** when a definition class is declared but not registered, when a
   record type is not a kebab key (it is a file name) or when two definitions share one. An invalid catalog already
   stops the host (`WorkflowCatalogStartupCheck`), so DocsGen never documents a workflow the host would refuse.

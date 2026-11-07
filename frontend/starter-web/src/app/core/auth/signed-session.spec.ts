@@ -4,9 +4,10 @@
 // and the signing-key issuance are answered unsigned. Regression: the refresh used to go out signed, its unsigned 200
 // was refused (response_signature_missing) and the session was dropped silently about a minute before expiry.
 import { HttpTestingController, provideHttpClientTesting, type TestRequest } from '@angular/common/http/testing';
-import { ErrorHandler } from '@angular/core';
+import { ErrorHandler, effect, untracked } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router, provideRouter } from '@angular/router';
 import {
   SECURITY_PROTOCOL,
   SIGNED_REQUEST_NONCE,
@@ -38,6 +39,7 @@ const KEY_BYTES = 32;
 const TOKEN_LIFETIME_MS = 600_000;
 const JSON_CONTENT_TYPE = 'application/json; charset=utf-8';
 const PERMISSIONS = { permissions: ['dashboard.view'] };
+const BAD_REQUEST = { status: 400, statusText: 'Bad Request' };
 
 class MemoryMarker implements SigningSessionMarker {
   private set_ = false;
@@ -202,5 +204,52 @@ describe('a signed session over the real HTTP stack', () => {
     const call = firstValueFrom(TestBed.inject(ApiService).get(ApiPaths.MePermissions));
     await answerSigned(await next(ApiPaths.MePermissions), second, PERMISSIONS);
     await expect(call).resolves.toEqual(PERMISSIONS);
+  });
+
+  // Regression (P8): after a sign-out and a refused attempt, the next sign-in published the session before its key was
+  // adopted. Whatever follows the session (the notifications feed, an effect on isAuthenticated) called the API during
+  // the key round trip, unsigned: 401 signature_missing, the session was expired and the user sent back to the login.
+  it('signs the first call that follows a sign-in after a sign-out and a refused attempt', async () => {
+    const auth = TestBed.inject(AuthService);
+    const api = TestBed.inject(ApiService);
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const followers: Promise<unknown>[] = [];
+    TestBed.runInInjectionContext(() =>
+      effect(() => {
+        if (auth.isAuthenticated()) {
+          untracked(() => followers.push(firstValueFrom(api.get(ApiPaths.MePermissions))));
+        }
+      }),
+    );
+
+    const first = issueKey();
+    await signIn(first);
+    TestBed.tick();
+    await answerSigned(await next(ApiPaths.MePermissions), first, PERMISSIONS);
+
+    const loggedOut = auth.logout();
+    (await next(ApiPaths.AuthLogout)).error(new ProgressEvent('error'));
+    await loggedOut;
+
+    const refused = auth.login('user', 'wrong');
+    (await next(ApiPaths.AuthLogin)).flush({ code: 'INVALID_CREDENTIALS' }, BAD_REQUEST);
+    await expect(refused).rejects.toBeInstanceOf(HttpErrorResponse);
+
+    const second = issueKey();
+    const login = auth.login('user', 'secret');
+    answerUnsigned(await next(ApiPaths.AuthLogin), session(2));
+    const issuance = await next(ApiPaths.SessionSigningKey);
+    expect(issuance.request.headers.get(AUTHORIZATION_HEADER)).toContain('a2');
+    // The app's effects run while the key is on its way: nothing may call the API before the session can sign.
+    TestBed.tick();
+    http.expectNone(url(ApiPaths.MePermissions));
+    answerUnsigned(issuance, second.block);
+    await login;
+
+    TestBed.tick();
+    const followed = await next(ApiPaths.MePermissions);
+    expect(signatureOf(followed)).not.toBeNull();
+    await answerSigned(followed, second, PERMISSIONS);
+    await expect(Promise.all(followers)).resolves.toEqual([PERMISSIONS, PERMISSIONS]);
   });
 });

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Starter.Application.Attachments;
 using Starter.Application.Authorization;
 using Starter.Application.Records;
 using Starter.Application.Validation;
@@ -11,6 +12,7 @@ using Starter.Infrastructure.Persistence;
 using Starter.Infrastructure.Workflow;
 using Starter.Modules.ServiceRequests.Application;
 using Starter.Modules.ServiceRequests.Application.Access;
+using Starter.Modules.ServiceRequests.Application.Attachments;
 using Starter.Modules.ServiceRequests.Application.Drafts;
 using Starter.Modules.ServiceRequests.Application.Workflow;
 using Starter.Modules.ServiceRequests.Infrastructure.Persistence;
@@ -19,8 +21,9 @@ namespace Starter.Modules.ServiceRequests.Infrastructure;
 
 /// <summary>
 /// The ServiceRequests module's registrations (called by <see cref="ServiceRequestsModule"/>). The sample only
-/// configures the engine: its workflow catalog, its record type, its SLA, its submit validator (the Records module serves its
-/// attachment access from the record type registration), plus its own table and typed wizard endpoints.
+/// configures the engine: its workflow catalog, its record type, its SLA, its submit validator, its attachment types
+/// (written to the Attachments catalog at start; the Records module serves their access from the record type
+/// registration), plus its own table and typed wizard endpoints.
 /// </summary>
 public static class ServiceRequestsModuleRegistration
 {
@@ -54,6 +57,7 @@ public static class ServiceRequestsModuleRegistration
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IRecordTypeRegistrationSource, ServiceRequestRecordTypeSource>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ISlaPolicySource, ServiceRequestSlaPolicySource>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IRecordSubmitValidator, ServiceRequestSubmitValidator>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IAttachmentTypeSeedSource, ServiceRequestAttachmentTypes>());
     }
 
     private static void AddUseCases(IServiceCollection services)

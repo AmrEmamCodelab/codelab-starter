@@ -1,0 +1,25 @@
+{
+  "$entity": "signal",
+  "Title": "Ops: Errors with a reference code",
+  "Description": "Every error or fatal event that carries the reference code a user quotes from the error dialog. Search ReferenceCode = 'XXXXX-XXXXX' inside this signal, or use the saved query 'Ops: Find by reference code'.",
+  "Filters": [
+    {
+      "Description": null,
+      "DescriptionIsExcluded": false,
+      "Filter": "Has(ReferenceCode) and @Level in ['Error', 'Fatal']",
+      "FilterNonStrict": null
+    }
+  ],
+  "Columns": [
+    { "Expression": "ReferenceCode" },
+    { "Expression": "Application" },
+    { "Expression": "RouteTemplate" },
+    { "Expression": "Code" },
+    { "Expression": "StatusCode" }
+  ],
+  "IsProtected": true,
+  "IsIndexSuppressed": false,
+  "Grouping": "Explicit",
+  "ExplicitGroupName": "Ops",
+  "OwnerId": null
+}
